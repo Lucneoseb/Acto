@@ -1,0 +1,461 @@
+{
+  "exercises": {
+    "troupe": {
+      "debutant": [
+        {
+          "name": "El espejo",
+          "desc": "Dos jugadores frente a frente. Uno hace movimientos lentos, el otro lo imita en espejo perfecto."
+        },
+        {
+          "name": "Yes, and...",
+          "desc": "Toda propuesta se acepta y se enriquece. La regla de oro: nunca bloquear."
+        },
+        {
+          "name": "Palabra a palabra",
+          "desc": "En círculo, una palabra cada uno. La historia se construye colectivamente, sin titubear."
+        },
+        {
+          "name": "Freeze",
+          "desc": "Dos juegan desde una postura. Cualquiera puede aplaudir, congelar la escena, sustituir y reiniciar."
+        },
+        {
+          "name": "Montaña rusa emocional",
+          "desc": "El director grita una emoción cada minuto. Los jugadores cambian de tono al instante."
+        },
+        {
+          "name": "Objeto invisible",
+          "desc": "Un jugador maneja un objeto invisible. Los demás adivinan y proponen nuevos usos."
+        },
+        {
+          "name": "Tres personajes",
+          "desc": "Tres jugadores entran y establecen su personaje en 30 segundos por postura y voz."
+        },
+        {
+          "name": "Círculo de preguntas",
+          "desc": "Un jugador en el centro. Los demás le bombardean con preguntas rápidas a contestar con precisión."
+        }
+      ],
+      "confirme": [
+        {
+          "name": "Pausa-reanuda",
+          "desc": "El director detiene la escena, cambia un elemento (lugar, época, estatus), y la reanuda."
+        },
+        {
+          "name": "Tres palabras forzadas",
+          "desc": "Tres palabras al azar deben colocarse naturalmente en la escena."
+        },
+        {
+          "name": "Juego de estatus",
+          "desc": "Cada personaje tiene un estatus oculto (1 a 10). El público debe adivinarlo."
+        },
+        {
+          "name": "Doblaje",
+          "desc": "Dos miman, los otros dos hablan por ellos desde fuera del escenario."
+        },
+        {
+          "name": "Panel de expertos",
+          "desc": "Un panel de expertos en un tema absurdo responde con seriedad a preguntas del público."
+        },
+        {
+          "name": "Última palabra primera",
+          "desc": "Cada réplica empieza con la última palabra de la anterior."
+        },
+        {
+          "name": "Historia al revés",
+          "desc": "Contar una historia desde el final hacia el principio, escena por escena."
+        },
+        {
+          "name": "Géneros mezclados",
+          "desc": "El director cambia de género cada 30 segundos (western, negra, romance, horror...)."
+        }
+      ],
+      "expert": [
+        {
+          "name": "El Harold",
+          "desc": "Forma larga: tres escenas paralelas se entrelazan y se nutren. Formato Del Close."
+        },
+        {
+          "name": "Improvisación cantada",
+          "desc": "Escena íntegramente cantada con melodía improvisada y estructura estrofa/estribillo."
+        },
+        {
+          "name": "Veinte minutos sin corte",
+          "desc": "Una sola escena, veinte minutos, sin interrupción. Sostener un mundo entero."
+        },
+        {
+          "name": "Espejo Pirandello",
+          "desc": "Los personajes toman conciencia de que son improvisados, pero deben continuar la escena."
+        },
+        {
+          "name": "Dos tiempos",
+          "desc": "Una escena se juega y luego se rejugar diez años después con sus consecuencias."
+        },
+        {
+          "name": "Espectáculo mudo",
+          "desc": "Espectáculo de 15 minutos, sin una sola palabra. Trama clara, resolución real."
+        },
+        {
+          "name": "Teatro dentro del teatro",
+          "desc": "Los personajes improvisan a su vez una pieza dentro de la escena. Tres niveles de ficción."
+        },
+        {
+          "name": "Beckettiana",
+          "desc": "Forma larga absurda: silencios habitados, espera, lenguaje que se vacía. Estilo Godot."
+        }
+      ]
+    },
+    "match": {
+      "debutant": [
+        {
+          "name": "Equipo único",
+          "desc": "Un equipo juega, el otro espera. Forma clásica del match LNI."
+        },
+        {
+          "name": "Mixta",
+          "desc": "Ambos equipos juegan juntos en la misma improvisación."
+        },
+        {
+          "name": "Comparada",
+          "desc": "Cada equipo juega la misma propuesta por turno. El público compara y vota."
+        },
+        {
+          "name": "Mixta muda",
+          "desc": "Ambos equipos juntos, pero en silencio absoluto."
+        },
+        {
+          "name": "Comparada cantada",
+          "desc": "Cada equipo incluye al menos un pasaje cantado."
+        }
+      ],
+      "confirme": [
+        {
+          "name": "A la manera de",
+          "desc": "Estilo o género impuesto: Lorca, García Márquez, cine negro..."
+        },
+        {
+          "name": "Mixta con utilería",
+          "desc": "Un objeto impuesto debe ser central en la improvisación."
+        },
+        {
+          "name": "Improvisación a la inversa",
+          "desc": "El equipo debe jugar la escena empezando por el final."
+        },
+        {
+          "name": "Comparada rimada",
+          "desc": "Todas las réplicas deben rimar."
+        },
+        {
+          "name": "Comparada muda",
+          "desc": "Sin palabras: solo el gesto y la expresión cuentan la historia."
+        },
+        {
+          "name": "Mixta con personaje",
+          "desc": "Un tipo de personaje impuesto debe aparecer en el primer minuto."
+        }
+      ],
+      "expert": [
+        {
+          "name": "Cantada y bailada",
+          "desc": "Mini-musical: alternancia de diálogo, canto y coreografía improvisados."
+        },
+        {
+          "name": "Estilo + época",
+          "desc": "Estilo de autor Y época histórica impuestos. Ambos deben leerse claramente."
+        },
+        {
+          "name": "En verso",
+          "desc": "Todas las réplicas en verso (endecasílabo o alejandrinos)."
+        },
+        {
+          "name": "Sin protagonista",
+          "desc": "La improvisación debe funcionar sin personaje principal identificable."
+        },
+        {
+          "name": "De tesis",
+          "desc": "La improvisación debe defender una tesis filosófica anunciada de antemano."
+        },
+        {
+          "name": "Bucle temporal",
+          "desc": "La escena avanza y retrocede 30 segundos repetidamente. Bucle vertiginoso."
+        }
+      ]
+    }
+  },
+  "constraints": {
+    "troupe": {
+      "debutant": [
+        "Susurrando",
+        "Caminando en círculo toda la escena",
+        "Con los ojos cerrados",
+        "Con una sola palabra repetida",
+        "Sin mirar al compañero",
+        "Tomados de la mano toda la escena",
+        "Con una sola emoción (alegría, tristeza, ira...)",
+        "Sustituyendo el habla por sonidos",
+        "Una de cada dos réplicas cantada",
+        "Todos de espaldas al público"
+      ],
+      "confirme": [
+        "Sin usar la palabra « no »",
+        "Sin pronombres personales",
+        "Con rimas sistemáticas",
+        "A la manera de Lorca",
+        "En estilo cine negro de los 40",
+        "En cámara lenta de principio a fin",
+        "Acelerada de principio a fin",
+        "Con una palabra prohibida elegida por el público",
+        "Alternando español y un idioma inventado",
+        "En estilo de dibujos animados"
+      ],
+      "expert": [
+        "Con retroceso temporal: la escena avanza y retrocede cada 30s",
+        "Con varias voces: cada personaje interpretado por 2 actores",
+        "Solo en teatro de sombras",
+        "Con narración externa que contradice la acción",
+        "En verso libre y hexámetros",
+        "A la manera de Beckett (silencios, absurdo, espera)",
+        "Con cuarta pared rota permanentemente",
+        "En palíndromo: la escena debe poder jugarse al revés",
+        "Sin un solo verbo de acción",
+        "Con un idioma totalmente inventado pero coherente"
+      ]
+    },
+    "match": {
+      "debutant": [
+        "Susurrando",
+        "Cantando",
+        "Con utilería impuesta",
+        "Con una frase obligada",
+        "Bailando",
+        "Estilo dibujos animados",
+        "Con una emoción impuesta",
+        "Estilo musical",
+        "Con acentos regionales",
+        "Sin tocar el suelo",
+        "Con palabra prohibida",
+        "Estilo cine mudo (Chaplin, Keaton)"
+      ],
+      "confirme": [
+        "A la manera de Calderón",
+        "Estilo cine de terror",
+        "En verso",
+        "Sin usar « no »",
+        "Con palabra prohibida por el árbitro",
+        "Estilo Almodóvar",
+        "Estilo peplum",
+        "Ciencia ficción años 60",
+        "Una réplica audible por minuto",
+        "Estilo cine mudo",
+        "Con narrador omnisciente externo",
+        "Estilo telenovela"
+      ],
+      "expert": [
+        "En endecasílabos durante toda la escena",
+        "Estilo Chéjov",
+        "Estilo teatro Noh japonés",
+        "Con bucle temporal",
+        "Estilo Wes Anderson",
+        "Estilo Commedia dell'arte",
+        "Con subtexto filosófico impuesto",
+        "Estilo Cluedo (culpable revelado al final)",
+        "Estilo teatro del absurdo",
+        "Con un personaje que sabe que está en una ficción",
+        "Estilo Pirandello",
+        "Estilo Tarantino",
+        "Forma de tragedia griega (coro + héroe + hybris)"
+      ]
+    }
+  },
+  "themes": {
+    "debutant": [
+      "La cita en la peluquería",
+      "Primer día de colegio",
+      "Una noche de pizza descontrolada",
+      "Las llaves olvidadas en el rellano",
+      "El metro un lunes por la mañana",
+      "Los vecinos de arriba están de fiesta",
+      "El picnic bajo la lluvia",
+      "El supermercado a las 19:59",
+      "El ascensor averiado",
+      "La boda del primo",
+      "La canguro de la noche",
+      "La sala de espera del médico",
+      "El examen de conducir",
+      "El aperitivo que se eterniza",
+      "La mudanza fallida",
+      "La cola en la panadería",
+      "La clase de cocina catastrófica",
+      "La noche de karaoke",
+      "El primer día tras vacaciones",
+      "El regreso de las vacaciones",
+      "Explicarle Snapchat a la abuela",
+      "Un superhéroe con poderes inútiles",
+      "El telediario de un planeta lejano",
+      "Documental de animales sobre humanos",
+      "Un interrogatorio por una nimiedad"
+    ],
+    "confirme": [
+      "El último domingo del mundo",
+      "Un gato que habla a su dueño",
+      "La cita perdida",
+      "La carta nunca enviada",
+      "El viaje en tren sin destino",
+      "El hotel olvidado por los mapas",
+      "El sueño que vuelve cada noche",
+      "Dos desconocidos en un ascenseur parado",
+      "El entierro de un perfecto desconocido",
+      "Los tres deseos del genio",
+      "El portero que lo sabe todo",
+      "La foto que no debimos ver",
+      "El hermano que nunca conocimos",
+      "El escritor frente a su personaje",
+      "La última llamada telefónica",
+      "La casa que cambia de noche",
+      "El baile de máscaras de los arrepentimientos",
+      "El relojero del tiempo perdido",
+      "La estación de las almas en tránsito",
+      "El espejo que miente",
+      "Actores sorprendidos entre bastidores",
+      "El coro desafinado",
+      "La reunión de profesores sobre un solo alumno",
+      "La lección que no tiene sentido",
+      "Darth Vader llama para romper"
+    ],
+    "expert": [
+      "El proceso de la memoria colectiva",
+      "La última conversación entre Dios y el Diablo",
+      "El archivero de las vidas no vividas",
+      "El teorema indemostrable de la felicidad",
+      "El silencio tras la revelación",
+      "El asilo de los poetas olvidados",
+      "El testamento de una lengua muerta",
+      "Las horas robadas de Schrödinger",
+      "La habitación a la que se entra solo",
+      "El reloj de arena de la conciencia",
+      "La última función en el Globe Theatre",
+      "Los siete pecados capitales en la cena",
+      "El manuscrito de Borges",
+      "El sueño dentro del sueño dentro del sueño",
+      "El exiliado que volvió tarde",
+      "El equilibrista entre dos mundos",
+      "La sinfonía inacabada del condenado",
+      "El banquete de los ausentes",
+      "La frontera que nunca existió",
+      "El filósofo y la hormiga",
+      "Tres hermanas que nunca llegarán a Moscú",
+      "El vigilante nocturno del museo del olvido",
+      "La rueda de prensa del olvido",
+      "El último traductor de lo inútil"
+    ]
+  },
+  "categories": [
+    {
+      "name": "Mixta",
+      "desc": "Ambos equipos juegan juntos, en equilibrio numérico, sobre el mismo tema."
+    },
+    {
+      "name": "Comparada",
+      "desc": "Cada equipo juega por turno la misma propuesta. El público compara y vota."
+    },
+    {
+      "name": "A la manera de",
+      "desc": "Estilo o género impuesto (Lorca, cine negro, Tarantino...)."
+    },
+    {
+      "name": "Cantada",
+      "desc": "Improvisación entera o parcialmente cantada."
+    },
+    {
+      "name": "Muda",
+      "desc": "Sin palabra hablada: solo el gesto cuenta."
+    },
+    {
+      "name": "Muda con música",
+      "desc": "Escena muda, pero la escritura está rigurosamente moldeada por una atmósfera musical impuesta."
+    },
+    {
+      "name": "Rimada",
+      "desc": "Todas las réplicas deben rimar."
+    },
+    {
+      "name": "Con utilería",
+      "desc": "Un objeto impuesto debe ser central."
+    },
+    {
+      "name": "Con restricción",
+      "desc": "Una restricción al azar se aplica a uno o ambos equipos."
+    },
+    {
+      "name": "Sin tema ni caucus",
+      "desc": "Ningún tema anunciado, ningún tiempo de preparación. Pura invención inmediata."
+    },
+    {
+      "name": "Saltacabras",
+      "desc": "Cuatro improvisaciones, un tema cada una. La 1ª con un jugador; uno más cada ronda."
+    },
+    {
+      "name": "Videoway",
+      "desc": "Mixta con 4 canales TV (F1-F4), contenido distinto por canal. Árbitro salta libremente."
+    },
+    {
+      "name": "Sensorial",
+      "desc": "Uno de los cinco sentidos de un improvisador es estimulado. Esa sensación moldea la escena."
+    },
+    {
+      "name": "De tesis",
+      "desc": "La improvisación debe defender una tesis filosófica anunciada de antemano."
+    },
+    {
+      "name": "Libre",
+      "desc": "Sin restricción de forma, solo el tema. Libertad total."
+    }
+  ],
+  "durations": {
+    "debutant": [
+      "30 segundos",
+      "1 minuto",
+      "1 minuto 30",
+      "2 minutos"
+    ],
+    "confirme": [
+      "1 minuto",
+      "2 minutos",
+      "3 minutos",
+      "4 minutos",
+      "5 minutos"
+    ],
+    "expert": [
+      "3 minutos",
+      "5 minutos",
+      "7 minutos",
+      "10 minutos",
+      "15 minutos",
+      "20 minutos"
+    ]
+  },
+  "players": {
+    "debutant": [
+      "1 jugador",
+      "2 jugadores",
+      "3 jugadores",
+      "Todo el equipo"
+    ],
+    "confirme": [
+      "1 jugador",
+      "2 jugadores",
+      "3 jugadores",
+      "4 jugadores",
+      "Todo el equipo",
+      "Capitán solo"
+    ],
+    "expert": [
+      "1 jugador",
+      "2 jugadores",
+      "Mixta 1+1",
+      "Mixta 2+2",
+      "3 jugadores impuestos",
+      "Todo el equipo",
+      "Capitán + 1"
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "fr": {
+    "name": "Français",
+    "flag": "🇫🇷"
+  },
+  "en": {
+    "name": "English",
+    "flag": "🇬🇧"
+  },
+  "de": {
+    "name": "Deutsch",
+    "flag": "🇩🇪"
+  },
+  "es": {
+    "name": "Español",
+    "flag": "🇪🇸"
+  },
+  "pt": {
+    "name": "Português",
+    "flag": "🇵🇹"
+  },
+  "nl": {
+    "name": "Vlaams",
+    "flag": "🇧🇪"
+  }
+}

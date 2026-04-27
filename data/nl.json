@@ -1,0 +1,461 @@
+{
+  "exercises": {
+    "troupe": {
+      "debutant": [
+        {
+          "name": "De spiegel",
+          "desc": "Twee spelers tegenover elkaar. Eén maakt langzame bewegingen, de ander spiegelt perfect."
+        },
+        {
+          "name": "Yes, and...",
+          "desc": "Elk voorstel wordt aanvaard en uitgebouwd. Gouden regel: nooit blokkeren."
+        },
+        {
+          "name": "Woord per woord",
+          "desc": "In een kring voegt elke speler één woord toe. Een verhaal samen opbouwen, zonder aarzelen."
+        },
+        {
+          "name": "Freeze",
+          "desc": "Twee improviseren vanuit een houding. Iemand klapt, de scène bevriest, en wordt vervangen."
+        },
+        {
+          "name": "Emotie-achtbaan",
+          "desc": "De spelleider roept elke minuut een emotie. De spelers schakelen meteen om."
+        },
+        {
+          "name": "Onzichtbaar voorwerp",
+          "desc": "Eén speler hanteert een onzichtbaar voorwerp. Anderen raden en stellen nieuwe gebruiken voor."
+        },
+        {
+          "name": "Drie personages",
+          "desc": "Drie spelers komen op en vestigen hun personage in 30 seconden via houding en stem."
+        },
+        {
+          "name": "Vragenkring",
+          "desc": "Eén speler in het midden. Anderen bestoken hem met snelle vragen, nauwkeurig te beantwoorden."
+        }
+      ],
+      "confirme": [
+        {
+          "name": "Pauze-hervat",
+          "desc": "De spelleider stopt de scène, verandert een element (plaats, tijd, status), en hervat."
+        },
+        {
+          "name": "Drie verplichte woorden",
+          "desc": "Drie willekeurige woorden moeten natuurlijk in de scène voorkomen."
+        },
+        {
+          "name": "Statusspel",
+          "desc": "Elk personage heeft een verborgen status (1-10). Het publiek moet raden."
+        },
+        {
+          "name": "Nasynchronisatie",
+          "desc": "Twee mimen, twee anderen spreken voor hen vanuit de coulissen."
+        },
+        {
+          "name": "Expertenpanel",
+          "desc": "Een expertenpanel over een absurd onderwerp beantwoordt vragen van het publiek serieus."
+        },
+        {
+          "name": "Laatste woord, eerste woord",
+          "desc": "Elke replica begint met het laatste woord van de vorige."
+        },
+        {
+          "name": "Achterstevoren-verhaal",
+          "desc": "Een verhaal vertellen vanaf het einde en scène per scène teruggaan."
+        },
+        {
+          "name": "Genres door elkaar",
+          "desc": "De spelleider wisselt elke 30 seconden van genre (western, krimi, romance, horror...)."
+        }
+      ],
+      "expert": [
+        {
+          "name": "De Harold",
+          "desc": "Lange vorm: drie parallelle scènes verweven en voeden elkaar. Formaat Del Close."
+        },
+        {
+          "name": "Gezongen improvisatie",
+          "desc": "Volledig gezongen scène met geïmproviseerde melodie en couplet/refrein-structuur."
+        },
+        {
+          "name": "Twintig minuten zonder onderbreking",
+          "desc": "Eén scène, twintig minuten, zonder breuk. Een hele wereld dragen."
+        },
+        {
+          "name": "Pirandello-spiegel",
+          "desc": "De personages beseffen dat ze geïmproviseerd zijn — maar moeten de scène voortzetten."
+        },
+        {
+          "name": "Twee tijden",
+          "desc": "Een scène wordt gespeeld en tien jaar later herspeeld met de gevolgen."
+        },
+        {
+          "name": "Stille voorstelling",
+          "desc": "15-minutenspektakel zonder één woord. Heldere plot, echte ontknoping."
+        },
+        {
+          "name": "Theater in theater",
+          "desc": "De personages improviseren op hun beurt een stuk binnen de scène. Drie fictieniveaus."
+        },
+        {
+          "name": "Beckett-stijl",
+          "desc": "Lange absurde vorm: bewoonde stiltes, wachten, taal die zich leegt. Godot-stijl."
+        }
+      ]
+    },
+    "match": {
+      "debutant": [
+        {
+          "name": "Enkele ploeg",
+          "desc": "Eén ploeg speelt, de andere wacht. Klassieke LNI-matchvorm."
+        },
+        {
+          "name": "Gemengd",
+          "desc": "Beide ploegen spelen samen in dezelfde improvisatie."
+        },
+        {
+          "name": "Vergelijkend",
+          "desc": "Elke ploeg speelt om beurten dezelfde opdracht. Publiek vergelijkt en stemt."
+        },
+        {
+          "name": "Gemengd stom",
+          "desc": "Beide ploegen samen, maar in absolute stilte."
+        },
+        {
+          "name": "Vergelijkend gezongen",
+          "desc": "Elke ploeg bouwt minstens één gezongen passage in."
+        }
+      ],
+      "confirme": [
+        {
+          "name": "In de stijl van",
+          "desc": "Stijl of genre opgelegd: Hugo Claus, film noir, Coen-broers..."
+        },
+        {
+          "name": "Gemengd met rekwisiet",
+          "desc": "Een opgelegd voorwerp moet centraal staan."
+        },
+        {
+          "name": "Achterstevoren",
+          "desc": "De ploeg moet de scène vanaf het einde spelen."
+        },
+        {
+          "name": "Vergelijkend rijmend",
+          "desc": "Alle replica's moeten rijmen."
+        },
+        {
+          "name": "Vergelijkend stom",
+          "desc": "Geen woorden: alleen gebaren en expressie vertellen het verhaal."
+        },
+        {
+          "name": "Gemengd met personage",
+          "desc": "Een opgelegd personagetype moet in de eerste minuut verschijnen."
+        }
+      ],
+      "expert": [
+        {
+          "name": "Gezongen & gedanst",
+          "desc": "Mini-musical: afwisseling van dialoog, zang en choreografie, alles geïmproviseerd."
+        },
+        {
+          "name": "Stijl + tijdperk",
+          "desc": "Auteursstijl én historisch tijdperk opgelegd. Beide moeten leesbaar zijn."
+        },
+        {
+          "name": "In versvorm",
+          "desc": "Alle replica's in vers (jambisch of alexandrijns)."
+        },
+        {
+          "name": "Zonder hoofdrol",
+          "desc": "De improvisatie moet werken zonder identificeerbare hoofdfiguur."
+        },
+        {
+          "name": "Stelling-impro",
+          "desc": "De improvisatie moet een vooraf aangekondigde filosofische stelling verdedigen."
+        },
+        {
+          "name": "Tijdslus",
+          "desc": "De scène gaat vooruit en terug elke 30 seconden. Duizelingwekkende lus."
+        }
+      ]
+    }
+  },
+  "constraints": {
+    "troupe": {
+      "debutant": [
+        "Fluisterend",
+        "De hele scène in een kring lopend",
+        "Met gesloten ogen",
+        "Eén enkel herhaald woord",
+        "Zonder de partner aan te kijken",
+        "Hand in hand de hele scène",
+        "Met één enkele emotie (vreugde, verdriet, woede...)",
+        "Spreken vervangen door geluiden",
+        "Om de andere replica gezongen",
+        "Iedereen met de rug naar het publiek"
+      ],
+      "confirme": [
+        "Zonder het woord « nee »",
+        "Zonder persoonlijke voornaamwoorden",
+        "Met systematische rijm",
+        "In de stijl van Hugo Claus",
+        "Stijl jaren-40-film noir",
+        "In slow motion van begin tot eind",
+        "Versneld van begin tot eind",
+        "Met door publiek verboden woord",
+        "Afwisselend Nederlands en een verzonnen taal",
+        "Stijl tekenfilm"
+      ],
+      "expert": [
+        "Met tijdrewind: scène gaat vooruit en terug elke 30s",
+        "Met meerdere stemmen: elk personage tegelijk door 2 acteurs",
+        "Alleen schimmenspel",
+        "Met externe vertelling die de actie tegenspreekt",
+        "In vrije verzen en hexameters",
+        "In Beckett-stijl (stiltes, absurdisme, wachten)",
+        "Met permanent doorbroken vierde wand",
+        "In palindroom: scène moet ook achterstevoren te spelen zijn",
+        "Zonder één enkel actiewerkwoord",
+        "Met een geheel verzonnen maar coherente taal"
+      ]
+    },
+    "match": {
+      "debutant": [
+        "Fluisterend",
+        "Zingend",
+        "Met opgelegd rekwisiet",
+        "Met opgelegde zin",
+        "Dansend",
+        "Tekenfilmstijl",
+        "Met opgelegde emotie",
+        "Musicalstijl",
+        "Met regionale accenten",
+        "Zonder de grond aan te raken",
+        "Met verboden woord",
+        "Stomme-filmstijl (Chaplin, Keaton)"
+      ],
+      "confirme": [
+        "In de stijl van Vondel",
+        "Horrorfilmstijl",
+        "In verzen",
+        "Zonder « nee »",
+        "Met door scheidsrechter verboden woord",
+        "Stijl Coen-broers",
+        "Sandalenfilmstijl",
+        "Sci-fi jaren 60",
+        "Eén hoorbare replica per minuut",
+        "Stomme-filmstijl",
+        "Met alwetende externe verteller",
+        "Soapstijl"
+      ],
+      "expert": [
+        "Doorlopend in jamben",
+        "Stijl Tsjechov",
+        "Stijl Japans Nō-theater",
+        "Met tijdslus",
+        "Stijl Wes Anderson",
+        "Stijl Commedia dell'arte",
+        "Met opgelegde filosofische ondertoon",
+        "Cluedo-stijl (dader onthuld op het einde)",
+        "Stijl absurd theater",
+        "Met personage dat weet dat het in fictie zit",
+        "Stijl Pirandello",
+        "Stijl Tarantino",
+        "Vorm Griekse tragedie (koor + held + hubris)"
+      ]
+    }
+  },
+  "themes": {
+    "debutant": [
+      "De afspraak bij de kapper",
+      "Eerste schooldag",
+      "Een uit de hand gelopen pizza-avond",
+      "De vergeten sleutels op de overloop",
+      "De metro op maandagochtend",
+      "De buren boven geven een feestje",
+      "De picknick in de regen",
+      "De supermarkt om 19:59",
+      "De vastzittende lift",
+      "Het huwelijk van de neef",
+      "Babysitten 's avonds",
+      "De wachtkamer van de dokter",
+      "Het rijexamen",
+      "Het aperitief dat blijft duren",
+      "De mislukte verhuizing",
+      "De rij bij de bakker",
+      "De rampzalige kookles",
+      "De karaoke-avond",
+      "De eerste werkdag terug",
+      "Terug van vakantie",
+      "Snapchat uitleggen aan oma",
+      "Een nutteloze superheld",
+      "Het journaal van een verre planeet",
+      "Natuurdocumentaire over mensen",
+      "Verhoor over een prul"
+    ],
+    "confirme": [
+      "De laatste zondag van de wereld",
+      "Een kat die met zijn baasje praat",
+      "De gemiste afspraak",
+      "De nooit verzonden brief",
+      "De treinrit zonder bestemming",
+      "Het hotel dat op geen enkele kaart staat",
+      "De droom die elke nacht terugkeert",
+      "Twee onbekenden in een vastzittende lift",
+      "De begrafenis van een volslagen vreemde",
+      "De drie wensen van de geest",
+      "De conciërge die alles weet",
+      "De foto die we niet hadden mogen zien",
+      "De broer die we nooit hebben gekend",
+      "De schrijver tegenover zijn personage",
+      "Het laatste telefoongesprek",
+      "Het huis dat 's nachts verandert",
+      "Het gemaskerd bal van het berouw",
+      "De klokkenmaker van de verloren tijd",
+      "Het station van zielen in transit",
+      "De spiegel die liegt",
+      "Acteurs betrapt achter de coulissen",
+      "Het ontstemde koor",
+      "De lerarenvergadering over één leerling",
+      "De les die nergens op slaat",
+      "Darth Vader belt om het uit te maken"
+    ],
+    "expert": [
+      "Het proces van het collectief geheugen",
+      "Het laatste gesprek tussen God en Duivel",
+      "De archivaris van de niet-geleefde levens",
+      "De onbewijsbare stelling van het geluk",
+      "De stilte na de openbaring",
+      "Het asiel van de vergeten dichters",
+      "Het testament van een dode taal",
+      "Schrödingers gestolen uren",
+      "De kamer waar je alleen binnengaat",
+      "De zandloper van het bewustzijn",
+      "De laatste voorstelling in The Globe",
+      "De zeven hoofdzonden aan tafel",
+      "Het manuscript van Borges",
+      "De droom in de droom in de droom",
+      "De ballingschap die te laat terugkwam",
+      "De koorddanser tussen twee werelden",
+      "De onafgemaakte symfonie van de veroordeelde",
+      "Het banket der afwezigen",
+      "De grens die nooit bestaan heeft",
+      "De filosoof en de mier",
+      "Drie zussen die nooit Moskou zullen bereiken",
+      "De nachtwaker van het museum der vergeefsheden",
+      "De persconferentie van het vergeten",
+      "De laatste vertaler van het nutteloze"
+    ]
+  },
+  "categories": [
+    {
+      "name": "Gemengd",
+      "desc": "Beide ploegen samen, in numeriek evenwicht, op hetzelfde thema."
+    },
+    {
+      "name": "Vergelijkend",
+      "desc": "Elke ploeg speelt om beurten dezelfde opdracht. Publiek vergelijkt en stemt."
+    },
+    {
+      "name": "In de stijl van",
+      "desc": "Stijl of genre opgelegd (Claus, film noir, Tarantino...)."
+    },
+    {
+      "name": "Gezongen",
+      "desc": "Improvisatie geheel of gedeeltelijk gezongen."
+    },
+    {
+      "name": "Stom",
+      "desc": "Geen gesproken woord: alleen het gebaar vertelt."
+    },
+    {
+      "name": "Stom met muziek",
+      "desc": "Stomme scène, maar het schrijven wordt streng gevormd door een opgelegde muzikale sfeer."
+    },
+    {
+      "name": "Rijmend",
+      "desc": "Alle replica's moeten rijmen."
+    },
+    {
+      "name": "Met rekwisiet",
+      "desc": "Een opgelegd voorwerp moet centraal staan."
+    },
+    {
+      "name": "Met dwangopgave",
+      "desc": "Een willekeurige opgave geldt voor één of beide ploegen."
+    },
+    {
+      "name": "Zonder thema, zonder caucus",
+      "desc": "Geen thema aangekondigd, geen voorbereidingstijd. Pure spontane invention."
+    },
+    {
+      "name": "Bokspringen",
+      "desc": "Vier verschillende impro's, telkens een ander thema. De 1ª met één speler; per ronde één meer."
+    },
+    {
+      "name": "Videoway",
+      "desc": "Gemengd met 4 TV-kanalen (F1-F4), verschillende inhoud per kanaal. Scheidsrechter springt vrij."
+    },
+    {
+      "name": "Zintuiglijk",
+      "desc": "Eén van de vijf zintuigen van een speler wordt geprikkeld. Die gewaarwording vormt de hele scène."
+    },
+    {
+      "name": "Stelling",
+      "desc": "De improvisatie moet een vooraf aangekondigde filosofische stelling verdedigen."
+    },
+    {
+      "name": "Vrij",
+      "desc": "Geen formele beperking, alleen het thema. Volledige vrijheid."
+    }
+  ],
+  "durations": {
+    "debutant": [
+      "30 seconden",
+      "1 minuut",
+      "1 minuut 30",
+      "2 minuten"
+    ],
+    "confirme": [
+      "1 minuut",
+      "2 minuten",
+      "3 minuten",
+      "4 minuten",
+      "5 minuten"
+    ],
+    "expert": [
+      "3 minuten",
+      "5 minuten",
+      "7 minuten",
+      "10 minuten",
+      "15 minuten",
+      "20 minuten"
+    ]
+  },
+  "players": {
+    "debutant": [
+      "1 speler",
+      "2 spelers",
+      "3 spelers",
+      "Hele ploeg"
+    ],
+    "confirme": [
+      "1 speler",
+      "2 spelers",
+      "3 spelers",
+      "4 spelers",
+      "Hele ploeg",
+      "Kapitein alleen"
+    ],
+    "expert": [
+      "1 speler",
+      "2 spelers",
+      "Gemengd 1+1",
+      "Gemengd 2+2",
+      "3 opgelegde spelers",
+      "Hele ploeg",
+      "Kapitein + 1"
+    ]
+  }
+}

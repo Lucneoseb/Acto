@@ -1,0 +1,461 @@
+{
+  "exercises": {
+    "troupe": {
+      "debutant": [
+        {
+          "name": "The Mirror",
+          "desc": "Two players face each other. One leads slow movements, the other mirrors perfectly. Speed up gradually."
+        },
+        {
+          "name": "Yes, and...",
+          "desc": "Every offer is accepted and built upon. The golden rule of improv: never block."
+        },
+        {
+          "name": "Word at a time",
+          "desc": "In a circle, each player adds one word. Build a story together without hesitating."
+        },
+        {
+          "name": "Freeze",
+          "desc": "Two players improvise from a posture. Anyone can clap to freeze, replace a player, and restart the scene."
+        },
+        {
+          "name": "Emotional rollercoaster",
+          "desc": "Moderator shouts an emotion every minute. Players shift their tone instantly."
+        },
+        {
+          "name": "Invisible object",
+          "desc": "One player handles an invisible object. Others must guess and add new uses."
+        },
+        {
+          "name": "Three characters",
+          "desc": "Three players enter and establish their character within 30 seconds via posture and voice."
+        },
+        {
+          "name": "Question circle",
+          "desc": "One player in the middle. Others bombard them with rapid-fire questions to be answered precisely."
+        }
+      ],
+      "confirme": [
+        {
+          "name": "Pause-Resume",
+          "desc": "Moderator stops the scene, changes one element (place, era, status), and restarts."
+        },
+        {
+          "name": "Three forced words",
+          "desc": "Three random words must be naturally placed in the scene."
+        },
+        {
+          "name": "Status game",
+          "desc": "Each character has a hidden social status (1 to 10). Audience must guess."
+        },
+        {
+          "name": "Dubbing",
+          "desc": "Two mime, two others speak for them from offstage."
+        },
+        {
+          "name": "Expert panel",
+          "desc": "Panel of experts on an absurd topic answers audience questions earnestly."
+        },
+        {
+          "name": "Last word, first word",
+          "desc": "Each line begins with the last word of the previous line."
+        },
+        {
+          "name": "Reverse story",
+          "desc": "Tell the story starting from the ending and moving backwards."
+        },
+        {
+          "name": "Mixed genres",
+          "desc": "Moderator switches genre every 30 seconds (western, noir, romance, horror...)."
+        }
+      ],
+      "expert": [
+        {
+          "name": "The Harold",
+          "desc": "Long form: three parallel scenes weave and feed each other. Del Close format."
+        },
+        {
+          "name": "Sung improvisation",
+          "desc": "Fully sung scene with improvised melody, rhymes and verse/chorus structure."
+        },
+        {
+          "name": "Twenty-minute one-shot",
+          "desc": "Single 20-minute scene, no breaks, no resets. Hold an entire world."
+        },
+        {
+          "name": "Pirandello mirror",
+          "desc": "Characters realize they are improvised, but must continue the scene anyway."
+        },
+        {
+          "name": "Two timelines",
+          "desc": "Scene plays out, then replays ten years later with the consequences."
+        },
+        {
+          "name": "Silent show",
+          "desc": "15-minute spectacle with no dialogue at all. Clear plot, real resolution."
+        },
+        {
+          "name": "Theatre within theatre",
+          "desc": "Characters improvise their own play inside the main scene. Three layers of fiction."
+        },
+        {
+          "name": "Beckettian",
+          "desc": "Long-form absurd: lived silences, waiting, language emptying out. Godot-style."
+        }
+      ]
+    },
+    "match": {
+      "debutant": [
+        {
+          "name": "Single team",
+          "desc": "One team plays, the other waits. Classic LNI match form."
+        },
+        {
+          "name": "Mixed",
+          "desc": "Both teams play together in the same improvisation."
+        },
+        {
+          "name": "Compared",
+          "desc": "Each team performs the same prompt in turn. Audience compares and votes."
+        },
+        {
+          "name": "Mixed silent",
+          "desc": "Both teams together, but in absolute silence."
+        },
+        {
+          "name": "Compared sung",
+          "desc": "Each team includes at least one sung passage."
+        }
+      ],
+      "confirme": [
+        {
+          "name": "In the manner of",
+          "desc": "Style or genre imposed: Shakespeare, film noir, Coen Brothers..."
+        },
+        {
+          "name": "Mixed with prop",
+          "desc": "An imposed object must be central to the improvisation."
+        },
+        {
+          "name": "Reverse improvisation",
+          "desc": "Team must play starting from the ending."
+        },
+        {
+          "name": "Compared rhymed",
+          "desc": "All lines must rhyme."
+        },
+        {
+          "name": "Compared silent",
+          "desc": "No words: only gesture and expression tell the story."
+        },
+        {
+          "name": "Mixed with character",
+          "desc": "An imposed character type must appear in the first minute."
+        }
+      ],
+      "expert": [
+        {
+          "name": "Sung & danced",
+          "desc": "Mini-musical: alternating dialogue, song and choreography, all improvised."
+        },
+        {
+          "name": "Style + era",
+          "desc": "Both an authorial style and a historical era are imposed. Both must read clearly."
+        },
+        {
+          "name": "Mixed in verse",
+          "desc": "All lines in verse (iambic pentameter or alexandrines)."
+        },
+        {
+          "name": "Heroless",
+          "desc": "Improvisation must work without an identifiable lead. Pure ensemble."
+        },
+        {
+          "name": "Thesis improv",
+          "desc": "Improvisation must defend a philosophical thesis announced beforehand."
+        },
+        {
+          "name": "Time loop",
+          "desc": "Scene moves forward then rewinds 30 seconds, repeatedly. Vertiginous loop."
+        }
+      ]
+    }
+  },
+  "constraints": {
+    "troupe": {
+      "debutant": [
+        "Whispering",
+        "Walking in a circle the entire time",
+        "Eyes closed",
+        "One repeated word only",
+        "Without looking at your partner",
+        "Holding hands the entire scene",
+        "Single emotion (joy, sadness, anger...)",
+        "Replacing speech with sound effects",
+        "Every other line must be sung",
+        "Everyone facing away from audience"
+      ],
+      "confirme": [
+        "Without using the word « no »",
+        "No personal pronouns",
+        "Systematic rhymes",
+        "In the manner of Shakespeare",
+        "In the style of 1940s film noir",
+        "In slow motion from start to finish",
+        "In fast forward from start to finish",
+        "One audience-chosen forbidden word",
+        "Alternating English and an invented language",
+        "In the style of an animated cartoon"
+      ],
+      "expert": [
+        "Time-rewind: scene moves forward then rewinds every 30s",
+        "Multiple voices: each character played by 2 actors at once",
+        "Shadow theatre only",
+        "External narration that contradicts the action",
+        "In free verse and hexameters",
+        "Beckett style: silences, absurdity, waiting",
+        "Permanent fourth wall break",
+        "Palindromic: scene must be playable in reverse",
+        "No action verbs at all",
+        "An entirely invented but consistent language"
+      ]
+    },
+    "match": {
+      "debutant": [
+        "Whispering",
+        "Singing",
+        "With a forced prop",
+        "With a forced phrase to slip in",
+        "Dancing",
+        "Cartoon style",
+        "With a forced emotion",
+        "Musical theatre style",
+        "With regional accents",
+        "Without touching the floor",
+        "With a forbidden word",
+        "Silent film style (Chaplin, Keaton)"
+      ],
+      "confirme": [
+        "Shakespearean",
+        "Horror film style",
+        "In verse",
+        "Without using « no »",
+        "Forbidden word imposed by referee",
+        "Coen Brothers style",
+        "Sword-and-sandal epic style",
+        "1960s sci-fi",
+        "One audible line per minute",
+        "Silent-era style",
+        "With an omniscient external narrator",
+        "Soap opera style"
+      ],
+      "expert": [
+        "In iambic pentameter throughout",
+        "Chekhov style",
+        "Japanese Noh theatre style",
+        "With time-rewind",
+        "Wes Anderson style",
+        "Commedia dell'arte",
+        "With an imposed philosophical subtext",
+        "Cluedo style (culprit revealed at end)",
+        "Theatre of the absurd",
+        "With a character who knows it is fiction",
+        "Pirandello style",
+        "Tarantino style",
+        "Greek tragedy form (chorus + hero + hubris)"
+      ]
+    }
+  },
+  "themes": {
+    "debutant": [
+      "The hairdresser appointment",
+      "First day at school",
+      "A pizza night gone wrong",
+      "Forgotten keys at the doorstep",
+      "The Monday morning subway",
+      "The neighbours upstairs are partying",
+      "The picnic in the rain",
+      "The supermarket at 7:59 PM",
+      "The broken elevator",
+      "Cousin's wedding",
+      "Babysitting evening",
+      "The doctor's waiting room",
+      "The driving test",
+      "The drinks that overstayed",
+      "The disastrous move",
+      "The bakery queue",
+      "The cooking lesson disaster",
+      "The karaoke night",
+      "First day back at work",
+      "Coming back from holiday",
+      "Explaining Snapchat to grandma",
+      "A useless superhero",
+      "The TV news from another planet",
+      "Wildlife documentary about humans",
+      "An interrogation about a tiny matter"
+    ],
+    "confirme": [
+      "The last Sunday on Earth",
+      "A cat speaking to its owner",
+      "The missed appointment",
+      "The letter never sent",
+      "The train journey with no destination",
+      "The hotel forgotten by all maps",
+      "The dream that returns every night",
+      "Two strangers in a stuck elevator",
+      "A perfect stranger's funeral",
+      "The genie's three wishes",
+      "The concierge who knows everything",
+      "The photo we shouldn't have seen",
+      "The brother we never knew",
+      "The writer facing his character",
+      "The last phone call",
+      "The house that changes at night",
+      "The masked ball of regrets",
+      "The clockmaker of lost time",
+      "The station of souls in transit",
+      "The mirror that lies",
+      "Actors caught backstage",
+      "The off-key choir",
+      "The teachers' meeting about one student",
+      "The lesson that makes no sense",
+      "Darth Vader calls to break up"
+    ],
+    "expert": [
+      "The trial of collective memory",
+      "The final conversation between God and Devil",
+      "The archivist of unlived lives",
+      "The unprovable theorem of happiness",
+      "The silence after the revelation",
+      "The asylum of forgotten poets",
+      "The testament of a dead language",
+      "Schrödinger's stolen hours",
+      "The room you enter alone",
+      "The hourglass of consciousness",
+      "The final performance at the Globe",
+      "The seven deadly sins at dinner",
+      "Borges' manuscript",
+      "The dream within the dream within the dream",
+      "The exile returned too late",
+      "The tightrope walker between two worlds",
+      "The convict's unfinished symphony",
+      "The banquet of the absent",
+      "The frontier that never existed",
+      "The philosopher and the ant",
+      "Three sisters who'll never reach Moscow",
+      "The night watchman of forgotten things",
+      "The press conference of oblivion",
+      "The last translator of the useless"
+    ]
+  },
+  "categories": [
+    {
+      "name": "Mixed",
+      "desc": "Both teams play together, balanced numbers, on the same theme."
+    },
+    {
+      "name": "Compared",
+      "desc": "Each team plays the same prompt in turn. Audience compares and votes."
+    },
+    {
+      "name": "In the manner of",
+      "desc": "Style or genre imposed (Shakespeare, noir, Tarantino...)."
+    },
+    {
+      "name": "Sung",
+      "desc": "Improvisation entirely or partially sung."
+    },
+    {
+      "name": "Silent",
+      "desc": "No spoken word: only gesture tells the story."
+    },
+    {
+      "name": "Silent with music",
+      "desc": "Mute scene, but writing rigorously shaped by an imposed musical mood."
+    },
+    {
+      "name": "Rhymed",
+      "desc": "All lines must rhyme. Couplets or alexandrines depending on level."
+    },
+    {
+      "name": "With prop",
+      "desc": "An imposed object must be central."
+    },
+    {
+      "name": "Forced constraint",
+      "desc": "A constraint drawn at random applies to one or both teams."
+    },
+    {
+      "name": "No theme, no caucus",
+      "desc": "No theme announced, no preparation time. Pure on-the-spot invention."
+    },
+    {
+      "name": "Leapfrog",
+      "desc": "Four different improvs, one theme each. The first with one player; one player added each round."
+    },
+    {
+      "name": "Videoway",
+      "desc": "Mixed with 4 TV channels (F1-F4), different content per channel. Referee jumps between channels at will."
+    },
+    {
+      "name": "Sensory",
+      "desc": "One sense of one improviser is stimulated. That sensation must shape the entire scene."
+    },
+    {
+      "name": "Thesis",
+      "desc": "Improvisation must defend a philosophical thesis announced in advance."
+    },
+    {
+      "name": "Free",
+      "desc": "No formal constraint, just the theme. Total freedom of treatment."
+    }
+  ],
+  "durations": {
+    "debutant": [
+      "30 seconds",
+      "1 minute",
+      "1 minute 30",
+      "2 minutes"
+    ],
+    "confirme": [
+      "1 minute",
+      "2 minutes",
+      "3 minutes",
+      "4 minutes",
+      "5 minutes"
+    ],
+    "expert": [
+      "3 minutes",
+      "5 minutes",
+      "7 minutes",
+      "10 minutes",
+      "15 minutes",
+      "20 minutes"
+    ]
+  },
+  "players": {
+    "debutant": [
+      "1 player",
+      "2 players",
+      "3 players",
+      "Whole team"
+    ],
+    "confirme": [
+      "1 player",
+      "2 players",
+      "3 players",
+      "4 players",
+      "Whole team",
+      "Captain alone"
+    ],
+    "expert": [
+      "1 player",
+      "2 players",
+      "Mixed 1+1",
+      "Mixed 2+2",
+      "3 imposed players",
+      "Whole team",
+      "Captain + 1"
+    ]
+  }
+}

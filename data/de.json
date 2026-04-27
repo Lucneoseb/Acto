@@ -1,0 +1,461 @@
+{
+  "exercises": {
+    "troupe": {
+      "debutant": [
+        {
+          "name": "Der Spiegel",
+          "desc": "Zwei Spieler einander gegenüber. Einer führt langsame Bewegungen, der andere spiegelt sie perfekt."
+        },
+        {
+          "name": "Yes, and...",
+          "desc": "Jedes Angebot wird angenommen und ergänzt. Die goldene Regel des Impro: niemals blockieren."
+        },
+        {
+          "name": "Wort für Wort",
+          "desc": "Im Kreis fügt jeder Spieler ein Wort hinzu. Eine Geschichte gemeinsam aufbauen, ohne zu zögern."
+        },
+        {
+          "name": "Freeze",
+          "desc": "Zwei spielen aus einer Pose. Jemand klatscht, friert die Szene ein, ersetzt einen Spieler — neue Szene."
+        },
+        {
+          "name": "Emotionsachterbahn",
+          "desc": "Der Spielleiter ruft jede Minute eine Emotion. Die Spieler kippen sofort in diese Tonalität."
+        },
+        {
+          "name": "Unsichtbares Objekt",
+          "desc": "Ein Spieler handhabt ein unsichtbares Objekt. Andere raten und ergänzen neue Anwendungen."
+        },
+        {
+          "name": "Drei Charaktere",
+          "desc": "Drei Spieler kommen herein und etablieren ihre Figur in 30 Sekunden über Haltung und Stimme."
+        },
+        {
+          "name": "Fragenkreis",
+          "desc": "Ein Spieler in der Mitte. Andere bombardieren ihn mit schnellen Fragen, präzise zu beantworten."
+        }
+      ],
+      "confirme": [
+        {
+          "name": "Pause-Weiter",
+          "desc": "Spielleiter stoppt die Szene, ändert ein Element (Ort, Zeit, Status), und lässt sie weiterlaufen."
+        },
+        {
+          "name": "Drei vorgegebene Wörter",
+          "desc": "Drei zufällige Wörter müssen natürlich in die Szene eingebaut werden."
+        },
+        {
+          "name": "Statusspiel",
+          "desc": "Jede Figur hat einen versteckten Sozialstatus (1-10). Das Publikum muss raten."
+        },
+        {
+          "name": "Synchronisation",
+          "desc": "Zwei mimen, zwei andere sprechen für sie von außerhalb der Bühne."
+        },
+        {
+          "name": "Expertenrunde",
+          "desc": "Eine Expertenrunde zu einem absurden Thema beantwortet Publikumsfragen ernsthaft."
+        },
+        {
+          "name": "Letztes Wort, erstes Wort",
+          "desc": "Jede Replik beginnt mit dem letzten Wort der vorigen."
+        },
+        {
+          "name": "Rückwärtsgeschichte",
+          "desc": "Eine Geschichte vom Ende her erzählen und Szene für Szene zurückgehen."
+        },
+        {
+          "name": "Genremix",
+          "desc": "Spielleiter wechselt das Genre alle 30 Sekunden (Western, Krimi, Romanze, Horror...)."
+        }
+      ],
+      "expert": [
+        {
+          "name": "Harold",
+          "desc": "Lange Form: drei parallele Szenen verflechten sich und nähren einander. Format Del Close."
+        },
+        {
+          "name": "Gesungene Improvisation",
+          "desc": "Vollständig gesungene Szene mit improvisierter Melodie und Strophe/Refrain-Struktur."
+        },
+        {
+          "name": "20 Minuten ohne Schnitt",
+          "desc": "Eine einzige Szene, zwanzig Minuten, keine Unterbrechung. Eine ganze Welt halten."
+        },
+        {
+          "name": "Pirandello-Spiegel",
+          "desc": "Die Figuren erkennen, dass sie improvisiert sind — und müssen die Szene trotzdem fortsetzen."
+        },
+        {
+          "name": "Zwei Zeitebenen",
+          "desc": "Eine Szene wird gespielt und zehn Jahre später mit den Konsequenzen wiederholt."
+        },
+        {
+          "name": "Stumme Show",
+          "desc": "15-Minuten-Spektakel ohne ein einziges Wort. Klare Handlung, echte Auflösung."
+        },
+        {
+          "name": "Theater im Theater",
+          "desc": "Die Figuren improvisieren ihrerseits ein Stück innerhalb der Szene. Drei Fiktionsebenen."
+        },
+        {
+          "name": "Beckettsch",
+          "desc": "Lange absurde Form: gehaltene Stille, Warten, sich entleerende Sprache. Im Stil von Godot."
+        }
+      ]
+    },
+    "match": {
+      "debutant": [
+        {
+          "name": "Einzelmannschaft",
+          "desc": "Eine Mannschaft spielt, die andere wartet. Klassische LNI-Matchform."
+        },
+        {
+          "name": "Gemischt",
+          "desc": "Beide Mannschaften spielen zusammen in derselben Improvisation."
+        },
+        {
+          "name": "Vergleich",
+          "desc": "Jede Mannschaft spielt nacheinander dieselbe Vorlage. Das Publikum vergleicht und stimmt ab."
+        },
+        {
+          "name": "Gemischt stumm",
+          "desc": "Beide Mannschaften gemeinsam, aber in absoluter Stille."
+        },
+        {
+          "name": "Vergleich gesungen",
+          "desc": "Jede Mannschaft baut mindestens eine gesungene Passage ein."
+        }
+      ],
+      "confirme": [
+        {
+          "name": "In der Art von",
+          "desc": "Stil oder Genre vorgegeben: Shakespeare, Film Noir, Coen-Brüder..."
+        },
+        {
+          "name": "Gemischt mit Requisit",
+          "desc": "Ein vorgegebenes Objekt muss zentral sein."
+        },
+        {
+          "name": "Rückwärts",
+          "desc": "Die Szene wird vom Ende her gespielt."
+        },
+        {
+          "name": "Vergleich gereimt",
+          "desc": "Alle Repliken müssen sich reimen."
+        },
+        {
+          "name": "Vergleich stumm",
+          "desc": "Keine Worte: nur Gesten und Mimik erzählen."
+        },
+        {
+          "name": "Mit vorgegebener Figur",
+          "desc": "Ein vorgegebener Figurentyp muss in der ersten Minute erscheinen."
+        }
+      ],
+      "expert": [
+        {
+          "name": "Gesungen & getanzt",
+          "desc": "Mini-Musical: Wechsel von Dialog, Gesang und Choreographie, alles improvisiert."
+        },
+        {
+          "name": "Stil + Epoche",
+          "desc": "Autorenstil und historische Epoche vorgegeben. Beides muss erkennbar sein."
+        },
+        {
+          "name": "In Versen",
+          "desc": "Alle Repliken in Versen (Jambisch oder Alexandriner)."
+        },
+        {
+          "name": "Heldenlos",
+          "desc": "Die Improvisation muss ohne erkennbare Hauptfigur funktionieren. Reines Ensemble."
+        },
+        {
+          "name": "Thesen-Impro",
+          "desc": "Die Improvisation muss eine zuvor angekündigte philosophische These verteidigen."
+        },
+        {
+          "name": "Zeitschleife",
+          "desc": "Die Szene geht vor und springt alle 30 Sekunden zurück. Schwindelerregender Loop."
+        }
+      ]
+    }
+  },
+  "constraints": {
+    "troupe": {
+      "debutant": [
+        "Flüsternd",
+        "Während der ganzen Szene im Kreis gehend",
+        "Mit geschlossenen Augen",
+        "Nur ein einziges wiederholtes Wort",
+        "Ohne den Partner anzusehen",
+        "Während der ganzen Szene Hände haltend",
+        "Mit einer einzigen Emotion (Freude, Trauer, Wut...)",
+        "Worte durch Geräusche ersetzend",
+        "Jede zweite Replik muss gesungen werden",
+        "Alle mit dem Rücken zum Publikum"
+      ],
+      "confirme": [
+        "Ohne das Wort « nein » zu benutzen",
+        "Ohne Personalpronomen",
+        "Systematisch in Reimen",
+        "In der Art von Goethe",
+        "Im Stil eines Film Noirs der 40er",
+        "In Zeitlupe von Anfang bis Ende",
+        "Im Schnellvorlauf von Anfang bis Ende",
+        "Mit einem vom Publikum verbotenen Wort",
+        "Im Wechsel zwischen Deutsch und einer erfundenen Sprache",
+        "Im Stil eines Zeichentrickfilms"
+      ],
+      "expert": [
+        "Mit Zeitrücklauf: Szene geht vor, dann alle 30s zurück",
+        "Mit mehreren Stimmen: jede Figur gleichzeitig von 2 Schauspielern",
+        "Nur als Schattentheater",
+        "Mit einer äußeren Erzählung, die der Handlung widerspricht",
+        "In freien Versen und Hexametern",
+        "Im Stil von Beckett (Stille, Absurdität, Warten)",
+        "Mit dauerhaftem Bruch der vierten Wand",
+        "Als Palindrom: die Szene muss rückwärts spielbar sein",
+        "Ohne ein einziges Tätigkeitsverb",
+        "Mit einer vollständig erfundenen, aber kohärenten Sprache"
+      ]
+    },
+    "match": {
+      "debutant": [
+        "Flüsternd",
+        "Singend",
+        "Mit Pflichtrequisit",
+        "Mit einer einzubauenden Pflichtphrase",
+        "Tanzend",
+        "Im Zeichentrickstil",
+        "Mit einer vorgegebenen Emotion",
+        "Im Musicalstil",
+        "Mit regionalen Akzenten",
+        "Ohne den Boden zu berühren",
+        "Mit einem verbotenen Wort",
+        "Im Stummfilmstil"
+      ],
+      "confirme": [
+        "Im Stil Shakespeares",
+        "Im Horrorfilmstil",
+        "In Versen",
+        "Ohne « nein »",
+        "Mit einem vom Schiedsrichter verbotenen Wort",
+        "Im Stil der Coen-Brüder",
+        "Im Sandalenfilmstil",
+        "60er-Jahre-Sci-Fi",
+        "Eine hörbare Replik pro Minute",
+        "Im Stil der Stummfilmära",
+        "Mit allwissendem äußeren Erzähler",
+        "Im Soap-Opera-Stil"
+      ],
+      "expert": [
+        "Durchgehend in Jamben",
+        "Im Stil Tschechows",
+        "Im Stil des japanischen Nō-Theaters",
+        "Mit Zeitrücklauf",
+        "Im Stil von Wes Anderson",
+        "Im Stil der Commedia dell'arte",
+        "Mit auferlegtem philosophischen Subtext",
+        "Im Cluedo-Stil (Täter zum Schluss enthüllt)",
+        "Im Stil des absurden Theaters",
+        "Mit einer Figur, die weiß, dass sie in einer Fiktion ist",
+        "Im Stil Pirandellos",
+        "Im Tarantino-Stil",
+        "Als griechische Tragödie (Chor + Held + Hybris)"
+      ]
+    }
+  },
+  "themes": {
+    "debutant": [
+      "Der Friseurtermin",
+      "Der erste Schultag",
+      "Ein verkorkster Pizza-Abend",
+      "Die vergessenen Schlüssel",
+      "Die U-Bahn am Montagmorgen",
+      "Die Nachbarn von oben feiern",
+      "Das Picknick im Regen",
+      "Der Supermarkt um 19:59",
+      "Der Aufzug bleibt stehen",
+      "Die Hochzeit des Cousins",
+      "Babysitten am Abend",
+      "Im Wartezimmer beim Arzt",
+      "Die Fahrprüfung",
+      "Der Aperitif, der nicht enden will",
+      "Der gescheiterte Umzug",
+      "Die Schlange beim Bäcker",
+      "Der katastrophale Kochkurs",
+      "Der Karaoke-Abend",
+      "Der Schulanfang",
+      "Die Rückkehr aus dem Urlaub",
+      "Snapchat der Oma erklären",
+      "Ein nutzloser Superheld",
+      "Die Tagesschau von einem fernen Planeten",
+      "Tierdokumentation über Menschen",
+      "Verhör wegen einer Lappalie"
+    ],
+    "confirme": [
+      "Der letzte Sonntag der Welt",
+      "Eine Katze, die mit ihrem Besitzer spricht",
+      "Das verpasste Treffen",
+      "Der nie abgeschickte Brief",
+      "Die Zugfahrt ohne Ziel",
+      "Das Hotel, das auf keiner Karte steht",
+      "Der Traum, der jede Nacht wiederkehrt",
+      "Zwei Fremde im stehengebliebenen Aufzug",
+      "Die Beerdigung eines völlig Fremden",
+      "Die drei Wünsche des Geistes",
+      "Der Concierge, der alles weiß",
+      "Das Foto, das man nicht hätte sehen sollen",
+      "Der Bruder, den man nie kannte",
+      "Der Schriftsteller vor seiner Figur",
+      "Der letzte Telefonanruf",
+      "Das Haus, das sich nachts verändert",
+      "Der Maskenball der Reue",
+      "Der Uhrmacher der verlorenen Zeit",
+      "Der Bahnhof der Seelen im Transit",
+      "Der Spiegel, der lügt",
+      "Schauspieler hinter den Kulissen",
+      "Der verstimmte Chor",
+      "Die Lehrerkonferenz über einen einzigen Schüler",
+      "Die Lektion, die keinen Sinn ergibt",
+      "Darth Vader ruft an, um Schluss zu machen"
+    ],
+    "expert": [
+      "Der Prozess des kollektiven Gedächtnisses",
+      "Das letzte Gespräch zwischen Gott und Teufel",
+      "Der Archivar der ungelebten Leben",
+      "Das unbeweisbare Theorem des Glücks",
+      "Die Stille nach der Offenbarung",
+      "Die Anstalt der vergessenen Dichter",
+      "Das Testament einer toten Sprache",
+      "Schrödingers gestohlene Stunden",
+      "Das Zimmer, das man allein betritt",
+      "Die Sanduhr des Bewusstseins",
+      "Die letzte Aufführung im Globe Theatre",
+      "Die sieben Todsünden beim Abendessen",
+      "Das Manuskript Borges'",
+      "Der Traum im Traum im Traum",
+      "Der zu spät zurückgekehrte Verbannte",
+      "Der Seiltänzer zwischen zwei Welten",
+      "Die unvollendete Symphonie des Verurteilten",
+      "Das Bankett der Abwesenden",
+      "Die Grenze, die es nie gab",
+      "Der Philosoph und die Ameise",
+      "Drei Schwestern, die Moskau nie erreichen",
+      "Der Nachtwächter des Museums der Vergessenheiten",
+      "Die Pressekonferenz des Vergessens",
+      "Der letzte Übersetzer des Nutzlosen"
+    ]
+  },
+  "categories": [
+    {
+      "name": "Gemischt",
+      "desc": "Beide Mannschaften spielen zusammen, ausgewogen, am selben Thema."
+    },
+    {
+      "name": "Vergleich",
+      "desc": "Jede Mannschaft spielt dieselbe Vorlage nacheinander. Das Publikum vergleicht und stimmt ab."
+    },
+    {
+      "name": "In der Art von",
+      "desc": "Stil oder Genre vorgegeben (Goethe, Noir, Tarantino...)."
+    },
+    {
+      "name": "Gesungen",
+      "desc": "Improvisation ganz oder teilweise gesungen."
+    },
+    {
+      "name": "Stumm",
+      "desc": "Kein gesprochenes Wort: nur Gesten erzählen."
+    },
+    {
+      "name": "Stumm mit Musik",
+      "desc": "Stumme Szene, aber das Schreiben wird streng durch eine vorgegebene Musikstimmung geprägt."
+    },
+    {
+      "name": "Gereimt",
+      "desc": "Alle Repliken müssen sich reimen."
+    },
+    {
+      "name": "Mit Requisit",
+      "desc": "Ein vorgegebenes Objekt muss zentral sein."
+    },
+    {
+      "name": "Mit Pflicht-Vorgabe",
+      "desc": "Eine zufällige Vorgabe gilt für eine oder beide Mannschaften."
+    },
+    {
+      "name": "Ohne Thema, ohne Caucus",
+      "desc": "Kein Thema angekündigt, keine Vorbereitungszeit. Reine Spontaninvention."
+    },
+    {
+      "name": "Bockspringen",
+      "desc": "Vier verschiedene Improvisationen, ein Thema pro Impro. Erste mit einem Spieler; pro Runde einer mehr."
+    },
+    {
+      "name": "Videoway",
+      "desc": "Gemischt mit 4 TV-Kanälen (F1-F4), unterschiedlicher Inhalt pro Kanal. Schiedsrichter springt frei."
+    },
+    {
+      "name": "Sensorisch",
+      "desc": "Einer der fünf Sinne eines Improvisators wird gereizt. Diese Empfindung prägt die ganze Szene."
+    },
+    {
+      "name": "Thesen",
+      "desc": "Die Improvisation muss eine vorab angekündigte philosophische These verteidigen."
+    },
+    {
+      "name": "Frei",
+      "desc": "Keine Formvorgabe, nur das Thema. Vollkommene Freiheit."
+    }
+  ],
+  "durations": {
+    "debutant": [
+      "30 Sekunden",
+      "1 Minute",
+      "1 Minute 30",
+      "2 Minuten"
+    ],
+    "confirme": [
+      "1 Minute",
+      "2 Minuten",
+      "3 Minuten",
+      "4 Minuten",
+      "5 Minuten"
+    ],
+    "expert": [
+      "3 Minuten",
+      "5 Minuten",
+      "7 Minuten",
+      "10 Minuten",
+      "15 Minuten",
+      "20 Minuten"
+    ]
+  },
+  "players": {
+    "debutant": [
+      "1 Spieler",
+      "2 Spieler",
+      "3 Spieler",
+      "Ganze Mannschaft"
+    ],
+    "confirme": [
+      "1 Spieler",
+      "2 Spieler",
+      "3 Spieler",
+      "4 Spieler",
+      "Ganze Mannschaft",
+      "Kapitän allein"
+    ],
+    "expert": [
+      "1 Spieler",
+      "2 Spieler",
+      "Gemischt 1+1",
+      "Gemischt 2+2",
+      "3 vorgegebene Spieler",
+      "Ganze Mannschaft",
+      "Kapitän + 1"
+    ]
+  }
+}
