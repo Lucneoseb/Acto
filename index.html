@@ -240,10 +240,13 @@
 
       <!-- Top toolbar -->
       <div class="recorder-top-bar">
-        <div class="recorder-rec-indicator" id="recorderRecIndicator" hidden>
-          <span class="recorder-rec-dot"></span>
-          <span id="recorderRecLabel">REC</span>
-          <span class="recorder-rec-time" id="recorderRecTime">00:00</span>
+        <div class="recorder-top-left">
+          <img class="recorder-brand-logo" src="./assets/logo.png" alt="Acto" />
+          <div class="recorder-rec-indicator" id="recorderRecIndicator" hidden>
+            <span class="recorder-rec-dot"></span>
+            <span id="recorderRecLabel">REC</span>
+            <span class="recorder-rec-time" id="recorderRecTime">00:00</span>
+          </div>
         </div>
         <div class="recorder-chrono-chip" id="recorderChronoChip" hidden>
           <span class="recorder-chrono-icon" aria-hidden="true">⏱️</span>
@@ -256,7 +259,10 @@
       </div>
 
       <div class="recorder-bottom-bar" id="recorderBottomBar">
-        <button class="recorder-action recorder-record" id="recorderRecordBtn" type="button"></button>
+        <button class="recorder-record" id="recorderRecordBtn" type="button" aria-label="Record">
+          <span class="recorder-record-inner" aria-hidden="true"></span>
+        </button>
+        <span class="recorder-record-label" id="recorderRecordLabel"></span>
       </div>
 
       <div class="recorder-finish-bar" id="recorderFinishBar" hidden>

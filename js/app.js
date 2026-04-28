@@ -1062,8 +1062,20 @@
     isRecording: false,
     startedAt: 0,
     recTimerId: null,
-    blobUrl: null
+    blobUrl: null,
+    logoImg: null,        // preloaded brand logo for watermark
+    logoLoaded: false
   };
+  // Preload the brand logo (used as watermark)
+  (function recPreloadLogo() {
+    try {
+      const img = new Image();
+      img.onload  = () => { rec.logoLoaded = true; };
+      img.onerror = () => { rec.logoLoaded = false; };
+      img.src = "./assets/logo.png";
+      rec.logoImg = img;
+    } catch (e) { /* ignore */ }
+  })();
 
   function recIsSupported() {
     return !!(navigator.mediaDevices &&
@@ -1141,8 +1153,30 @@
     rec.ctx.drawImage(v, 0, 0, w, h);
     recDrawTopOverlay(rec.ctx, w, h);
     recDrawBottomOverlay(rec.ctx, w, h);
+    recDrawLogoWatermark(rec.ctx, w, h);
     recUpdateChronoChip();
     rec.rafId = requestAnimationFrame(recDrawLoop);
+  }
+  function recDrawLogoWatermark(ctx, w, h) {
+    if (!rec.logoLoaded || !rec.logoImg) return;
+    // Logo target width = ~22% of canvas width, capped
+    const logoW = Math.min(Math.round(w * 0.22), 260);
+    const ratio = (rec.logoImg.naturalWidth && rec.logoImg.naturalHeight)
+      ? rec.logoImg.naturalHeight / rec.logoImg.naturalWidth : 0.66;
+    const logoH = Math.round(logoW * ratio);
+    // Position: top-right with margin (below the safe zone reserved by HTML toolbar)
+    const margin = Math.round(w * 0.025);
+    const reserveTop = Math.round(w * 0.13);
+    const x = w - logoW - margin;
+    const y = reserveTop + Math.round(w * 0.005);
+    // Subtle drop shadow for legibility
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.55)";
+    ctx.shadowBlur  = Math.round(w * 0.018);
+    ctx.shadowOffsetY = 2;
+    ctx.globalAlpha = 0.95;
+    try { ctx.drawImage(rec.logoImg, x, y, logoW, logoH); } catch (e) { /* ignore */ }
+    ctx.restore();
   }
   function recUpdateChronoChip() {
     const chip = document.getElementById("recorderChronoChip");
@@ -1209,9 +1243,13 @@
     const consLines  = state.currentConstraint ? recWrapText(ctx, state.currentConstraint, maxTextW) : [];
     const themeLines = state.currentTheme      ? recWrapText(ctx, state.currentTheme,      maxTextW) : [];
 
+    // Reserve a top safe-zone so the canvas overlay never collides with
+    // the HTML toolbar (close / switch cam buttons, chrono chip).
+    const reserveTop  = Math.round(w * 0.13);
+
     // Total block height
     const sectionH = (count, sz) => count > 0 ? labelSize + lineGap + count * (sz + lineGap) : 0;
-    const blockH = padTop
+    const blockH = reserveTop + padTop
       + (titleLines.length ? titleLines.length * (titleSize + lineGap) : 0)
       + (consLines.length  ? blockGap + sectionH(consLines.length,  subSize) : 0)
       + (themeLines.length ? blockGap + sectionH(themeLines.length, subSize) : 0)
@@ -1224,7 +1262,7 @@
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, blockH);
 
-    let y = padTop;
+    let y = reserveTop + padTop;
 
     // Title (exercise name) — colored with exercise accent
     if (titleLines.length) {
@@ -1351,7 +1389,12 @@
     rec.isRecording = true;
     rec.startedAt = Date.now();
     const recBtn = $("#recorderRecordBtn");
-    if (recBtn) recBtn.textContent = store.ui.recordStopBtn || "Stop";
+    if (recBtn) {
+      recBtn.dataset.recording = "true";
+      recBtn.setAttribute("aria-label", store.ui.recordStopBtn || "Stop");
+    }
+    const lbl = $("#recorderRecordLabel");
+    if (lbl) lbl.textContent = store.ui.recordStopBtn || "Stop";
     const ind = $("#recorderRecIndicator");
     if (ind) ind.hidden = false;
     rec.recTimerId = setInterval(() => {
@@ -1402,7 +1445,12 @@
     const bottom = $("#recorderBottomBar");
     if (bottom) bottom.hidden = false;
     const recBtn = $("#recorderRecordBtn");
-    if (recBtn) recBtn.textContent = store.ui.recordStartBtn || "Start";
+    if (recBtn) {
+      delete recBtn.dataset.recording;
+      recBtn.setAttribute("aria-label", store.ui.recordStartBtn || "Start");
+    }
+    const lbl = $("#recorderRecordLabel");
+    if (lbl) lbl.textContent = store.ui.recordStartBtn || "Start";
     rec.chunks = [];
     rec.recorder = null;
   }
@@ -1432,7 +1480,12 @@
     const ind = $("#recorderRecIndicator");
     if (ind) ind.hidden = true;
     const recBtn = $("#recorderRecordBtn");
-    if (recBtn) recBtn.textContent = store.ui.recordStartBtn || "Start";
+    if (recBtn) {
+      delete recBtn.dataset.recording;
+      recBtn.setAttribute("aria-label", store.ui.recordStartBtn || "Start");
+    }
+    const lbl = $("#recorderRecordLabel");
+    if (lbl) lbl.textContent = store.ui.recordStartBtn || "Start";
     recHidePreview();
   }
   function recHidePreview() {
