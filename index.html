@@ -291,6 +291,20 @@
         </div>
       </div>
 
+      <!-- 3-2-1 pre-countdown overlay -->
+      <div class="recorder-pre-countdown" id="recorderPreCountdown" hidden aria-live="assertive"></div>
+
+      <!-- Audience interaction cue (centered, 5s) -->
+      <div class="recorder-audience-cue" id="recorderAudienceCue" hidden aria-live="polite">
+        <span class="recorder-audience-cue-icon" aria-hidden="true">📣</span>
+        <span class="recorder-audience-cue-text" id="recorderAudienceCueText"></span>
+      </div>
+
+      <!-- Exercise description popup (top-right, shown for 5s after countdown) -->
+      <div class="recorder-exercise-desc" id="recorderExerciseDesc" hidden aria-live="polite">
+        <p class="recorder-exercise-desc-text" id="recorderExerciseDescText"></p>
+      </div>
+
       <div class="recorder-error" id="recorderError" hidden>
         <p id="recorderErrorMsg"></p>
         <p class="recorder-error-hint" id="recorderErrorHint"></p>

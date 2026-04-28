@@ -2869,3 +2869,155 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
 /* The "LANCER L'ENREGISTREMENT" label below the button is no longer needed,
    the icon speaks for itself. Hide it. */
 .recorder-record-label { display: none !important; }
+
+/* ==========================================================
+   Recorder — 3-2-1 pre-countdown overlay (centered, big, animated)
+   ========================================================== */
+.recorder-pre-countdown {
+  position: absolute;
+  inset: 0;
+  z-index: 18;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(120px, 28vw, 320px);
+  font-weight: 400;
+  color: #fff;
+  letter-spacing: 0.04em;
+  text-shadow: 0 8px 40px rgba(0, 0, 0, 0.6),
+               0 0 60px rgba(245, 196, 81, 0.55);
+  pointer-events: none;
+  user-select: none;
+}
+.recorder-pre-countdown[hidden] { display: none; }
+.recorder-pre-countdown.flash {
+  animation: recCdPop 0.95s cubic-bezier(.2, .9, .35, 1) forwards;
+}
+@keyframes recCdPop {
+  0%   { transform: scale(0.4); opacity: 0; }
+  35%  { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* ==========================================================
+   Recorder — Audience interaction cue (centered rounded chip, 5s)
+   ========================================================== */
+.recorder-audience-cue {
+  position: absolute;
+  left: 50%;
+  bottom: 30%;
+  transform: translateX(-50%) translateY(0);
+  z-index: 16;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1.4rem;
+  background: linear-gradient(135deg, rgba(255, 174, 92, 0.95), rgba(245, 196, 81, 0.92));
+  color: #2a1a00;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: clamp(1rem, 2.4vw, 1.4rem);
+  letter-spacing: 0.04em;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 230, 180, 0.85);
+  box-shadow: 0 12px 40px rgba(255, 174, 92, 0.55),
+              0 0 0 6px rgba(255, 174, 92, 0.18);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.recorder-audience-cue[hidden] { display: none; }
+.recorder-audience-cue.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+  animation: recAudCueAttn 1.2s ease-out;
+}
+.recorder-audience-cue-icon { font-size: 1.4em; }
+@keyframes recAudCueAttn {
+  0%   { transform: translateX(-50%) scale(0.85); }
+  35%  { transform: translateX(-50%) scale(1.08); }
+  60%  { transform: translateX(-50%) scale(0.98); }
+  100% { transform: translateX(-50%) scale(1); }
+}
+
+@media (max-width: 480px) {
+  .recorder-audience-cue {
+    bottom: 28%;
+    padding: 0.7rem 1.1rem;
+    font-size: 0.95rem;
+    max-width: 86vw;
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+/* ==========================================================
+   Recorder — Exercise description popup (top-right, 5s after countdown)
+   ========================================================== */
+.recorder-exercise-desc {
+  position: absolute;
+  top: 28%;
+  right: 2.5%;
+  max-width: 42%;
+  z-index: 14;
+  background: rgba(10, 6, 18, 0.86);
+  border: 1px solid rgba(109, 211, 197, 0.45);
+  border-radius: 18px;
+  padding: 0.95rem 1.1rem;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55),
+              0 0 0 4px rgba(109, 211, 197, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.96);
+  transition: opacity 0.32s ease, transform 0.32s ease;
+}
+.recorder-exercise-desc[hidden] { display: none; }
+.recorder-exercise-desc.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  animation: recDescPop 0.45s cubic-bezier(.2,.9,.35,1);
+}
+@keyframes recDescPop {
+  0%   { opacity: 0; transform: translateY(-10px) scale(0.92); }
+  60%  { opacity: 1; transform: translateY(2px)   scale(1.02); }
+  100% { opacity: 1; transform: translateY(0)    scale(1); }
+}
+.recorder-exercise-desc-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: #fff;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+@media (max-width: 768px) {
+  .recorder-exercise-desc {
+    top: 30%;
+    right: 3%;
+    max-width: 70%;
+  }
+}
+@media (max-width: 480px) {
+  .recorder-exercise-desc {
+    top: auto;
+    bottom: 25%;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%) translateY(-6px) scale(0.96);
+    max-width: 92%;
+    padding: 0.8rem 1rem;
+    border-radius: 14px;
+  }
+  .recorder-exercise-desc.show {
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  .recorder-exercise-desc-text { font-size: 0.88rem; }
+}

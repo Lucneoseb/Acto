@@ -114,7 +114,8 @@ window.IMPRO_BUNDLE = {
       "recordConfirmStopYes": "Oui, arrêter",
       "recordConfirmStopNo": "Continuer",
       "recordPreviewTitle": "Ta vidéo",
-      "recordExitBtn": "Fermer"
+      "recordExitBtn": "Fermer",
+      "recordOverlayExercise": "Exercice"
     },
     "en": {
       "title": "Impro",
@@ -203,7 +204,8 @@ window.IMPRO_BUNDLE = {
       "recordConfirmStopYes": "Yes, stop",
       "recordConfirmStopNo": "Keep recording",
       "recordPreviewTitle": "Your video",
-      "recordExitBtn": "Close"
+      "recordExitBtn": "Close",
+      "recordOverlayExercise": "Exercise"
     },
     "de": {
       "title": "Impro",
@@ -292,7 +294,8 @@ window.IMPRO_BUNDLE = {
       "recordConfirmStopYes": "Ja, beenden",
       "recordConfirmStopNo": "Weiter aufnehmen",
       "recordPreviewTitle": "Dein Video",
-      "recordExitBtn": "Schließen"
+      "recordExitBtn": "Schließen",
+      "recordOverlayExercise": "Übung"
     },
     "es": {
       "title": "Impro",
@@ -381,7 +384,8 @@ window.IMPRO_BUNDLE = {
       "recordConfirmStopYes": "Sí, detener",
       "recordConfirmStopNo": "Continuar",
       "recordPreviewTitle": "Tu vídeo",
-      "recordExitBtn": "Cerrar"
+      "recordExitBtn": "Cerrar",
+      "recordOverlayExercise": "Ejercicio"
     },
     "pt": {
       "title": "Impro",
@@ -470,7 +474,8 @@ window.IMPRO_BUNDLE = {
       "recordConfirmStopYes": "Sim, parar",
       "recordConfirmStopNo": "Continuar",
       "recordPreviewTitle": "O teu vídeo",
-      "recordExitBtn": "Fechar"
+      "recordExitBtn": "Fechar",
+      "recordOverlayExercise": "Exercício"
     },
     "nl": {
       "title": "Impro",
@@ -559,7 +564,8 @@ window.IMPRO_BUNDLE = {
       "recordConfirmStopYes": "Ja, stoppen",
       "recordConfirmStopNo": "Doorgaan",
       "recordPreviewTitle": "Jouw video",
-      "recordExitBtn": "Sluiten"
+      "recordExitBtn": "Sluiten",
+      "recordOverlayExercise": "Oefening"
     }
   },
   "data": {

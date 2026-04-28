@@ -274,6 +274,22 @@
       o.stop(now + 1.7);
     });
   }
+  // Sharp "GO!" sound played at the end of the 3-2-1 pre-countdown
+  function playGoSound() {
+    const ctx = audio(); if (!ctx) return;
+    const now = ctx.currentTime;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(1200, now);
+    o.frequency.exponentialRampToValueAtTime(720, now + 0.35);
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.32, now + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(now);
+    o.stop(now + 0.6);
+  }
   function playApplause(durSec) {
     const ctx = audio(); if (!ctx) return;
     durSec = durSec || 4;
@@ -729,6 +745,7 @@
     if (flash) flash.hidden = false;
     state.audienceTimer = setInterval(() => {
       flashAudienceBanner();
+      recShowAudienceCue();
       playAudienceBeep();
     }, state.audienceIntervalSec * 1000);
   }
@@ -741,6 +758,100 @@
     f.hidden = false;
     f.classList.add("flash-on");
     setTimeout(() => f.classList.remove("flash-on"), 1200);
+  }
+
+  /* ============================================================
+     3.6 RECORDER — 3-2-1 PRE-COUNTDOWN + AUDIENCE CUE OVERLAY
+     ============================================================ */
+  let recCdTimer = null;
+  function recPlayPreCountdown(onComplete) {
+    const overlay = $("#recorderPreCountdown");
+    if (!overlay) { onComplete && onComplete(); return; }
+    if (recCdTimer) { clearInterval(recCdTimer); recCdTimer = null; }
+    let n = 3;
+    function paint(text) {
+      overlay.textContent = text;
+      overlay.classList.remove("flash");
+      // force reflow then re-add to retrigger animation
+      void overlay.offsetWidth;
+      overlay.classList.add("flash");
+    }
+    overlay.hidden = false;
+    paint(String(n));
+    playTick();
+    recCdTimer = setInterval(() => {
+      n--;
+      if (n > 0) {
+        paint(String(n));
+        playTick();
+      } else {
+        clearInterval(recCdTimer); recCdTimer = null;
+        paint("GO !");
+        playGoSound();
+        setTimeout(() => {
+          overlay.hidden = true;
+          overlay.classList.remove("flash");
+          if (typeof onComplete === "function") onComplete();
+        }, 750);
+      }
+    }, 1000);
+  }
+  function recCancelPreCountdown() {
+    if (recCdTimer) { clearInterval(recCdTimer); recCdTimer = null; }
+    const overlay = $("#recorderPreCountdown");
+    if (overlay) { overlay.hidden = true; overlay.classList.remove("flash"); }
+  }
+
+  let recAudCueHideTimer = null;
+  function recShowAudienceCue() {
+    // Only show when the recorder modal is visible
+    const modal = $("#recorderModal");
+    if (!modal || modal.hidden) return;
+    const cue = $("#recorderAudienceCue");
+    const txt = $("#recorderAudienceCueText");
+    if (!cue) return;
+    const t = store.ui;
+    if (txt) txt.textContent = t.audienceFlashMsg || "Public !";
+    cue.classList.remove("show");
+    void cue.offsetWidth;
+    cue.hidden = false;
+    cue.classList.add("show");
+    if (recAudCueHideTimer) clearTimeout(recAudCueHideTimer);
+    recAudCueHideTimer = setTimeout(() => {
+      cue.classList.remove("show");
+      setTimeout(() => { cue.hidden = true; }, 350);
+      recAudCueHideTimer = null;
+    }, 5000);
+  }
+  function recHideAudienceCue() {
+    if (recAudCueHideTimer) { clearTimeout(recAudCueHideTimer); recAudCueHideTimer = null; }
+    const cue = $("#recorderAudienceCue");
+    if (cue) { cue.classList.remove("show"); cue.hidden = true; }
+  }
+
+  let recDescHideTimer = null;
+  function recShowExerciseDesc() {
+    const desc = state.currentExercise && state.currentExercise.desc;
+    if (!desc) return;
+    const popup = $("#recorderExerciseDesc");
+    const txt   = $("#recorderExerciseDescText");
+    if (!popup || !txt) return;
+    txt.textContent = desc;
+    popup.classList.remove("show");
+    void popup.offsetWidth;
+    popup.hidden = false;
+    popup.classList.add("show");
+    if (recDescHideTimer) clearTimeout(recDescHideTimer);
+    recDescHideTimer = setTimeout(() => {
+      popup.classList.remove("show");
+      setTimeout(() => { popup.hidden = true; }, 350);
+      recDescHideTimer = null;
+    }, 5000);
+  }
+  function recHideExerciseDesc() {
+    if (recDescHideTimer) { clearTimeout(recDescHideTimer); recDescHideTimer = null; }
+    const popup = $("#recorderExerciseDesc");
+    if (popup) { popup.classList.remove("show"); popup.hidden = true; }
   }
 
   /* ============================================================
@@ -1032,7 +1143,14 @@
     const __recExitBtn   = $("#recorderExitBtn");
     if (__recOpenBtn)  __recOpenBtn.addEventListener("click", recOpen);
     if (__recSwitch)   __recSwitch.addEventListener("click", recSwitchCamera);
-    if (__recRecBtn)   __recRecBtn.addEventListener("click", () => { if (!rec.isRecording) recStart(); });
+    if (__recRecBtn)   __recRecBtn.addEventListener("click", () => {
+      if (rec.isRecording) return;
+      audio(); // unlock audio context on user gesture
+      recPlayPreCountdown(() => {
+        recStart();
+        recShowExerciseDesc();
+      });
+    });
     if (__recPauseBtn) __recPauseBtn.addEventListener("click", recPauseResume);
     if (__recStopBtn)  __recStopBtn.addEventListener("click", recRequestStop);
     if (__recCfmYes)   __recCfmYes.addEventListener("click", recConfirmStop);
@@ -1263,13 +1381,14 @@
     for (const l of consLines)  blockW = Math.max(blockW, ctx.measureText(l).width);
     for (const l of themeLines) blockW = Math.max(blockW, ctx.measureText(l).width);
     ctx.font = "700 " + labelSize + 'px Inter, "Helvetica Neue", sans-serif';
-    if (consLines.length)  blockW = Math.max(blockW, ctx.measureText((t.recordOverlayCons  || "Contrainte").toUpperCase()).width);
-    if (themeLines.length) blockW = Math.max(blockW, ctx.measureText((t.recordOverlayTheme || "Thème").toUpperCase()).width);
+    if (titleLines.length) blockW = Math.max(blockW, ctx.measureText((t.recordOverlayExercise || "Exercice").toUpperCase()).width);
+    if (consLines.length)  blockW = Math.max(blockW, ctx.measureText((t.recordOverlayCons     || "Contrainte").toUpperCase()).width);
+    if (themeLines.length) blockW = Math.max(blockW, ctx.measureText((t.recordOverlayTheme    || "Thème").toUpperCase()).width);
     blockW = Math.min(blockW + padX * 2, maxBoxW);
 
-    // Compute height
+    // Compute height (each section now has label + lines)
     let blockH = padY;
-    if (titleLines.length) blockH += titleLines.length * (titleSize + lineGap);
+    if (titleLines.length) blockH += labelSize + lineGap + titleLines.length * (titleSize + lineGap);
     if (consLines.length)  blockH += sectionGap + labelSize + lineGap + consLines.length  * (subSize + lineGap);
     if (themeLines.length) blockH += sectionGap + labelSize + lineGap + themeLines.length * (subSize + lineGap);
     blockH += padY;
@@ -1294,8 +1413,13 @@
     let y = boxY + padY;
 
     if (titleLines.length) {
-      ctx.font = "700 " + titleSize + 'px Inter, "Helvetica Neue", sans-serif';
+      ctx.font = "700 " + labelSize + 'px Inter, "Helvetica Neue", sans-serif';
       ctx.fillStyle = REC_COLORS.exercise;
+      y += labelSize;
+      ctx.fillText((t.recordOverlayExercise || "Exercice").toUpperCase(), boxX + padX, y);
+      y += lineGap;
+      ctx.font = "700 " + titleSize + 'px Inter, "Helvetica Neue", sans-serif';
+      ctx.fillStyle = "#fff";
       for (const line of titleLines) {
         y += titleSize;
         ctx.fillText(line, boxX + padX, y);
@@ -1346,9 +1470,8 @@
     const fs = Math.max(26, Math.round(baseDim * 0.075));
     const padX = Math.round(fs * 0.55);
     const padY = Math.round(fs * 0.22);
-    // Lift the timer UP so it appears just above the HTML record button
-    // (which sits at the bottom of the viewport).
-    const margin = Math.max(120, Math.round(baseDim * 0.18));
+    // Sit just above the HTML record button (which is anchored at viewport bottom).
+    const margin = Math.max(95, Math.round(baseDim * 0.10));
 
     const timeStr = formatMMSS(remaining);
     ctx.font = "400 " + fs + 'px "Bebas Neue", Inter, sans-serif';
@@ -1358,12 +1481,10 @@
     const boxX = Math.round((w - boxW) / 2);
     const boxY = h - margin - boxH;
 
-    // Color based on remaining time
     let color = "#ffffff";
     if (state.chronoRemaining > 0 && state.chronoRemaining <= 10) color = "#f87171";
     else if (state.chronoRemaining > 0 && state.chronoRemaining <= 30) color = "#fbbf24";
 
-    // Rounded background
     ctx.fillStyle = "rgba(10, 6, 18, 0.78)";
     recRoundedRect(ctx, boxX, boxY, boxW, boxH, boxH / 2);
     ctx.fill();
@@ -1371,7 +1492,6 @@
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Time text
     ctx.fillStyle = color;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -1380,23 +1500,6 @@
     ctx.fillText(timeStr, boxX + boxW / 2, boxY + boxH / 2 + Math.round(fs * 0.04));
     ctx.shadowBlur = 0;
     ctx.textBaseline = "alphabetic";
-
-    // Slim progress line just under the timer chip
-    const pct = (state.chronoTotal - remaining) / state.chronoTotal;
-    const barW = Math.round(w * 0.45);
-    const barX = Math.round((w - barW) / 2);
-    const barY = boxY + boxH + Math.round(padY * 0.5);
-    ctx.fillStyle = "rgba(255,255,255,0.18)";
-    recRoundedRect(ctx, barX, barY, barW, 3, 1.5);
-    ctx.fill();
-    const grd = ctx.createLinearGradient(barX, 0, barX + barW, 0);
-    grd.addColorStop(0, "#6dd3c5"); grd.addColorStop(0.5, "#f5c451"); grd.addColorStop(1, "#ff6b8a");
-    ctx.fillStyle = grd;
-    const fillW = Math.max(0, Math.min(1, pct)) * barW;
-    if (fillW > 0) {
-      recRoundedRect(ctx, barX, barY, fillW, 3, 1.5);
-      ctx.fill();
-    }
   }
     function recTrunc(text, maxW, ctx) {
     if (!text) return "";
@@ -1555,6 +1658,9 @@
     await recStartCamera();
   }
   function recClose() {
+    recCancelPreCountdown();
+    recHideAudienceCue();
+    recHideExerciseDesc();
     if (rec.isRecording) { try { recStop(); } catch (e) {} }
     recStopCamera();
     if (rec.blobUrl) { try { URL.revokeObjectURL(rec.blobUrl); } catch (e) {} rec.blobUrl = null; }
