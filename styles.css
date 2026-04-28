@@ -2515,3 +2515,244 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
 }
 .recorder-canvas, .recorder-preview { z-index: 2; }
 .recorder-top-bar, .recorder-bottom-bar, .recorder-finish-bar, .recorder-error { z-index: 5; }
+
+/* ==========================================================
+   Recorder UI v4 — bigger logo, pause/stop layout, confirm + preview popups
+   ========================================================== */
+
+/* Bigger top-left logo */
+.recorder-brand-logo {
+  height: 64px;
+  max-width: 180px;
+}
+@media (max-width: 480px) {
+  .recorder-brand-logo { height: 48px; max-width: 140px; }
+}
+@media (max-width: 380px) {
+  .recorder-brand-logo { height: 40px; max-width: 120px; }
+}
+
+/* Bottom controls — ACTIVE state (pause | stop) */
+.recorder-controls-active {
+  flex-direction: row !important;
+  gap: 1.2rem !important;
+  justify-content: center;
+}
+.recorder-ctl-btn {
+  appearance: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 0.7rem 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(20, 12, 32, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #fff;
+  min-height: 50px;
+  min-width: 120px;
+  transition: transform 0.1s, box-shadow 0.18s, border-color 0.18s, background 0.18s;
+}
+.recorder-ctl-btn:hover { transform: translateY(-1px); border-color: rgba(255,255,255,0.4); }
+.recorder-ctl-btn:active { transform: translateY(0); }
+.recorder-ctl-icon { font-size: 1.05rem; }
+
+.recorder-ctl-pause {
+  background: linear-gradient(135deg, rgba(245, 196, 81, 0.25), rgba(245, 196, 81, 0.08));
+  border-color: rgba(245, 196, 81, 0.5);
+  color: var(--gold-soft);
+}
+.recorder-ctl-pause:hover {
+  background: linear-gradient(135deg, rgba(245, 196, 81, 0.4), rgba(245, 196, 81, 0.15));
+  border-color: var(--gold);
+  box-shadow: 0 6px 22px rgba(245, 196, 81, 0.35);
+}
+.recorder-ctl-stop {
+  background: linear-gradient(135deg, rgba(255, 59, 92, 0.35), rgba(185, 28, 77, 0.25));
+  border-color: rgba(255, 100, 130, 0.55);
+  color: #ffd0d4;
+}
+.recorder-ctl-stop:hover {
+  background: linear-gradient(135deg, rgba(255, 59, 92, 0.55), rgba(185, 28, 77, 0.45));
+  border-color: rgba(255, 100, 130, 0.9);
+  box-shadow: 0 6px 22px rgba(255, 47, 92, 0.45);
+}
+
+@media (max-width: 480px) {
+  .recorder-ctl-btn { padding: 0.6rem 0.95rem; font-size: 0.78rem; min-width: 100px; min-height: 46px; }
+  .recorder-controls-active { gap: 0.85rem !important; }
+}
+@media (max-width: 380px) {
+  .recorder-ctl-btn { padding: 0.55rem 0.75rem; font-size: 0.72rem; min-width: 88px; min-height: 42px; }
+}
+
+/* Stop confirmation dialog */
+.recorder-confirm {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 5, 18, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 1.5rem;
+  animation: recFade 0.18s ease-out;
+}
+.recorder-confirm[hidden] { display: none; }
+@keyframes recFade { from { opacity: 0; } to { opacity: 1; } }
+
+.recorder-confirm-card {
+  background: linear-gradient(160deg, var(--bg-mid) 0%, var(--bg-velvet) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 1.4rem 1.2rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 50px rgba(255, 47, 92, 0.18);
+}
+.recorder-confirm-title {
+  margin: 0 0 0.6rem;
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.04em;
+  color: #fff;
+  font-size: 1.45rem;
+  font-weight: 400;
+}
+.recorder-confirm-msg {
+  margin: 0 0 1.3rem;
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+.recorder-confirm-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+}
+.recorder-confirm-btn {
+  appearance: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  border-radius: 12px;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  min-height: 46px;
+  transition: transform 0.1s, box-shadow 0.18s, border-color 0.18s;
+  flex: 1;
+  max-width: 180px;
+}
+.recorder-confirm-no {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ink);
+}
+.recorder-confirm-no:hover { border-color: rgba(255, 255, 255, 0.4); }
+.recorder-confirm-yes {
+  background: linear-gradient(135deg, #ff3b3b, #b91c4d);
+  border: 0;
+  color: #fff;
+  box-shadow: 0 6px 22px rgba(255, 47, 92, 0.45);
+}
+.recorder-confirm-yes:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(255, 47, 92, 0.6); }
+
+/* Preview / download popup */
+.recorder-preview-popup {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 5, 18, 0.92);
+  padding: 1.2rem;
+  animation: recFade 0.22s ease-out;
+}
+.recorder-preview-popup[hidden] { display: none; }
+.recorder-preview-card {
+  background: linear-gradient(160deg, var(--bg-mid) 0%, var(--bg-velvet) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-lg);
+  padding: 1.4rem 1.4rem 1.2rem;
+  max-width: 540px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.7), 0 0 60px rgba(245, 196, 81, 0.18);
+  max-height: 92vh;
+}
+.recorder-preview-title {
+  margin: 0;
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  font-size: 1.6rem;
+  font-weight: 400;
+}
+.recorder-preview-card .recorder-preview {
+  position: static;
+  inset: auto;
+  width: 100%;
+  height: auto;
+  max-height: 60vh;
+  border-radius: var(--radius-md);
+  background: #000;
+  display: block;
+}
+.recorder-preview-actions {
+  width: 100%;
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.recorder-preview-actions .recorder-action {
+  flex: 1 1 200px;
+  max-width: 240px;
+  min-height: 48px;
+  font-size: 0.95rem;
+  border-radius: 12px;
+}
+.recorder-preview-actions .recorder-download {
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  color: #052e0e;
+  font-weight: 800;
+  border: 0;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1rem;
+}
+.recorder-preview-actions .recorder-download:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.recorder-preview-actions .recorder-exit {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--ink);
+  padding: 0.8rem 1rem;
+}
+.recorder-preview-actions .recorder-exit:hover { background: rgba(255, 255, 255, 0.12); }
+
+@media (max-width: 480px) {
+  .recorder-preview-card { padding: 1rem 1rem 0.9rem; gap: 0.7rem; }
+  .recorder-preview-title { font-size: 1.35rem; }
+  .recorder-preview-card .recorder-preview { max-height: 52vh; }
+  .recorder-preview-actions { gap: 0.5rem; }
+  .recorder-preview-actions .recorder-action { flex-basis: 100%; max-width: none; }
+}
+
+/* When recording finishes, no need to keep the camera vignette around */
+.recorder-stage-finished::after { display: none; }

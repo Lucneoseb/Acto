@@ -67,7 +67,7 @@ window.IMPRO_BUNDLE = {
       "rerollPlayers": "Joueurs",
       "placeholder": "Clique sur Générer",
       "emDash": "—",
-      "footer": "Fait avec ♥ pour la communauté de l'impro francophone",
+      "footer": "Fait avec ♥ pour la communauté de l'impro",
       "sourcesLabel": "Sources d'inspiration",
       "label04": "Durée de l'exercice",
       "durationRandomLabel": "🎲 Durée aléatoire",
@@ -106,7 +106,15 @@ window.IMPRO_BUNDLE = {
       "recordRec": "REC",
       "recordHttpsHint": "L'enregistrement nécessite HTTPS ou localhost (pas file://). Sers la page via un serveur web.",
       "recordCamError": "Impossible d'accéder à la caméra. Vérifie l'autorisation dans ton navigateur.",
-      "recordUnsupported": "Ton navigateur ne supporte pas l'enregistrement vidéo. Essaie Chrome ou Safari récents."
+      "recordUnsupported": "Ton navigateur ne supporte pas l'enregistrement vidéo. Essaie Chrome ou Safari récents.",
+      "recordPauseBtn": "Pause",
+      "recordResumeBtn": "Reprendre",
+      "recordConfirmStopTitle": "Arrêter l'enregistrement ?",
+      "recordConfirmStopMsg": "La vidéo sera finalisée et tu pourras la télécharger.",
+      "recordConfirmStopYes": "Oui, arrêter",
+      "recordConfirmStopNo": "Continuer",
+      "recordPreviewTitle": "Ta vidéo",
+      "recordExitBtn": "Fermer"
     },
     "en": {
       "title": "Impro",
@@ -187,7 +195,15 @@ window.IMPRO_BUNDLE = {
       "recordRec": "REC",
       "recordHttpsHint": "Recording requires HTTPS or localhost (not file://). Serve the page via a web server.",
       "recordCamError": "Cannot access camera. Check your browser permission.",
-      "recordUnsupported": "Your browser does not support video recording. Try a recent Chrome or Safari."
+      "recordUnsupported": "Your browser does not support video recording. Try a recent Chrome or Safari.",
+      "recordPauseBtn": "Pause",
+      "recordResumeBtn": "Resume",
+      "recordConfirmStopTitle": "Stop recording?",
+      "recordConfirmStopMsg": "The video will be finalized and ready to download.",
+      "recordConfirmStopYes": "Yes, stop",
+      "recordConfirmStopNo": "Keep recording",
+      "recordPreviewTitle": "Your video",
+      "recordExitBtn": "Close"
     },
     "de": {
       "title": "Impro",
@@ -268,7 +284,15 @@ window.IMPRO_BUNDLE = {
       "recordRec": "REC",
       "recordHttpsHint": "Aufnahme erfordert HTTPS oder localhost (kein file://). Bediene die Seite über einen Webserver.",
       "recordCamError": "Kamera nicht zugänglich. Prüfe die Browser-Berechtigung.",
-      "recordUnsupported": "Dein Browser unterstützt keine Videoaufnahme. Probiere ein aktuelles Chrome oder Safari."
+      "recordUnsupported": "Dein Browser unterstützt keine Videoaufnahme. Probiere ein aktuelles Chrome oder Safari.",
+      "recordPauseBtn": "Pause",
+      "recordResumeBtn": "Weiter",
+      "recordConfirmStopTitle": "Aufnahme beenden?",
+      "recordConfirmStopMsg": "Das Video wird gespeichert und steht zum Download bereit.",
+      "recordConfirmStopYes": "Ja, beenden",
+      "recordConfirmStopNo": "Weiter aufnehmen",
+      "recordPreviewTitle": "Dein Video",
+      "recordExitBtn": "Schließen"
     },
     "es": {
       "title": "Impro",
@@ -349,7 +373,15 @@ window.IMPRO_BUNDLE = {
       "recordRec": "REC",
       "recordHttpsHint": "La grabación requiere HTTPS o localhost (no file://). Sirve la página vía un servidor web.",
       "recordCamError": "No se puede acceder a la cámara. Verifica el permiso del navegador.",
-      "recordUnsupported": "Tu navegador no admite grabación de vídeo. Prueba un Chrome o Safari recientes."
+      "recordUnsupported": "Tu navegador no admite grabación de vídeo. Prueba un Chrome o Safari recientes.",
+      "recordPauseBtn": "Pausar",
+      "recordResumeBtn": "Reanudar",
+      "recordConfirmStopTitle": "¿Detener la grabación?",
+      "recordConfirmStopMsg": "El vídeo se finalizará y podrás descargarlo.",
+      "recordConfirmStopYes": "Sí, detener",
+      "recordConfirmStopNo": "Continuar",
+      "recordPreviewTitle": "Tu vídeo",
+      "recordExitBtn": "Cerrar"
     },
     "pt": {
       "title": "Impro",
@@ -430,7 +462,15 @@ window.IMPRO_BUNDLE = {
       "recordRec": "REC",
       "recordHttpsHint": "A gravação requer HTTPS ou localhost (não file://). Serve a página através de um servidor web.",
       "recordCamError": "Não é possível aceder à câmara. Verifica a permissão do navegador.",
-      "recordUnsupported": "O teu navegador não suporta gravação de vídeo. Experimenta um Chrome ou Safari recentes."
+      "recordUnsupported": "O teu navegador não suporta gravação de vídeo. Experimenta um Chrome ou Safari recentes.",
+      "recordPauseBtn": "Pausar",
+      "recordResumeBtn": "Retomar",
+      "recordConfirmStopTitle": "Parar a gravação?",
+      "recordConfirmStopMsg": "O vídeo será finalizado e poderás descarregá-lo.",
+      "recordConfirmStopYes": "Sim, parar",
+      "recordConfirmStopNo": "Continuar",
+      "recordPreviewTitle": "O teu vídeo",
+      "recordExitBtn": "Fechar"
     },
     "nl": {
       "title": "Impro",
@@ -511,7 +551,15 @@ window.IMPRO_BUNDLE = {
       "recordRec": "REC",
       "recordHttpsHint": "Opname vereist HTTPS of localhost (geen file://). Bedien de pagina via een webserver.",
       "recordCamError": "Camera niet toegankelijk. Controleer de browser-toestemming.",
-      "recordUnsupported": "Je browser ondersteunt geen video-opname. Probeer een recente Chrome of Safari."
+      "recordUnsupported": "Je browser ondersteunt geen video-opname. Probeer een recente Chrome of Safari.",
+      "recordPauseBtn": "Pauze",
+      "recordResumeBtn": "Hervatten",
+      "recordConfirmStopTitle": "Opname stoppen?",
+      "recordConfirmStopMsg": "De video wordt afgerond en is klaar om te downloaden.",
+      "recordConfirmStopYes": "Ja, stoppen",
+      "recordConfirmStopNo": "Doorgaan",
+      "recordPreviewTitle": "Jouw video",
+      "recordExitBtn": "Sluiten"
     }
   },
   "data": {

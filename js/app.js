@@ -422,9 +422,16 @@
 
     setText("footerText",       t.footer);
     setText("footerCredit",     t.footerCredit);
-    setText("recordOpenBtn",    t.recordOpenBtn);
-    setText("recorderRecLabel", t.recordRec);
-    setText("recorderAgainBtn", t.recordAgain);
+    setText("recordOpenBtn",     t.recordOpenBtn);
+    setText("recorderRecLabel",  t.recordRec);
+    setText("recorderPauseLabel",t.recordPauseBtn);
+    setText("recorderStopLabel", t.recordStopBtn);
+    setText("recorderConfirmTitle", t.recordConfirmStopTitle);
+    setText("recorderConfirmMsg",   t.recordConfirmStopMsg);
+    setText("recorderConfirmYes",   t.recordConfirmStopYes);
+    setText("recorderConfirmNo",    t.recordConfirmStopNo);
+    setText("recorderPreviewTitle", t.recordPreviewTitle);
+    setText("recorderExitBtn",      t.recordExitBtn);
     const __dl = document.getElementById("recorderDownloadLink");
     if (__dl) __dl.textContent = t.recordDownload || "";
     setText("settingsLabelText",t.settings);
@@ -1015,18 +1022,22 @@
     }
 
     /* Video recorder controls */
-    const __recOpenBtn  = $("#recordOpenBtn");
-    const __recCloseBtn = $("#recorderCloseBtn");
-    const __recRecBtn   = $("#recorderRecordBtn");
-    const __recSwitch   = $("#recorderSwitchCamBtn");
-    const __recAgainBtn = $("#recorderAgainBtn");
+    const __recOpenBtn   = $("#recordOpenBtn");
+    const __recRecBtn    = $("#recorderRecordBtn");
+    const __recSwitch    = $("#recorderSwitchCamBtn");
+    const __recPauseBtn  = $("#recorderPauseBtn");
+    const __recStopBtn   = $("#recorderStopBtn");
+    const __recCfmYes    = $("#recorderConfirmYes");
+    const __recCfmNo     = $("#recorderConfirmNo");
+    const __recExitBtn   = $("#recorderExitBtn");
     if (__recOpenBtn)  __recOpenBtn.addEventListener("click", recOpen);
-    if (__recCloseBtn) __recCloseBtn.addEventListener("click", recClose);
     if (__recSwitch)   __recSwitch.addEventListener("click", recSwitchCamera);
-    if (__recAgainBtn) __recAgainBtn.addEventListener("click", recAgain);
-    if (__recRecBtn)   __recRecBtn.addEventListener("click", () => {
-      if (rec.isRecording) recStop(); else recStart();
-    });
+    if (__recRecBtn)   __recRecBtn.addEventListener("click", () => { if (!rec.isRecording) recStart(); });
+    if (__recPauseBtn) __recPauseBtn.addEventListener("click", recPauseResume);
+    if (__recStopBtn)  __recStopBtn.addEventListener("click", recRequestStop);
+    if (__recCfmYes)   __recCfmYes.addEventListener("click", recConfirmStop);
+    if (__recCfmNo)    __recCfmNo.addEventListener("click", recCancelStop);
+    if (__recExitBtn)  __recExitBtn.addEventListener("click", recClose);
 
     document.addEventListener("keydown", (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
@@ -1060,10 +1071,12 @@
     chunks: [],
     facingMode: "environment",
     isRecording: false,
+    isPaused: false,
     startedAt: 0,
+    elapsedBeforePause: 0,
     recTimerId: null,
     blobUrl: null,
-    logoImg: null,        // preloaded brand logo for watermark
+    logoImg: null,
     logoLoaded: false
   };
   // Preload the brand logo (used as watermark)
@@ -1107,8 +1120,9 @@
     rec.canvas  = $("#recorderCanvas");
     rec.ctx     = rec.canvas ? rec.canvas.getContext("2d") : null;
     recHideError();
-    recHidePreview();
-    recResetUI();
+    recHideConfirm();
+    recHidePreviewPopup();
+    recShowIdleControls();
     await recStartCamera();
   }
   async function recStartCamera() {
@@ -1159,22 +1173,19 @@
   }
   function recDrawLogoWatermark(ctx, w, h) {
     if (!rec.logoLoaded || !rec.logoImg) return;
-    // Logo target width = ~22% of canvas width, capped
-    const logoW = Math.min(Math.round(w * 0.22), 260);
+    // Bigger top-left watermark
+    const logoW = Math.min(Math.round(w * 0.30), 360);
     const ratio = (rec.logoImg.naturalWidth && rec.logoImg.naturalHeight)
       ? rec.logoImg.naturalHeight / rec.logoImg.naturalWidth : 0.66;
     const logoH = Math.round(logoW * ratio);
-    // Position: top-right with margin (below the safe zone reserved by HTML toolbar)
-    const margin = Math.round(w * 0.025);
-    const reserveTop = Math.round(w * 0.13);
-    const x = w - logoW - margin;
-    const y = reserveTop + Math.round(w * 0.005);
-    // Subtle drop shadow for legibility
+    const margin = Math.round(w * 0.03);
+    const x = margin;
+    const y = margin;
     ctx.save();
-    ctx.shadowColor = "rgba(0,0,0,0.55)";
-    ctx.shadowBlur  = Math.round(w * 0.018);
-    ctx.shadowOffsetY = 2;
-    ctx.globalAlpha = 0.95;
+    ctx.shadowColor = "rgba(0,0,0,0.6)";
+    ctx.shadowBlur  = Math.round(w * 0.022);
+    ctx.shadowOffsetY = 3;
+    ctx.globalAlpha = 0.96;
     try { ctx.drawImage(rec.logoImg, x, y, logoW, logoH); } catch (e) { /* ignore */ }
     ctx.restore();
   }
@@ -1243,9 +1254,9 @@
     const consLines  = state.currentConstraint ? recWrapText(ctx, state.currentConstraint, maxTextW) : [];
     const themeLines = state.currentTheme      ? recWrapText(ctx, state.currentTheme,      maxTextW) : [];
 
-    // Reserve a top safe-zone so the canvas overlay never collides with
-    // the HTML toolbar (close / switch cam buttons, chrono chip).
-    const reserveTop  = Math.round(w * 0.13);
+    // Reserve a top safe-zone so the canvas overlay text never collides
+    // with the brand logo watermark (top-left) or the HTML chrono chip (top-center).
+    const reserveTop  = Math.round(w * 0.24);
 
     // Total block height
     const sectionH = (count, sz) => count > 0 ? labelSize + lineGap + count * (sz + lineGap) : 0;
@@ -1387,31 +1398,72 @@
     rec.recorder.onstop = () => recFinalize();
     rec.recorder.start(1000);
     rec.isRecording = true;
+    rec.isPaused = false;
     rec.startedAt = Date.now();
-    const recBtn = $("#recorderRecordBtn");
-    if (recBtn) {
-      recBtn.dataset.recording = "true";
-      recBtn.setAttribute("aria-label", store.ui.recordStopBtn || "Stop");
-    }
-    const lbl = $("#recorderRecordLabel");
-    if (lbl) lbl.textContent = store.ui.recordStopBtn || "Stop";
+    rec.elapsedBeforePause = 0;
+    recShowActiveControls();
+    recRefreshPauseLabel();
     const ind = $("#recorderRecIndicator");
     if (ind) ind.hidden = false;
-    rec.recTimerId = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - rec.startedAt) / 1000);
-      const tEl = $("#recorderRecTime");
-      if (tEl) tEl.textContent = formatMMSS(elapsed);
-    }, 500);
-    // Auto-start chrono if a duration was generated and chrono not running
+    rec.recTimerId = setInterval(recUpdateRecElapsed, 500);
     if (!state.chronoRunning && state.chronoTotal > 0) chronoStart();
+  }
+  function recUpdateRecElapsed() {
+    const tEl = $("#recorderRecTime");
+    if (!tEl) return;
+    const baseMs = rec.elapsedBeforePause || 0;
+    const live   = (rec.isPaused || !rec.startedAt) ? 0 : (Date.now() - rec.startedAt);
+    tEl.textContent = formatMMSS(Math.floor((baseMs + live) / 1000));
+  }
+  function recPauseResume() {
+    if (!rec.recorder) return;
+    if (rec.recorder.state === "recording") {
+      try { rec.recorder.pause(); } catch (e) { return; }
+      rec.elapsedBeforePause += Date.now() - rec.startedAt;
+      rec.startedAt = 0;
+      rec.isPaused = true;
+      if (state.chronoRunning) chronoPause();
+      recRefreshPauseLabel();
+    } else if (rec.recorder.state === "paused") {
+      try { rec.recorder.resume(); } catch (e) { return; }
+      rec.startedAt = Date.now();
+      rec.isPaused = false;
+      if (!state.chronoRunning && state.chronoRemaining > 0) chronoStart();
+      recRefreshPauseLabel();
+    }
+  }
+  function recRefreshPauseLabel() {
+    const t = store.ui;
+    const icon = $("#recorderPauseIcon");
+    const lbl  = $("#recorderPauseLabel");
+    if (rec.isPaused) {
+      if (icon) icon.textContent = "▶";
+      if (lbl)  lbl.textContent  = t.recordResumeBtn || "Resume";
+    } else {
+      if (icon) icon.textContent = "⏸";
+      if (lbl)  lbl.textContent  = t.recordPauseBtn || "Pause";
+    }
+  }
+  function recRequestStop() {
+    // Show the confirm dialog
+    const c = $("#recorderConfirm");
+    if (c) c.hidden = false;
+  }
+  function recCancelStop()  { const c = $("#recorderConfirm"); if (c) c.hidden = true; }
+  function recHideConfirm() { const c = $("#recorderConfirm"); if (c) c.hidden = true; }
+  function recConfirmStop() {
+    recHideConfirm();
+    recStop();   // recorder.stop() → onstop → recFinalize()
   }
   function recStop() {
     if (!rec.recorder || rec.recorder.state === "inactive") return;
     try { rec.recorder.stop(); } catch (e) {}
     rec.isRecording = false;
+    rec.isPaused = false;
     if (rec.recTimerId) { clearInterval(rec.recTimerId); rec.recTimerId = null; }
     const ind = $("#recorderRecIndicator");
     if (ind) ind.hidden = true;
+    if (state.chronoRunning) chronoPause();
   }
   function recFinalize() {
     if (rec.blobUrl) { try { URL.revokeObjectURL(rec.blobUrl); } catch (e) {} rec.blobUrl = null; }
@@ -1433,27 +1485,41 @@
       prev.hidden = false;
       try { prev.load(); } catch (e) {}
     }
+    // Stop the camera now — preview popup takes over the screen
+    recStopCamera();
+    // Hide the camera UI
+    const stage = $("#recorderStage");
+    if (stage) stage.classList.add("recorder-stage-finished");
+    const top  = $("#recorderTopBar");
+    if (top)  top.hidden = true;
+    const idle = $("#recorderControlsIdle");
+    if (idle) idle.hidden = true;
+    const act  = $("#recorderControlsActive");
+    if (act)  act.hidden = true;
     if (rec.canvas) rec.canvas.style.display = "none";
-    const bottom = $("#recorderBottomBar");
-    if (bottom) bottom.hidden = true;
-    const finish = $("#recorderFinishBar");
-    if (finish) finish.hidden = false;
+    // Show preview popup
+    const pop = $("#recorderPreviewPopup");
+    if (pop) pop.hidden = false;
   }
-  function recAgain() {
-    recHidePreview();
-    if (rec.canvas) rec.canvas.style.display = "";
-    const bottom = $("#recorderBottomBar");
-    if (bottom) bottom.hidden = false;
-    const recBtn = $("#recorderRecordBtn");
-    if (recBtn) {
-      delete recBtn.dataset.recording;
-      recBtn.setAttribute("aria-label", store.ui.recordStartBtn || "Start");
-    }
-    const lbl = $("#recorderRecordLabel");
-    if (lbl) lbl.textContent = store.ui.recordStartBtn || "Start";
-    rec.chunks = [];
-    rec.recorder = null;
+  function recHidePreviewPopup() {
+    const pop = $("#recorderPreviewPopup");
+    if (pop) pop.hidden = true;
+    const prev = $("#recorderPreview");
+    if (prev) { try { prev.pause(); } catch (e) {} prev.removeAttribute("src"); prev.hidden = true; }
   }
+  function recShowIdleControls() {
+    const idle = $("#recorderControlsIdle");
+    if (idle) idle.hidden = false;
+    const act = $("#recorderControlsActive");
+    if (act) act.hidden = true;
+  }
+  function recShowActiveControls() {
+    const idle = $("#recorderControlsIdle");
+    if (idle) idle.hidden = true;
+    const act = $("#recorderControlsActive");
+    if (act) act.hidden = false;
+  }
+  // (recAgain removed — exit & re-open instead)
   async function recSwitchCamera() {
     rec.facingMode = (rec.facingMode === "environment") ? "user" : "environment";
     if (rec.stream) rec.stream.getTracks().forEach(t => { try { t.stop(); } catch (e) {} });
@@ -1466,32 +1532,22 @@
     if (rec.blobUrl) { try { URL.revokeObjectURL(rec.blobUrl); } catch (e) {} rec.blobUrl = null; }
     rec.chunks = [];
     rec.recorder = null;
+    rec.isRecording = false;
+    rec.isPaused = false;
+    rec.elapsedBeforePause = 0;
     const modal = $("#recorderModal");
     if (modal) modal.hidden = true;
     document.body.style.overflow = "";
-    recResetUI();
-  }
-  function recResetUI() {
+    recHideConfirm();
+    recHidePreviewPopup();
+    const stage = $("#recorderStage");
+    if (stage) stage.classList.remove("recorder-stage-finished");
+    const top = $("#recorderTopBar");
+    if (top) top.hidden = false;
     if (rec.canvas) rec.canvas.style.display = "";
-    const bottom = $("#recorderBottomBar");
-    if (bottom) bottom.hidden = false;
-    const finish = $("#recorderFinishBar");
-    if (finish) finish.hidden = true;
-    const ind = $("#recorderRecIndicator");
-    if (ind) ind.hidden = true;
-    const recBtn = $("#recorderRecordBtn");
-    if (recBtn) {
-      delete recBtn.dataset.recording;
-      recBtn.setAttribute("aria-label", store.ui.recordStartBtn || "Start");
-    }
-    const lbl = $("#recorderRecordLabel");
-    if (lbl) lbl.textContent = store.ui.recordStartBtn || "Start";
-    recHidePreview();
+    recShowIdleControls();
   }
-  function recHidePreview() {
-    const prev = $("#recorderPreview");
-    if (prev) { prev.hidden = true; try { prev.pause(); } catch (e) {} prev.removeAttribute("src"); }
-  }
+  // recResetUI/recHidePreview removed — covered by recShowIdleControls/recHidePreviewPopup
   function recShowError(msg, hint) {
     const wrap = $("#recorderError");
     const m = $("#recorderErrorMsg");

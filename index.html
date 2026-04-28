@@ -233,13 +233,12 @@
 
   <!-- Video recorder modal -->
   <div class="recorder-modal" id="recorderModal" hidden aria-modal="true" role="dialog">
-    <div class="recorder-stage">
+    <div class="recorder-stage" id="recorderStage">
       <canvas class="recorder-canvas" id="recorderCanvas"></canvas>
       <video class="recorder-hidden-video" id="recorderVideo" playsinline muted></video>
-      <video class="recorder-preview" id="recorderPreview" controls playsinline hidden></video>
 
       <!-- Top toolbar -->
-      <div class="recorder-top-bar">
+      <div class="recorder-top-bar" id="recorderTopBar">
         <div class="recorder-top-left">
           <img class="recorder-brand-logo" src="./assets/logo.png" alt="Acto" />
           <div class="recorder-rec-indicator" id="recorderRecIndicator" hidden>
@@ -254,20 +253,51 @@
         </div>
         <div class="recorder-top-right">
           <button class="recorder-icon-btn" id="recorderSwitchCamBtn" type="button" aria-label="Switch camera">🔄</button>
-          <button class="recorder-icon-btn recorder-close" id="recorderCloseBtn" type="button" aria-label="Close">✕</button>
         </div>
       </div>
 
-      <div class="recorder-bottom-bar" id="recorderBottomBar">
+      <!-- Bottom controls — IDLE state: just the big record button -->
+      <div class="recorder-bottom-bar" id="recorderControlsIdle">
         <button class="recorder-record" id="recorderRecordBtn" type="button" aria-label="Record">
           <span class="recorder-record-inner" aria-hidden="true"></span>
         </button>
         <span class="recorder-record-label" id="recorderRecordLabel"></span>
       </div>
 
-      <div class="recorder-finish-bar" id="recorderFinishBar" hidden>
-        <a class="recorder-action recorder-download" id="recorderDownloadLink" download></a>
-        <button class="recorder-action recorder-again" id="recorderAgainBtn" type="button"></button>
+      <!-- Bottom controls — ACTIVE state: pause/resume on the left, stop on the right -->
+      <div class="recorder-bottom-bar recorder-controls-active" id="recorderControlsActive" hidden>
+        <button class="recorder-ctl-btn recorder-ctl-pause" id="recorderPauseBtn" type="button">
+          <span class="recorder-ctl-icon" id="recorderPauseIcon" aria-hidden="true">⏸</span>
+          <span class="recorder-ctl-label" id="recorderPauseLabel"></span>
+        </button>
+        <button class="recorder-ctl-btn recorder-ctl-stop" id="recorderStopBtn" type="button">
+          <span class="recorder-ctl-icon" aria-hidden="true">⏹</span>
+          <span class="recorder-ctl-label" id="recorderStopLabel"></span>
+        </button>
+      </div>
+
+      <!-- Stop confirmation overlay -->
+      <div class="recorder-confirm" id="recorderConfirm" hidden>
+        <div class="recorder-confirm-card">
+          <h3 class="recorder-confirm-title" id="recorderConfirmTitle"></h3>
+          <p class="recorder-confirm-msg" id="recorderConfirmMsg"></p>
+          <div class="recorder-confirm-actions">
+            <button class="recorder-confirm-btn recorder-confirm-no"  id="recorderConfirmNo"  type="button"></button>
+            <button class="recorder-confirm-btn recorder-confirm-yes" id="recorderConfirmYes" type="button"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview / download popup (shown after confirm-stop) -->
+      <div class="recorder-preview-popup" id="recorderPreviewPopup" hidden>
+        <div class="recorder-preview-card">
+          <h3 class="recorder-preview-title" id="recorderPreviewTitle"></h3>
+          <video class="recorder-preview" id="recorderPreview" controls playsinline></video>
+          <div class="recorder-preview-actions">
+            <a class="recorder-action recorder-download" id="recorderDownloadLink" download></a>
+            <button class="recorder-action recorder-exit" id="recorderExitBtn" type="button"></button>
+          </div>
+        </div>
       </div>
 
       <div class="recorder-error" id="recorderError" hidden>
