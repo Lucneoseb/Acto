@@ -91,7 +91,8 @@ window.IMPRO_BUNDLE = {
       "themesDlgHint": "Saisis tes thèmes (un par ligne ou séparés par des virgules).",
       "themesDlgClear": "Effacer",
       "themesDlgSave": "Enregistrer",
-      "themesEmpty": "Aucun thème saisi"
+      "themesEmpty": "Aucun thème saisi",
+      "footerCredit": "Créé par Sébastien Spas"
     },
     "en": {
       "title": "Impro",
@@ -157,7 +158,8 @@ window.IMPRO_BUNDLE = {
       "themesDlgHint": "Enter your themes (one per line or separated by commas).",
       "themesDlgClear": "Clear",
       "themesDlgSave": "Save",
-      "themesEmpty": "No themes entered"
+      "themesEmpty": "No themes entered",
+      "footerCredit": "Created by Sébastien Spas"
     },
     "de": {
       "title": "Impro",
@@ -223,7 +225,8 @@ window.IMPRO_BUNDLE = {
       "themesDlgHint": "Gib deine Themen ein (eines pro Zeile oder durch Kommas getrennt).",
       "themesDlgClear": "Löschen",
       "themesDlgSave": "Speichern",
-      "themesEmpty": "Keine Themen eingegeben"
+      "themesEmpty": "Keine Themen eingegeben",
+      "footerCredit": "Erstellt von Sébastien Spas"
     },
     "es": {
       "title": "Impro",
@@ -289,7 +292,8 @@ window.IMPRO_BUNDLE = {
       "themesDlgHint": "Introduce tus temas (uno por línea o separados por comas).",
       "themesDlgClear": "Borrar",
       "themesDlgSave": "Guardar",
-      "themesEmpty": "Sin temas introducidos"
+      "themesEmpty": "Sin temas introducidos",
+      "footerCredit": "Creado por Sébastien Spas"
     },
     "pt": {
       "title": "Impro",
@@ -355,7 +359,8 @@ window.IMPRO_BUNDLE = {
       "themesDlgHint": "Insere os teus temas (um por linha ou separados por vírgulas).",
       "themesDlgClear": "Limpar",
       "themesDlgSave": "Guardar",
-      "themesEmpty": "Nenhum tema inserido"
+      "themesEmpty": "Nenhum tema inserido",
+      "footerCredit": "Criado por Sébastien Spas"
     },
     "nl": {
       "title": "Impro",
@@ -421,7 +426,8 @@ window.IMPRO_BUNDLE = {
       "themesDlgHint": "Voer je thema's in (één per regel of gescheiden door komma's).",
       "themesDlgClear": "Wissen",
       "themesDlgSave": "Opslaan",
-      "themesEmpty": "Geen thema's ingevoerd"
+      "themesEmpty": "Geen thema's ingevoerd",
+      "footerCredit": "Gemaakt door Sébastien Spas"
     }
   },
   "data": {

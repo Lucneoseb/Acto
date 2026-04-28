@@ -1980,3 +1980,22 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
 @media (prefers-reduced-motion: reduce) {
   .hero-logo { animation: none; }
 }
+
+/* ==========================================================
+   Footer creator credit
+   ========================================================== */
+.footer-credit {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+  font-style: italic;
+}
+.footer-credit::before {
+  content: "✦ ";
+  color: var(--gold);
+  opacity: 0.6;
+}
+@media (max-width: 480px) {
+  .footer-credit { font-size: 0.74rem; }
+}

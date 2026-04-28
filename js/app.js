@@ -419,6 +419,7 @@
     }
 
     setText("footerText",       t.footer);
+    setText("footerCredit",     t.footerCredit);
     setText("settingsLabelText",t.settings);
     setText("dlgTitle",         t.settings);
     setText("dlgLanguageLabel", t.language);
