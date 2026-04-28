@@ -830,7 +830,8 @@
   }
 
   let recDescHideTimer = null;
-  function recShowExerciseDesc() {
+  function recShowExerciseDesc(opts) {
+    opts = opts || {};
     const desc = state.currentExercise && state.currentExercise.desc;
     if (!desc) return;
     const popup = $("#recorderExerciseDesc");
@@ -841,17 +842,21 @@
     void popup.offsetWidth;
     popup.hidden = false;
     popup.classList.add("show");
+    if (recDescHideTimer) { clearTimeout(recDescHideTimer); recDescHideTimer = null; }
+    if (!opts.persistent) {
+      recDescHideTimer = setTimeout(recHideExerciseDesc, opts.duration || 6000);
+    }
+  }
+  function recArmExerciseDescHide(delayMs) {
     if (recDescHideTimer) clearTimeout(recDescHideTimer);
-    recDescHideTimer = setTimeout(() => {
-      popup.classList.remove("show");
-      setTimeout(() => { popup.hidden = true; }, 350);
-      recDescHideTimer = null;
-    }, 5000);
+    recDescHideTimer = setTimeout(recHideExerciseDesc, delayMs == null ? 6000 : delayMs);
   }
   function recHideExerciseDesc() {
     if (recDescHideTimer) { clearTimeout(recDescHideTimer); recDescHideTimer = null; }
     const popup = $("#recorderExerciseDesc");
-    if (popup) { popup.classList.remove("show"); popup.hidden = true; }
+    if (!popup) return;
+    popup.classList.remove("show");
+    setTimeout(() => { popup.hidden = true; }, 350);
   }
 
   /* ============================================================
@@ -1148,7 +1153,9 @@
       audio(); // unlock audio context on user gesture
       recPlayPreCountdown(() => {
         recStart();
-        recShowExerciseDesc();
+        // The description popup was already shown at modal-open;
+        // schedule it to fade out 6 s after the countdown ends.
+        recArmExerciseDescHide(6000);
       });
     });
     if (__recPauseBtn) __recPauseBtn.addEventListener("click", recPauseResume);
@@ -1241,6 +1248,9 @@
     recHideConfirm();
     recHidePreviewPopup();
     recShowIdleControls();
+    // Show the exercise description as soon as the recorder opens (no auto-hide yet —
+    // it will be auto-hidden 6 s after the 3-2-1 countdown completes).
+    recShowExerciseDesc({ persistent: true });
     await recStartCamera();
   }
   async function recStartCamera() {
@@ -1366,8 +1376,8 @@
       : Math.min(w * 0.50, 720);
     const maxTextW = maxBoxW - padX * 2;
 
-    // Pre-wrap each section
-    ctx.font = "700 " + titleSize + 'px Inter, "Helvetica Neue", sans-serif';
+    // Pre-wrap each section (title now uses subSize, same as body text)
+    ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
     const titleLines = ex ? recWrapText(ctx, ex.name, maxTextW) : [];
     ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
     const consLines  = state.currentConstraint ? recWrapText(ctx, state.currentConstraint, maxTextW) : [];
@@ -1375,7 +1385,7 @@
 
     // Compute longest line to size the bg
     let blockW = 0;
-    ctx.font = "700 " + titleSize + 'px Inter, "Helvetica Neue", sans-serif';
+    ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
     for (const l of titleLines) blockW = Math.max(blockW, ctx.measureText(l).width);
     ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
     for (const l of consLines)  blockW = Math.max(blockW, ctx.measureText(l).width);
@@ -1384,11 +1394,13 @@
     if (titleLines.length) blockW = Math.max(blockW, ctx.measureText((t.recordOverlayExercise || "Exercice").toUpperCase()).width);
     if (consLines.length)  blockW = Math.max(blockW, ctx.measureText((t.recordOverlayCons     || "Contrainte").toUpperCase()).width);
     if (themeLines.length) blockW = Math.max(blockW, ctx.measureText((t.recordOverlayTheme    || "Thème").toUpperCase()).width);
-    blockW = Math.min(blockW + padX * 2, maxBoxW);
+    // Always use the full max width so the box has a predictable size
+    // (and the HTML description popup below it can match exactly).
+    blockW = maxBoxW;
 
     // Compute height (each section now has label + lines)
     let blockH = padY;
-    if (titleLines.length) blockH += labelSize + lineGap + titleLines.length * (titleSize + lineGap);
+    if (titleLines.length) blockH += labelSize + lineGap + titleLines.length * (subSize + lineGap);
     if (consLines.length)  blockH += sectionGap + labelSize + lineGap + consLines.length  * (subSize + lineGap);
     if (themeLines.length) blockH += sectionGap + labelSize + lineGap + themeLines.length * (subSize + lineGap);
     blockH += padY;
@@ -1418,10 +1430,10 @@
       y += labelSize;
       ctx.fillText((t.recordOverlayExercise || "Exercice").toUpperCase(), boxX + padX, y);
       y += lineGap;
-      ctx.font = "700 " + titleSize + 'px Inter, "Helvetica Neue", sans-serif';
+      ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
       ctx.fillStyle = "#fff";
       for (const line of titleLines) {
-        y += titleSize;
+        y += subSize;
         ctx.fillText(line, boxX + padX, y);
         y += lineGap;
       }

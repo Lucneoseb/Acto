@@ -3021,3 +3021,51 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
   }
   .recorder-exercise-desc-text { font-size: 0.88rem; }
 }
+
+/* ==========================================================
+   Recorder — Description popup width/alignment override
+   (must mirror canvas info block: 50vw landscape / 78vw portrait,
+    same right margin = 2.5%, text size matches body text)
+   ========================================================== */
+.recorder-exercise-desc {
+  /* Match the canvas top-right block sizing rules */
+  top: 28%;
+  right: 2.5%;
+  /* Override the previous max-width so it matches the canvas block exactly */
+  max-width: none !important;
+  width: min(50vw, 720px);
+}
+
+/* Make the text the SAME size as the body text in the top-right block.
+   Canvas sub size = max(13, baseDim * 0.026). Mirror that with a clamp. */
+.recorder-exercise-desc-text {
+  font-size: clamp(0.95rem, 2.2vw, 1.5rem) !important;
+  line-height: 1.4;
+}
+
+@media (orientation: portrait) {
+  .recorder-exercise-desc {
+    width: min(78vw, 620px);
+  }
+}
+
+/* On narrow phone screens, keep the popup top-right aligned (overrides earlier mobile rule
+   that switched it to bottom-center). */
+@media (max-width: 480px) {
+  .recorder-exercise-desc {
+    top: 28%;
+    bottom: auto;
+    left: auto;
+    right: 2.5%;
+    width: 78vw;
+    max-width: none !important;
+    transform: translateY(-6px) scale(0.96);
+    border-radius: 16px;
+  }
+  .recorder-exercise-desc.show {
+    transform: translateY(0) scale(1);
+  }
+  .recorder-exercise-desc-text {
+    font-size: clamp(0.85rem, 3.4vw, 1.05rem) !important;
+  }
+}
