@@ -68,7 +68,30 @@ window.IMPRO_BUNDLE = {
       "placeholder": "Clique sur Générer",
       "emDash": "—",
       "footer": "Fait avec ♥ pour la communauté de l'impro francophone",
-      "sourcesLabel": "Sources d'inspiration"
+      "sourcesLabel": "Sources d'inspiration",
+      "label04": "Durée de l'exercice",
+      "durationRandomLabel": "🎲 Durée aléatoire",
+      "durationManualLabel": "Durée manuelle",
+      "durationMaxHelp": "Durée max : ",
+      "cardChrono": "Chrono",
+      "rerollChrono": "Chrono",
+      "chronoStart": "▶ Démarrer",
+      "chronoPause": "⏸ Pause",
+      "chronoResume": "▶ Reprendre",
+      "chronoReset": "↺ Réinitialiser",
+      "audienceTitle": "Intervention publique",
+      "audienceHint": "Cet exercice peut bénéficier d'une intervention du public — un signal régulier rappelle aux improvisateurs d'inviter une suggestion.",
+      "audienceIntervalLabel": "Intervalle entre interventions",
+      "audienceFlashMsg": "Public : intervention !",
+      "audienceBadge": "👥 Interaction publique",
+      "themesModeRandom": "Aléatoire",
+      "themesModeCustom": "Mes thèmes",
+      "themeEditBtn": "📝 Saisir mes thèmes",
+      "themesDlgTitle": "Tes thèmes personnels",
+      "themesDlgHint": "Saisis tes thèmes (un par ligne ou séparés par des virgules).",
+      "themesDlgClear": "Effacer",
+      "themesDlgSave": "Enregistrer",
+      "themesEmpty": "Aucun thème saisi"
     },
     "en": {
       "title": "Impro",
@@ -111,7 +134,30 @@ window.IMPRO_BUNDLE = {
       "placeholder": "Click Generate",
       "emDash": "—",
       "footer": "Made with ♥ for the improv community",
-      "sourcesLabel": "Inspiration sources"
+      "sourcesLabel": "Inspiration sources",
+      "label04": "Exercise duration",
+      "durationRandomLabel": "🎲 Random duration",
+      "durationManualLabel": "Manual duration",
+      "durationMaxHelp": "Max duration: ",
+      "cardChrono": "Timer",
+      "rerollChrono": "Timer",
+      "chronoStart": "▶ Start",
+      "chronoPause": "⏸ Pause",
+      "chronoResume": "▶ Resume",
+      "chronoReset": "↺ Reset",
+      "audienceTitle": "Audience interaction",
+      "audienceHint": "This exercise can benefit from audience input — a regular cue reminds improvisers to invite a suggestion.",
+      "audienceIntervalLabel": "Interval between cues",
+      "audienceFlashMsg": "Audience: cue!",
+      "audienceBadge": "👥 Audience interaction",
+      "themesModeRandom": "Random",
+      "themesModeCustom": "My themes",
+      "themeEditBtn": "📝 Enter my themes",
+      "themesDlgTitle": "Your themes",
+      "themesDlgHint": "Enter your themes (one per line or separated by commas).",
+      "themesDlgClear": "Clear",
+      "themesDlgSave": "Save",
+      "themesEmpty": "No themes entered"
     },
     "de": {
       "title": "Impro",
@@ -154,7 +200,30 @@ window.IMPRO_BUNDLE = {
       "placeholder": "Auf Generieren klicken",
       "emDash": "—",
       "footer": "Mit ♥ für die Impro-Community gemacht",
-      "sourcesLabel": "Inspirationsquellen"
+      "sourcesLabel": "Inspirationsquellen",
+      "label04": "Übungsdauer",
+      "durationRandomLabel": "🎲 Zufällige Dauer",
+      "durationManualLabel": "Manuelle Dauer",
+      "durationMaxHelp": "Maximale Dauer: ",
+      "cardChrono": "Timer",
+      "rerollChrono": "Timer",
+      "chronoStart": "▶ Start",
+      "chronoPause": "⏸ Pause",
+      "chronoResume": "▶ Weiter",
+      "chronoReset": "↺ Zurücksetzen",
+      "audienceTitle": "Publikumsbeteiligung",
+      "audienceHint": "Diese Übung kann von Publikumsbeiträgen profitieren — ein regelmäßiges Signal erinnert die Improvisierenden, Vorschläge einzuholen.",
+      "audienceIntervalLabel": "Intervall zwischen Signalen",
+      "audienceFlashMsg": "Publikum: Vorschlag!",
+      "audienceBadge": "👥 Publikumsbeteiligung",
+      "themesModeRandom": "Zufällig",
+      "themesModeCustom": "Meine Themen",
+      "themeEditBtn": "📝 Meine Themen eingeben",
+      "themesDlgTitle": "Deine Themen",
+      "themesDlgHint": "Gib deine Themen ein (eines pro Zeile oder durch Kommas getrennt).",
+      "themesDlgClear": "Löschen",
+      "themesDlgSave": "Speichern",
+      "themesEmpty": "Keine Themen eingegeben"
     },
     "es": {
       "title": "Impro",
@@ -197,7 +266,30 @@ window.IMPRO_BUNDLE = {
       "placeholder": "Haz clic en Generar",
       "emDash": "—",
       "footer": "Hecho con ♥ para la comunidad de la impro",
-      "sourcesLabel": "Fuentes de inspiración"
+      "sourcesLabel": "Fuentes de inspiración",
+      "label04": "Duración del ejercicio",
+      "durationRandomLabel": "🎲 Duración aleatoria",
+      "durationManualLabel": "Duración manual",
+      "durationMaxHelp": "Duración máx.: ",
+      "cardChrono": "Cronómetro",
+      "rerollChrono": "Cronómetro",
+      "chronoStart": "▶ Iniciar",
+      "chronoPause": "⏸ Pausa",
+      "chronoResume": "▶ Reanudar",
+      "chronoReset": "↺ Reiniciar",
+      "audienceTitle": "Interacción del público",
+      "audienceHint": "Este ejercicio puede beneficiarse de la participación del público — una señal regular recuerda a los improvisadores invitar a sugerencias.",
+      "audienceIntervalLabel": "Intervalo entre señales",
+      "audienceFlashMsg": "Público: ¡sugerencia!",
+      "audienceBadge": "👥 Interacción con el público",
+      "themesModeRandom": "Aleatorio",
+      "themesModeCustom": "Mis temas",
+      "themeEditBtn": "📝 Introducir mis temas",
+      "themesDlgTitle": "Tus temas",
+      "themesDlgHint": "Introduce tus temas (uno por línea o separados por comas).",
+      "themesDlgClear": "Borrar",
+      "themesDlgSave": "Guardar",
+      "themesEmpty": "Sin temas introducidos"
     },
     "pt": {
       "title": "Impro",
@@ -240,7 +332,30 @@ window.IMPRO_BUNDLE = {
       "placeholder": "Clica em Gerar",
       "emDash": "—",
       "footer": "Feito com ♥ para a comunidade da impro",
-      "sourcesLabel": "Fontes de inspiração"
+      "sourcesLabel": "Fontes de inspiração",
+      "label04": "Duração do exercício",
+      "durationRandomLabel": "🎲 Duração aleatória",
+      "durationManualLabel": "Duração manual",
+      "durationMaxHelp": "Duração máx.: ",
+      "cardChrono": "Cronómetro",
+      "rerollChrono": "Cronómetro",
+      "chronoStart": "▶ Iniciar",
+      "chronoPause": "⏸ Pausa",
+      "chronoResume": "▶ Retomar",
+      "chronoReset": "↺ Reiniciar",
+      "audienceTitle": "Interação do público",
+      "audienceHint": "Este exercício pode beneficiar da participação do público — um sinal regular lembra os improvisadores de pedir sugestões.",
+      "audienceIntervalLabel": "Intervalo entre sinais",
+      "audienceFlashMsg": "Público: sugestão!",
+      "audienceBadge": "👥 Interação com o público",
+      "themesModeRandom": "Aleatório",
+      "themesModeCustom": "Meus temas",
+      "themeEditBtn": "📝 Inserir meus temas",
+      "themesDlgTitle": "Os teus temas",
+      "themesDlgHint": "Insere os teus temas (um por linha ou separados por vírgulas).",
+      "themesDlgClear": "Limpar",
+      "themesDlgSave": "Guardar",
+      "themesEmpty": "Nenhum tema inserido"
     },
     "nl": {
       "title": "Impro",
@@ -283,7 +398,30 @@ window.IMPRO_BUNDLE = {
       "placeholder": "Klik op Genereren",
       "emDash": "—",
       "footer": "Gemaakt met ♥ voor de impro-gemeenschap",
-      "sourcesLabel": "Inspiratiebronnen"
+      "sourcesLabel": "Inspiratiebronnen",
+      "label04": "Duur van de oefening",
+      "durationRandomLabel": "🎲 Willekeurige duur",
+      "durationManualLabel": "Handmatige duur",
+      "durationMaxHelp": "Max. duur: ",
+      "cardChrono": "Timer",
+      "rerollChrono": "Timer",
+      "chronoStart": "▶ Start",
+      "chronoPause": "⏸ Pauze",
+      "chronoResume": "▶ Hervatten",
+      "chronoReset": "↺ Opnieuw",
+      "audienceTitle": "Publiek interactie",
+      "audienceHint": "Deze oefening kan baat hebben bij input van het publiek — een regelmatig signaal herinnert improvisatoren eraan om suggesties te vragen.",
+      "audienceIntervalLabel": "Interval tussen signalen",
+      "audienceFlashMsg": "Publiek: suggestie!",
+      "audienceBadge": "👥 Publiek interactie",
+      "themesModeRandom": "Willekeurig",
+      "themesModeCustom": "Mijn thema's",
+      "themeEditBtn": "📝 Mijn thema's invoeren",
+      "themesDlgTitle": "Jouw thema's",
+      "themesDlgHint": "Voer je thema's in (één per regel of gescheiden door komma's).",
+      "themesDlgClear": "Wissen",
+      "themesDlgSave": "Opslaan",
+      "themesEmpty": "Geen thema's ingevoerd"
     }
   },
   "data": {
@@ -324,8 +462,14 @@ window.IMPRO_BUNDLE = {
               "desc": "Un joueur manipule un objet invisible. Les autres devinent et le relancent en y ajoutant un usage."
             },
             {
+              "name": "Le gars bourré",
+              "desc": "Un membre du public (ou un comédien) joue le « gars bourré » qui interrompt la scène avec des suggestions absurdes que les improvisateurs doivent intégrer pour faire évoluer l'histoire.",
+              "needsAudience": true
+            },
+            {
               "name": "Cercle de questions",
-              "desc": "Un joueur au centre du cercle. Les autres lui posent des questions en rafale. Il répond précisément à chacune. (Dramaction)"
+              "desc": "Un joueur au centre du cercle. Les autres lui posent des questions en rafale. Il répond précisément à chacune. (Dramaction)",
+              "needsAudience": true
             },
             {
               "name": "Émotions sur commande",
@@ -365,7 +509,8 @@ window.IMPRO_BUNDLE = {
             },
             {
               "name": "Conversation à émotion changeante",
-              "desc": "Une conversation en duo. Toutes les 1-2 minutes, un meneur crie une émotion. Les joueurs basculent. (MentorShow)"
+              "desc": "Une conversation en duo. Toutes les 1-2 minutes, un meneur crie une émotion. Les joueurs basculent. (MentorShow)",
+              "needsAudience": true
             }
           ],
           "confirme": [
@@ -375,7 +520,8 @@ window.IMPRO_BUNDLE = {
             },
             {
               "name": "Trois mots imposés",
-              "desc": "Trois mots tirés au sort doivent être placés naturellement dans la scène."
+              "desc": "Trois mots tirés au sort doivent être placés naturellement dans la scène.",
+              "needsAudience": true
             },
             {
               "name": "Le statut",
@@ -387,7 +533,8 @@ window.IMPRO_BUNDLE = {
             },
             {
               "name": "Conférence d'experts",
-              "desc": "Un panel d'experts d'un sujet absurde répond aux questions du public avec sérieux."
+              "desc": "Un panel d'experts d'un sujet absurde répond aux questions du public avec sérieux.",
+              "needsAudience": true
             },
             {
               "name": "Last word, first word",
@@ -461,7 +608,8 @@ window.IMPRO_BUNDLE = {
             },
             {
               "name": "Le miroir Pirandello",
-              "desc": "Les personnages prennent conscience qu'ils sont improvisés... mais doivent continuer la scène quand même."
+              "desc": "Les personnages prennent conscience qu'ils sont improvisés... mais doivent continuer la scène quand même.",
+              "needsAudience": true
             },
             {
               "name": "Scène à deux temps",

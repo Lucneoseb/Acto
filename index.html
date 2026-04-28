@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="description" content="Générateur d'exercices, contraintes et thèmes pour l'improvisation théâtrale" />
 <meta name="theme-color" content="#0c0814" />
-<title>Impro Studio</title>
+<title>Acto — The Impro Studio</title>
+<link rel="icon" type="image/png" href="./assets/logo.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
@@ -30,11 +31,9 @@
   </button>
 
   <header class="hero">
-    <div class="hero-mask"><span aria-hidden="true">🎭</span></div>
-    <h1 class="title">
-      <span class="title-line" id="titleLine">Impro</span>
-      <span class="title-line title-accent" id="titleAccent">Studio</span>
-    </h1>
+    <a class="hero-logo-link" href="#" aria-label="Acto - The Impro Studio">
+      <img class="hero-logo" src="./assets/logo.png" alt="Acto - The Impro Studio" />
+    </a>
     <p class="subtitle" id="subtitle"></p>
   </header>
 
@@ -102,11 +101,40 @@
           <span class="label-num">03</span>
           <span class="label-text" id="label03"></span>
         </label>
-        <p class="config-hint" id="themesHint"></p>
-        <textarea id="themesInput"></textarea>
-        <div class="theme-toggle-row">
-          <button class="ghost-btn" id="useRandomBtn" type="button"></button>
+        <div class="themes-mode-toggle" role="tablist">
+          <button class="themes-mode-btn active" data-themes-mode="random" type="button" role="tab" aria-selected="true">
+            <span aria-hidden="true">🎲</span>
+            <span id="themesModeRandomLabel"></span>
+          </button>
+          <button class="themes-mode-btn" data-themes-mode="custom" type="button" role="tab" aria-selected="false">
+            <span aria-hidden="true">✏️</span>
+            <span id="themesModeCustomLabel"></span>
+          </button>
+        </div>
+        <div class="themes-custom-row" id="themesCustomRow" hidden>
+          <button class="themes-edit-btn" id="themesEditBtn" type="button">
+            <span id="themesEditBtnLabel"></span>
+          </button>
           <span class="theme-status" id="themeStatus"></span>
+        </div>
+      </div>
+
+      <!-- Duration -->
+      <div class="config-block">
+        <label class="config-label">
+          <span class="label-num">04</span>
+          <span class="label-text" id="label04"></span>
+        </label>
+        <div class="duration-toggle-row">
+          <label class="checkbox-row">
+            <input type="checkbox" id="durationRandomChk" checked />
+            <span id="durationRandomLabel"></span>
+          </label>
+          <span class="duration-max-help" id="durationMaxHelp"></span>
+        </div>
+        <div class="duration-manual" id="durationManualWrap" hidden>
+          <input type="range" id="durationSlider" min="30" max="180" step="30" value="90" />
+          <span class="duration-value" id="durationValue">1 min 30</span>
         </div>
       </div>
 
@@ -120,57 +148,107 @@
     <!-- Results -->
     <section class="results" aria-live="polite">
       <article class="card card-category match-only" id="card-category" hidden>
-        <header class="card-head"><span class="card-label" id="labelCardCategory"></span><span class="card-icon" aria-hidden="true">🎯</span></header>
+        <header class="card-head"><span class="card-label" id="labelCardCategory"></span><button class="card-reroll" data-reroll="category" type="button" aria-label="Re-tirer">🎲</button><span class="card-icon" aria-hidden="true">🎯</span></header>
         <div class="reel" data-target="category"><div class="reel-window"><div class="reel-track" id="reel-category"></div></div></div>
         <p class="card-meta" id="meta-category"></p>
       </article>
 
       <article class="card card-exercise" id="card-exercise">
-        <header class="card-head"><span class="card-label" id="labelCardExercise"></span><span class="card-icon" aria-hidden="true">🎬</span></header>
+        <header class="card-head"><span class="card-label" id="labelCardExercise"></span><button class="card-reroll" data-reroll="exercise" type="button" aria-label="Re-tirer">🎲</button><span class="card-icon" aria-hidden="true">🎬</span></header>
         <div class="reel" data-target="exercise"><div class="reel-window"><div class="reel-track" id="reel-exercise"></div></div></div>
         <p class="card-meta" id="meta-exercise"></p>
       </article>
 
       <article class="card card-constraint" id="card-constraint">
-        <header class="card-head"><span class="card-label" id="labelCardConstraint"></span><span class="card-icon" aria-hidden="true">🔒</span></header>
+        <header class="card-head"><span class="card-label" id="labelCardConstraint"></span><button class="card-reroll" data-reroll="constraint" type="button" aria-label="Re-tirer">🎲</button><span class="card-icon" aria-hidden="true">🔒</span></header>
         <div class="reel" data-target="constraint"><div class="reel-window"><div class="reel-track" id="reel-constraint"></div></div></div>
         <p class="card-meta" id="meta-constraint"></p>
       </article>
 
       <article class="card card-theme" id="card-theme">
-        <header class="card-head"><span class="card-label" id="labelCardTheme"></span><span class="card-icon" aria-hidden="true">💭</span></header>
+        <header class="card-head"><span class="card-label" id="labelCardTheme"></span><button class="card-reroll" data-reroll="theme" type="button" aria-label="Re-tirer">🎲</button><span class="card-icon" aria-hidden="true">💭</span></header>
         <div class="reel" data-target="theme"><div class="reel-window"><div class="reel-track" id="reel-theme"></div></div></div>
         <p class="card-meta" id="meta-theme"></p>
       </article>
 
       <article class="card card-duration match-only" id="card-duration" hidden>
-        <header class="card-head"><span class="card-label" id="labelCardDuration"></span><span class="card-icon" aria-hidden="true">⏱️</span></header>
+        <header class="card-head"><span class="card-label" id="labelCardDuration"></span><button class="card-reroll" data-reroll="duration" type="button" aria-label="Re-tirer">🎲</button><span class="card-icon" aria-hidden="true">⏱️</span></header>
         <div class="reel" data-target="duration"><div class="reel-window"><div class="reel-track" id="reel-duration"></div></div></div>
         <p class="card-meta" id="meta-duration"></p>
       </article>
 
       <article class="card card-players match-only" id="card-players" hidden>
-        <header class="card-head"><span class="card-label" id="labelCardPlayers"></span><span class="card-icon" aria-hidden="true">👥</span></header>
+        <header class="card-head"><span class="card-label" id="labelCardPlayers"></span><button class="card-reroll" data-reroll="players" type="button" aria-label="Re-tirer">🎲</button><span class="card-icon" aria-hidden="true">👥</span></header>
         <div class="reel" data-target="players"><div class="reel-window"><div class="reel-track" id="reel-players"></div></div></div>
         <p class="card-meta" id="meta-players"></p>
       </article>
     </section>
 
-    <!-- Re-roll -->
-    <section class="reroll-bar" id="rerollBar" hidden>
-      <span class="reroll-label" id="rerollLabel"></span>
-      <button class="reroll-btn" data-reroll="exercise" type="button"><span aria-hidden="true">🎬</span> <span id="rerollExercise"></span></button>
-      <button class="reroll-btn" data-reroll="constraint" type="button"><span aria-hidden="true">🔒</span> <span id="rerollConstraint"></span></button>
-      <button class="reroll-btn" data-reroll="theme" type="button"><span aria-hidden="true">💭</span> <span id="rerollTheme"></span></button>
-      <button class="reroll-btn match-only" data-reroll="category" type="button" hidden><span aria-hidden="true">🎯</span> <span id="rerollCategory"></span></button>
-      <button class="reroll-btn match-only" data-reroll="duration" type="button" hidden><span aria-hidden="true">⏱️</span> <span id="rerollDuration"></span></button>
-      <button class="reroll-btn match-only" data-reroll="players" type="button" hidden><span aria-hidden="true">👥</span> <span id="rerollPlayers"></span></button>
+    <!-- Chrono section (timer + audience cue) — appears after first generation -->
+    <section class="chrono-section" id="chronoSection" hidden>
+      <article class="card card-chrono" id="card-chrono">
+        <header class="card-head">
+          <span class="card-label" id="labelCardChrono"></span>
+          <button class="card-reroll" data-reroll="chrono" type="button" aria-label="Re-tirer la durée">🎲</button>
+          <span class="card-icon" aria-hidden="true">⏱️</span>
+        </header>
+        <div class="chrono-display" id="chronoDisplay">00:00</div>
+        <div class="chrono-progress"><div class="chrono-progress-bar" id="chronoProgressBar"></div></div>
+        <div class="chrono-controls">
+          <button class="chrono-btn chrono-start" id="chronoStartBtn" type="button"></button>
+          <button class="chrono-btn chrono-pause" id="chronoPauseBtn" type="button" disabled></button>
+          <button class="chrono-btn chrono-reset" id="chronoResetBtn" type="button"></button>
+        </div>
+      </article>
+
+      <article class="card card-audience" id="card-audience" hidden>
+        <header class="card-head">
+          <span class="card-label" id="labelCardAudience"></span>
+          <span class="card-icon" aria-hidden="true">📣</span>
+        </header>
+        <p class="card-meta" id="audienceHint"></p>
+        <div class="audience-controls">
+          <label class="audience-toggle-row">
+            <span id="audienceToggleLabelText"></span>
+            <span class="switch">
+              <input type="checkbox" id="audienceToggle" />
+              <span class="switch-slider"></span>
+            </span>
+          </label>
+          <div class="audience-interval-row" id="audienceIntervalWrap" hidden>
+            <span class="audience-interval-label" id="audienceIntervalLabel"></span>
+            <input type="range" id="audienceIntervalSlider" min="15" max="180" step="15" value="45" />
+            <span class="audience-interval-value" id="audienceIntervalValue">45 s</span>
+          </div>
+        </div>
+        <div class="audience-flash" id="audienceFlash" hidden>
+          <span class="audience-flash-dot"></span>
+          <span id="audienceFlashMsg"></span>
+        </div>
+      </article>
     </section>
+
   </main>
 
   <footer class="footer">
     <p id="footerText"></p>
   </footer>
+
+  <!-- ============ Themes dialog ============ -->
+  <dialog id="themesDialog" class="themes-dialog" aria-labelledby="themesDlgTitle">
+    <form method="dialog" class="dlg-head">
+      <h2 id="themesDlgTitle"></h2>
+      <button class="dlg-close" id="themesDlgClose" type="button" aria-label="Close">✕</button>
+    </form>
+    <div class="dlg-body">
+      <p class="dlg-help" id="themesDlgHint"></p>
+      <textarea id="themesInput" rows="10"></textarea>
+    </div>
+    <div class="dlg-actions">
+      <button class="ghost-btn" id="themesDlgClear" type="button"></button>
+      <button class="primary-btn" id="themesDlgSave" type="button"></button>
+    </div>
+  </dialog>
 
   <!-- ============ Settings dialog (native <dialog>) ============ -->
   <dialog id="settingsDialog" class="settings-dialog" aria-labelledby="dlgTitle">

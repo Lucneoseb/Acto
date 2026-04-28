@@ -190,8 +190,144 @@
     level: "debutant",
     customThemes: [],
     useCustom: false,
-    isGenerating: false
+    isGenerating: false,
+    // Duration picker
+    durationRandom: true,
+    durationManualSec: 90,
+    // Current generated values
+    currentExercise: null,
+    currentDurationSec: 0,
+    // Chrono
+    chronoRunning: false,
+    chronoRemaining: 0,
+    chronoTotal: 0,
+    chronoInterval: null,
+    chronoLastBeepAt: -1,
+    // Audience
+    audienceEnabled: false,
+    audienceIntervalSec: 45,
+    audienceTimer: null
   };
+
+  // Per-level max duration (seconds), 30s step
+  const LEVEL_MAX_DURATION = { debutant: 180, confirme: 300, expert: 480 };
+
+  /* ============================================================
+     2.5 AUDIO (synthesized via Web Audio API)
+     ============================================================ */
+  let _audioCtx = null;
+  function audio() {
+    if (!_audioCtx) {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      _audioCtx = new Ctx();
+    }
+    if (_audioCtx.state === "suspended") _audioCtx.resume();
+    return _audioCtx;
+  }
+  function playTick() {
+    const ctx = audio(); if (!ctx) return;
+    const now = ctx.currentTime;
+    [880, 1320].forEach((freq, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "sine";
+      o.frequency.setValueAtTime(freq, now);
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(0.18, now + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.7);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(now + i * 0.05);
+      o.stop(now + 0.8);
+    });
+  }
+  function playAudienceBeep() {
+    const ctx = audio(); if (!ctx) return;
+    const now = ctx.currentTime;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "triangle";
+    o.frequency.setValueAtTime(660, now);
+    o.frequency.exponentialRampToValueAtTime(440, now + 0.25);
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.12, now + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(now);
+    o.stop(now + 0.4);
+  }
+  function playEndGong() {
+    const ctx = audio(); if (!ctx) return;
+    const now = ctx.currentTime;
+    [220, 330, 440].forEach((f, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = i === 0 ? "sawtooth" : "sine";
+      o.frequency.setValueAtTime(f, now);
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(0.25 / (i + 1), now + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 1.6);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(now);
+      o.stop(now + 1.7);
+    });
+  }
+  function playApplause(durSec) {
+    const ctx = audio(); if (!ctx) return;
+    durSec = durSec || 4;
+    const bufferSize = ctx.sampleRate * durSec;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      const n = Math.random() * 2 - 1;
+      const t = i / ctx.sampleRate;
+      const env = Math.min(1, t * 3) * Math.max(0, 1 - (t / durSec));
+      const crackle = 0.6 + 0.4 * Math.sin(2 * Math.PI * (8 + Math.random() * 4) * t);
+      data[i] = n * env * crackle * 0.7;
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    const bp = ctx.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.frequency.value = 2200;
+    bp.Q.value = 0.6;
+    const g = ctx.createGain();
+    g.gain.value = 0.55;
+    src.connect(bp); bp.connect(g); g.connect(ctx.destination);
+    src.start();
+  }
+
+  /* ============================================================
+     2.6 DURATION HELPERS
+     ============================================================ */
+  function formatSec(sec) {
+    sec = Math.max(0, Math.round(sec));
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    if (m === 0) return s + " s";
+    if (s === 0) return m + " min";
+    return m + " min " + (s < 10 ? "0" + s : s);
+  }
+  function formatMMSS(sec) {
+    sec = Math.max(0, Math.round(sec));
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+  }
+  function durationSteps(level) {
+    const max = LEVEL_MAX_DURATION[level] || 180;
+    const out = [];
+    for (let s = 30; s <= max; s += 30) out.push(s);
+    return out;
+  }
+  function pickDurationSec() {
+    const max = LEVEL_MAX_DURATION[state.level] || 180;
+    if (state.durationRandom) {
+      const steps = durationSteps(state.level);
+      return steps[Math.floor(Math.random() * steps.length)];
+    }
+    return Math.min(Math.max(30, state.durationManualSec), max);
+  }
 
   function setText(id, v) {
     const el = document.getElementById(id);
@@ -201,7 +337,7 @@
   function applyTranslations() {
     const t = store.ui;
     document.documentElement.lang = store.locale;
-    document.title = `${t.title ?? "Impro"} ${t.titleAccent ?? "Studio"}`;
+    document.title = "Acto — The Impro Studio";
 
     setText("titleLine",        t.title);
     setText("titleAccent",      t.titleAccent);
@@ -222,10 +358,15 @@
     if (teamA) teamA.placeholder = t.teamA ?? "";
     if (teamB) teamB.placeholder = t.teamB ?? "";
 
-    setText("themesHint",       t.themesHint);
+    setText("themesModeRandomLabel", t.themesModeRandom);
+    setText("themesModeCustomLabel", t.themesModeCustom);
+    setText("themesEditBtnLabel",    t.themeEditBtn);
+    setText("themesDlgTitle",        t.themesDlgTitle);
+    setText("themesDlgHint",         t.themesDlgHint);
+    setText("themesDlgClear",        t.themesDlgClear);
+    setText("themesDlgSave",         t.themesDlgSave);
     const themesInput = $("#themesInput");
     if (themesInput) themesInput.placeholder = t.themesPlaceholder ?? "";
-    setText("useRandomBtn",     t.useRandom);
     refreshThemeStatus();
 
     setText("generateLabel",    t.generate);
@@ -237,13 +378,34 @@
     setText("labelCardDuration",   t.cardDuration);
     setText("labelCardPlayers",    t.cardPlayers);
 
-    setText("rerollLabel",      t.rerollLabel);
-    setText("rerollExercise",   t.rerollExercise);
-    setText("rerollConstraint", t.rerollConstraint);
-    setText("rerollTheme",      t.rerollTheme);
-    setText("rerollCategory",   t.rerollCategory);
-    setText("rerollDuration",   t.rerollDuration);
-    setText("rerollPlayers",    t.rerollPlayers);
+    // Duration block
+    setText("label04",              t.label04);
+    setText("durationRandomLabel",  t.durationRandomLabel);
+    const __slider = document.getElementById("durationSlider");
+    if (__slider) {
+      __slider.max  = LEVEL_MAX_DURATION[state.level] || 180;
+      if (state.durationManualSec > __slider.max) state.durationManualSec = __slider.max;
+      __slider.value = state.durationManualSec;
+    }
+    setText("durationValue",  formatSec(state.durationManualSec));
+    setText("durationMaxHelp", (t.durationMaxHelp || "") + formatSec(LEVEL_MAX_DURATION[state.level] || 180));
+
+    // Chrono section
+    setText("labelCardChrono",  t.cardChrono);
+    if (!state.chronoRunning) {
+      const isPaused = state.chronoRemaining > 0 && state.chronoRemaining < state.chronoTotal;
+      setText("chronoStartBtn", isPaused ? (t.chronoResume || t.chronoStart) : (t.chronoStart || "Start"));
+    }
+    setText("chronoPauseBtn",   t.chronoPause || "Pause");
+    setText("chronoResetBtn",   t.chronoReset || "Reset");
+
+    // Audience block
+    setText("labelCardAudience",      t.audienceTitle);
+    setText("audienceHint",           t.audienceHint);
+    setText("audienceToggleLabelText",t.audienceTitle);
+    setText("audienceIntervalLabel",  t.audienceIntervalLabel);
+    setText("audienceFlashMsg",       t.audienceFlashMsg);
+    setText("audienceIntervalValue",  formatSec(state.audienceIntervalSec));
 
     if (!state.isGenerating) {
       const dash = t.emDash ?? "—";
@@ -274,6 +436,7 @@
       b.setAttribute("aria-selected", a ? "true" : "false");
     });
     $$(".match-only").forEach((el) => { el.hidden = mode !== "match"; });
+    refreshAudienceCard();
   }
   function setLevel(level) {
     state.level = level;
@@ -282,44 +445,114 @@
       b.classList.toggle("active", a);
       b.setAttribute("aria-checked", a ? "true" : "false");
     });
+    const __slider = $("#durationSlider");
+    const __max = LEVEL_MAX_DURATION[level] || 180;
+    if (__slider) {
+      __slider.max = __max;
+      if (state.durationManualSec > __max) state.durationManualSec = __max;
+      __slider.value = state.durationManualSec;
+    }
+    setText("durationValue",  formatSec(state.durationManualSec));
+    const __t = store.ui;
+    setText("durationMaxHelp", (__t.durationMaxHelp || "") + formatSec(__max));
+  }
+  function refreshAudienceCard() {
+    const card = $("#card-audience");
+    if (!card) return;
+    const visible = state.mode === "troupe"
+      && state.currentExercise
+      && state.currentExercise.needsAudience === true;
+    card.hidden = !visible;
+    if (!visible) {
+      stopAudienceLoop();
+      const tog = $("#audienceToggle");
+      if (tog) tog.checked = false;
+      state.audienceEnabled = false;
+      const wrap = $("#audienceIntervalWrap");
+      if (wrap) wrap.hidden = true;
+      const flash = $("#audienceFlash");
+      if (flash) flash.hidden = true;
+    }
   }
   function refreshThemeStatus() {
     const t = store.ui;
     const themesInput = $("#themesInput");
-    if (!themesInput) return;
-    const lines = themesInput.value.split("\n").map(s => s.trim()).filter(Boolean);
-    state.customThemes = lines;
-    state.useCustom    = lines.length > 0;
+    // Re-parse textarea content (split by newline OR commas, trim, filter empties)
+    if (themesInput) {
+      const lines = themesInput.value.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean);
+      state.customThemes = lines;
+    }
     const status = $("#themeStatus");
     if (!status) return;
     if (state.useCustom) {
-      // statusCustom is a JSON string template, NOT a function (since JSON can't carry functions).
-      // We do simple pluralization manually.
-      const plural = lines.length > 1;
-      const lc = store.locale;
-      const labels = {
-        fr: `Mode : ${lines.length} thème${plural?"s":""} personnel${plural?"s":""}`,
-        en: `Mode: ${lines.length} custom theme${plural?"s":""}`,
-        de: `Modus: ${lines.length} eigene${plural?"":""} Thema${plural?"s":""}`,
-        es: `Modo: ${lines.length} tema${plural?"s":""} personal${plural?"es":""}`,
-        pt: `Modo: ${lines.length} tema${plural?"s":""} pessoal${plural?"is":""}`,
-        nl: `Modus: ${lines.length} eigen thema${plural?"'s":""}`
-      };
-      status.textContent = labels[lc] || labels.fr;
+      const n = state.customThemes.length;
+      if (n === 0) {
+        status.textContent = t.themesEmpty || "";
+      } else {
+        const plural = n > 1;
+        const lc = store.locale;
+        const labels = {
+          fr: `${n} thème${plural?"s":""} personnel${plural?"s":""}`,
+          en: `${n} custom theme${plural?"s":""}`,
+          de: `${n} eigene${plural?"s":""} Thema${plural?"s":""}`,
+          es: `${n} tema${plural?"s":""} personal${plural?"es":""}`,
+          pt: `${n} tema${plural?"s":""} pessoal${plural?"is":""}`,
+          nl: `${n} eigen thema${plural?"'s":""}`
+        };
+        status.textContent = labels[lc] || labels.fr;
+      }
     } else {
-      status.textContent = t.statusRandom ?? "";
+      status.textContent = "";
     }
+  }
+  function setThemesMode(mode) {
+    state.useCustom = mode === "custom";
+    $$(".themes-mode-btn").forEach(b => {
+      const a = b.dataset.themesMode === mode;
+      b.classList.toggle("active", a);
+      b.setAttribute("aria-selected", a ? "true" : "false");
+    });
+    const row = $("#themesCustomRow");
+    if (row) row.hidden = mode !== "custom";
+    refreshThemeStatus();
+  }
+  function openThemesDialog() {
+    const dlg = $("#themesDialog");
+    if (!dlg) return;
+    if (typeof dlg.showModal === "function") dlg.showModal();
+    else dlg.setAttribute("open", "");
+    setTimeout(() => { const ta = $("#themesInput"); if (ta) ta.focus(); }, 0);
+  }
+  function closeThemesDialog() {
+    const dlg = $("#themesDialog");
+    if (!dlg) return;
+    if (typeof dlg.close === "function") dlg.close();
+    else dlg.removeAttribute("open");
   }
 
   function pickFor(target) {
     const data = store.data;
     const { mode, level } = state;
     switch (target) {
-      case "exercise":   { const ex = pick(data.exercises[mode][level]); return { value: ex.name, meta: ex.desc }; }
+      case "exercise":   {
+        const ex = pick(data.exercises[mode][level]);
+        state.currentExercise = ex;
+        let meta = ex.desc || "";
+        if (mode === "troupe" && ex.needsAudience) {
+          const t = store.ui;
+          const badge = t.audienceBadge || "Audience interaction";
+          meta = badge + " — " + meta;
+        }
+        return { value: ex.name, meta: meta };
+      }
       case "constraint": return { value: pick(data.constraints[mode][level]) };
       case "theme":      { const pool = state.useCustom ? state.customThemes : data.themes[level]; return { value: pick(pool) }; }
       case "category":   { const c = pick(data.categories); return { value: c.name, meta: c.desc }; }
-      case "duration":   return { value: pick(data.durations[level]) };
+      case "duration":   {
+        const sec = pickDurationSec();
+        state.currentDurationSec = sec;
+        return { value: formatSec(sec) };
+      }
       case "players":    return { value: pick(data.players[level]) };
     }
     return { value: "—" };
@@ -332,7 +565,7 @@
       case "constraint": return data.constraints[mode][level];
       case "theme":      return state.useCustom ? state.customThemes : data.themes[level];
       case "category":   return data.categories.map(c => c.name);
-      case "duration":   return data.durations[level];
+      case "duration":   return durationSteps(level).map(formatSec);
       case "players":    return data.players[level];
     }
     return [];
@@ -349,18 +582,150 @@
   }
   async function generateAll() {
     if (state.isGenerating) return;
-    if (state.useCustom && state.customThemes.length === 0) { $("#themesInput").focus(); return; }
+    if (state.useCustom && state.customThemes.length === 0) { openThemesDialog(); return; }
     state.isGenerating = true;
     $("#generateBtn").disabled = true;
-    $("#rerollBar").hidden = false;
+    chronoReset();
     $$(".card").forEach(c => { c.classList.remove("revealed"); c.classList.add("appearing"); });
     setTimeout(() => $$(".card").forEach(c => c.classList.remove("appearing")), 600);
-    const targets = state.mode === "match"
-      ? ["category", "exercise", "constraint", "theme", "duration", "players"]
-      : ["exercise", "constraint", "theme"];
-    await Promise.all(targets.map((t, i) => spinTarget(t, i * 220)));
-    state.isGenerating = false;
-    $("#generateBtn").disabled = false;
+    let targets;
+    if (state.mode === "match") {
+      // Match mode: duration is one of the slot-machine reels (pickFor sets state.currentDurationSec)
+      targets = ["category", "exercise", "constraint", "theme", "duration", "players"];
+    } else {
+      // Troupe mode: pick duration silently (no reel for it). Chrono will use this value.
+      state.currentDurationSec = pickDurationSec();
+      targets = ["exercise", "constraint", "theme"];
+    }
+    try {
+      await Promise.all(targets.map((t, i) => spinTarget(t, i * 220)));
+    } catch (e) {
+      console.error("generateAll: spin failed", e);
+    } finally {
+      state.isGenerating = false;
+      $("#generateBtn").disabled = false;
+      const __chronoSection = $("#chronoSection");
+      if (__chronoSection) __chronoSection.hidden = false;
+      // Safety: if duration didn't get set somehow, compute it now
+      if (!state.currentDurationSec) state.currentDurationSec = pickDurationSec();
+      chronoReset();
+      refreshAudienceCard();
+    }
+  }
+
+  /* ============================================================
+     3.5 CHRONO + AUDIENCE LOOP
+     ============================================================ */
+  function chronoReset() {
+    if (state.chronoInterval) { clearInterval(state.chronoInterval); state.chronoInterval = null; }
+    state.chronoRunning = false;
+    state.chronoTotal = state.currentDurationSec || 0;
+    state.chronoRemaining = state.chronoTotal;
+    state.chronoLastBeepAt = state.chronoTotal;
+    const display = $("#chronoDisplay");
+    if (display) {
+      display.textContent = formatMMSS(state.chronoTotal);
+      display.classList.remove("warn", "danger", "ended");
+    }
+    const bar = $("#chronoProgressBar");
+    if (bar) bar.style.width = "0%";
+    const t = store.ui;
+    setText("chronoStartBtn", t.chronoStart || "Start");
+    setText("chronoPauseBtn", t.chronoPause || "Pause");
+    setText("chronoResetBtn", t.chronoReset || "Reset");
+    const startBtn = $("#chronoStartBtn"), pauseBtn = $("#chronoPauseBtn");
+    if (startBtn) startBtn.disabled = state.chronoTotal <= 0;
+    if (pauseBtn) pauseBtn.disabled = true;
+    stopAudienceLoop();
+    const flash = $("#audienceFlash");
+    if (flash) flash.hidden = true;
+  }
+  function chronoStart() {
+    if (state.chronoRunning) return;
+    if (state.chronoRemaining <= 0) state.chronoRemaining = state.chronoTotal || state.currentDurationSec;
+    if (state.chronoRemaining <= 0) return;
+    audio();
+    state.chronoRunning = true;
+    const startBtn = $("#chronoStartBtn"), pauseBtn = $("#chronoPauseBtn");
+    if (startBtn) startBtn.disabled = true;
+    if (pauseBtn) pauseBtn.disabled = false;
+    state.chronoInterval = setInterval(chronoTick, 1000);
+    if (state.audienceEnabled) startAudienceLoop();
+  }
+  function chronoPause() {
+    if (!state.chronoRunning) return;
+    state.chronoRunning = false;
+    if (state.chronoInterval) { clearInterval(state.chronoInterval); state.chronoInterval = null; }
+    const startBtn = $("#chronoStartBtn"), pauseBtn = $("#chronoPauseBtn");
+    if (startBtn) {
+      startBtn.disabled = false;
+      const t = store.ui;
+      startBtn.textContent = t.chronoResume || t.chronoStart || "Resume";
+    }
+    if (pauseBtn) pauseBtn.disabled = true;
+    stopAudienceLoop();
+  }
+  function chronoTick() {
+    state.chronoRemaining--;
+    const display = $("#chronoDisplay");
+    if (display) display.textContent = formatMMSS(Math.max(0, state.chronoRemaining));
+    const bar = $("#chronoProgressBar");
+    if (bar && state.chronoTotal > 0) {
+      const elapsed = state.chronoTotal - state.chronoRemaining;
+      bar.style.width = Math.min(100, (elapsed / state.chronoTotal) * 100) + "%";
+    }
+    if (display) {
+      if (state.chronoRemaining <= 10) {
+        display.classList.add("danger");
+        display.classList.remove("warn");
+      } else if (state.chronoRemaining <= 30) {
+        display.classList.add("warn");
+        display.classList.remove("danger");
+      }
+    }
+    if (state.chronoRemaining > 0
+        && state.chronoRemaining % 30 === 0
+        && state.chronoRemaining !== state.chronoLastBeepAt) {
+      state.chronoLastBeepAt = state.chronoRemaining;
+      playTick();
+    }
+    if (state.chronoRemaining <= 0) {
+      if (state.chronoInterval) { clearInterval(state.chronoInterval); state.chronoInterval = null; }
+      state.chronoRunning = false;
+      const startBtn = $("#chronoStartBtn"), pauseBtn = $("#chronoPauseBtn");
+      if (startBtn) {
+        startBtn.disabled = false;
+        const t = store.ui;
+        startBtn.textContent = t.chronoStart || "Start";
+      }
+      if (pauseBtn) pauseBtn.disabled = true;
+      if (display) display.classList.add("ended");
+      stopAudienceLoop();
+      playEndGong();
+      setTimeout(() => playApplause(5), 700);
+    }
+  }
+  function startAudienceLoop() {
+    stopAudienceLoop();
+    if (!state.audienceEnabled) return;
+    if (state.mode !== "troupe") return;
+    if (!state.currentExercise || !state.currentExercise.needsAudience) return;
+    const flash = $("#audienceFlash");
+    if (flash) flash.hidden = false;
+    state.audienceTimer = setInterval(() => {
+      flashAudienceBanner();
+      playAudienceBeep();
+    }, state.audienceIntervalSec * 1000);
+  }
+  function stopAudienceLoop() {
+    if (state.audienceTimer) { clearInterval(state.audienceTimer); state.audienceTimer = null; }
+  }
+  function flashAudienceBanner() {
+    const f = $("#audienceFlash");
+    if (!f) return;
+    f.hidden = false;
+    f.classList.add("flash-on");
+    setTimeout(() => f.classList.remove("flash-on"), 1200);
   }
 
   /* ============================================================
@@ -516,26 +881,130 @@
     $$(".mode-btn").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
     $$(".level-btn").forEach(b => b.addEventListener("click", () => setLevel(b.dataset.level)));
 
-    const themesInput  = $("#themesInput");
-    const useRandomBtn = $("#useRandomBtn");
-    themesInput.addEventListener("input", refreshThemeStatus);
-    useRandomBtn.addEventListener("click", () => {
-      themesInput.value = "";
+    /* Themes mode toggle + modal */
+    $$(".themes-mode-btn").forEach(b =>
+      b.addEventListener("click", () => setThemesMode(b.dataset.themesMode))
+    );
+    const __themesEditBtn = $("#themesEditBtn");
+    if (__themesEditBtn) __themesEditBtn.addEventListener("click", openThemesDialog);
+    const __themesDlg     = $("#themesDialog");
+    const __themesDlgClose= $("#themesDlgClose");
+    const __themesDlgSave = $("#themesDlgSave");
+    const __themesDlgClear= $("#themesDlgClear");
+    const __themesInput   = $("#themesInput");
+    if (__themesDlgClose) __themesDlgClose.addEventListener("click", closeThemesDialog);
+    if (__themesDlg) __themesDlg.addEventListener("click", (e) => { if (e.target === __themesDlg) closeThemesDialog(); });
+    if (__themesDlgClear) __themesDlgClear.addEventListener("click", () => {
+      if (__themesInput) { __themesInput.value = ""; __themesInput.focus(); }
       refreshThemeStatus();
-      themesInput.focus();
     });
+    if (__themesDlgSave) __themesDlgSave.addEventListener("click", () => {
+      refreshThemeStatus();
+      closeThemesDialog();
+    });
+    if (__themesInput) __themesInput.addEventListener("input", refreshThemeStatus);
+    // Initialize hidden state of custom row
+    setThemesMode(state.useCustom ? "custom" : "random");
 
     $("#generateBtn").addEventListener("click", generateAll);
 
-    $$(".reroll-btn").forEach((b) =>
+    $$(".card-reroll").forEach((b) =>
       b.addEventListener("click", async () => {
         if (state.isGenerating) return;
         const target = b.dataset.reroll;
+        if (target === "chrono") {
+          chronoReset();
+          state.currentDurationSec = pickDurationSec();
+          state.chronoTotal = state.currentDurationSec;
+          state.chronoRemaining = state.chronoTotal;
+          const display = $("#chronoDisplay");
+          if (display) display.textContent = formatMMSS(state.chronoTotal);
+          if (state.mode === "match") {
+            const reelEl = $('.reel[data-target="duration"]');
+            const trackEl = $("#reel-duration");
+            const cardEl  = $("#card-duration");
+            const metaEl  = $("#meta-duration");
+            if (reelEl && trackEl && cardEl) {
+              const value = formatSec(state.currentDurationSec);
+              const items = buildSpinPool(durationSteps(state.level).map(formatSec), value);
+              await spinReel({ reelEl, trackEl, cardEl, metaEl, items, meta: "", delay: 0 });
+            }
+          }
+          return;
+        }
         b.disabled = true;
         await spinTarget(target, 0);
         b.disabled = false;
+        if (target === "exercise") refreshAudienceCard();
+        if (target === "duration") {
+          state.chronoTotal = state.currentDurationSec;
+          state.chronoRemaining = state.chronoTotal;
+          const display = $("#chronoDisplay");
+          if (display) display.textContent = formatMMSS(state.chronoTotal);
+        }
       })
     );
+
+    /* Duration picker controls */
+    const __durChk = $("#durationRandomChk");
+    const __durManual = $("#durationManualWrap");
+    const __durSlider = $("#durationSlider");
+    if (__durChk) {
+      __durChk.addEventListener("change", (e) => {
+        state.durationRandom = e.target.checked;
+        if (__durManual) __durManual.hidden = state.durationRandom;
+        // If user disabled random and chrono isn't running, reflect manual value live
+        if (!state.durationRandom && !state.chronoRunning) {
+          state.currentDurationSec = state.durationManualSec;
+          chronoReset();
+        }
+      });
+      if (__durManual) __durManual.hidden = state.durationRandom;
+    }
+    if (__durSlider) {
+      __durSlider.max = LEVEL_MAX_DURATION[state.level] || 180;
+      __durSlider.value = state.durationManualSec;
+      __durSlider.addEventListener("input", (e) => {
+        state.durationManualSec = Number(e.target.value);
+        setText("durationValue", formatSec(state.durationManualSec));
+        // Live-update the chrono so the user immediately sees their pick
+        if (!state.durationRandom && !state.chronoRunning) {
+          state.currentDurationSec = state.durationManualSec;
+          chronoReset();
+        }
+      });
+    }
+    setText("durationValue", formatSec(state.durationManualSec));
+
+    /* Chrono controls */
+    const __cStart = $("#chronoStartBtn");
+    const __cPause = $("#chronoPauseBtn");
+    const __cReset = $("#chronoResetBtn");
+    if (__cStart) __cStart.addEventListener("click", chronoStart);
+    if (__cPause) __cPause.addEventListener("click", chronoPause);
+    if (__cReset) __cReset.addEventListener("click", chronoReset);
+
+    /* Audience controls */
+    const __aTog = $("#audienceToggle");
+    const __aSlider = $("#audienceIntervalSlider");
+    const __aWrap = $("#audienceIntervalWrap");
+    if (__aTog) {
+      __aTog.addEventListener("change", (e) => {
+        state.audienceEnabled = e.target.checked;
+        if (__aWrap) __aWrap.hidden = !state.audienceEnabled;
+        if (state.audienceEnabled && state.chronoRunning) startAudienceLoop();
+        else stopAudienceLoop();
+        const flash = $("#audienceFlash");
+        if (flash && !state.audienceEnabled) flash.hidden = true;
+      });
+    }
+    if (__aSlider) {
+      __aSlider.addEventListener("input", (e) => {
+        state.audienceIntervalSec = Number(e.target.value);
+        setText("audienceIntervalValue", formatSec(state.audienceIntervalSec));
+        if (state.audienceEnabled && state.chronoRunning) startAudienceLoop();
+      });
+    }
 
     document.addEventListener("keydown", (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
