@@ -1172,12 +1172,12 @@
   }
   function recDrawLogoWatermark(ctx, w, h) {
     if (!rec.logoLoaded || !rec.logoImg) return;
-    // Bigger top-left watermark
-    const logoW = Math.min(Math.round(w * 0.30), 360);
+    const logoW = Math.min(Math.round(w * 0.28), 320);
     const ratio = (rec.logoImg.naturalWidth && rec.logoImg.naturalHeight)
       ? rec.logoImg.naturalHeight / rec.logoImg.naturalWidth : 0.66;
     const logoH = Math.round(logoW * ratio);
-    const margin = Math.round(w * 0.03);
+    // Tighter to the very top-left corner
+    const margin = Math.round(w * 0.012);
     const x = margin;
     const y = margin;
     ctx.save();
@@ -1274,15 +1274,10 @@
     if (themeLines.length) blockH += sectionGap + labelSize + lineGap + themeLines.length * (subSize + lineGap);
     blockH += padY;
 
-    // Position: top-left, BELOW the logo watermark
-    const margin   = Math.round(w * 0.025);
-    // Logo watermark dims (must mirror recDrawLogoWatermark)
-    const logoW   = Math.min(Math.round(w * 0.30), 360);
-    const logoRat = (rec.logoImg && rec.logoImg.naturalWidth)
-      ? rec.logoImg.naturalHeight / rec.logoImg.naturalWidth : 0.66;
-    const logoH   = rec.logoLoaded ? Math.round(logoW * logoRat) : 0;
-    const boxX = margin;
-    const boxY = margin + (logoH ? logoH + Math.round(margin * 0.6) : 0);
+    // Position: TOP-RIGHT corner (not interfering with the top-left logo)
+    const margin = Math.round(w * 0.025);
+    const boxX = w - blockW - margin;
+    const boxY = margin;
 
     // Background
     ctx.fillStyle = "rgba(10, 6, 18, 0.78)";
@@ -1351,7 +1346,9 @@
     const fs = Math.max(26, Math.round(baseDim * 0.075));
     const padX = Math.round(fs * 0.55);
     const padY = Math.round(fs * 0.22);
-    const margin = Math.round(baseDim * 0.03);
+    // Lift the timer UP so it appears just above the HTML record button
+    // (which sits at the bottom of the viewport).
+    const margin = Math.max(120, Math.round(baseDim * 0.18));
 
     const timeStr = formatMMSS(remaining);
     ctx.font = "400 " + fs + 'px "Bebas Neue", Inter, sans-serif';
@@ -1384,15 +1381,22 @@
     ctx.shadowBlur = 0;
     ctx.textBaseline = "alphabetic";
 
-    // Slim progress line right under the chip (1px tall, full canvas width)
+    // Slim progress line just under the timer chip
     const pct = (state.chronoTotal - remaining) / state.chronoTotal;
-    const barY = h - 4;
-    ctx.fillStyle = "rgba(255,255,255,0.16)";
-    ctx.fillRect(0, barY, w, 4);
-    const grd = ctx.createLinearGradient(0, 0, w, 0);
+    const barW = Math.round(w * 0.45);
+    const barX = Math.round((w - barW) / 2);
+    const barY = boxY + boxH + Math.round(padY * 0.5);
+    ctx.fillStyle = "rgba(255,255,255,0.18)";
+    recRoundedRect(ctx, barX, barY, barW, 3, 1.5);
+    ctx.fill();
+    const grd = ctx.createLinearGradient(barX, 0, barX + barW, 0);
     grd.addColorStop(0, "#6dd3c5"); grd.addColorStop(0.5, "#f5c451"); grd.addColorStop(1, "#ff6b8a");
     ctx.fillStyle = grd;
-    ctx.fillRect(0, barY, Math.max(0, Math.min(1, pct)) * w, 4);
+    const fillW = Math.max(0, Math.min(1, pct)) * barW;
+    if (fillW > 0) {
+      recRoundedRect(ctx, barX, barY, fillW, 3, 1.5);
+      ctx.fill();
+    }
   }
     function recTrunc(text, maxW, ctx) {
     if (!text) return "";
