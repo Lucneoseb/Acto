@@ -199,6 +199,7 @@
           <button class="chrono-btn chrono-pause" id="chronoPauseBtn" type="button" disabled></button>
           <button class="chrono-btn chrono-reset" id="chronoResetBtn" type="button"></button>
         </div>
+        <button class="record-open-btn" id="recordOpenBtn" type="button"></button>
       </article>
 
       <article class="card card-audience" id="card-audience" hidden>
@@ -229,6 +230,39 @@
     </section>
 
   </main>
+
+  <!-- Video recorder modal -->
+  <div class="recorder-modal" id="recorderModal" hidden aria-modal="true" role="dialog">
+    <div class="recorder-stage">
+      <canvas class="recorder-canvas" id="recorderCanvas"></canvas>
+      <video class="recorder-hidden-video" id="recorderVideo" playsinline muted></video>
+      <video class="recorder-preview" id="recorderPreview" controls playsinline hidden></video>
+
+      <button class="recorder-close" id="recorderCloseBtn" type="button" aria-label="Close">✕</button>
+      <div class="recorder-rec-indicator" id="recorderRecIndicator" hidden>
+        <span class="recorder-rec-dot"></span>
+        <span id="recorderRecLabel">REC</span>
+        <span class="recorder-rec-time" id="recorderRecTime">00:00</span>
+      </div>
+
+      <div class="recorder-bottom-bar" id="recorderBottomBar">
+        <button class="recorder-action recorder-switch-cam" id="recorderSwitchCamBtn" type="button" aria-label="Switch camera">🔄</button>
+        <button class="recorder-action recorder-record" id="recorderRecordBtn" type="button"></button>
+        <span class="recorder-spacer"></span>
+      </div>
+
+      <div class="recorder-finish-bar" id="recorderFinishBar" hidden>
+        <a class="recorder-action recorder-download" id="recorderDownloadLink" download></a>
+        <button class="recorder-action recorder-again" id="recorderAgainBtn" type="button"></button>
+      </div>
+
+      <div class="recorder-error" id="recorderError" hidden>
+        <p id="recorderErrorMsg"></p>
+        <p class="recorder-error-hint" id="recorderErrorHint"></p>
+      </div>
+    </div>
+  </div>
+
 
   <footer class="footer">
     <p id="footerText"></p>

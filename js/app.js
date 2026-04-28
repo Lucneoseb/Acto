@@ -196,6 +196,8 @@
     durationManualSec: 90,
     // Current generated values
     currentExercise: null,
+    currentConstraint: "",
+    currentTheme: "",
     currentDurationSec: 0,
     // Chrono
     chronoRunning: false,
@@ -420,6 +422,11 @@
 
     setText("footerText",       t.footer);
     setText("footerCredit",     t.footerCredit);
+    setText("recordOpenBtn",    t.recordOpenBtn);
+    setText("recorderRecLabel", t.recordRec);
+    setText("recorderAgainBtn", t.recordAgain);
+    const __dl = document.getElementById("recorderDownloadLink");
+    if (__dl) __dl.textContent = t.recordDownload || "";
     setText("settingsLabelText",t.settings);
     setText("dlgTitle",         t.settings);
     setText("dlgLanguageLabel", t.language);
@@ -546,8 +553,8 @@
         }
         return { value: ex.name, meta: meta };
       }
-      case "constraint": return { value: pick(data.constraints[mode][level]) };
-      case "theme":      { const pool = state.useCustom ? state.customThemes : data.themes[level]; return { value: pick(pool) }; }
+      case "constraint": { const v = pick(data.constraints[mode][level]); state.currentConstraint = v; return { value: v }; }
+      case "theme":      { const pool = state.useCustom ? state.customThemes : data.themes[level]; const v = pick(pool); state.currentTheme = v; return { value: v }; }
       case "category":   { const c = pick(data.categories); return { value: c.name, meta: c.desc }; }
       case "duration":   {
         const sec = pickDurationSec();
@@ -1007,6 +1014,20 @@
       });
     }
 
+    /* Video recorder controls */
+    const __recOpenBtn  = $("#recordOpenBtn");
+    const __recCloseBtn = $("#recorderCloseBtn");
+    const __recRecBtn   = $("#recorderRecordBtn");
+    const __recSwitch   = $("#recorderSwitchCamBtn");
+    const __recAgainBtn = $("#recorderAgainBtn");
+    if (__recOpenBtn)  __recOpenBtn.addEventListener("click", recOpen);
+    if (__recCloseBtn) __recCloseBtn.addEventListener("click", recClose);
+    if (__recSwitch)   __recSwitch.addEventListener("click", recSwitchCamera);
+    if (__recAgainBtn) __recAgainBtn.addEventListener("click", recAgain);
+    if (__recRecBtn)   __recRecBtn.addEventListener("click", () => {
+      if (rec.isRecording) recStop(); else recStart();
+    });
+
     document.addEventListener("keydown", (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
         e.preventDefault();
@@ -1023,6 +1044,307 @@
         applyTranslations();
       }
     });
+  }
+
+
+  /* ============================================================
+     6. VIDEO RECORDER (camera + canvas overlay + MediaRecorder)
+     ============================================================ */
+  const rec = {
+    stream: null,
+    videoEl: null,
+    canvas: null,
+    ctx: null,
+    rafId: null,
+    recorder: null,
+    chunks: [],
+    facingMode: "environment",
+    isRecording: false,
+    startedAt: 0,
+    recTimerId: null,
+    blobUrl: null
+  };
+
+  function recIsSupported() {
+    return !!(navigator.mediaDevices &&
+              navigator.mediaDevices.getUserMedia &&
+              window.MediaRecorder &&
+              window.HTMLCanvasElement.prototype.captureStream);
+  }
+  function recPickMime() {
+    const candidates = [
+      "video/mp4;codecs=h264,aac",
+      "video/mp4",
+      "video/webm;codecs=vp9,opus",
+      "video/webm;codecs=vp8,opus",
+      "video/webm"
+    ];
+    for (const m of candidates) {
+      try { if (window.MediaRecorder.isTypeSupported(m)) return m; } catch (e) {}
+    }
+    return "";
+  }
+  async function recOpen() {
+    const t = store.ui;
+    const modal = $("#recorderModal");
+    if (!modal) return;
+    if (!recIsSupported()) { recShowError(t.recordUnsupported || "Recording not supported", ""); modal.hidden = false; return; }
+    modal.hidden = false;
+    document.body.style.overflow = "hidden";
+    rec.videoEl = $("#recorderVideo");
+    rec.canvas  = $("#recorderCanvas");
+    rec.ctx     = rec.canvas ? rec.canvas.getContext("2d") : null;
+    recHideError();
+    recHidePreview();
+    recResetUI();
+    await recStartCamera();
+  }
+  async function recStartCamera() {
+    const t = store.ui;
+    try {
+      const constraints = {
+        video: { facingMode: rec.facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: true
+      };
+      rec.stream = await navigator.mediaDevices.getUserMedia(constraints);
+      if (rec.videoEl) {
+        rec.videoEl.srcObject = rec.stream;
+        await rec.videoEl.play().catch(() => {});
+      }
+      recDrawLoop();
+    } catch (e) {
+      let hint = "";
+      if (location && location.protocol === "file:") hint = t.recordHttpsHint || "";
+      recShowError((t.recordCamError || "Camera error") + " (" + (e && e.name ? e.name : "Error") + ")", hint);
+    }
+  }
+  function recStopCamera() {
+    if (rec.rafId) cancelAnimationFrame(rec.rafId);
+    rec.rafId = null;
+    if (rec.stream) {
+      rec.stream.getTracks().forEach(t => { try { t.stop(); } catch (e) {} });
+      rec.stream = null;
+    }
+    if (rec.videoEl) {
+      try { rec.videoEl.pause(); } catch (e) {}
+      rec.videoEl.srcObject = null;
+    }
+  }
+  function recDrawLoop() {
+    if (!rec.ctx || !rec.videoEl) return;
+    const v = rec.videoEl;
+    const w = v.videoWidth || 1280;
+    const h = v.videoHeight || 720;
+    if (rec.canvas.width !== w || rec.canvas.height !== h) {
+      rec.canvas.width = w; rec.canvas.height = h;
+    }
+    rec.ctx.drawImage(v, 0, 0, w, h);
+    recDrawTopOverlay(rec.ctx, w, h);
+    recDrawBottomOverlay(rec.ctx, w, h);
+    rec.rafId = requestAnimationFrame(recDrawLoop);
+  }
+  function recDrawTopOverlay(ctx, w, h) {
+    const ex = state.currentExercise;
+    const t  = store.ui;
+    if (!ex && !state.currentConstraint && !state.currentTheme) return;
+    const padTop = Math.round(h * 0.04);
+    const lineH  = Math.round(h * 0.05);
+    const titleSize = Math.round(h * 0.058);
+    const subSize   = Math.round(h * 0.038);
+    const blockH = padTop + titleSize + (state.currentConstraint ? lineH : 0) + (state.currentTheme ? lineH : 0) + padTop;
+    const grad = ctx.createLinearGradient(0, 0, 0, blockH);
+    grad.addColorStop(0, "rgba(15, 8, 25, 0.85)");
+    grad.addColorStop(1, "rgba(15, 8, 25, 0)");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, blockH);
+    let y = padTop + titleSize;
+    if (ex) {
+      ctx.fillStyle = "#f5c451";
+      ctx.font = "700 " + titleSize + 'px Inter, "Helvetica Neue", sans-serif';
+      ctx.textAlign = "left";
+      ctx.shadowColor = "rgba(0,0,0,0.6)";
+      ctx.shadowBlur = 8;
+      ctx.fillText(recTrunc(ex.name, w * 0.92, ctx), Math.round(w * 0.04), y);
+      ctx.shadowBlur = 0;
+    }
+    ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
+    ctx.fillStyle = "#fff";
+    if (state.currentConstraint) {
+      y += lineH;
+      const label = (t.recordOverlayCons || "Constraint") + " : ";
+      ctx.fillText(recTrunc(label + state.currentConstraint, w * 0.92, ctx), Math.round(w * 0.04), y);
+    }
+    if (state.currentTheme) {
+      y += lineH;
+      const label = (t.recordOverlayTheme || "Theme") + " : ";
+      ctx.fillText(recTrunc(label + state.currentTheme, w * 0.92, ctx), Math.round(w * 0.04), y);
+    }
+  }
+  function recDrawBottomOverlay(ctx, w, h) {
+    const barH = Math.round(h * 0.18);
+    const grad = ctx.createLinearGradient(0, h - barH, 0, h);
+    grad.addColorStop(0, "rgba(15, 8, 25, 0)");
+    grad.addColorStop(1, "rgba(15, 8, 25, 0.9)");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, h - barH, w, barH);
+    const remaining = state.chronoTotal > 0
+      ? (state.chronoRemaining > 0 ? state.chronoRemaining : (state.chronoRunning ? 0 : state.chronoTotal))
+      : 0;
+    const timeStr = state.chronoTotal > 0 ? formatMMSS(remaining) : "";
+    if (timeStr) {
+      const fs = Math.round(h * 0.13);
+      ctx.font = "400 " + fs + 'px "Bebas Neue", Inter, sans-serif';
+      ctx.textAlign = "center";
+      ctx.shadowColor = "rgba(0,0,0,0.6)";
+      ctx.shadowBlur = 10;
+      let color = "#fff";
+      if (state.chronoRemaining > 0 && state.chronoRemaining <= 10) color = "#f87171";
+      else if (state.chronoRemaining > 0 && state.chronoRemaining <= 30) color = "#fbbf24";
+      ctx.fillStyle = color;
+      ctx.fillText(timeStr, w / 2, h - Math.round(barH * 0.25));
+      ctx.shadowBlur = 0;
+    }
+    if (state.chronoTotal > 0) {
+      const pct = state.chronoTotal > 0 ? (state.chronoTotal - remaining) / state.chronoTotal : 0;
+      const barY = h - 6;
+      ctx.fillStyle = "rgba(255,255,255,0.18)";
+      ctx.fillRect(0, barY, w, 6);
+      const grd = ctx.createLinearGradient(0, 0, w, 0);
+      grd.addColorStop(0, "#6dd3c5"); grd.addColorStop(0.5, "#f5c451"); grd.addColorStop(1, "#ff6b8a");
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, barY, Math.max(0, Math.min(1, pct)) * w, 6);
+    }
+  }
+  function recTrunc(text, maxW, ctx) {
+    if (!text) return "";
+    if (ctx.measureText(text).width <= maxW) return text;
+    const ell = "…";
+    let s = text;
+    while (s.length > 4 && ctx.measureText(s + ell).width > maxW) s = s.slice(0, -1);
+    return s + ell;
+  }
+  function recStart() {
+    if (!rec.stream || rec.isRecording) return;
+    const canvasStream = rec.canvas.captureStream(30);
+    const audio = rec.stream.getAudioTracks();
+    const tracks = canvasStream.getVideoTracks().concat(audio);
+    const composite = new MediaStream(tracks);
+    const mime = recPickMime();
+    try {
+      rec.recorder = mime ? new MediaRecorder(composite, { mimeType: mime, videoBitsPerSecond: 4_000_000 })
+                          : new MediaRecorder(composite);
+    } catch (e) {
+      const t = store.ui;
+      recShowError((t.recordUnsupported || "Recording not supported") + " (" + e.message + ")", "");
+      return;
+    }
+    rec.chunks = [];
+    rec.recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) rec.chunks.push(e.data); };
+    rec.recorder.onstop = () => recFinalize();
+    rec.recorder.start(1000);
+    rec.isRecording = true;
+    rec.startedAt = Date.now();
+    const recBtn = $("#recorderRecordBtn");
+    if (recBtn) recBtn.textContent = store.ui.recordStopBtn || "Stop";
+    const ind = $("#recorderRecIndicator");
+    if (ind) ind.hidden = false;
+    rec.recTimerId = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - rec.startedAt) / 1000);
+      const tEl = $("#recorderRecTime");
+      if (tEl) tEl.textContent = formatMMSS(elapsed);
+    }, 500);
+    // Auto-start chrono if a duration was generated and chrono not running
+    if (!state.chronoRunning && state.chronoTotal > 0) chronoStart();
+  }
+  function recStop() {
+    if (!rec.recorder || rec.recorder.state === "inactive") return;
+    try { rec.recorder.stop(); } catch (e) {}
+    rec.isRecording = false;
+    if (rec.recTimerId) { clearInterval(rec.recTimerId); rec.recTimerId = null; }
+    const ind = $("#recorderRecIndicator");
+    if (ind) ind.hidden = true;
+  }
+  function recFinalize() {
+    if (rec.blobUrl) { try { URL.revokeObjectURL(rec.blobUrl); } catch (e) {} rec.blobUrl = null; }
+    const mime = (rec.recorder && rec.recorder.mimeType) || "video/webm";
+    const ext  = /mp4/i.test(mime) ? "mp4" : "webm";
+    const blob = new Blob(rec.chunks, { type: mime });
+    rec.blobUrl = URL.createObjectURL(blob);
+    const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    const fname = "acto-impro-" + ts + "." + ext;
+    const link = $("#recorderDownloadLink");
+    if (link) {
+      link.href = rec.blobUrl;
+      link.download = fname;
+      link.textContent = store.ui.recordDownload || "Download";
+    }
+    const prev = $("#recorderPreview");
+    if (prev) {
+      prev.src = rec.blobUrl;
+      prev.hidden = false;
+      try { prev.load(); } catch (e) {}
+    }
+    if (rec.canvas) rec.canvas.style.display = "none";
+    const bottom = $("#recorderBottomBar");
+    if (bottom) bottom.hidden = true;
+    const finish = $("#recorderFinishBar");
+    if (finish) finish.hidden = false;
+  }
+  function recAgain() {
+    recHidePreview();
+    if (rec.canvas) rec.canvas.style.display = "";
+    const bottom = $("#recorderBottomBar");
+    if (bottom) bottom.hidden = false;
+    const recBtn = $("#recorderRecordBtn");
+    if (recBtn) recBtn.textContent = store.ui.recordStartBtn || "Start";
+    rec.chunks = [];
+    rec.recorder = null;
+  }
+  async function recSwitchCamera() {
+    rec.facingMode = (rec.facingMode === "environment") ? "user" : "environment";
+    if (rec.stream) rec.stream.getTracks().forEach(t => { try { t.stop(); } catch (e) {} });
+    rec.stream = null;
+    await recStartCamera();
+  }
+  function recClose() {
+    if (rec.isRecording) { try { recStop(); } catch (e) {} }
+    recStopCamera();
+    if (rec.blobUrl) { try { URL.revokeObjectURL(rec.blobUrl); } catch (e) {} rec.blobUrl = null; }
+    rec.chunks = [];
+    rec.recorder = null;
+    const modal = $("#recorderModal");
+    if (modal) modal.hidden = true;
+    document.body.style.overflow = "";
+    recResetUI();
+  }
+  function recResetUI() {
+    if (rec.canvas) rec.canvas.style.display = "";
+    const bottom = $("#recorderBottomBar");
+    if (bottom) bottom.hidden = false;
+    const finish = $("#recorderFinishBar");
+    if (finish) finish.hidden = true;
+    const ind = $("#recorderRecIndicator");
+    if (ind) ind.hidden = true;
+    const recBtn = $("#recorderRecordBtn");
+    if (recBtn) recBtn.textContent = store.ui.recordStartBtn || "Start";
+    recHidePreview();
+  }
+  function recHidePreview() {
+    const prev = $("#recorderPreview");
+    if (prev) { prev.hidden = true; try { prev.pause(); } catch (e) {} prev.removeAttribute("src"); }
+  }
+  function recShowError(msg, hint) {
+    const wrap = $("#recorderError");
+    const m = $("#recorderErrorMsg");
+    const h = $("#recorderErrorHint");
+    if (m) m.textContent = msg || "";
+    if (h) { h.textContent = hint || ""; h.hidden = !hint; }
+    if (wrap) wrap.hidden = false;
+    if (rec.canvas) rec.canvas.style.display = "none";
+  }
+  function recHideError() {
+    const wrap = $("#recorderError");
+    if (wrap) wrap.hidden = true;
   }
 
   if (document.readyState === "loading") {
