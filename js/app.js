@@ -1141,78 +1141,184 @@
     rec.ctx.drawImage(v, 0, 0, w, h);
     recDrawTopOverlay(rec.ctx, w, h);
     recDrawBottomOverlay(rec.ctx, w, h);
+    recUpdateChronoChip();
     rec.rafId = requestAnimationFrame(recDrawLoop);
   }
+  function recUpdateChronoChip() {
+    const chip = document.getElementById("recorderChronoChip");
+    const tEl  = document.getElementById("recorderChronoTime");
+    if (!chip || !tEl) return;
+    if (state.chronoTotal > 0) {
+      const remaining = state.chronoRemaining > 0
+        ? state.chronoRemaining
+        : (state.chronoRunning ? 0 : state.chronoTotal);
+      tEl.textContent = formatMMSS(remaining);
+      chip.hidden = false;
+      chip.classList.toggle("warn",   state.chronoRemaining > 0 && state.chronoRemaining <= 30 && state.chronoRemaining > 10);
+      chip.classList.toggle("danger", state.chronoRemaining > 0 && state.chronoRemaining <= 10);
+    } else {
+      chip.hidden = true;
+    }
+  }
+  // Helper: word-wrap text into lines that fit within maxW (current ctx font assumed)
+  function recWrapText(ctx, text, maxW) {
+    if (!text) return [];
+    const words = String(text).split(/\s+/);
+    const lines = [];
+    let current = "";
+    for (const word of words) {
+      const trial = current ? current + " " + word : word;
+      if (ctx.measureText(trial).width <= maxW || !current) {
+        current = trial;
+      } else {
+        lines.push(current);
+        current = word;
+      }
+    }
+    if (current) lines.push(current);
+    return lines;
+  }
+
+  // Card accent colors (mirror styles.css :root --c-* variables)
+  const REC_COLORS = {
+    exercise:   "#6dd3c5",
+    constraint: "#ffae5c",
+    theme:      "#b794f4"
+  };
+
   function recDrawTopOverlay(ctx, w, h) {
     const ex = state.currentExercise;
     const t  = store.ui;
     if (!ex && !state.currentConstraint && !state.currentTheme) return;
-    const padTop = Math.round(h * 0.04);
-    const lineH  = Math.round(h * 0.05);
-    const titleSize = Math.round(h * 0.058);
-    const subSize   = Math.round(h * 0.038);
-    const blockH = padTop + titleSize + (state.currentConstraint ? lineH : 0) + (state.currentTheme ? lineH : 0) + padTop;
+
+    // Sizing based on width (so portrait & landscape both look right)
+    const padX        = Math.round(w * 0.045);
+    const padTop      = Math.round(w * 0.04);
+    const lineGap     = Math.round(w * 0.012);
+    const blockGap    = Math.round(w * 0.022);
+    const titleSize   = Math.max(28, Math.round(w * 0.062));
+    const labelSize   = Math.max(14, Math.round(w * 0.028));
+    const subSize     = Math.max(20, Math.round(w * 0.045));
+    const maxTextW    = w - padX * 2;
+
+    // Pre-compute line arrays
+    ctx.font = "700 " + titleSize + 'px Inter, "Helvetica Neue", sans-serif';
+    const titleLines = ex ? recWrapText(ctx, ex.name, maxTextW) : [];
+
+    ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
+    const consLines  = state.currentConstraint ? recWrapText(ctx, state.currentConstraint, maxTextW) : [];
+    const themeLines = state.currentTheme      ? recWrapText(ctx, state.currentTheme,      maxTextW) : [];
+
+    // Total block height
+    const sectionH = (count, sz) => count > 0 ? labelSize + lineGap + count * (sz + lineGap) : 0;
+    const blockH = padTop
+      + (titleLines.length ? titleLines.length * (titleSize + lineGap) : 0)
+      + (consLines.length  ? blockGap + sectionH(consLines.length,  subSize) : 0)
+      + (themeLines.length ? blockGap + sectionH(themeLines.length, subSize) : 0)
+      + padTop;
+
+    // Background gradient
     const grad = ctx.createLinearGradient(0, 0, 0, blockH);
-    grad.addColorStop(0, "rgba(15, 8, 25, 0.85)");
-    grad.addColorStop(1, "rgba(15, 8, 25, 0)");
+    grad.addColorStop(0, "rgba(10, 6, 18, 0.88)");
+    grad.addColorStop(1, "rgba(10, 6, 18, 0)");
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, blockH);
-    let y = padTop + titleSize;
-    if (ex) {
-      ctx.fillStyle = "#f5c451";
+
+    let y = padTop;
+
+    // Title (exercise name) — colored with exercise accent
+    if (titleLines.length) {
       ctx.font = "700 " + titleSize + 'px Inter, "Helvetica Neue", sans-serif';
       ctx.textAlign = "left";
-      ctx.shadowColor = "rgba(0,0,0,0.6)";
-      ctx.shadowBlur = 8;
-      ctx.fillText(recTrunc(ex.name, w * 0.92, ctx), Math.round(w * 0.04), y);
+      ctx.shadowColor = "rgba(0,0,0,0.7)";
+      ctx.shadowBlur = 10;
+      ctx.fillStyle = REC_COLORS.exercise;
+      for (const line of titleLines) {
+        y += titleSize;
+        ctx.fillText(line, padX, y);
+        y += lineGap;
+      }
       ctx.shadowBlur = 0;
     }
-    ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
-    ctx.fillStyle = "#fff";
-    if (state.currentConstraint) {
-      y += lineH;
-      const label = (t.recordOverlayCons || "Constraint") + " : ";
-      ctx.fillText(recTrunc(label + state.currentConstraint, w * 0.92, ctx), Math.round(w * 0.04), y);
+
+    // Constraint section
+    if (consLines.length) {
+      y += blockGap;
+      ctx.font = "700 " + labelSize + 'px Inter, "Helvetica Neue", sans-serif';
+      ctx.fillStyle = REC_COLORS.constraint;
+      ctx.shadowColor = "rgba(0,0,0,0.6)";
+      ctx.shadowBlur = 6;
+      const lbl = (t.recordOverlayCons || "Contrainte").toUpperCase();
+      y += labelSize;
+      ctx.fillText(lbl, padX, y);
+      y += lineGap;
+      ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
+      ctx.fillStyle = "#fff";
+      for (const line of consLines) {
+        y += subSize;
+        ctx.fillText(line, padX, y);
+        y += lineGap;
+      }
+      ctx.shadowBlur = 0;
     }
-    if (state.currentTheme) {
-      y += lineH;
-      const label = (t.recordOverlayTheme || "Theme") + " : ";
-      ctx.fillText(recTrunc(label + state.currentTheme, w * 0.92, ctx), Math.round(w * 0.04), y);
+
+    // Theme section
+    if (themeLines.length) {
+      y += blockGap;
+      ctx.font = "700 " + labelSize + 'px Inter, "Helvetica Neue", sans-serif';
+      ctx.fillStyle = REC_COLORS.theme;
+      ctx.shadowColor = "rgba(0,0,0,0.6)";
+      ctx.shadowBlur = 6;
+      const lbl = (t.recordOverlayTheme || "Thème").toUpperCase();
+      y += labelSize;
+      ctx.fillText(lbl, padX, y);
+      y += lineGap;
+      ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
+      ctx.fillStyle = "#fff";
+      for (const line of themeLines) {
+        y += subSize;
+        ctx.fillText(line, padX, y);
+        y += lineGap;
+      }
+      ctx.shadowBlur = 0;
     }
   }
   function recDrawBottomOverlay(ctx, w, h) {
-    const barH = Math.round(h * 0.18);
+    const barH = Math.max(110, Math.round(w * 0.18));
     const grad = ctx.createLinearGradient(0, h - barH, 0, h);
-    grad.addColorStop(0, "rgba(15, 8, 25, 0)");
-    grad.addColorStop(1, "rgba(15, 8, 25, 0.9)");
+    grad.addColorStop(0, "rgba(10, 6, 18, 0)");
+    grad.addColorStop(1, "rgba(10, 6, 18, 0.92)");
     ctx.fillStyle = grad;
     ctx.fillRect(0, h - barH, w, barH);
+
     const remaining = state.chronoTotal > 0
       ? (state.chronoRemaining > 0 ? state.chronoRemaining : (state.chronoRunning ? 0 : state.chronoTotal))
       : 0;
     const timeStr = state.chronoTotal > 0 ? formatMMSS(remaining) : "";
+
     if (timeStr) {
-      const fs = Math.round(h * 0.13);
+      const fs = Math.max(56, Math.round(w * 0.13));
       ctx.font = "400 " + fs + 'px "Bebas Neue", Inter, sans-serif';
       ctx.textAlign = "center";
-      ctx.shadowColor = "rgba(0,0,0,0.6)";
-      ctx.shadowBlur = 10;
+      ctx.shadowColor = "rgba(0,0,0,0.7)";
+      ctx.shadowBlur = 12;
       let color = "#fff";
       if (state.chronoRemaining > 0 && state.chronoRemaining <= 10) color = "#f87171";
       else if (state.chronoRemaining > 0 && state.chronoRemaining <= 30) color = "#fbbf24";
       ctx.fillStyle = color;
-      ctx.fillText(timeStr, w / 2, h - Math.round(barH * 0.25));
+      ctx.fillText(timeStr, w / 2, h - Math.round(barH * 0.32));
       ctx.shadowBlur = 0;
     }
+
     if (state.chronoTotal > 0) {
-      const pct = state.chronoTotal > 0 ? (state.chronoTotal - remaining) / state.chronoTotal : 0;
-      const barY = h - 6;
+      const pct = (state.chronoTotal - remaining) / state.chronoTotal;
+      const barY = h - 8;
       ctx.fillStyle = "rgba(255,255,255,0.18)";
-      ctx.fillRect(0, barY, w, 6);
+      ctx.fillRect(0, barY, w, 8);
       const grd = ctx.createLinearGradient(0, 0, w, 0);
       grd.addColorStop(0, "#6dd3c5"); grd.addColorStop(0.5, "#f5c451"); grd.addColorStop(1, "#ff6b8a");
       ctx.fillStyle = grd;
-      ctx.fillRect(0, barY, Math.max(0, Math.min(1, pct)) * w, 6);
+      ctx.fillRect(0, barY, Math.max(0, Math.min(1, pct)) * w, 8);
     }
   }
   function recTrunc(text, maxW, ctx) {

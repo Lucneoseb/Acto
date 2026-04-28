@@ -238,17 +238,25 @@
       <video class="recorder-hidden-video" id="recorderVideo" playsinline muted></video>
       <video class="recorder-preview" id="recorderPreview" controls playsinline hidden></video>
 
-      <button class="recorder-close" id="recorderCloseBtn" type="button" aria-label="Close">✕</button>
-      <div class="recorder-rec-indicator" id="recorderRecIndicator" hidden>
-        <span class="recorder-rec-dot"></span>
-        <span id="recorderRecLabel">REC</span>
-        <span class="recorder-rec-time" id="recorderRecTime">00:00</span>
+      <!-- Top toolbar -->
+      <div class="recorder-top-bar">
+        <div class="recorder-rec-indicator" id="recorderRecIndicator" hidden>
+          <span class="recorder-rec-dot"></span>
+          <span id="recorderRecLabel">REC</span>
+          <span class="recorder-rec-time" id="recorderRecTime">00:00</span>
+        </div>
+        <div class="recorder-chrono-chip" id="recorderChronoChip" hidden>
+          <span class="recorder-chrono-icon" aria-hidden="true">⏱️</span>
+          <span class="recorder-chrono-time" id="recorderChronoTime">00:00</span>
+        </div>
+        <div class="recorder-top-right">
+          <button class="recorder-icon-btn" id="recorderSwitchCamBtn" type="button" aria-label="Switch camera">🔄</button>
+          <button class="recorder-icon-btn recorder-close" id="recorderCloseBtn" type="button" aria-label="Close">✕</button>
+        </div>
       </div>
 
       <div class="recorder-bottom-bar" id="recorderBottomBar">
-        <button class="recorder-action recorder-switch-cam" id="recorderSwitchCamBtn" type="button" aria-label="Switch camera">🔄</button>
         <button class="recorder-action recorder-record" id="recorderRecordBtn" type="button"></button>
-        <span class="recorder-spacer"></span>
       </div>
 
       <div class="recorder-finish-bar" id="recorderFinishBar" hidden>
