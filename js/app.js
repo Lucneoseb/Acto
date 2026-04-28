@@ -1168,7 +1168,6 @@
     recDrawTopOverlay(rec.ctx, w, h);
     recDrawBottomOverlay(rec.ctx, w, h);
     recDrawLogoWatermark(rec.ctx, w, h);
-    recUpdateChronoChip();
     rec.rafId = requestAnimationFrame(recDrawLoop);
   }
   function recDrawLogoWatermark(ctx, w, h) {
@@ -1189,22 +1188,7 @@
     try { ctx.drawImage(rec.logoImg, x, y, logoW, logoH); } catch (e) { /* ignore */ }
     ctx.restore();
   }
-  function recUpdateChronoChip() {
-    const chip = document.getElementById("recorderChronoChip");
-    const tEl  = document.getElementById("recorderChronoTime");
-    if (!chip || !tEl) return;
-    if (state.chronoTotal > 0) {
-      const remaining = state.chronoRemaining > 0
-        ? state.chronoRemaining
-        : (state.chronoRunning ? 0 : state.chronoTotal);
-      tEl.textContent = formatMMSS(remaining);
-      chip.hidden = false;
-      chip.classList.toggle("warn",   state.chronoRemaining > 0 && state.chronoRemaining <= 30 && state.chronoRemaining > 10);
-      chip.classList.toggle("danger", state.chronoRemaining > 0 && state.chronoRemaining <= 10);
-    } else {
-      chip.hidden = true;
-    }
-  }
+  // recUpdateChronoChip removed — single canvas timer (bottom-center)
   // Helper: word-wrap text into lines that fit within maxW (current ctx font assumed)
   function recWrapText(ctx, text, maxW) {
     if (!text) return [];
@@ -1231,146 +1215,186 @@
     theme:      "#b794f4"
   };
 
+  // Helper: rounded rectangle path
+  function recRoundedRect(ctx, x, y, w, h, r) {
+    r = Math.max(0, Math.min(r, w / 2, h / 2));
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y,     x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x,     y + h, r);
+    ctx.arcTo(x,     y + h, x,     y,     r);
+    ctx.arcTo(x,     y,     x + w, y,     r);
+    ctx.closePath();
+  }
+
   function recDrawTopOverlay(ctx, w, h) {
     const ex = state.currentExercise;
     const t  = store.ui;
     if (!ex && !state.currentConstraint && !state.currentTheme) return;
 
-    // Sizing based on width (so portrait & landscape both look right)
-    const padX        = Math.round(w * 0.045);
-    const padTop      = Math.round(w * 0.04);
-    const lineGap     = Math.round(w * 0.012);
-    const blockGap    = Math.round(w * 0.022);
-    const titleSize   = Math.max(28, Math.round(w * 0.062));
-    const labelSize   = Math.max(14, Math.round(w * 0.028));
-    const subSize     = Math.max(20, Math.round(w * 0.045));
-    const maxTextW    = w - padX * 2;
+    // Sizing — small text. Anchored on min(w, h) so portrait & landscape match.
+    const baseDim   = Math.min(w, h);
+    const titleSize = Math.max(16, Math.round(baseDim * 0.040));
+    const subSize   = Math.max(13, Math.round(baseDim * 0.026));
+    const labelSize = Math.max(10, Math.round(baseDim * 0.018));
+    const padX      = Math.round(baseDim * 0.022);
+    const padY      = Math.round(baseDim * 0.022);
+    const lineGap   = Math.round(baseDim * 0.005);
+    const sectionGap= Math.round(baseDim * 0.012);
 
-    // Pre-compute line arrays
+    const isPortrait = h >= w;
+    const maxBoxW = isPortrait
+      ? Math.min(w * 0.78, 620)
+      : Math.min(w * 0.50, 720);
+    const maxTextW = maxBoxW - padX * 2;
+
+    // Pre-wrap each section
     ctx.font = "700 " + titleSize + 'px Inter, "Helvetica Neue", sans-serif';
     const titleLines = ex ? recWrapText(ctx, ex.name, maxTextW) : [];
-
     ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
     const consLines  = state.currentConstraint ? recWrapText(ctx, state.currentConstraint, maxTextW) : [];
     const themeLines = state.currentTheme      ? recWrapText(ctx, state.currentTheme,      maxTextW) : [];
 
-    // Reserve a top safe-zone so the canvas overlay text never collides
-    // with the brand logo watermark (top-left) or the HTML chrono chip (top-center).
-    const reserveTop  = Math.round(w * 0.24);
+    // Compute longest line to size the bg
+    let blockW = 0;
+    ctx.font = "700 " + titleSize + 'px Inter, "Helvetica Neue", sans-serif';
+    for (const l of titleLines) blockW = Math.max(blockW, ctx.measureText(l).width);
+    ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
+    for (const l of consLines)  blockW = Math.max(blockW, ctx.measureText(l).width);
+    for (const l of themeLines) blockW = Math.max(blockW, ctx.measureText(l).width);
+    ctx.font = "700 " + labelSize + 'px Inter, "Helvetica Neue", sans-serif';
+    if (consLines.length)  blockW = Math.max(blockW, ctx.measureText((t.recordOverlayCons  || "Contrainte").toUpperCase()).width);
+    if (themeLines.length) blockW = Math.max(blockW, ctx.measureText((t.recordOverlayTheme || "Thème").toUpperCase()).width);
+    blockW = Math.min(blockW + padX * 2, maxBoxW);
 
-    // Total block height
-    const sectionH = (count, sz) => count > 0 ? labelSize + lineGap + count * (sz + lineGap) : 0;
-    const blockH = reserveTop + padTop
-      + (titleLines.length ? titleLines.length * (titleSize + lineGap) : 0)
-      + (consLines.length  ? blockGap + sectionH(consLines.length,  subSize) : 0)
-      + (themeLines.length ? blockGap + sectionH(themeLines.length, subSize) : 0)
-      + padTop;
+    // Compute height
+    let blockH = padY;
+    if (titleLines.length) blockH += titleLines.length * (titleSize + lineGap);
+    if (consLines.length)  blockH += sectionGap + labelSize + lineGap + consLines.length  * (subSize + lineGap);
+    if (themeLines.length) blockH += sectionGap + labelSize + lineGap + themeLines.length * (subSize + lineGap);
+    blockH += padY;
 
-    // Background gradient
-    const grad = ctx.createLinearGradient(0, 0, 0, blockH);
-    grad.addColorStop(0, "rgba(10, 6, 18, 0.88)");
-    grad.addColorStop(1, "rgba(10, 6, 18, 0)");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, w, blockH);
+    // Position: top-left, BELOW the logo watermark
+    const margin   = Math.round(w * 0.025);
+    // Logo watermark dims (must mirror recDrawLogoWatermark)
+    const logoW   = Math.min(Math.round(w * 0.30), 360);
+    const logoRat = (rec.logoImg && rec.logoImg.naturalWidth)
+      ? rec.logoImg.naturalHeight / rec.logoImg.naturalWidth : 0.66;
+    const logoH   = rec.logoLoaded ? Math.round(logoW * logoRat) : 0;
+    const boxX = margin;
+    const boxY = margin + (logoH ? logoH + Math.round(margin * 0.6) : 0);
 
-    let y = reserveTop + padTop;
+    // Background
+    ctx.fillStyle = "rgba(10, 6, 18, 0.78)";
+    recRoundedRect(ctx, boxX, boxY, blockW, blockH, Math.round(baseDim * 0.022));
+    ctx.fill();
 
-    // Title (exercise name) — colored with exercise accent
+    // Subtle border
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Draw text inside
+    ctx.textAlign = "left";
+    let y = boxY + padY;
+
     if (titleLines.length) {
       ctx.font = "700 " + titleSize + 'px Inter, "Helvetica Neue", sans-serif';
-      ctx.textAlign = "left";
-      ctx.shadowColor = "rgba(0,0,0,0.7)";
-      ctx.shadowBlur = 10;
       ctx.fillStyle = REC_COLORS.exercise;
       for (const line of titleLines) {
         y += titleSize;
-        ctx.fillText(line, padX, y);
+        ctx.fillText(line, boxX + padX, y);
         y += lineGap;
       }
-      ctx.shadowBlur = 0;
     }
 
-    // Constraint section
     if (consLines.length) {
-      y += blockGap;
+      y += sectionGap;
       ctx.font = "700 " + labelSize + 'px Inter, "Helvetica Neue", sans-serif';
       ctx.fillStyle = REC_COLORS.constraint;
-      ctx.shadowColor = "rgba(0,0,0,0.6)";
-      ctx.shadowBlur = 6;
-      const lbl = (t.recordOverlayCons || "Contrainte").toUpperCase();
       y += labelSize;
-      ctx.fillText(lbl, padX, y);
+      ctx.fillText((t.recordOverlayCons || "Contrainte").toUpperCase(), boxX + padX, y);
       y += lineGap;
       ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
       ctx.fillStyle = "#fff";
       for (const line of consLines) {
         y += subSize;
-        ctx.fillText(line, padX, y);
+        ctx.fillText(line, boxX + padX, y);
         y += lineGap;
       }
-      ctx.shadowBlur = 0;
     }
 
-    // Theme section
     if (themeLines.length) {
-      y += blockGap;
+      y += sectionGap;
       ctx.font = "700 " + labelSize + 'px Inter, "Helvetica Neue", sans-serif';
       ctx.fillStyle = REC_COLORS.theme;
-      ctx.shadowColor = "rgba(0,0,0,0.6)";
-      ctx.shadowBlur = 6;
-      const lbl = (t.recordOverlayTheme || "Thème").toUpperCase();
       y += labelSize;
-      ctx.fillText(lbl, padX, y);
+      ctx.fillText((t.recordOverlayTheme || "Thème").toUpperCase(), boxX + padX, y);
       y += lineGap;
       ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
       ctx.fillStyle = "#fff";
       for (const line of themeLines) {
         y += subSize;
-        ctx.fillText(line, padX, y);
+        ctx.fillText(line, boxX + padX, y);
         y += lineGap;
       }
-      ctx.shadowBlur = 0;
     }
   }
+
   function recDrawBottomOverlay(ctx, w, h) {
-    const barH = Math.max(110, Math.round(w * 0.18));
-    const grad = ctx.createLinearGradient(0, h - barH, 0, h);
-    grad.addColorStop(0, "rgba(10, 6, 18, 0)");
-    grad.addColorStop(1, "rgba(10, 6, 18, 0.92)");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, h - barH, w, barH);
+    if (state.chronoTotal <= 0) return;
+    const remaining = state.chronoRemaining > 0
+      ? state.chronoRemaining
+      : (state.chronoRunning ? 0 : state.chronoTotal);
 
-    const remaining = state.chronoTotal > 0
-      ? (state.chronoRemaining > 0 ? state.chronoRemaining : (state.chronoRunning ? 0 : state.chronoTotal))
-      : 0;
-    const timeStr = state.chronoTotal > 0 ? formatMMSS(remaining) : "";
+    const baseDim = Math.min(w, h);
+    const fs = Math.max(26, Math.round(baseDim * 0.075));
+    const padX = Math.round(fs * 0.55);
+    const padY = Math.round(fs * 0.22);
+    const margin = Math.round(baseDim * 0.03);
 
-    if (timeStr) {
-      const fs = Math.max(56, Math.round(w * 0.13));
-      ctx.font = "400 " + fs + 'px "Bebas Neue", Inter, sans-serif';
-      ctx.textAlign = "center";
-      ctx.shadowColor = "rgba(0,0,0,0.7)";
-      ctx.shadowBlur = 12;
-      let color = "#fff";
-      if (state.chronoRemaining > 0 && state.chronoRemaining <= 10) color = "#f87171";
-      else if (state.chronoRemaining > 0 && state.chronoRemaining <= 30) color = "#fbbf24";
-      ctx.fillStyle = color;
-      ctx.fillText(timeStr, w / 2, h - Math.round(barH * 0.32));
-      ctx.shadowBlur = 0;
-    }
+    const timeStr = formatMMSS(remaining);
+    ctx.font = "400 " + fs + 'px "Bebas Neue", Inter, sans-serif';
+    const tw = ctx.measureText(timeStr).width;
+    const boxW = tw + padX * 2;
+    const boxH = fs + padY * 2;
+    const boxX = Math.round((w - boxW) / 2);
+    const boxY = h - margin - boxH;
 
-    if (state.chronoTotal > 0) {
-      const pct = (state.chronoTotal - remaining) / state.chronoTotal;
-      const barY = h - 8;
-      ctx.fillStyle = "rgba(255,255,255,0.18)";
-      ctx.fillRect(0, barY, w, 8);
-      const grd = ctx.createLinearGradient(0, 0, w, 0);
-      grd.addColorStop(0, "#6dd3c5"); grd.addColorStop(0.5, "#f5c451"); grd.addColorStop(1, "#ff6b8a");
-      ctx.fillStyle = grd;
-      ctx.fillRect(0, barY, Math.max(0, Math.min(1, pct)) * w, 8);
-    }
+    // Color based on remaining time
+    let color = "#ffffff";
+    if (state.chronoRemaining > 0 && state.chronoRemaining <= 10) color = "#f87171";
+    else if (state.chronoRemaining > 0 && state.chronoRemaining <= 30) color = "#fbbf24";
+
+    // Rounded background
+    ctx.fillStyle = "rgba(10, 6, 18, 0.78)";
+    recRoundedRect(ctx, boxX, boxY, boxW, boxH, boxH / 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.10)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Time text
+    ctx.fillStyle = color;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.shadowColor = "rgba(0,0,0,0.5)";
+    ctx.shadowBlur = 6;
+    ctx.fillText(timeStr, boxX + boxW / 2, boxY + boxH / 2 + Math.round(fs * 0.04));
+    ctx.shadowBlur = 0;
+    ctx.textBaseline = "alphabetic";
+
+    // Slim progress line right under the chip (1px tall, full canvas width)
+    const pct = (state.chronoTotal - remaining) / state.chronoTotal;
+    const barY = h - 4;
+    ctx.fillStyle = "rgba(255,255,255,0.16)";
+    ctx.fillRect(0, barY, w, 4);
+    const grd = ctx.createLinearGradient(0, 0, w, 0);
+    grd.addColorStop(0, "#6dd3c5"); grd.addColorStop(0.5, "#f5c451"); grd.addColorStop(1, "#ff6b8a");
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, barY, Math.max(0, Math.min(1, pct)) * w, 4);
   }
-  function recTrunc(text, maxW, ctx) {
+    function recTrunc(text, maxW, ctx) {
     if (!text) return "";
     if (ctx.measureText(text).width <= maxW) return text;
     const ell = "…";

@@ -2756,3 +2756,59 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
 
 /* When recording finishes, no need to keep the camera vignette around */
 .recorder-stage-finished::after { display: none; }
+
+/* ==========================================================
+   Recorder UI v5 — single canvas logo, REC bottom-right, smaller bottom timer
+   ========================================================== */
+
+/* Switch camera button: floating top-right (no toolbar wrapper anymore) */
+.recorder-floating-tr {
+  position: absolute;
+  top: max(0.7rem, env(safe-area-inset-top));
+  right: 0.7rem;
+  z-index: 5;
+}
+
+/* REC indicator: floating bottom-right (only visible while recording) */
+.recorder-rec-indicator {
+  position: absolute;
+  bottom: max(5.2rem, calc(env(safe-area-inset-bottom) + 5rem));
+  right: 0.85rem;
+  top: auto;          /* clear old top positioning */
+  left: auto;         /* clear old left positioning */
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.75rem;
+  background: rgba(10, 6, 18, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 80, 100, 0.45);
+  border-radius: 999px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 4px 18px rgba(255, 47, 92, 0.25);
+}
+.recorder-rec-indicator[hidden] { display: none; }
+
+@media (max-width: 480px) {
+  .recorder-rec-indicator {
+    bottom: max(4.6rem, calc(env(safe-area-inset-bottom) + 4.4rem));
+    font-size: 0.74rem;
+    padding: 0.32rem 0.6rem;
+  }
+}
+
+/* === Removed in this version (kept here only as no-ops in case old markup survives) === */
+.recorder-brand-logo,
+.recorder-chrono-chip,
+.recorder-top-bar,
+.recorder-top-left,
+.recorder-top-right { display: none !important; }
+
+/* Re-enable just the switch-cam button (it now uses .recorder-floating-tr) */
+.recorder-floating-tr { display: inline-flex !important; }

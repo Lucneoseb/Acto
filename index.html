@@ -237,23 +237,14 @@
       <canvas class="recorder-canvas" id="recorderCanvas"></canvas>
       <video class="recorder-hidden-video" id="recorderVideo" playsinline muted></video>
 
-      <!-- Top toolbar -->
-      <div class="recorder-top-bar" id="recorderTopBar">
-        <div class="recorder-top-left">
-          <img class="recorder-brand-logo" src="./assets/logo.png" alt="Acto" />
-          <div class="recorder-rec-indicator" id="recorderRecIndicator" hidden>
-            <span class="recorder-rec-dot"></span>
-            <span id="recorderRecLabel">REC</span>
-            <span class="recorder-rec-time" id="recorderRecTime">00:00</span>
-          </div>
-        </div>
-        <div class="recorder-chrono-chip" id="recorderChronoChip" hidden>
-          <span class="recorder-chrono-icon" aria-hidden="true">⏱️</span>
-          <span class="recorder-chrono-time" id="recorderChronoTime">00:00</span>
-        </div>
-        <div class="recorder-top-right">
-          <button class="recorder-icon-btn" id="recorderSwitchCamBtn" type="button" aria-label="Switch camera">🔄</button>
-        </div>
+      <!-- Floating switch-camera button (top-right) -->
+      <button class="recorder-icon-btn recorder-floating-tr" id="recorderSwitchCamBtn" type="button" aria-label="Switch camera">🔄</button>
+
+      <!-- REC indicator (bottom-right, only while recording) -->
+      <div class="recorder-rec-indicator" id="recorderRecIndicator" hidden>
+        <span class="recorder-rec-dot"></span>
+        <span id="recorderRecLabel">REC</span>
+        <span class="recorder-rec-time" id="recorderRecTime">00:00</span>
       </div>
 
       <!-- Bottom controls — IDLE state: just the big record button -->
