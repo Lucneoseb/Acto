@@ -25,12 +25,14 @@
   const { supabase: SB_CFG, site: SITE } = window.actoConfig;
   const { emailValid, withTimeout } = window.actoUtils;
 
+  // PKCE flow is the default and the right choice for email/password auth.
+  // Don't override with "implicit" — that's an OAuth-only flow and combined
+  // with detectSessionInUrl it makes refreshes flaky.
   const sb = window.supabase.createClient(SB_CFG.url, SB_CFG.key, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true,
-      flowType: "implicit"
+      detectSessionInUrl: true
     }
   });
   // Export so app.js (or anything else) can reuse it
@@ -293,26 +295,39 @@
   /* ------------------------------------------------------------------
      6. PROFILE
      ------------------------------------------------------------------ */
+  /**
+   * Look up (or create) the profile row for a freshly-authenticated user
+   * and stash it on window.actoAuth.state.profile. Wrapped in timeouts so
+   * it can never block the UI if the database is slow or RLS is misconfigured.
+   * Always resolves — failures are logged, not thrown.
+   */
   async function ensureProfile(user) {
     if (!user) return;
     try {
-      const { data: existing } = await sb
-        .from("profiles").select("id").eq("id", user.id).maybeSingle();
+      const { data: existing } = await withTimeout(
+        sb.from("profiles").select("id").eq("id", user.id).maybeSingle(),
+        6000, "profile-lookup"
+      );
       if (!existing) {
         const meta = user.user_metadata || {};
-        await sb.from("profiles").insert({
-          id: user.id,
-          email: user.email,
-          prenom: meta.prenom || "",
-          nom: meta.nom || "",
-          date_naissance: meta.date_naissance || null
-        });
+        await withTimeout(
+          sb.from("profiles").insert({
+            id: user.id,
+            email: user.email,
+            prenom: meta.prenom || "",
+            nom: meta.nom || "",
+            date_naissance: meta.date_naissance || null
+          }),
+          6000, "profile-insert"
+        );
       }
-      const { data: profile } = await sb
-        .from("profiles").select("*").eq("id", user.id).maybeSingle();
+      const { data: profile } = await withTimeout(
+        sb.from("profiles").select("*").eq("id", user.id).maybeSingle(),
+        6000, "profile-fetch"
+      );
       window.actoAuth.state.profile = profile || null;
     } catch (e) {
-      console.warn("ensureProfile failed", e);
+      console.warn("[auth] ensureProfile failed (UI not blocked):", e && e.message ? e.message : e);
     }
   }
 
@@ -434,19 +449,21 @@
   /* ------------------------------------------------------------------
      9. AUTH STATE LISTENER + INITIAL CHECK
      ------------------------------------------------------------------ */
-  sb.auth.onAuthStateChange(async (event, session) => {
+  sb.auth.onAuthStateChange((event, session) => {
     if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION")
         && session && session.user) {
       const wasLoggedOut = !window.actoAuth.state.user;
       window.actoAuth.state.user = session.user;
-      await ensureProfile(session.user);
+      // Show the app IMMEDIATELY. Profile + stats bump load in the background
+      // so a slow database query can never strand the user on the login screen.
       showApp(session.user);
-      // Increment login_count + last_login_at on a fresh login (not on token refresh)
-      if (event === "SIGNED_IN" && wasLoggedOut) {
-        try { await sb.rpc("bump_stats", { delta_login: 1 }); } catch (e) { console.warn("login bump failed", e); }
-      }
       if (typeof window.applyTranslations === "function") {
         try { window.applyTranslations(); } catch (e) {}
+      }
+      ensureProfile(session.user).catch(() => {});
+      if (event === "SIGNED_IN" && wasLoggedOut) {
+        sb.rpc("bump_stats", { delta_login: 1 })
+          .catch((e) => console.warn("[auth] login bump failed", e));
       }
     } else if (event === "SIGNED_OUT") {
       window.actoAuth.state.user = null;
@@ -491,8 +508,10 @@
       if (error) throw error;
       const session = data && data.session;
       if (session && session.user) {
-        await ensureProfile(session.user);
+        // Same rule as onAuthStateChange: show the app first, load the profile
+        // in the background. Never block UI on the database.
         showApp(session.user);
+        ensureProfile(session.user).catch(() => {});
         return;
       }
       // No session — fall through to clean any stale local state and show login.
