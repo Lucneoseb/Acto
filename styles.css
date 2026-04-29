@@ -958,10 +958,11 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
   transition: transform 0.2s, border-color 0.2s, color 0.2s;
 }
 .settings-trigger:hover {
-  transform: rotate(45deg) scale(1.04);
   border-color: var(--gold);
   color: var(--gold-soft);
 }
+.settings-trigger:hover svg { transform: rotate(20deg); }
+.settings-trigger svg { transition: transform 0.25s ease; }
 .settings-trigger svg { display: block; }
 
 /* ----------------------------------------

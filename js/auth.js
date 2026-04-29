@@ -128,6 +128,8 @@
     const scr  = $("authScreen"); if (scr)  scr.hidden = false;
     const card = $("authPendingCard"); if (card) card.hidden = true;
     const form = $("authLoginForm"); if (form) form.parentElement.hidden = false;
+    // Account actions (logout / delete account) only make sense when signed in.
+    const accSec = $("authAccountSection"); if (accSec) accSec.hidden = true;
   }
   function showPendingScreen(email) {
     window.actoAuth.state.pendingEmail = email;
@@ -335,6 +337,9 @@
      7. LOGOUT + ACCOUNT DELETE
      ------------------------------------------------------------------ */
   async function logout() {
+    // Close the settings dialog up front so the UI doesn't linger over the
+    // login screen after sign-out.
+    const dlg = $("settingsDialog"); if (dlg && dlg.open) dlg.close();
     try { await sb.auth.signOut(); } catch (e) { console.warn(e); }
     window.actoAuth.state.user = null;
     window.actoAuth.state.profile = null;
