@@ -3198,3 +3198,10 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
 .recorder-exercise-desc-text {
   color: #6dd3c5 !important; /* same cyan as the EXERCICE accent on canvas */
 }
+
+/* ==========================================================
+   Hide the HTML description popup entirely — the canvas-drawn version
+   (recDrawDescription) is the single source of truth and ends up in the
+   recorded video too.
+   ========================================================== */
+#recorderExerciseDesc { display: none !important; }
