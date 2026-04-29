@@ -3069,3 +3069,34 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
     font-size: clamp(0.85rem, 3.4vw, 1.05rem) !important;
   }
 }
+
+/* ==========================================================
+   Recorder — Description popup is now JS-positioned (follows the canvas panel).
+   These rules give it a sane fallback before JS positions it, and apply only
+   when no inline styles are set yet.
+   ========================================================== */
+
+.recorder-exercise-desc {
+  /* Smooth transitions when JS updates top/left/width every frame */
+  transition: top 0.15s ease, left 0.15s ease, width 0.15s ease,
+              opacity 0.32s ease, transform 0.32s ease;
+}
+
+/* Ensure transitions don't fight the show animation in CSS */
+.recorder-exercise-desc:not([hidden]) {
+  /* JS sets top/left/width/right inline — no CSS overrides needed here. */
+}
+
+/* If JS hasn't run yet (very first frames), don't paint at top:28% which would
+   cover the panel — keep it invisible until JS positions it. */
+.recorder-exercise-desc:not(.show) {
+  opacity: 0;
+}
+
+@media (orientation: portrait) and (max-width: 480px) {
+  .recorder-exercise-desc-text {
+    /* Ensure text wraps properly within the JS-set width on phones */
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+}

@@ -858,6 +858,48 @@
     popup.classList.remove("show");
     setTimeout(() => { popup.hidden = true; }, 350);
   }
+  // Position the description popup directly under the canvas top-right panel.
+  // Handles object-fit: contain by computing the actual content rect inside
+  // the .recorder-canvas element.
+  function recPositionExerciseDesc() {
+    const popup = $("#recorderExerciseDesc");
+    const cnv   = rec.canvas;
+    if (!popup || popup.hidden) return;
+    if (!cnv || !cnv.width || !cnv.height) return;
+    if (rec.panelBottomY == null) return;
+    const cnvRect = cnv.getBoundingClientRect();
+    if (cnvRect.height <= 0 || cnvRect.width <= 0) return;
+    const cnvAR = cnv.width / cnv.height;
+    const eleAR = cnvRect.width / cnvRect.height;
+    let contentLeft, contentTop, contentWidth, contentHeight;
+    if (cnvAR > eleAR) {
+      // letterbox top/bottom
+      contentWidth  = cnvRect.width;
+      contentHeight = cnvRect.width / cnvAR;
+      contentLeft   = cnvRect.left;
+      contentTop    = cnvRect.top + (cnvRect.height - contentHeight) / 2;
+    } else {
+      // pillarbox left/right
+      contentHeight = cnvRect.height;
+      contentWidth  = cnvRect.height * cnvAR;
+      contentTop    = cnvRect.top;
+      contentLeft   = cnvRect.left + (cnvRect.width - contentWidth) / 2;
+    }
+    const ratio = contentWidth / cnv.width;
+    const panelBottomVP = contentTop + rec.panelBottomY * ratio;
+    const panelLeftVP   = contentLeft + rec.panelLeftX * ratio;
+    const panelWidthVP  = rec.panelWidth * ratio;
+    const gap = Math.max(10, Math.round(panelWidthVP * 0.025));
+    popup.style.top      = (panelBottomVP + gap) + "px";
+    popup.style.left     = panelLeftVP + "px";
+    popup.style.right    = "auto";
+    popup.style.width    = panelWidthVP + "px";
+    popup.style.maxWidth = "none";
+    popup.style.bottom   = "auto";
+    popup.style.transform = popup.classList.contains("show")
+      ? "translateY(0) scale(1)"
+      : "translateY(-6px) scale(0.96)";
+  }
 
   /* ============================================================
      4. SETTINGS DIALOG
@@ -1155,7 +1197,7 @@
         recStart();
         // The description popup was already shown at modal-open;
         // schedule it to fade out 6 s after the countdown ends.
-        recArmExerciseDescHide(6000);
+        recArmExerciseDescHide(5000);
       });
     });
     if (__recPauseBtn) __recPauseBtn.addEventListener("click", recPauseResume);
@@ -1248,10 +1290,13 @@
     recHideConfirm();
     recHidePreviewPopup();
     recShowIdleControls();
-    // Show the exercise description as soon as the recorder opens (no auto-hide yet —
-    // it will be auto-hidden 6 s after the 3-2-1 countdown completes).
-    recShowExerciseDesc({ persistent: true });
     await recStartCamera();
+    // After the camera is live and the first frame has rendered (panel rect
+    // known), pop the description in & let it follow the panel.
+    setTimeout(() => {
+      recShowExerciseDesc({ persistent: true });
+      recPositionExerciseDesc();
+    }, 120);
   }
   async function recStartCamera() {
     const t = store.ui;
@@ -1296,16 +1341,23 @@
     recDrawTopOverlay(rec.ctx, w, h);
     recDrawBottomOverlay(rec.ctx, w, h);
     recDrawLogoWatermark(rec.ctx, w, h);
+    // Sync HTML description popup to follow the canvas panel
+    const __desc = document.getElementById("recorderExerciseDesc");
+    if (__desc && !__desc.hidden) recPositionExerciseDesc();
     rec.rafId = requestAnimationFrame(recDrawLoop);
   }
   function recDrawLogoWatermark(ctx, w, h) {
     if (!rec.logoLoaded || !rec.logoImg) return;
-    const logoW = Math.min(Math.round(w * 0.28), 320);
+    const isPortrait = h >= w;
+    // In portrait, shrink the logo & glue it to the very edge so the
+    // top-right Exercice/Contrainte/Thème panel has room.
+    const logoW = isPortrait
+      ? Math.min(Math.round(w * 0.20), 240)
+      : Math.min(Math.round(w * 0.28), 320);
     const ratio = (rec.logoImg.naturalWidth && rec.logoImg.naturalHeight)
       ? rec.logoImg.naturalHeight / rec.logoImg.naturalWidth : 0.66;
     const logoH = Math.round(logoW * ratio);
-    // Tighter to the very top-left corner
-    const margin = Math.round(w * 0.012);
+    const margin = isPortrait ? Math.round(w * 0.005) : Math.round(w * 0.012);
     const x = margin;
     const y = margin;
     ctx.save();
@@ -1470,6 +1522,13 @@
         y += lineGap;
       }
     }
+
+    // Save panel rect (canvas-px) so the HTML description popup can position
+    // itself directly below the panel without overlap.
+    rec.panelTopY    = boxY;
+    rec.panelLeftX   = boxX;
+    rec.panelWidth   = blockW;
+    rec.panelBottomY = boxY + blockH;
   }
 
   function recDrawBottomOverlay(ctx, w, h) {
