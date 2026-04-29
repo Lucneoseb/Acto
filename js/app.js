@@ -649,6 +649,7 @@
       b.setAttribute("aria-selected", a ? "true" : "false");
     });
     $$(".match-only").forEach((el) => { el.hidden = mode !== "match"; });
+    $$(".troupe-only").forEach((el) => { el.hidden = mode !== "troupe"; });
     refreshAudienceCard();
   }
   function setLevel(level) {
@@ -758,9 +759,28 @@
         }
         return { value: ex.name, meta: meta };
       }
-      case "constraint": { const v = pick(data.constraints[mode][level]); state.currentConstraint = v; return { value: v }; }
+      case "constraint": {
+        const v = pick(data.constraints[mode][level]);
+        state.currentConstraint = v;
+        // In Match mode the players card is gone; the player count lives as
+        // the meta sub-line of the constraint card. Re-pick on every reroll
+        // so the count stays in sync with the constraint.
+        if (mode === "match") {
+          state.currentPlayers = pick(data.players[level]);
+          return { value: v, meta: state.currentPlayers };
+        }
+        return { value: v };
+      }
       case "theme":      { const pool = state.useCustom ? state.customThemes : data.themes[level]; const v = pick(pool); state.currentTheme = v; return { value: v }; }
-      case "category":   { const c = pick(data.categories); return { value: c.name, meta: c.desc }; }
+      case "category":   {
+        const c = pick(data.categories);
+        state.currentCategory = c;
+        // In Match mode the Category card replaces Exercise. Mirror the picked
+        // category onto state.currentExercise so the recorder overlay (which
+        // reads currentExercise.name + .desc) renders the category instead.
+        state.currentExercise = { name: c.name, desc: c.desc };
+        return { value: c.name, meta: c.desc };
+      }
       case "duration":   {
         const sec = pickDurationSec();
         state.currentDurationSec = sec;
@@ -802,15 +822,11 @@
     chronoReset();
     $$(".card").forEach(c => { c.classList.remove("revealed"); c.classList.add("appearing"); });
     setTimeout(() => $$(".card").forEach(c => c.classList.remove("appearing")), 600);
-    let targets;
-    if (state.mode === "match") {
-      // Match mode: duration is one of the slot-machine reels (pickFor sets state.currentDurationSec)
-      targets = ["category", "exercise", "constraint", "theme", "duration", "players"];
-    } else {
-      // Troupe mode: pick duration silently (no reel for it). Chrono will use this value.
-      state.currentDurationSec = pickDurationSec();
-      targets = ["exercise", "constraint", "theme"];
-    }
+    // Both modes pick the duration silently — the chrono card displays it.
+    state.currentDurationSec = pickDurationSec();
+    const targets = state.mode === "match"
+      ? ["category", "constraint", "theme"]
+      : ["exercise", "constraint", "theme"];
     try {
       await Promise.all(targets.map((t, i) => spinTarget(t, i * 220)));
     } catch (e) {
@@ -1281,29 +1297,12 @@
           state.chronoRemaining = state.chronoTotal;
           const display = $("#chronoDisplay");
           if (display) display.textContent = formatMMSS(state.chronoTotal);
-          if (state.mode === "match") {
-            const reelEl = $('.reel[data-target="duration"]');
-            const trackEl = $("#reel-duration");
-            const cardEl  = $("#card-duration");
-            const metaEl  = $("#meta-duration");
-            if (reelEl && trackEl && cardEl) {
-              const value = formatSec(state.currentDurationSec);
-              const items = buildSpinPool(durationSteps(state.level).map(formatSec), value);
-              await spinReel({ reelEl, trackEl, cardEl, metaEl, items, meta: "", delay: 0 });
-            }
-          }
           return;
         }
         b.disabled = true;
         await spinTarget(target, 0);
         b.disabled = false;
         if (target === "exercise") refreshAudienceCard();
-        if (target === "duration") {
-          state.chronoTotal = state.currentDurationSec;
-          state.chronoRemaining = state.chronoTotal;
-          const display = $("#chronoDisplay");
-          if (display) display.textContent = formatMMSS(state.chronoTotal);
-        }
       })
     );
 
@@ -1668,10 +1667,14 @@
     ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
     for (const l of consLines)  blockW = Math.max(blockW, ctx.measureText(l).width);
     for (const l of themeLines) blockW = Math.max(blockW, ctx.measureText(l).width);
+    // In Match mode the exercise slot holds a Category, so the label flips.
+    const titleLabel = state.mode === "match"
+      ? (t.cardCategory || "Catégorie").toUpperCase()
+      : (t.recordOverlayExercise || "Exercice").toUpperCase();
     ctx.font = "700 " + labelSize + 'px Inter, "Helvetica Neue", sans-serif';
-    if (titleLines.length) blockW = Math.max(blockW, ctx.measureText((t.recordOverlayExercise || "Exercice").toUpperCase()).width);
-    if (consLines.length)  blockW = Math.max(blockW, ctx.measureText((t.recordOverlayCons     || "Contrainte").toUpperCase()).width);
-    if (themeLines.length) blockW = Math.max(blockW, ctx.measureText((t.recordOverlayTheme    || "Thème").toUpperCase()).width);
+    if (titleLines.length) blockW = Math.max(blockW, ctx.measureText(titleLabel).width);
+    if (consLines.length)  blockW = Math.max(blockW, ctx.measureText((t.recordOverlayCons || "Contrainte").toUpperCase()).width);
+    if (themeLines.length) blockW = Math.max(blockW, ctx.measureText((t.recordOverlayTheme || "Thème").toUpperCase()).width);
     // Always use the full max width so the box has a predictable size
     // (and the HTML description popup below it can match exactly).
     blockW = maxBoxW;
@@ -1706,7 +1709,7 @@
       ctx.font = "700 " + labelSize + 'px Inter, "Helvetica Neue", sans-serif';
       ctx.fillStyle = REC_COLORS.exercise;
       y += labelSize;
-      ctx.fillText((t.recordOverlayExercise || "Exercice").toUpperCase(), boxX + padX, y);
+      ctx.fillText(titleLabel, boxX + padX, y);
       y += lineGap;
       ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
       ctx.fillStyle = "#fff";

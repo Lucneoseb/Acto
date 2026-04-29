@@ -24,9 +24,11 @@
 
   /* Card category accents */
   --c-exercise:     #6dd3c5;
+  /* In Match mode, the Category card visually replaces the Exercise card and
+     should match its color. Keep --c-category aligned with --c-exercise. */
   --c-constraint:   #ffae5c;
   --c-theme:        #b794f4;
-  --c-category:     #f5c451;
+  --c-category:     #6dd3c5;
   --c-duration:     #84e1bc;
   --c-players:      #74b8ff;
 
@@ -879,7 +881,8 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
 /* ----------------------------------------
    Match-only visibility
    ---------------------------------------- */
-.match-only[hidden] { display: none !important; }
+.match-only[hidden],
+.troupe-only[hidden] { display: none !important; }
 
 /* ----------------------------------------
    Reveal animations
