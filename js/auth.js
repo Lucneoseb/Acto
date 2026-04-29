@@ -234,10 +234,15 @@
       // onAuthStateChange handles the rest on success
     } catch (e) {
       const raw = e && e.message ? String(e.message) : String(e);
-      const msg = raw.startsWith("timeout:")
-        ? "Délai d'attente dépassé. Vérifie ta connexion ou désactive les extensions qui bloquent supabase.co, puis réessaie."
-        : raw;
-      showError("authLoginError", msg);
+      if (raw.startsWith("timeout:")) {
+        // Login hung — most often caused by a stale local session blocking
+        // the SDK. Wipe it so the next attempt starts clean.
+        await clearStaleLocalSession();
+        showError("authLoginError",
+          "Délai d'attente dépassé. La session locale a été réinitialisée — réessaie.");
+      } else {
+        showError("authLoginError", raw);
+      }
     } finally {
       if (btn) btn.disabled = false;
     }
@@ -478,18 +483,51 @@
       }
     } catch (e) { console.warn("URL hash parse failed", e); }
     try {
-      const { data: { session } } = await sb.auth.getSession();
+      const { data, error } = await withTimeout(
+        sb.auth.getSession(),
+        5000,
+        "init-getSession"
+      );
+      if (error) throw error;
+      const session = data && data.session;
       if (session && session.user) {
         await ensureProfile(session.user);
         showApp(session.user);
-      } else {
-        showAuthScreen();
+        return;
       }
+      // No session — fall through to clean any stale local state and show login.
+      await clearStaleLocalSession();
+      showAuthScreen();
     } catch (e) {
-      console.warn("getSession failed", e);
+      // getSession threw OR timed out — usually means a corrupted token in
+      // localStorage that the SDK can't refresh. Wipe the local state so the
+      // next login attempt starts from a clean slate (avoids the "stuck on
+      // login screen, must clear browser data" trap).
+      console.warn("[auth] getSession failed, clearing local session:", e && e.message ? e.message : e);
+      await clearStaleLocalSession();
       showAuthScreen();
     }
   }
+
+  /**
+   * Wipe all Supabase-related state from localStorage. Used when the SDK
+   * gets into an inconsistent state (refresh-token failure, expired token
+   * with no recovery, etc.) and a fresh login can't take over cleanly.
+   */
+  async function clearStaleLocalSession() {
+    try { await sb.auth.signOut({ scope: "local" }); } catch (e) { /* SDK might throw if already signed out */ }
+    try {
+      const toRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith("sb-") || k.toLowerCase().includes("supabase"))) {
+          toRemove.push(k);
+        }
+      }
+      toRemove.forEach((k) => { try { localStorage.removeItem(k); } catch (e) {} });
+    } catch (e) { console.warn("[auth] localStorage cleanup failed", e); }
+  }
+  window.actoAuth.clearStaleLocalSession = clearStaleLocalSession;
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
