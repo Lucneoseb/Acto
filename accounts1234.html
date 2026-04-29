@@ -791,19 +791,49 @@
   });
 
   // ----- Boot: check auth + admin gate -----
+  function withTimeout(promise, ms, label) {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error("timeout: " + label)), ms))
+    ]);
+  }
   (async function init() {
     showGate("loadingGate");
-    const { data: { session } } = await sb.auth.getSession();
+    console.log("[admin] init starting…");
+    let session = null;
+    try {
+      const r = await withTimeout(sb.auth.getSession(), 8000, "getSession");
+      session = r && r.data && r.data.session;
+      console.log("[admin] session:", session ? session.user.email : "(none)");
+    } catch (e) {
+      console.error("[admin] getSession error:", e);
+      $("loadingGate").innerHTML = '<div class="gate-card"><h2>Erreur</h2><p>Impossible de vérifier ta session : ' + escapeHtml(e.message) + '</p><p><a href="./index.html">→ Retour à l\u0027app</a></p></div>';
+      return;
+    }
     if (!session || !session.user) { showGate("loginGate"); return; }
-    // Check is_admin via the same RLS-protected query: if admin, this returns
-    // their own row. We then also ensure is_admin is true.
-    const { data: me, error: meErr } = await sb
-      .from("profiles").select("email,is_admin").eq("id", session.user.id).maybeSingle();
-    if (meErr || !me || !me.is_admin) { showGate("forbiddenGate"); return; }
+
+    let me = null, meErr = null;
+    try {
+      const r = await withTimeout(
+        sb.from("profiles").select("email,is_admin").eq("id", session.user.id).maybeSingle(),
+        8000, "profile lookup"
+      );
+      me = r && r.data; meErr = r && r.error;
+      console.log("[admin] profile:", me, "err:", meErr);
+    } catch (e) {
+      console.error("[admin] profile lookup error:", e);
+      $("loadingGate").innerHTML = '<div class="gate-card"><h2>Erreur</h2><p>Impossible de lire ton profil : ' + escapeHtml(e.message) + '</p><p><a href="./index.html">→ Retour à l\u0027app</a></p></div>';
+      return;
+    }
+    if (meErr) {
+      $("loadingGate").innerHTML = '<div class="gate-card"><h2>Erreur Supabase</h2><p>' + escapeHtml(meErr.message) + '</p><p><a href="./index.html">→ Retour à l\u0027app</a></p></div>';
+      return;
+    }
+    if (!me || !me.is_admin) { showGate("forbiddenGate"); return; }
     $("whoami").textContent = "Connecté : " + me.email;
     showGate("adminApp");
-    await loadProfiles();
-    await loadEvents();
+    try { await loadProfiles(); } catch (e) { console.error("[admin] loadProfiles error:", e); }
+    try { await loadEvents();   } catch (e) { console.error("[admin] loadEvents error:", e); }
   })();
 })();
 </script>

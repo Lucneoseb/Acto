@@ -315,25 +315,37 @@
   async function deleteAccount() {
     const t = ui();
     const inp = $("authDeleteInput");
-    const expected = (t.authDeleteWord || "DELETE").trim();
-    if (!inp || inp.value.trim() !== expected) {
+    const expected = (t.authDeleteWord || "DELETE").trim().toUpperCase();
+    const typed    = inp ? (inp.value || "").trim().toUpperCase() : "";
+    if (!inp || typed !== expected) {
       return showError("authDeleteError", t.authDeleteConfirm || "Confirmation required");
     }
     showError("authDeleteError", "");
     const btn = $("authDeleteConfirmBtn");
     if (btn) btn.disabled = true;
     try {
-      const { error } = await sb.rpc("delete_my_account");
-      if (error) throw error;
-      // Sign out locally too
+      const { data, error } = await sb.rpc("delete_my_account");
+      if (error) {
+        console.error("delete_my_account RPC error:", error);
+        // Common case: RPC missing → guide the user to the SQL setup
+        if (/function .*delete_my_account.* does not exist/i.test(error.message || "")) {
+          throw new Error("La fonction delete_my_account n'existe pas — exécute le SQL setup dans Supabase.");
+        }
+        throw error;
+      }
+      console.log("delete_my_account result:", data);
       try { await sb.auth.signOut(); } catch (e) {}
       const dlg = $("deleteAccountDialog");
       if (dlg && dlg.open) dlg.close();
       window.actoAuth.state.user = null;
       window.actoAuth.state.profile = null;
       showAuthScreen();
+      // Force a page reload so any cached client session is cleared
+      setTimeout(() => { try { window.location.reload(); } catch (e) {} }, 300);
     } catch (e) {
-      showError("authDeleteError", e.message || String(e));
+      console.error("deleteAccount failed:", e);
+      const msg = (e && e.message) ? e.message : String(e);
+      showError("authDeleteError", msg);
     } finally {
       if (btn) btn.disabled = false;
     }
@@ -398,7 +410,9 @@
     if (cancelDel && delDlg) cancelDel.addEventListener("click", () => delDlg.close());
     if (delInput && confirmDel) delInput.addEventListener("input", () => {
       const t = ui();
-      confirmDel.disabled = (delInput.value.trim() !== (t.authDeleteWord || "DELETE"));
+      const expected = (t.authDeleteWord || "DELETE").trim().toUpperCase();
+      const typed    = (delInput.value || "").trim().toUpperCase();
+      confirmDel.disabled = (typed !== expected);
     });
     if (confirmDel) confirmDel.addEventListener("click", deleteAccount);
   }
@@ -433,6 +447,27 @@
     // Default screen state until session check completes
     const main = $("mainApp"); if (main) main.hidden = true;
     const scr  = $("authScreen"); if (scr)  scr.hidden = false;
+
+    // Detect Supabase auth errors in the URL hash (e.g. expired email link)
+    // and surface them in the login form, then clean the URL.
+    try {
+      const hash = (window.location.hash || "").replace(/^#/, "");
+      if (hash) {
+        const params = new URLSearchParams(hash);
+        const err = params.get("error");
+        const code = params.get("error_code");
+        const desc = params.get("error_description");
+        if (err) {
+          let msg = desc ? desc.replace(/\+/g, " ") : err;
+          if (code === "otp_expired") {
+            msg = (ui().authErrorEmailNotConfirmed || msg) + " — " + msg;
+          }
+          showError("authLoginError", msg);
+          // Clean the URL so the error doesn't persist on reload
+          history.replaceState(null, "", window.location.pathname + window.location.search);
+        }
+      }
+    } catch (e) { console.warn("URL hash parse failed", e); }
     try {
       const { data: { session } } = await sb.auth.getSession();
       if (session && session.user) {
