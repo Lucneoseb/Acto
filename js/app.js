@@ -188,8 +188,25 @@
      ============================================================ */
   function createStore() {
     const bundle = window.IMPRO_BUNDLE || { locales: {}, ui: {}, data: {} };
-    let locale = localStorage.getItem(LOCALE_KEY) || "fr";
-    if (!bundle.locales[locale]) locale = "fr";
+
+    // Pick the active locale in this priority:
+    //   1. user's explicit choice from a previous visit (localStorage)
+    //   2. browser/device preferred language(s) (navigator.languages)
+    //   3. French (the original default)
+    function detectBrowserLocale() {
+      const list = (navigator.languages && navigator.languages.length)
+        ? navigator.languages
+        : [navigator.language || "fr"];
+      for (const raw of list) {
+        const code = String(raw || "").toLowerCase().split(/[-_]/)[0];
+        if (code && bundle.locales[code]) return code;
+      }
+      return "fr";
+    }
+    let locale = localStorage.getItem(LOCALE_KEY);
+    if (!locale || !bundle.locales[locale]) {
+      locale = detectBrowserLocale();
+    }
 
     let overrides = {};
     try {
