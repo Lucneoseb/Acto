@@ -3184,3 +3184,17 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
     width: 80vw !important;
   }
 }
+
+/* ==========================================================
+   Recorder description popup — final color/positioning override
+   (background matches the canvas E/C/T panel; text in cyan).
+   ========================================================== */
+
+.recorder-exercise-desc {
+  background: rgba(10, 6, 18, 0.78) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55) !important;
+}
+.recorder-exercise-desc-text {
+  color: #6dd3c5 !important; /* same cyan as the EXERCICE accent on canvas */
+}

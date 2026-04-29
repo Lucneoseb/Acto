@@ -834,15 +834,17 @@
     opts = opts || {};
     const desc = state.currentExercise && state.currentExercise.desc;
     if (!desc) return;
+    rec.descShouldDraw = true;  // canvas overlay (gets recorded)
     const popup = $("#recorderExerciseDesc");
     const txt   = $("#recorderExerciseDescText");
-    if (!popup || !txt) return;
-    txt.textContent = desc;
-    recPositionExerciseDesc(); // clear any stale inline styles
-    popup.classList.remove("show");
-    void popup.offsetWidth;
-    popup.hidden = false;
-    popup.classList.add("show");
+    if (popup && txt) {
+      txt.textContent = desc;
+      recPositionExerciseDesc();
+      popup.classList.remove("show");
+      void popup.offsetWidth;
+      popup.hidden = false;
+      popup.classList.add("show");
+    }
     if (recDescHideTimer) { clearTimeout(recDescHideTimer); recDescHideTimer = null; }
     if (!opts.persistent) {
       recDescHideTimer = setTimeout(recHideExerciseDesc, opts.duration || 5000);
@@ -854,17 +856,52 @@
   }
   function recHideExerciseDesc() {
     if (recDescHideTimer) { clearTimeout(recDescHideTimer); recDescHideTimer = null; }
+    rec.descShouldDraw = false;  // stop drawing on canvas (and in recording)
     const popup = $("#recorderExerciseDesc");
-    if (!popup) return;
-    popup.classList.remove("show");
-    setTimeout(() => { popup.hidden = true; }, 350);
+    if (popup) {
+      popup.classList.remove("show");
+      setTimeout(() => { popup.hidden = true; }, 350);
+    }
   }
-  // Reset any stale inline styles on the popup so CSS rules apply cleanly.
+  // Position the description popup directly under the canvas top-right panel.
+  // Handles object-fit: contain by computing the actual content rect inside the
+  // .recorder-canvas element. Falls back to CSS defaults if data isn't ready.
   function recPositionExerciseDesc() {
     const popup = $("#recorderExerciseDesc");
+    const cnv   = rec.canvas;
     if (!popup) return;
-    popup.style.top = popup.style.left = popup.style.right = popup.style.width =
-      popup.style.maxWidth = popup.style.bottom = popup.style.transform = "";
+    if (!cnv || !cnv.width || !cnv.height || rec.panelBottomY == null) {
+      popup.style.top = popup.style.left = popup.style.right = popup.style.width =
+        popup.style.maxWidth = popup.style.bottom = "";
+      return;
+    }
+    const cnvRect = cnv.getBoundingClientRect();
+    if (cnvRect.height <= 0 || cnvRect.width <= 0) return;
+    const cnvAR = cnv.width / cnv.height;
+    const eleAR = cnvRect.width / cnvRect.height;
+    let contentLeft, contentTop, contentWidth, contentHeight;
+    if (cnvAR > eleAR) {
+      contentWidth  = cnvRect.width;
+      contentHeight = cnvRect.width / cnvAR;
+      contentLeft   = cnvRect.left;
+      contentTop    = cnvRect.top + (cnvRect.height - contentHeight) / 2;
+    } else {
+      contentHeight = cnvRect.height;
+      contentWidth  = cnvRect.height * cnvAR;
+      contentTop    = cnvRect.top;
+      contentLeft   = cnvRect.left + (cnvRect.width - contentWidth) / 2;
+    }
+    const ratio = contentWidth / cnv.width;
+    const panelBottomVP = contentTop + rec.panelBottomY * ratio;
+    const panelLeftVP   = contentLeft + rec.panelLeftX * ratio;
+    const panelWidthVP  = rec.panelWidth * ratio;
+    const gap = Math.max(8, Math.round(panelWidthVP * 0.025));
+    popup.style.top      = (panelBottomVP + gap) + "px";
+    popup.style.left     = panelLeftVP + "px";
+    popup.style.right    = "auto";
+    popup.style.width    = panelWidthVP + "px";
+    popup.style.maxWidth = "none";
+    popup.style.bottom   = "auto";
   }
 
   /* ============================================================
@@ -1305,24 +1342,26 @@
     }
     rec.ctx.drawImage(v, 0, 0, w, h);
     recDrawTopOverlay(rec.ctx, w, h);
+    recDrawDescription(rec.ctx, w, h);
     recDrawBottomOverlay(rec.ctx, w, h);
     recDrawLogoWatermark(rec.ctx, w, h);
+    const __desc = document.getElementById("recorderExerciseDesc");
+    if (__desc && !__desc.hidden) recPositionExerciseDesc();
     rec.rafId = requestAnimationFrame(recDrawLoop);
   }
   function recDrawLogoWatermark(ctx, w, h) {
     if (!rec.logoLoaded || !rec.logoImg) return;
     const isPortrait = h >= w;
-    // Push the logo as far left as possible and keep it compact so the
-    // top-right Exercice/Contrainte/Thème panel always has plenty of room.
+    // A bit bigger than before, glued to the very corner.
     const logoW = isPortrait
-      ? Math.min(Math.round(w * 0.16), 200)
-      : Math.min(Math.round(w * 0.22), 260);
+      ? Math.min(Math.round(w * 0.20), 240)
+      : Math.min(Math.round(w * 0.26), 300);
     const ratio = (rec.logoImg.naturalWidth && rec.logoImg.naturalHeight)
       ? rec.logoImg.naturalHeight / rec.logoImg.naturalWidth : 0.66;
     const logoH = Math.round(logoW * ratio);
-    const margin = Math.round(w * 0.004); // glue to the very corner
-    const x = margin;
-    const y = margin;
+    // Effectively zero left margin so the logo touches the corner.
+    const x = 0;
+    const y = Math.round(w * 0.003);
     ctx.save();
     ctx.shadowColor = "rgba(0,0,0,0.6)";
     ctx.shadowBlur  = Math.round(w * 0.022);
@@ -1330,6 +1369,44 @@
     ctx.globalAlpha = 0.96;
     try { ctx.drawImage(rec.logoImg, x, y, logoW, logoH); } catch (e) { /* ignore */ }
     ctx.restore();
+  }
+
+  // Draw the exercise description ON THE CANVAS (so it ends up in the recording).
+  // Sits just under the top-right E/C/T panel, same width and background.
+  // Body text uses the cyan EXERCICE accent color.
+  function recDrawDescription(ctx, w, h) {
+    if (!rec.descShouldDraw) return;
+    if (!state.currentExercise || !state.currentExercise.desc) return;
+    if (rec.panelBottomY == null || rec.panelLeftX == null || !rec.panelWidth) return;
+    const baseDim = Math.min(w, h);
+    const fs      = Math.max(13, Math.round(baseDim * 0.026));
+    const padX    = Math.round(baseDim * 0.022);
+    const padY    = Math.round(baseDim * 0.022);
+    const lineGap = Math.round(baseDim * 0.005);
+    const radius  = Math.round(baseDim * 0.022);
+    const boxX    = rec.panelLeftX;
+    const boxW    = rec.panelWidth;
+    const maxTextW = boxW - padX * 2;
+    ctx.font = "500 " + fs + 'px Inter, "Helvetica Neue", sans-serif';
+    const lines = recWrapText(ctx, state.currentExercise.desc, maxTextW);
+    if (!lines.length) return;
+    const boxH = padY * 2 + lines.length * (fs + lineGap);
+    const gap  = Math.round(baseDim * 0.014);
+    const boxY = rec.panelBottomY + gap;
+    ctx.fillStyle = "rgba(10, 6, 18, 0.78)";
+    recRoundedRect(ctx, boxX, boxY, boxW, boxH, radius);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = REC_COLORS.exercise;
+    ctx.textAlign = "left";
+    let y = boxY + padY;
+    for (const line of lines) {
+      y += fs;
+      ctx.fillText(line, boxX + padX, y);
+      y += lineGap;
+    }
   }
   // recUpdateChronoChip removed — single canvas timer (bottom-center)
   // Helper: word-wrap text into lines that fit within maxW (current ctx font assumed)
@@ -1504,7 +1581,6 @@
     const fs = Math.max(26, Math.round(baseDim * 0.075));
     const padX = Math.round(fs * 0.55);
     const padY = Math.round(fs * 0.22);
-    // Sit just above the HTML record button (which is anchored at viewport bottom).
     const margin = Math.max(95, Math.round(baseDim * 0.10));
 
     const timeStr = formatMMSS(remaining);
@@ -1513,7 +1589,11 @@
     const boxW = tw + padX * 2;
     const boxH = fs + padY * 2;
     const boxX = Math.round((w - boxW) / 2);
-    const boxY = h - margin - boxH;
+    // Centered on screen before recording starts; jumps to bottom-center as
+    // soon as the recording begins (after the 3-2-1 countdown).
+    const boxY = rec.isRecording
+      ? (h - margin - boxH)
+      : Math.round((h - boxH) / 2);
 
     let color = "#ffffff";
     if (state.chronoRemaining > 0 && state.chronoRemaining <= 10) color = "#f87171";
@@ -1695,6 +1775,7 @@
     recCancelPreCountdown();
     recHideAudienceCue();
     recHideExerciseDesc();
+    rec.descShouldDraw = false;
     if (rec.isRecording) { try { recStop(); } catch (e) {} }
     recStopCamera();
     if (rec.blobUrl) { try { URL.revokeObjectURL(rec.blobUrl); } catch (e) {} rec.blobUrl = null; }
