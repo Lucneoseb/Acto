@@ -21,17 +21,19 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# i18n + bundled data updates with deploys → 1-day cache, must-revalidate.
+# i18n + bundled data update with deploys. "no-cache" = browser must revalidate
+# on every load (lightweight 304 if unchanged, full body if changed). This way
+# bug fixes reach users instantly, no need to wait for cache expiry.
 [[headers]]
   for = "/data/*"
   [headers.values]
-    Cache-Control = "public, max-age=86400, must-revalidate"
+    Cache-Control = "public, no-cache"
 
-# JS modules update with deploys → short cache, must-revalidate.
+# JS modules: same logic — push a fix, all users see it on the next page load.
 [[headers]]
   for = "/js/*"
   [headers.values]
-    Cache-Control = "public, max-age=3600, must-revalidate"
+    Cache-Control = "public, no-cache"
 
 # HTML must always revalidate so a deploy reaches users immediately.
 [[headers]]
