@@ -398,17 +398,24 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/config.js"></script>
+<script src="./js/utils.js"></script>
 <script>
 (function () {
   "use strict";
-
-  const SUPABASE_URL = "https://gssotstyevehbzydzhlq.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_Xf7VpU-g-01tErkZSeMZSg_rqPhvFNx";
 
   if (!window.supabase || !window.supabase.createClient) {
     document.body.innerHTML = '<div class="gate"><div class="gate-card"><h2>Erreur</h2><p>SDK Supabase non chargé.</p></div></div>';
     return;
   }
+  if (!window.actoConfig || !window.actoUtils) {
+    document.body.innerHTML = '<div class="gate"><div class="gate-card"><h2>Erreur</h2><p>Configuration manquante (js/config.js / js/utils.js non chargés).</p></div></div>';
+    return;
+  }
+
+  const { url: SUPABASE_URL, key: SUPABASE_KEY } = window.actoConfig.supabase;
+  const { escapeHtml, fmtSec, fmtDate, ageOf, withTimeout } = window.actoUtils;
+
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
@@ -422,37 +429,6 @@
     ["loadingGate","loginGate","forbiddenGate","adminApp"].forEach(id => {
       const el = $(id); if (el) el.hidden = (id !== which);
     });
-  }
-
-  function fmtSec(s) {
-    const n = Math.max(0, Math.floor(Number(s) || 0));
-    const h = Math.floor(n / 3600);
-    const m = Math.floor((n % 3600) / 60);
-    const ss = n % 60;
-    if (h > 0) return h + "h" + String(m).padStart(2,"0") + "m";
-    if (m > 0) return m + "m" + String(ss).padStart(2,"0") + "s";
-    return ss + "s";
-  }
-  function fmtDate(s) {
-    if (!s) return "—";
-    const d = new Date(s);
-    if (isNaN(d)) return "—";
-    return d.toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
-  }
-  function ageOf(dob) {
-    if (!dob) return null;
-    const d = new Date(dob);
-    if (isNaN(d)) return null;
-    const today = new Date();
-    let a = today.getFullYear() - d.getFullYear();
-    const m = today.getMonth() - d.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < d.getDate())) a--;
-    return a;
-  }
-  function escapeHtml(s) {
-    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => (
-      { "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]
-    ));
   }
 
   function applySort(rows) {
@@ -792,12 +768,6 @@
   });
 
   // ----- Boot: check auth + admin gate -----
-  function withTimeout(promise, ms, label) {
-    return Promise.race([
-      promise,
-      new Promise((_, reject) => setTimeout(() => reject(new Error("timeout: " + label)), ms))
-    ]);
-  }
   (async function init() {
     showGate("loadingGate");
     console.log("[admin] init starting…");

@@ -174,7 +174,7 @@ input, textarea {
    ---------------------------------------- */
 .hero {
   text-align: center;
-  padding: clamp(3rem, 8vw, 6rem) 1.5rem 2rem;
+  padding: clamp(1.25rem, 3.5vw, 2.5rem) 1.5rem 0.75rem;
   position: relative;
 }
 
@@ -214,7 +214,7 @@ input, textarea {
 }
 
 .subtitle {
-  margin: 1.25rem auto 0;
+  margin: 0.35rem auto 0;
   max-width: 36rem;
   color: var(--ink-muted);
   font-size: clamp(0.95rem, 1.5vw, 1.1rem);
@@ -1244,17 +1244,31 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
 /* ==========================================================
    Chrono section (timer card + audience card)
    ========================================================== */
+/* Chrono card spans the full container width (same as the mode panel).
+   Audience card stacks below it. */
 .chrono-section {
   display: grid;
   grid-template-columns: 1fr;
   gap: 18px;
   margin-top: 26px;
 }
-@media (min-width: 760px) {
-  .chrono-section {
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
-  }
+
+/* All four action buttons (Start / Pause / Reset / Open recorder) sit on a
+   single horizontal row beneath the centered chrono. Wraps to two rows on
+   narrow portrait mobile when there's not enough width. */
+.chrono-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  align-items: stretch;
+  margin-top: 4px;
+}
+.chrono-controls > .chrono-btn,
+.chrono-controls > .record-open-btn {
+  flex: 1 1 140px;
+  min-width: 120px;
+  margin: 0;
 }
 .card-chrono {
   --c-chrono: #ffd166;
@@ -1265,13 +1279,13 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
 }
 .chrono-display {
   font-family: 'Bebas Neue', 'Inter', sans-serif;
-  font-size: clamp(60px, 12vw, 110px);
+  font-size: clamp(54px, 10vw, 96px);
   font-weight: 400;
   letter-spacing: 0.02em;
   color: var(--ink);
   text-align: center;
   font-variant-numeric: tabular-nums;
-  margin: 14px 0 12px;
+  margin: 4px 0 10px;
   text-shadow: 0 0 30px rgba(255, 209, 102, 0.3);
   line-height: 1;
   transition: color 0.2s, text-shadow 0.2s;
@@ -1299,7 +1313,7 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
   background: rgba(0, 0, 0, 0.4);
   border-radius: 999px;
   overflow: hidden;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 .chrono-progress-bar {
   height: 100%;
@@ -1307,12 +1321,6 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
   background: linear-gradient(90deg, var(--troupe), var(--gold), var(--match));
   border-radius: 999px;
   transition: width 0.25s linear;
-}
-.chrono-controls {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  flex-wrap: wrap;
 }
 .chrono-btn {
   appearance: none;
@@ -1325,6 +1333,7 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
   font-family: inherit;
   transition: transform 0.1s, box-shadow 0.2s, opacity 0.2s;
   letter-spacing: 0.02em;
+  min-height: 44px;
 }
 .chrono-btn:hover:not(:disabled) { transform: translateY(-1px); }
 .chrono-btn:active:not(:disabled) { transform: translateY(0); }
@@ -2005,9 +2014,9 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
    ========================================================== */
 .record-open-btn {
   appearance: none;
-  display: block;
-  width: 100%;
-  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.85rem 1rem;
   font-size: 0.95rem;
   font-weight: 700;
@@ -3207,9 +3216,8 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
 #recorderExerciseDesc { display: none !important; }
 
 /* Reduce spacing between hero logo and subtitle */
-.subtitle { margin-top: 0.25rem !important; }
 @media (max-width: 480px) {
-  .subtitle { margin-top: 0.15rem !important; font-size: 0.82rem !important; }
+  .subtitle { margin-top: 0.2rem; font-size: 0.82rem; }
 }
 
 /* ==========================================================

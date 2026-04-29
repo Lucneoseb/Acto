@@ -13,15 +13,19 @@
   /* ------------------------------------------------------------------
      0. CONFIG
      ------------------------------------------------------------------ */
-  const SUPABASE_URL = "https://gssotstyevehbzydzhlq.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_Xf7VpU-g-01tErkZSeMZSg_rqPhvFNx";
-
   if (!window.supabase || !window.supabase.createClient) {
     console.error("Supabase SDK missing — make sure the CDN <script> is loaded BEFORE auth.js.");
     return;
   }
+  if (!window.actoConfig || !window.actoUtils) {
+    console.error("actoConfig/actoUtils missing — make sure js/config.js and js/utils.js are loaded BEFORE auth.js.");
+    return;
+  }
 
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  const { supabase: SB_CFG, site: SITE } = window.actoConfig;
+  const { emailValid, withTimeout } = window.actoUtils;
+
+  const sb = window.supabase.createClient(SB_CFG.url, SB_CFG.key, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
@@ -48,9 +52,6 @@
     if (!msg) { el.hidden = true; el.textContent = ""; return; }
     el.textContent = msg;
     el.hidden = false;
-  }
-  function emailValid(s) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || "").trim());
   }
   function ageFromDob(dob) {
     if (!dob) return NaN;
@@ -215,7 +216,11 @@
     const btn = $("authLoginSubmitBtn");
     if (btn) btn.disabled = true;
     try {
-      const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+      const { error } = await withTimeout(
+        sb.auth.signInWithPassword({ email, password: pass }),
+        10000,
+        "network-timeout"
+      );
       if (error) {
         const msg = String(error.message || "").toLowerCase();
         if (msg.includes("not confirm") || msg.includes("confirm")) {
@@ -228,7 +233,11 @@
       }
       // onAuthStateChange handles the rest on success
     } catch (e) {
-      showError("authLoginError", e.message || String(e));
+      const raw = e && e.message ? String(e.message) : String(e);
+      const msg = raw.startsWith("timeout:")
+        ? "Délai d'attente dépassé. Vérifie ta connexion ou désactive les extensions qui bloquent supabase.co, puis réessaie."
+        : raw;
+      showError("authLoginError", msg);
     } finally {
       if (btn) btn.disabled = false;
     }

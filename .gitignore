@@ -1,0 +1,19 @@
+# Claude Code worktrees and session data
+.claude/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+
+# Local secrets (none today, but future-proof)
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
