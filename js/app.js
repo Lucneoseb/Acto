@@ -352,7 +352,7 @@
     if (el && v != null) el.textContent = v;
   }
 
-  function applyTranslations() {
+  window.applyTranslations = function applyTranslations() {
     const t = store.ui;
     document.documentElement.lang = store.locale;
     document.title = "Acto — The Impro Studio";
@@ -453,6 +453,9 @@
     setText("settingsLabelText",t.settings);
     setText("dlgTitle",         t.settings);
     setText("dlgLanguageLabel", t.language);
+    if (window.actoAuth && typeof window.actoAuth.applyTranslations === "function") {
+      window.actoAuth.applyTranslations();
+    }
   }
   function setReelPlaceholder(id, txt) {
     const el = document.getElementById(id);

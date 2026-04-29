@@ -37,7 +37,85 @@
     <p class="subtitle" id="subtitle"></p>
   </header>
 
-  <main class="container">
+  <!-- Auth screen — shown when no user is logged in -->
+  <section class="auth-screen" id="authScreen" hidden>
+    <div class="auth-card">
+      <h2 class="auth-title" id="authLoginTitle"></h2>
+      <form class="auth-form" id="authLoginForm" novalidate>
+        <label class="auth-field">
+          <span id="authEmailLabel"></span>
+          <input type="email" id="authLoginEmail" autocomplete="email" required />
+        </label>
+        <label class="auth-field">
+          <span id="authPasswordLabel"></span>
+          <input type="password" id="authLoginPassword" autocomplete="current-password" required />
+        </label>
+        <p class="auth-error" id="authLoginError" hidden></p>
+        <button type="submit" class="auth-btn auth-btn-primary" id="authLoginSubmitBtn"></button>
+        <button type="button" class="auth-link" id="authForgotBtn"></button>
+      </form>
+      <div class="auth-divider">
+        <span id="authNoAccountText"></span>
+        <button type="button" class="auth-btn auth-btn-secondary" id="authOpenSignupBtn"></button>
+      </div>
+    </div>
+
+    <!-- Email pending screen — replaces the form after a successful sign-up -->
+    <div class="auth-card auth-pending" id="authPendingCard" hidden>
+      <div class="auth-pending-icon" aria-hidden="true">📬</div>
+      <h2 class="auth-title" id="authPendingTitle"></h2>
+      <p class="auth-pending-msg" id="authPendingMsg"></p>
+      <div class="auth-pending-actions">
+        <button type="button" class="auth-btn auth-btn-secondary" id="authResendBtn"></button>
+        <button type="button" class="auth-link" id="authBackToLoginBtn"></button>
+      </div>
+      <p class="auth-error" id="authPendingError" hidden></p>
+    </div>
+  </section>
+
+  <!-- Signup dialog -->
+  <dialog class="signup-dialog themes-dialog" id="signupDialog" aria-labelledby="authSignupTitle">
+    <form method="dialog" class="dlg-head">
+      <h2 id="authSignupTitle"></h2>
+      <button type="button" class="dlg-close" id="authSignupCloseBtn" aria-label="Close">✕</button>
+    </form>
+    <form class="signup-form" id="authSignupForm" novalidate>
+      <div class="dlg-body">
+        <div class="form-row">
+          <label class="auth-field">
+            <span id="authSignupPrenomLabel"></span>
+            <input type="text" id="authSignupPrenom" autocomplete="given-name" required />
+          </label>
+          <label class="auth-field">
+            <span id="authSignupNomLabel"></span>
+            <input type="text" id="authSignupNom" autocomplete="family-name" required />
+          </label>
+        </div>
+        <label class="auth-field">
+          <span id="authSignupDobLabel"></span>
+          <input type="date" id="authSignupDob" required />
+        </label>
+        <label class="auth-field">
+          <span id="authSignupEmailLabel"></span>
+          <input type="email" id="authSignupEmail" autocomplete="email" required />
+        </label>
+        <label class="auth-field">
+          <span id="authSignupPasswordLabel"></span>
+          <input type="password" id="authSignupPassword" autocomplete="new-password" minlength="8" required />
+        </label>
+        <label class="auth-field">
+          <span id="authSignupConfirmLabel"></span>
+          <input type="password" id="authSignupConfirm" autocomplete="new-password" minlength="8" required />
+        </label>
+        <p class="auth-error" id="authSignupError" hidden></p>
+      </div>
+      <div class="dlg-actions">
+        <button type="submit" class="auth-btn auth-btn-primary" id="authSignupSubmitBtn"></button>
+      </div>
+    </form>
+  </dialog>
+
+  <main class="container" id="mainApp">
     <section class="config-panel">
       <!-- Mode toggle -->
       <div class="config-block">
@@ -348,6 +426,16 @@
         <select id="langSelect"></select>
       </div>
 
+      <!-- Account section -->
+      <div class="dlg-field auth-account-section" id="authAccountSection" hidden>
+        <h3 id="authAccountTitle"></h3>
+        <p class="auth-account-info" id="authAccountInfo"></p>
+        <div class="auth-account-actions">
+          <button class="auth-btn auth-btn-secondary" id="authLogoutBtn" type="button"></button>
+          <button class="auth-btn auth-btn-danger" id="authOpenDeleteBtn" type="button"></button>
+        </div>
+      </div>
+
       <!-- Editor -->
       <div class="dlg-editor">
         <p class="dlg-help">
@@ -370,7 +458,26 @@
     </div>
   </dialog>
 
+  <!-- Delete-account confirmation dialog -->
+  <dialog class="themes-dialog" id="deleteAccountDialog" aria-labelledby="authDeleteTitle">
+    <form method="dialog" class="dlg-head">
+      <h2 id="authDeleteTitle"></h2>
+      <button type="button" class="dlg-close" id="authDeleteCloseBtn" aria-label="Close">✕</button>
+    </form>
+    <div class="dlg-body">
+      <p class="auth-delete-warning" id="authDeleteConfirmMsg"></p>
+      <input type="text" id="authDeleteInput" placeholder="" />
+      <p class="auth-error" id="authDeleteError" hidden></p>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="auth-btn auth-btn-secondary" id="authDeleteCancelBtn"></button>
+      <button type="button" class="auth-btn auth-btn-danger" id="authDeleteConfirmBtn" disabled></button>
+    </div>
+  </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./data/all.js"></script>
+  <script src="./js/auth.js"></script>
   <script src="./js/app.js"></script>
 </body>
 </html>
