@@ -1660,6 +1660,15 @@
     const consLines  = state.currentConstraint ? recWrapText(ctx, state.currentConstraint, maxTextW) : [];
     const themeLines = state.currentTheme      ? recWrapText(ctx, state.currentTheme,      maxTextW) : [];
 
+    // Match mode only: a smaller sub-line under the constraint text showing
+    // how many players are involved (e.g., "2 joueurs"). Mirrors the meta
+    // line of the constraint card on the main page.
+    const playerSize = Math.round(subSize * 0.85);
+    ctx.font = "500 " + playerSize + 'px Inter, "Helvetica Neue", sans-serif';
+    const playerLines = (state.mode === "match" && state.currentPlayers)
+      ? recWrapText(ctx, state.currentPlayers, maxTextW)
+      : [];
+
     // Compute longest line to size the bg
     let blockW = 0;
     ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
@@ -1667,6 +1676,8 @@
     ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
     for (const l of consLines)  blockW = Math.max(blockW, ctx.measureText(l).width);
     for (const l of themeLines) blockW = Math.max(blockW, ctx.measureText(l).width);
+    ctx.font = "500 " + playerSize + 'px Inter, "Helvetica Neue", sans-serif';
+    for (const l of playerLines) blockW = Math.max(blockW, ctx.measureText(l).width);
     // In Match mode the exercise slot holds a Category, so the label flips.
     const titleLabel = state.mode === "match"
       ? (t.cardCategory || "Catégorie").toUpperCase()
@@ -1683,6 +1694,10 @@
     let blockH = padY;
     if (titleLines.length) blockH += labelSize + lineGap + titleLines.length * (subSize + lineGap);
     if (consLines.length)  blockH += sectionGap + labelSize + lineGap + consLines.length  * (subSize + lineGap);
+    // Player sub-line sits inside the constraint section — small extra gap then n lines.
+    if (consLines.length && playerLines.length) {
+      blockH += Math.round(lineGap * 1.5) + playerLines.length * (playerSize + lineGap);
+    }
     if (themeLines.length) blockH += sectionGap + labelSize + lineGap + themeLines.length * (subSize + lineGap);
     blockH += padY;
 
@@ -1733,6 +1748,16 @@
         y += subSize;
         ctx.fillText(line, boxX + padX, y);
         y += lineGap;
+      }
+      if (playerLines.length) {
+        y += Math.round(lineGap * 1.5);
+        ctx.font = "500 " + playerSize + 'px Inter, "Helvetica Neue", sans-serif';
+        ctx.fillStyle = "rgba(255, 255, 255, 0.72)";
+        for (const line of playerLines) {
+          y += playerSize;
+          ctx.fillText(line, boxX + padX, y);
+          y += lineGap;
+        }
       }
     }
 
