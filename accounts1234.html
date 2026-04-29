@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Acto — Admin</title>
+<style>
+  :root {
+    --bg-deep: #0c0814;
+    --bg-mid: #1a0f2b;
+    --bg-velvet: #2a0e2c;
+    --gold: #f5c451;
+    --gold-soft: #fde08a;
+    --crimson: #b91c4d;
+    --teal: #6dd3c5;
+    --ink: #f5f0ea;
+    --ink-muted: rgba(245, 240, 234, 0.65);
+    --ink-faint: rgba(245, 240, 234, 0.35);
+    --row-border: rgba(255, 255, 255, 0.08);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100%; }
+  body {
+    background:
+      radial-gradient(900px 600px at 10% -10%, rgba(245,196,81,0.12), transparent 60%),
+      linear-gradient(135deg, var(--bg-deep), var(--bg-mid) 50%, var(--bg-velvet));
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 1.2rem 1rem 3rem; }
+  header.bar {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 0.6rem;
+    border-bottom: 1px solid var(--row-border);
+    padding-bottom: 0.85rem; margin-bottom: 1rem;
+  }
+  header.bar h1 {
+    margin: 0;
+    font-family: 'Bebas Neue', Inter, sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    font-size: clamp(1.4rem, 2.6vw, 2rem);
+    color: var(--gold);
+  }
+  header.bar .who { color: var(--ink-muted); font-size: 0.85rem; }
+  .actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .btn {
+    appearance: none; cursor: pointer; font-family: inherit;
+    font-weight: 700; letter-spacing: 0.02em;
+    padding: 0.55rem 0.95rem; min-height: 38px;
+    border-radius: 10px; font-size: 0.85rem;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.06); color: var(--ink);
+    transition: transform 0.1s, background 0.18s, border-color 0.18s;
+  }
+  .btn:hover { background: rgba(255,255,255,0.12); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+    color: var(--bg-deep); border: 0;
+    box-shadow: 0 4px 16px rgba(245,196,81,0.3);
+  }
+  .btn-danger {
+    background: linear-gradient(135deg, #ff3b3b, #b91c4d);
+    color: #fff; border: 0;
+  }
+
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 0.7rem;
+    margin-bottom: 1rem;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--row-border);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+  }
+  .stat-card .k {
+    font-size: 0.7rem; color: var(--ink-muted);
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .stat-card .v {
+    font-family: 'Bebas Neue', Inter, sans-serif;
+    font-size: 1.5rem; color: var(--gold);
+    line-height: 1.1; margin-top: 0.25rem;
+  }
+
+  .toolbar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.7rem; align-items: center; }
+  .toolbar input[type="search"] {
+    flex: 1 1 240px; max-width: 360px;
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--ink); padding: 0.55rem 0.8rem;
+    border-radius: 10px; font: inherit; font-size: 0.9rem;
+    outline: none;
+  }
+  .toolbar input[type="search"]:focus { border-color: rgba(245,196,81,0.5); }
+  .toolbar .count {
+    color: var(--ink-muted); font-size: 0.85rem;
+    margin-left: auto;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--row-border);
+    border-radius: 14px;
+  }
+  table.profiles { width: 100%; border-collapse: collapse; min-width: 1100px; }
+  table.profiles th, table.profiles td {
+    padding: 0.55rem 0.7rem;
+    border-bottom: 1px solid var(--row-border);
+    font-size: 0.85rem; text-align: left; vertical-align: top;
+    white-space: nowrap;
+  }
+  table.profiles td.wrap { white-space: normal; max-width: 220px; }
+  table.profiles thead th {
+    position: sticky; top: 0; z-index: 1;
+    background: var(--bg-mid);
+    color: var(--gold-soft);
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    font-size: 0.7rem;
+    cursor: pointer; user-select: none;
+  }
+  table.profiles thead th:hover { color: var(--gold); }
+  table.profiles thead th[data-sort-active="asc"]::after  { content: " ▲"; }
+  table.profiles thead th[data-sort-active="desc"]::after { content: " ▼"; }
+  table.profiles tbody tr:hover { background: rgba(255,255,255,0.03); }
+  table.profiles td.numeric { text-align: right; font-variant-numeric: tabular-nums; }
+  table.profiles .badge {
+    display: inline-block; padding: 0.15rem 0.5rem;
+    background: rgba(245,196,81,0.2);
+    border: 1px solid rgba(245,196,81,0.45);
+    border-radius: 999px;
+    color: var(--gold-soft);
+    font-size: 0.7rem; font-weight: 700;
+  }
+  table.profiles td.email { font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace; font-size: 0.78rem; }
+
+  .empty {
+    text-align: center; padding: 3rem 1rem;
+    color: var(--ink-muted);
+  }
+
+  /* Gate screens */
+  .gate {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 2rem 1rem;
+  }
+  .gate-card {
+    max-width: 460px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--row-border);
+    border-radius: 18px;
+    padding: 2rem 1.5rem;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+  }
+  .gate-card h2 {
+    font-family: 'Bebas Neue', Inter, sans-serif;
+    font-weight: 400; letter-spacing: 0.04em;
+    color: var(--gold);
+    margin: 0 0 0.6rem;
+    font-size: 1.6rem;
+  }
+  .gate-card p { color: var(--ink-muted); margin: 0 0 1rem; }
+  .gate-card a { color: var(--gold-soft); }
+
+  @media (max-width: 640px) {
+    .stat-card .v { font-size: 1.25rem; }
+    table.profiles th, table.profiles td { font-size: 0.78rem; padding: 0.45rem 0.55rem; }
+  }
+
+  /* ----- Event analytics sections ----- */
+  .section-title {
+    margin: 1.6rem 0 0.7rem;
+    font-family: 'Bebas Neue', Inter, sans-serif;
+    letter-spacing: 0.04em;
+    color: var(--gold);
+    font-size: 1.3rem;
+    font-weight: 400;
+    border-bottom: 1px solid var(--row-border);
+    padding-bottom: 0.4rem;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 900px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+  .breakdown {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--row-border);
+    border-radius: 12px;
+    padding: 0.95rem 1rem;
+  }
+  .breakdown h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-muted);
+  }
+  .breakdown .bar-row {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.3rem 0;
+    font-size: 0.85rem;
+  }
+  .breakdown .bar-row .label { flex: 0 0 110px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .breakdown .bar-row .bar {
+    flex: 1;
+    height: 8px; background: rgba(255,255,255,0.08);
+    border-radius: 4px; overflow: hidden;
+  }
+  .breakdown .bar-row .bar > span {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, var(--teal), var(--gold), #ff6b8a);
+    border-radius: 4px;
+  }
+  .breakdown .bar-row .num { font-variant-numeric: tabular-nums; color: var(--gold-soft); min-width: 50px; text-align: right; }
+  .top-list { margin: 0; padding: 0; list-style: none; }
+  .top-list li {
+    display: flex; gap: 0.6rem; align-items: baseline;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--row-border);
+    font-size: 0.85rem;
+  }
+  .top-list li:last-child { border-bottom: 0; }
+  .top-list .rank {
+    flex: 0 0 22px; text-align: right;
+    color: var(--ink-faint); font-variant-numeric: tabular-nums;
+  }
+  .top-list .name {
+    flex: 1; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .top-list .count {
+    flex: 0 0 auto; color: var(--gold-soft);
+    font-variant-numeric: tabular-nums; font-size: 0.78rem;
+  }
+
+  /* Event log table styling reuses .profiles, just narrower min-width */
+  table.events { min-width: 900px; }
+  table.events td.was-recorded { color: var(--teal); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div id="loadingGate" class="gate"><div class="gate-card"><h2>Chargement…</h2></div></div>
+
+<div id="loginGate" class="gate" hidden>
+  <div class="gate-card">
+    <h2>Connexion requise</h2>
+    <p>Tu dois être connecté en tant qu'administrateur pour accéder à cette page.</p>
+    <p><a href="./index.html">→ Aller à la page de connexion</a></p>
+  </div>
+</div>
+
+<div id="forbiddenGate" class="gate" hidden>
+  <div class="gate-card">
+    <h2>Accès refusé</h2>
+    <p>Ton compte n'a pas les droits administrateur.</p>
+    <p><a href="./index.html">→ Retour à l'application</a></p>
+  </div>
+</div>
+
+<div id="adminApp" class="wrap" hidden>
+  <header class="bar">
+    <h1>Acto · Tableau de bord</h1>
+    <div>
+      <span class="who" id="whoami"></span>
+      <div class="actions" style="margin-top:0.4rem;">
+        <button class="btn" id="refreshBtn">↻ Rafraîchir</button>
+        <button class="btn btn-primary" id="exportBtn">⬇ Export CSV</button>
+        <button class="btn" id="logoutBtn">Se déconnecter</button>
+        <a class="btn" href="./index.html" style="display:inline-flex;align-items:center;text-decoration:none;">← App</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="summary" id="summary"></section>
+
+  <div class="toolbar">
+    <input type="search" id="searchInput" placeholder="Rechercher (email, prénom, nom)…" autocomplete="off" />
+    <span class="count" id="countLabel"></span>
+  </div>
+
+  <div class="table-wrap">
+    <table class="profiles" id="profilesTable">
+      <thead>
+        <tr>
+          <th data-sort="email">Email</th>
+          <th data-sort="prenom">Prénom</th>
+          <th data-sort="nom">Nom</th>
+          <th data-sort="age" class="numeric">Âge</th>
+          <th data-sort="login_count" class="numeric">Conn.</th>
+          <th data-sort="last_login_at">Dernière conn.</th>
+          <th data-sort="total_impros_generated" class="numeric">Impros gén.</th>
+          <th data-sort="total_impros_played" class="numeric">Impros jouées</th>
+          <th data-sort="total_impro_seconds" class="numeric">Tps impro</th>
+          <th data-sort="total_records_count" class="numeric">Enregis.</th>
+          <th data-sort="total_record_seconds" class="numeric">Tps record</th>
+          <th data-sort="created_at">Inscrit le</th>
+          <th data-sort="is_admin">Rôle</th>
+        </tr>
+      </thead>
+      <tbody id="profilesBody">
+        <tr><td colspan="13" class="empty">Chargement des données…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============================================================
+       Event analytics
+       ============================================================ -->
+  <h2 class="section-title">📊 Statistiques par mode &amp; niveau</h2>
+  <div class="grid-2">
+    <div class="breakdown" id="bdMode">
+      <h4>Par mode</h4>
+      <div class="bar-rows" id="bdModeRows"></div>
+    </div>
+    <div class="breakdown" id="bdLevel">
+      <h4>Par niveau</h4>
+      <div class="bar-rows" id="bdLevelRows"></div>
+    </div>
+  </div>
+
+  <h2 class="section-title">🏆 Tops</h2>
+  <div class="grid-3">
+    <div class="breakdown">
+      <h4>Top 10 exercices</h4>
+      <ol class="top-list" id="topExercises"></ol>
+    </div>
+    <div class="breakdown">
+      <h4>Top 10 contraintes</h4>
+      <ol class="top-list" id="topConstraints"></ol>
+    </div>
+    <div class="breakdown">
+      <h4>Top 10 thèmes</h4>
+      <ol class="top-list" id="topThemes"></ol>
+    </div>
+  </div>
+
+  <h2 class="section-title">🎬 Journal des impros lancées</h2>
+  <div class="toolbar">
+    <input type="search" id="eventSearch" placeholder="Rechercher (exercice, contrainte, thème, email)…" autocomplete="off" />
+    <select id="eventFilterMode" class="btn">
+      <option value="">Tous modes</option>
+      <option value="troupe">Troupe</option>
+      <option value="match">Match</option>
+    </select>
+    <select id="eventFilterLevel" class="btn">
+      <option value="">Tous niveaux</option>
+      <option value="debutant">Débutant</option>
+      <option value="confirme">Confirmé</option>
+      <option value="expert">Expert</option>
+    </select>
+    <select id="eventFilterRecorded" class="btn">
+      <option value="">Tous</option>
+      <option value="yes">Enregistrés</option>
+      <option value="no">Non enregistrés</option>
+    </select>
+    <button class="btn" id="exportEventsBtn">⬇ Export CSV événements</button>
+    <span class="count" id="eventCount"></span>
+  </div>
+  <div class="table-wrap">
+    <table class="profiles events" id="eventsTable">
+      <thead>
+        <tr>
+          <th data-event-sort="launched_at">Date</th>
+          <th data-event-sort="email">Email</th>
+          <th data-event-sort="mode">Mode</th>
+          <th data-event-sort="level">Niveau</th>
+          <th data-event-sort="exercise_name">Exercice</th>
+          <th data-event-sort="constraint_name">Contrainte</th>
+          <th data-event-sort="theme_name">Thème</th>
+          <th data-event-sort="duration_planned_seconds" class="numeric">Prévu</th>
+          <th data-event-sort="duration_played_seconds" class="numeric">Joué</th>
+          <th data-event-sort="was_recorded">Enregistré</th>
+        </tr>
+      </thead>
+      <tbody id="eventsBody">
+        <tr><td colspan="10" class="empty">Aucun événement chargé.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  "use strict";
+
+  const SUPABASE_URL = "https://gssotstyevehbzydzhlq.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_Xf7VpU-g-01tErkZSeMZSg_rqPhvFNx";
+
+  if (!window.supabase || !window.supabase.createClient) {
+    document.body.innerHTML = '<div class="gate"><div class="gate-card"><h2>Erreur</h2><p>SDK Supabase non chargé.</p></div></div>';
+    return;
+  }
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+  });
+
+  const $ = (id) => document.getElementById(id);
+  let allProfiles = [];
+  let sortKey = "last_login_at";
+  let sortDir = "desc";
+
+  function showGate(which) {
+    ["loadingGate","loginGate","forbiddenGate","adminApp"].forEach(id => {
+      const el = $(id); if (el) el.hidden = (id !== which);
+    });
+  }
+
+  function fmtSec(s) {
+    const n = Math.max(0, Math.floor(Number(s) || 0));
+    const h = Math.floor(n / 3600);
+    const m = Math.floor((n % 3600) / 60);
+    const ss = n % 60;
+    if (h > 0) return h + "h" + String(m).padStart(2,"0") + "m";
+    if (m > 0) return m + "m" + String(ss).padStart(2,"0") + "s";
+    return ss + "s";
+  }
+  function fmtDate(s) {
+    if (!s) return "—";
+    const d = new Date(s);
+    if (isNaN(d)) return "—";
+    return d.toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
+  }
+  function ageOf(dob) {
+    if (!dob) return null;
+    const d = new Date(dob);
+    if (isNaN(d)) return null;
+    const today = new Date();
+    let a = today.getFullYear() - d.getFullYear();
+    const m = today.getMonth() - d.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < d.getDate())) a--;
+    return a;
+  }
+  function escapeHtml(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => (
+      { "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]
+    ));
+  }
+
+  function applySort(rows) {
+    const k = sortKey;
+    const dir = sortDir === "asc" ? 1 : -1;
+    return rows.slice().sort((a, b) => {
+      let va, vb;
+      if (k === "age") { va = ageOf(a.date_naissance); vb = ageOf(b.date_naissance); }
+      else { va = a[k]; vb = b[k]; }
+      if (va == null && vb == null) return 0;
+      if (va == null) return 1;
+      if (vb == null) return -1;
+      if (typeof va === "number" && typeof vb === "number") return (va - vb) * dir;
+      return String(va).localeCompare(String(vb), "fr") * dir;
+    });
+  }
+
+  function renderSummary(rows) {
+    const totals = rows.reduce((acc, r) => {
+      acc.users++;
+      acc.logins += r.login_count || 0;
+      acc.gen    += r.total_impros_generated || 0;
+      acc.played += r.total_impros_played || 0;
+      acc.iSec   += r.total_impro_seconds || 0;
+      acc.rec    += r.total_records_count || 0;
+      acc.rSec   += r.total_record_seconds || 0;
+      return acc;
+    }, { users:0, logins:0, gen:0, played:0, iSec:0, rec:0, rSec:0 });
+    const cards = [
+      ["Utilisateurs", totals.users],
+      ["Connexions totales", totals.logins],
+      ["Impros générées", totals.gen],
+      ["Impros lancées", totals.played],
+      ["Temps impro total", fmtSec(totals.iSec)],
+      ["Enregistrements", totals.rec],
+      ["Temps record total", fmtSec(totals.rSec)]
+    ];
+    $("summary").innerHTML = cards.map(([k,v]) =>
+      `<div class="stat-card"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v)}</div></div>`
+    ).join("");
+  }
+
+  function renderTable(rows) {
+    const body = $("profilesBody");
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="13" class="empty">Aucun utilisateur trouvé.</td></tr>';
+      return;
+    }
+    body.innerHTML = rows.map(r => {
+      const age = ageOf(r.date_naissance);
+      return `<tr>
+        <td class="email">${escapeHtml(r.email)}</td>
+        <td>${escapeHtml(r.prenom)}</td>
+        <td>${escapeHtml(r.nom)}</td>
+        <td class="numeric">${age == null ? "—" : age}</td>
+        <td class="numeric">${r.login_count || 0}</td>
+        <td>${fmtDate(r.last_login_at)}</td>
+        <td class="numeric">${r.total_impros_generated || 0}</td>
+        <td class="numeric">${r.total_impros_played || 0}</td>
+        <td class="numeric">${fmtSec(r.total_impro_seconds)}</td>
+        <td class="numeric">${r.total_records_count || 0}</td>
+        <td class="numeric">${fmtSec(r.total_record_seconds)}</td>
+        <td>${fmtDate(r.created_at)}</td>
+        <td>${r.is_admin ? '<span class="badge">admin</span>' : ""}</td>
+      </tr>`;
+    }).join("");
+
+    // Update sort indicators
+    document.querySelectorAll("th[data-sort]").forEach(th => {
+      th.dataset.sortActive = (th.dataset.sort === sortKey) ? sortDir : "";
+    });
+  }
+
+  function applyFilter() {
+    const q = ($("searchInput").value || "").toLowerCase().trim();
+    const filtered = q
+      ? allProfiles.filter(r =>
+          (r.email && r.email.toLowerCase().includes(q)) ||
+          (r.prenom && r.prenom.toLowerCase().includes(q)) ||
+          (r.nom && r.nom.toLowerCase().includes(q))
+        )
+      : allProfiles;
+    const sorted = applySort(filtered);
+    renderSummary(sorted);
+    renderTable(sorted);
+    $("countLabel").textContent = sorted.length + " / " + allProfiles.length;
+  }
+
+  async function loadProfiles() {
+    $("profilesBody").innerHTML = '<tr><td colspan="13" class="empty">Chargement…</td></tr>';
+    const { data, error } = await sb
+      .from("profiles")
+      .select("id,email,prenom,nom,date_naissance,created_at,login_count,last_login_at,total_impros_generated,total_impros_played,total_impro_seconds,total_records_count,total_record_seconds,is_admin");
+    if (error) {
+      $("profilesBody").innerHTML = '<tr><td colspan="13" class="empty">Erreur de chargement : ' + escapeHtml(error.message) + '</td></tr>';
+      return;
+    }
+    allProfiles = data || [];
+    applyFilter();
+  }
+
+  function exportCSV() {
+    if (!allProfiles.length) return;
+    const cols = ["email","prenom","nom","date_naissance","login_count","last_login_at","total_impros_generated","total_impros_played","total_impro_seconds","total_records_count","total_record_seconds","created_at","is_admin"];
+    const head = cols.join(";");
+    const rows = allProfiles.map(r =>
+      cols.map(c => {
+        const v = r[c] == null ? "" : String(r[c]);
+        return /[;",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+      }).join(";")
+    );
+    const csv = "﻿" + head + "\n" + rows.join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0,19);
+    a.href = url; a.download = "acto-accounts-" + ts + ".csv"; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  async function logout() {
+    try { await sb.auth.signOut(); } catch (e) {}
+    window.location.href = "./index.html";
+  }
+
+  // ----- Wire UI -----
+  document.querySelectorAll("th[data-sort]").forEach(th => {
+    th.addEventListener("click", () => {
+      const k = th.dataset.sort;
+      if (sortKey === k) sortDir = sortDir === "asc" ? "desc" : "asc";
+      else { sortKey = k; sortDir = (k === "email" || k === "prenom" || k === "nom") ? "asc" : "desc"; }
+      applyFilter();
+    });
+  });
+  $("searchInput").addEventListener("input", applyFilter);
+  $("refreshBtn").addEventListener("click", async () => { await loadProfiles(); await loadEvents(); });
+  $("exportBtn").addEventListener("click", exportCSV);
+  $("logoutBtn").addEventListener("click", logout);
+
+  // ----- Events analytics -----
+  let allEvents = [];
+  let profilesById = {};
+  let eventSortKey = "launched_at";
+  let eventSortDir = "desc";
+
+  async function loadEvents() {
+    const { data, error } = await sb
+      .from("impro_events")
+      .select("id,user_id,launched_at,mode,level,exercise_name,constraint_name,theme_name,duration_planned_seconds,duration_played_seconds,was_recorded")
+      .order("launched_at", { ascending: false })
+      .limit(5000);
+    if (error) {
+      console.warn("loadEvents", error);
+      $("eventsBody").innerHTML = '<tr><td colspan="10" class="empty">Erreur : ' + escapeHtml(error.message) + '</td></tr>';
+      return;
+    }
+    allEvents = data || [];
+    profilesById = {};
+    allProfiles.forEach(p => { profilesById[p.id] = p; });
+    renderBreakdowns();
+    renderTops();
+    renderEvents();
+  }
+
+  function emailFor(uid) {
+    const p = profilesById[uid];
+    return p ? p.email : "?";
+  }
+
+  function renderBar(rows, total) {
+    if (!rows.length) return '<div style="color:var(--ink-faint);font-size:0.8rem;">Aucune donnée</div>';
+    return rows.map(([label, count]) => {
+      const pct = total ? Math.round(count * 100 / total) : 0;
+      return `<div class="bar-row">
+        <span class="label">${escapeHtml(label)}</span>
+        <span class="bar"><span style="width:${pct}%"></span></span>
+        <span class="num">${count} (${pct}%)</span>
+      </div>`;
+    }).join("");
+  }
+
+  function renderBreakdowns() {
+    const total = allEvents.length;
+    const byMode = {};
+    const byLevel = {};
+    for (const e of allEvents) {
+      byMode[e.mode] = (byMode[e.mode] || 0) + 1;
+      byLevel[e.level] = (byLevel[e.level] || 0) + 1;
+    }
+    const modeOrder = ["troupe", "match"];
+    const levelOrder = ["debutant", "confirme", "expert"];
+    const modeRows = modeOrder.filter(m => byMode[m]).map(m => [m, byMode[m]]);
+    Object.keys(byMode).forEach(m => { if (!modeOrder.includes(m)) modeRows.push([m, byMode[m]]); });
+    const levelRows = levelOrder.filter(l => byLevel[l]).map(l => [l, byLevel[l]]);
+    Object.keys(byLevel).forEach(l => { if (!levelOrder.includes(l)) levelRows.push([l, byLevel[l]]); });
+    $("bdModeRows").innerHTML  = renderBar(modeRows,  total);
+    $("bdLevelRows").innerHTML = renderBar(levelRows, total);
+  }
+
+  function topByField(field, n) {
+    const counts = {};
+    const seconds = {};
+    for (const e of allEvents) {
+      const v = (e[field] || "").trim();
+      if (!v) continue;
+      counts[v]  = (counts[v]  || 0) + 1;
+      seconds[v] = (seconds[v] || 0) + (e.duration_played_seconds || 0);
+    }
+    return Object.keys(counts)
+      .map(k => ({ name: k, count: counts[k], seconds: seconds[k] }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, n);
+  }
+
+  function renderTopList(targetId, items) {
+    const ol = $(targetId);
+    if (!ol) return;
+    if (!items.length) { ol.innerHTML = '<li style="border:0;color:var(--ink-faint);">Aucune donnée</li>'; return; }
+    ol.innerHTML = items.map((it, i) =>
+      `<li>
+        <span class="rank">${i + 1}.</span>
+        <span class="name" title="${escapeHtml(it.name)}">${escapeHtml(it.name)}</span>
+        <span class="count">${it.count} · ${fmtSec(it.seconds)}</span>
+      </li>`
+    ).join("");
+  }
+
+  function renderTops() {
+    renderTopList("topExercises",   topByField("exercise_name",   10));
+    renderTopList("topConstraints", topByField("constraint_name", 10));
+    renderTopList("topThemes",      topByField("theme_name",      10));
+  }
+
+  function applyEventFilters() {
+    const q   = ($("eventSearch").value || "").toLowerCase().trim();
+    const fM  = $("eventFilterMode").value;
+    const fL  = $("eventFilterLevel").value;
+    const fR  = $("eventFilterRecorded").value;
+    let rows = allEvents;
+    if (fM) rows = rows.filter(e => e.mode === fM);
+    if (fL) rows = rows.filter(e => e.level === fL);
+    if (fR === "yes") rows = rows.filter(e => e.was_recorded);
+    if (fR === "no")  rows = rows.filter(e => !e.was_recorded);
+    if (q) rows = rows.filter(e => {
+      const fields = [
+        e.exercise_name, e.constraint_name, e.theme_name,
+        emailFor(e.user_id)
+      ].map(s => (s || "").toLowerCase());
+      return fields.some(s => s.includes(q));
+    });
+    return rows;
+  }
+
+  function sortEvents(rows) {
+    const k = eventSortKey, dir = eventSortDir === "asc" ? 1 : -1;
+    return rows.slice().sort((a, b) => {
+      let va = (k === "email") ? emailFor(a.user_id) : a[k];
+      let vb = (k === "email") ? emailFor(b.user_id) : b[k];
+      if (va == null && vb == null) return 0;
+      if (va == null) return 1;
+      if (vb == null) return -1;
+      if (typeof va === "number" && typeof vb === "number") return (va - vb) * dir;
+      if (typeof va === "boolean") return ((va === vb) ? 0 : (va ? 1 : -1)) * dir;
+      return String(va).localeCompare(String(vb), "fr") * dir;
+    });
+  }
+
+  function renderEvents() {
+    const filtered = applyEventFilters();
+    const sorted = sortEvents(filtered);
+    $("eventCount").textContent = sorted.length + " / " + allEvents.length;
+    const body = $("eventsBody");
+    if (!sorted.length) {
+      body.innerHTML = '<tr><td colspan="10" class="empty">Aucun événement.</td></tr>';
+      return;
+    }
+    body.innerHTML = sorted.slice(0, 1000).map(e => `<tr>
+      <td>${fmtDate(e.launched_at)}</td>
+      <td class="email">${escapeHtml(emailFor(e.user_id))}</td>
+      <td>${escapeHtml(e.mode)}</td>
+      <td>${escapeHtml(e.level)}</td>
+      <td class="wrap">${escapeHtml(e.exercise_name)}</td>
+      <td class="wrap">${escapeHtml(e.constraint_name)}</td>
+      <td class="wrap">${escapeHtml(e.theme_name)}</td>
+      <td class="numeric">${fmtSec(e.duration_planned_seconds)}</td>
+      <td class="numeric">${fmtSec(e.duration_played_seconds)}</td>
+      <td class="${e.was_recorded ? 'was-recorded' : ''}">${e.was_recorded ? '🎥' : '—'}</td>
+    </tr>`).join("");
+
+    document.querySelectorAll("th[data-event-sort]").forEach(th => {
+      th.dataset.sortActive = (th.dataset.eventSort === eventSortKey) ? eventSortDir : "";
+    });
+  }
+
+  function exportEventsCSV() {
+    if (!allEvents.length) return;
+    const cols = ["launched_at","email","mode","level","exercise_name","constraint_name","theme_name","duration_planned_seconds","duration_played_seconds","was_recorded"];
+    const rows = applyEventFilters();
+    const head = cols.join(";");
+    const body = rows.map(e => {
+      const row = {
+        launched_at: e.launched_at,
+        email: emailFor(e.user_id),
+        mode: e.mode, level: e.level,
+        exercise_name: e.exercise_name, constraint_name: e.constraint_name, theme_name: e.theme_name,
+        duration_planned_seconds: e.duration_planned_seconds,
+        duration_played_seconds: e.duration_played_seconds,
+        was_recorded: e.was_recorded
+      };
+      return cols.map(c => {
+        const v = row[c] == null ? "" : String(row[c]);
+        return /[;",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+      }).join(";");
+    });
+    const csv = "\uFEFF" + head + "\n" + body.join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0,19);
+    a.href = url; a.download = "acto-events-" + ts + ".csv"; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  // Wire event-table toolbar + sortable headers
+  ["eventSearch","eventFilterMode","eventFilterLevel","eventFilterRecorded"].forEach(id => {
+    const el = $(id); if (el) el.addEventListener("input",  renderEvents);
+    if (el) el.addEventListener("change", renderEvents);
+  });
+  $("exportEventsBtn").addEventListener("click", exportEventsCSV);
+  document.querySelectorAll("th[data-event-sort]").forEach(th => {
+    th.addEventListener("click", () => {
+      const k = th.dataset.eventSort;
+      if (eventSortKey === k) eventSortDir = eventSortDir === "asc" ? "desc" : "asc";
+      else { eventSortKey = k; eventSortDir = (k === "launched_at") ? "desc" : "asc"; }
+      renderEvents();
+    });
+  });
+
+  // ----- Boot: check auth + admin gate -----
+  (async function init() {
+    showGate("loadingGate");
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session || !session.user) { showGate("loginGate"); return; }
+    // Check is_admin via the same RLS-protected query: if admin, this returns
+    // their own row. We then also ensure is_admin is true.
+    const { data: me, error: meErr } = await sb
+      .from("profiles").select("email,is_admin").eq("id", session.user.id).maybeSingle();
+    if (meErr || !me || !me.is_admin) { showGate("forbiddenGate"); return; }
+    $("whoami").textContent = "Connecté : " + me.email;
+    showGate("adminApp");
+    await loadProfiles();
+    await loadEvents();
+  })();
+})();
+</script>
+</body>
+</html>

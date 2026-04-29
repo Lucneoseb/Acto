@@ -409,10 +409,14 @@
   sb.auth.onAuthStateChange(async (event, session) => {
     if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION")
         && session && session.user) {
+      const wasLoggedOut = !window.actoAuth.state.user;
       window.actoAuth.state.user = session.user;
       await ensureProfile(session.user);
       showApp(session.user);
-      // Nudge app.js to (re-)apply translations now that account info is available
+      // Increment login_count + last_login_at on a fresh login (not on token refresh)
+      if (event === "SIGNED_IN" && wasLoggedOut) {
+        try { await sb.rpc("bump_stats", { delta_login: 1 }); } catch (e) { console.warn("login bump failed", e); }
+      }
       if (typeof window.applyTranslations === "function") {
         try { window.applyTranslations(); } catch (e) {}
       }

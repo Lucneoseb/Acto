@@ -14,6 +14,168 @@
   "use strict";
 
   /* ============================================================
+     STATS TRACKING (Supabase RPC bump_stats)
+     ============================================================ */
+  const stats = {
+    pending: {
+      delta_generated: 0,
+      delta_played: 0,
+      delta_impro_seconds: 0,
+      delta_records: 0,
+      delta_record_seconds: 0
+    },
+    improStartedAt: 0,        // ms timestamp when chrono was last (re)started
+    improPlayedThisRound: false, // true once chrono.start was called for current impro
+    recordStartedAt: 0,       // ms timestamp when MediaRecorder started
+    flushTimer: null
+  };
+  function statsHasUser() {
+    return !!(window.actoSupabase && window.actoAuth && window.actoAuth.state && window.actoAuth.state.user);
+  }
+  function statsAnyPending() {
+    const p = stats.pending;
+    return p.delta_generated || p.delta_played || p.delta_impro_seconds || p.delta_records || p.delta_record_seconds;
+  }
+  async function statsFlush() {
+    if (!statsHasUser() || !statsAnyPending()) return;
+    const snapshot = Object.assign({}, stats.pending);
+    stats.pending = {
+      delta_generated: 0,
+      delta_played: 0,
+      delta_impro_seconds: 0,
+      delta_records: 0,
+      delta_record_seconds: 0
+    };
+    try {
+      await window.actoSupabase.rpc("bump_stats", snapshot);
+    } catch (e) {
+      // Restore on error
+      console.warn("stats flush failed", e);
+      Object.keys(snapshot).forEach(k => stats.pending[k] += snapshot[k]);
+    }
+  }
+  function statsImproStartTracking() {
+    if (!stats.improStartedAt) {
+      stats.improStartedAt = Date.now();
+      if (!stats.improPlayedThisRound) {
+        stats.improPlayedThisRound = true;
+        stats.pending.delta_played++;
+        // Log a new event row for this impro
+        improEventLogStart();
+      }
+    }
+  }
+  function statsImproStopTracking() {
+    if (stats.improStartedAt) {
+      const elapsed = Math.floor((Date.now() - stats.improStartedAt) / 1000);
+      if (elapsed > 0) {
+        stats.pending.delta_impro_seconds += elapsed;
+        improEvent.pendingSecondsToCommit += elapsed;
+        improEventCommitPlayed();   // fire-and-forget
+      }
+      stats.improStartedAt = 0;
+    }
+  }
+  function statsImproNew() {
+    statsImproStopTracking();   // commit any time on the previous impro
+    improEventReset();
+    stats.improPlayedThisRound = false;
+    stats.pending.delta_generated++;
+  }
+  function statsRecordStartTracking() {
+    if (!stats.recordStartedAt) stats.recordStartedAt = Date.now();
+    // Mark current impro event as "was_recorded" (logs event first if needed)
+    if (!improEvent.id) improEventLogStart();
+    setTimeout(improEventMarkRecorded, 200); // tiny delay in case logStart is in-flight
+  }
+  function statsRecordStopTracking() {
+    if (stats.recordStartedAt) {
+      const elapsed = Math.floor((Date.now() - stats.recordStartedAt) / 1000);
+      if (elapsed > 0) stats.pending.delta_record_seconds += elapsed;
+      stats.recordStartedAt = 0;
+    }
+  }
+  function statsRecordFinalized() {
+    statsRecordStopTracking();
+    stats.pending.delta_records++;
+  }
+  // Periodic flush + flush on page hide / unload
+  stats.flushTimer = setInterval(statsFlush, 30000);
+  window.addEventListener("beforeunload", () => {
+    statsImproStopTracking();
+    statsRecordStopTracking();
+    statsFlush();
+  });
+  window.addEventListener("pagehide", () => {
+    statsImproStopTracking();
+    statsRecordStopTracking();
+    statsFlush();
+  });
+  window.actoStats = { flush: statsFlush };
+
+  /* ============================================================
+     IMPRO EVENT TRACKING (impro_events table)
+     ============================================================ */
+  const improEvent = {
+    id: null,                  // uuid of current event row, once logged
+    pendingSecondsToCommit: 0, // played seconds not yet sent to server
+    wasRecordedSent: false     // flag so we only set was_recorded once
+  };
+  function improEventReset() {
+    improEvent.id = null;
+    improEvent.pendingSecondsToCommit = 0;
+    improEvent.wasRecordedSent = false;
+  }
+  async function improEventLogStart() {
+    if (improEvent.id) return; // already logged for this impro
+    if (!window.actoSupabase || !window.actoAuth || !window.actoAuth.state || !window.actoAuth.state.user) return;
+    const ex = state.currentExercise || {};
+    try {
+      const { data, error } = await window.actoSupabase.rpc("log_impro_event", {
+        p_mode: state.mode,
+        p_level: state.level,
+        p_exercise: ex.name || "",
+        p_constraint: state.currentConstraint || "",
+        p_theme: state.currentTheme || "",
+        p_duration_planned: state.currentDurationSec || state.chronoTotal || 0
+      });
+      if (!error) improEvent.id = data;
+    } catch (e) {
+      console.warn("log_impro_event failed", e);
+    }
+  }
+  async function improEventCommitPlayed() {
+    if (!improEvent.id || !window.actoSupabase) return;
+    const sec = improEvent.pendingSecondsToCommit;
+    if (sec <= 0) return;
+    improEvent.pendingSecondsToCommit = 0;
+    try {
+      await window.actoSupabase.rpc("update_impro_event", {
+        p_event_id: improEvent.id,
+        p_add_played_seconds: sec,
+        p_set_was_recorded: null
+      });
+    } catch (e) {
+      console.warn("update_impro_event (played) failed", e);
+      improEvent.pendingSecondsToCommit += sec;
+    }
+  }
+  async function improEventMarkRecorded() {
+    if (!improEvent.id || improEvent.wasRecordedSent || !window.actoSupabase) return;
+    improEvent.wasRecordedSent = true;
+    try {
+      await window.actoSupabase.rpc("update_impro_event", {
+        p_event_id: improEvent.id,
+        p_add_played_seconds: 0,
+        p_set_was_recorded: true
+      });
+    } catch (e) {
+      console.warn("update_impro_event (recorded) failed", e);
+      improEvent.wasRecordedSent = false;
+    }
+  }
+
+  /* ============================================================
      0. CONSTANTS
      ============================================================ */
   const STORAGE_KEY = "impro-studio:overrides:v1";
@@ -619,6 +781,7 @@
     if (state.useCustom && state.customThemes.length === 0) { openThemesDialog(); return; }
     state.isGenerating = true;
     $("#generateBtn").disabled = true;
+    statsImproNew();
     chronoReset();
     $$(".card").forEach(c => { c.classList.remove("revealed"); c.classList.add("appearing"); });
     setTimeout(() => $$(".card").forEach(c => c.classList.remove("appearing")), 600);
@@ -680,6 +843,7 @@
     if (state.chronoRemaining <= 0) return;
     audio();
     state.chronoRunning = true;
+    statsImproStartTracking();
     const startBtn = $("#chronoStartBtn"), pauseBtn = $("#chronoPauseBtn");
     if (startBtn) startBtn.disabled = true;
     if (pauseBtn) pauseBtn.disabled = false;
@@ -689,6 +853,7 @@
   function chronoPause() {
     if (!state.chronoRunning) return;
     state.chronoRunning = false;
+    statsImproStopTracking();
     if (state.chronoInterval) { clearInterval(state.chronoInterval); state.chronoInterval = null; }
     const startBtn = $("#chronoStartBtn"), pauseBtn = $("#chronoPauseBtn");
     if (startBtn) {
@@ -726,6 +891,7 @@
     if (state.chronoRemaining <= 0) {
       if (state.chronoInterval) { clearInterval(state.chronoInterval); state.chronoInterval = null; }
       state.chronoRunning = false;
+      statsImproStopTracking();
       const startBtn = $("#chronoStartBtn"), pauseBtn = $("#chronoPauseBtn");
       if (startBtn) {
         startBtn.disabled = false;
@@ -1649,6 +1815,7 @@
     rec.isPaused = false;
     rec.startedAt = Date.now();
     rec.elapsedBeforePause = 0;
+    statsRecordStartTracking();
     recShowActiveControls();
     recRefreshPauseLabel();
     const ind = $("#recorderRecIndicator");
@@ -1670,12 +1837,14 @@
       rec.elapsedBeforePause += Date.now() - rec.startedAt;
       rec.startedAt = 0;
       rec.isPaused = true;
+      statsRecordStopTracking();
       if (state.chronoRunning) chronoPause();
       recRefreshPauseLabel();
     } else if (rec.recorder.state === "paused") {
       try { rec.recorder.resume(); } catch (e) { return; }
       rec.startedAt = Date.now();
       rec.isPaused = false;
+      statsRecordStartTracking();
       if (!state.chronoRunning && state.chronoRemaining > 0) chronoStart();
       recRefreshPauseLabel();
     }
@@ -1714,6 +1883,7 @@
     if (state.chronoRunning) chronoPause();
   }
   function recFinalize() {
+    statsRecordFinalized();
     if (rec.blobUrl) { try { URL.revokeObjectURL(rec.blobUrl); } catch (e) {} rec.blobUrl = null; }
     const mime = (rec.recorder && rec.recorder.mimeType) || "video/webm";
     const ext  = /mp4/i.test(mime) ? "mp4" : "webm";
@@ -1779,6 +1949,8 @@
     recHideAudienceCue();
     recHideExerciseDesc();
     rec.descShouldDraw = false;
+    statsRecordStopTracking();
+    statsFlush();
     if (rec.isRecording) { try { recStop(); } catch (e) {} }
     recStopCamera();
     if (rec.blobUrl) { try { URL.revokeObjectURL(rec.blobUrl); } catch (e) {} rec.blobUrl = null; }
