@@ -838,13 +838,14 @@
     const txt   = $("#recorderExerciseDescText");
     if (!popup || !txt) return;
     txt.textContent = desc;
+    recPositionExerciseDesc(); // clear any stale inline styles
     popup.classList.remove("show");
     void popup.offsetWidth;
     popup.hidden = false;
     popup.classList.add("show");
     if (recDescHideTimer) { clearTimeout(recDescHideTimer); recDescHideTimer = null; }
     if (!opts.persistent) {
-      recDescHideTimer = setTimeout(recHideExerciseDesc, opts.duration || 6000);
+      recDescHideTimer = setTimeout(recHideExerciseDesc, opts.duration || 5000);
     }
   }
   function recArmExerciseDescHide(delayMs) {
@@ -858,47 +859,12 @@
     popup.classList.remove("show");
     setTimeout(() => { popup.hidden = true; }, 350);
   }
-  // Position the description popup directly under the canvas top-right panel.
-  // Handles object-fit: contain by computing the actual content rect inside
-  // the .recorder-canvas element.
+  // Reset any stale inline styles on the popup so CSS rules apply cleanly.
   function recPositionExerciseDesc() {
     const popup = $("#recorderExerciseDesc");
-    const cnv   = rec.canvas;
-    if (!popup || popup.hidden) return;
-    if (!cnv || !cnv.width || !cnv.height) return;
-    if (rec.panelBottomY == null) return;
-    const cnvRect = cnv.getBoundingClientRect();
-    if (cnvRect.height <= 0 || cnvRect.width <= 0) return;
-    const cnvAR = cnv.width / cnv.height;
-    const eleAR = cnvRect.width / cnvRect.height;
-    let contentLeft, contentTop, contentWidth, contentHeight;
-    if (cnvAR > eleAR) {
-      // letterbox top/bottom
-      contentWidth  = cnvRect.width;
-      contentHeight = cnvRect.width / cnvAR;
-      contentLeft   = cnvRect.left;
-      contentTop    = cnvRect.top + (cnvRect.height - contentHeight) / 2;
-    } else {
-      // pillarbox left/right
-      contentHeight = cnvRect.height;
-      contentWidth  = cnvRect.height * cnvAR;
-      contentTop    = cnvRect.top;
-      contentLeft   = cnvRect.left + (cnvRect.width - contentWidth) / 2;
-    }
-    const ratio = contentWidth / cnv.width;
-    const panelBottomVP = contentTop + rec.panelBottomY * ratio;
-    const panelLeftVP   = contentLeft + rec.panelLeftX * ratio;
-    const panelWidthVP  = rec.panelWidth * ratio;
-    const gap = Math.max(10, Math.round(panelWidthVP * 0.025));
-    popup.style.top      = (panelBottomVP + gap) + "px";
-    popup.style.left     = panelLeftVP + "px";
-    popup.style.right    = "auto";
-    popup.style.width    = panelWidthVP + "px";
-    popup.style.maxWidth = "none";
-    popup.style.bottom   = "auto";
-    popup.style.transform = popup.classList.contains("show")
-      ? "translateY(0) scale(1)"
-      : "translateY(-6px) scale(0.96)";
+    if (!popup) return;
+    popup.style.top = popup.style.left = popup.style.right = popup.style.width =
+      popup.style.maxWidth = popup.style.bottom = popup.style.transform = "";
   }
 
   /* ============================================================
@@ -1341,23 +1307,20 @@
     recDrawTopOverlay(rec.ctx, w, h);
     recDrawBottomOverlay(rec.ctx, w, h);
     recDrawLogoWatermark(rec.ctx, w, h);
-    // Sync HTML description popup to follow the canvas panel
-    const __desc = document.getElementById("recorderExerciseDesc");
-    if (__desc && !__desc.hidden) recPositionExerciseDesc();
     rec.rafId = requestAnimationFrame(recDrawLoop);
   }
   function recDrawLogoWatermark(ctx, w, h) {
     if (!rec.logoLoaded || !rec.logoImg) return;
     const isPortrait = h >= w;
-    // In portrait, shrink the logo & glue it to the very edge so the
-    // top-right Exercice/Contrainte/Thème panel has room.
+    // Push the logo as far left as possible and keep it compact so the
+    // top-right Exercice/Contrainte/Thème panel always has plenty of room.
     const logoW = isPortrait
-      ? Math.min(Math.round(w * 0.20), 240)
-      : Math.min(Math.round(w * 0.28), 320);
+      ? Math.min(Math.round(w * 0.16), 200)
+      : Math.min(Math.round(w * 0.22), 260);
     const ratio = (rec.logoImg.naturalWidth && rec.logoImg.naturalHeight)
       ? rec.logoImg.naturalHeight / rec.logoImg.naturalWidth : 0.66;
     const logoH = Math.round(logoW * ratio);
-    const margin = isPortrait ? Math.round(w * 0.005) : Math.round(w * 0.012);
+    const margin = Math.round(w * 0.004); // glue to the very corner
     const x = margin;
     const y = margin;
     ctx.save();

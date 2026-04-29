@@ -3100,3 +3100,87 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
     overflow-wrap: anywhere;
   }
 }
+
+/* ==========================================================
+   Recorder — Description popup FINAL position (no JS placement,
+   safely below the top-right canvas panel for any orientation).
+   ========================================================== */
+
+/* Override every previous .recorder-exercise-desc rule with a single,
+   reliable layout. */
+.recorder-exercise-desc {
+  position: absolute !important;
+  /* Drop down enough to clear the panel even with full E + C + T text */
+  top: 42% !important;
+  right: 2.5% !important;
+  bottom: auto !important;
+  left: auto !important;
+  width: min(50vw, 720px) !important;
+  max-width: none !important;
+  z-index: 14;
+  background: rgba(10, 6, 18, 0.92);
+  border: 1px solid rgba(109, 211, 197, 0.45);
+  border-radius: 18px;
+  padding: 0.95rem 1.1rem;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55),
+              0 0 0 4px rgba(109, 211, 197, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.96);
+  transition: opacity 0.32s ease, transform 0.32s ease;
+}
+.recorder-exercise-desc[hidden] { display: none; }
+.recorder-exercise-desc.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  animation: recDescPop 0.45s cubic-bezier(.2,.9,.35,1);
+}
+
+.recorder-exercise-desc-text {
+  margin: 0;
+  font-size: clamp(0.95rem, 2.2vw, 1.5rem) !important;
+  line-height: 1.45;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* Portrait: panel is wider (78%), so the popup matches */
+@media (orientation: portrait) {
+  .recorder-exercise-desc {
+    width: min(78vw, 620px) !important;
+    /* Panel is taller per width in portrait — drop the popup further down */
+    top: 38% !important;
+  }
+}
+
+/* On narrow phones, lock to top-right and let it span most of the width.
+   Override any earlier mobile rules. */
+@media (max-width: 480px) {
+  .recorder-exercise-desc {
+    top: 36% !important;
+    right: 3% !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: 78vw !important;
+    transform: translateY(-6px) scale(0.96);
+    border-radius: 14px;
+    padding: 0.7rem 0.9rem;
+  }
+  .recorder-exercise-desc.show {
+    transform: translateY(0) scale(1);
+  }
+  .recorder-exercise-desc-text {
+    font-size: clamp(0.85rem, 3.4vw, 1.05rem) !important;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 380px) {
+  .recorder-exercise-desc {
+    top: 38% !important;
+    right: 3% !important;
+    width: 80vw !important;
+  }
+}
