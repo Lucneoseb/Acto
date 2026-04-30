@@ -37,6 +37,11 @@ create table if not exists public.profiles (
 alter table public.profiles
   add column if not exists nom_scene text;
 
+-- Make date_naissance nullable so the auth-user trigger (1.1f) can create a
+-- profile even if the metadata is missing. The app form still enforces it.
+alter table public.profiles
+  alter column date_naissance drop not null;
+
 -- 1.1c STAGE NAME UNIQUENESS — case-insensitive. Partial index so existing
 --      rows with NULL nom_scene aren't fighting for the same slot.
 create unique index if not exists profiles_nom_scene_unique
@@ -91,6 +96,37 @@ as $$
 $$;
 
 grant execute on function public.is_stage_name_taken(text) to anon, authenticated;
+
+-- 1.1f AUTO-CREATE PROFILE ON SIGNUP — fires inside the same transaction as
+--      auth.users insert, so the unique nom_scene constraint is enforced
+--      ATOMICALLY at signup time (not deferred until first login). Without
+--      this trigger two users could pick the same stage name during the
+--      email-confirmation gap.
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.profiles (id, email, prenom, nom, date_naissance, nom_scene)
+  values (
+    new.id,
+    new.email,
+    coalesce(new.raw_user_meta_data ->> 'prenom', ''),
+    coalesce(new.raw_user_meta_data ->> 'nom',    ''),
+    nullif(new.raw_user_meta_data ->> 'date_naissance', '')::date,
+    nullif(new.raw_user_meta_data ->> 'nom_scene', '')
+  )
+  on conflict (id) do nothing;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
 
 -- 1.2 ROW LEVEL SECURITY — owner-only by default.
 alter table public.profiles enable row level security;
