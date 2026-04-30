@@ -170,6 +170,22 @@
         </div>
       </div>
 
+      <!-- Roster (optional) — list of participants for this impro session.
+           Members can either be other Acto users (matched by stage name) or
+           ad-hoc names typed for guests with no account. -->
+      <div class="config-block">
+        <label class="config-label">
+          <span class="label-num">★</span>
+          <span class="label-text" id="labelRoster"></span>
+        </label>
+        <div class="roster-row">
+          <button class="roster-edit-btn" id="rosterEditBtn" type="button">
+            <span id="rosterEditBtnLabel"></span>
+          </button>
+          <span class="roster-status" id="rosterStatus"></span>
+        </div>
+      </div>
+
       <!-- Level -->
       <div class="config-block">
         <label class="config-label">
@@ -461,6 +477,37 @@
       <button class="ghost-btn" id="importBtn" type="button">📥 Importer</button>
       <input type="file" id="importJsonFile" accept="application/json,.json" hidden />
       <button class="primary-btn" id="saveBtn" type="button">✅ Enregistrer</button>
+    </div>
+  </dialog>
+
+  <!-- Roster (team / troupe composition) dialog -->
+  <dialog class="signup-dialog themes-dialog roster-dialog" id="rosterDialog" aria-labelledby="rosterDialogTitle">
+    <form method="dialog" class="dlg-head">
+      <h2 id="rosterDialogTitle"></h2>
+      <button type="button" class="dlg-close" id="rosterDialogClose" aria-label="Close">✕</button>
+    </form>
+    <div class="dlg-body">
+      <p class="dlg-help" id="rosterDialogHint"></p>
+
+      <!-- Search-by-stage-name (registered users) -->
+      <div class="roster-search-row">
+        <input type="search" id="rosterSearchInput" autocomplete="off" />
+      </div>
+      <ul class="roster-search-results" id="rosterSearchResults" hidden></ul>
+
+      <!-- Ad-hoc add (no account) -->
+      <div class="roster-adhoc-row">
+        <input type="text" id="rosterAdHocInput" maxlength="40" />
+        <button type="button" class="ghost-btn" id="rosterAdHocAddBtn"></button>
+      </div>
+
+      <!-- Currently-added participants -->
+      <ul class="roster-list" id="rosterList"></ul>
+      <p class="roster-empty" id="rosterEmpty" hidden></p>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="auth-btn auth-btn-secondary" id="rosterCancelBtn"></button>
+      <button type="button" class="primary-btn" id="rosterSaveBtn"></button>
     </div>
   </dialog>
 
