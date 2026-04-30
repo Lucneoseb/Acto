@@ -835,17 +835,43 @@
   }
 
   let rosterSearchTimer = null;
-  function renderRosterSearchResults(rows) {
+  let rosterLastSearchedQuery = "";
+  function setRosterSearchStatus(state, query) {
+    const t = store.ui;
+    const el = $("#rosterSearchStatus");
+    if (!el) return;
+    if (state === "idle") { el.textContent = ""; el.className = "roster-search-status"; return; }
+    if (state === "searching") {
+      el.textContent = t.rosterSearchSearching || "…";
+      el.className = "roster-search-status searching";
+      return;
+    }
+    if (state === "found") {
+      el.textContent = (t.rosterSearchFound || "{n} résultat(s)").replace("{n}", query);
+      el.className = "roster-search-status found";
+      return;
+    }
+    if (state === "none") {
+      el.textContent = (t.rosterSearchNone || "Aucun acteur trouvé pour « {q} »").replace("{q}", query);
+      el.className = "roster-search-status none";
+      return;
+    }
+  }
+  function renderRosterSearchResults(rows, query) {
     const ul = $("#rosterSearchResults");
     if (!ul) return;
     ul.innerHTML = "";
-    if (!rows || !rows.length) {
+    // Filter out users already on the draft so the dropdown only shows pickable hits.
+    const filteredRows = (rows || []).filter(row => !rosterDraft.some(p => p.user_id === row.id));
+    const q = (query || "").trim();
+    if (!filteredRows.length) {
       ul.hidden = true;
+      // Only call this "none" when there WAS a query — empty input shouldn't yell.
+      if (q) setRosterSearchStatus("none", q); else setRosterSearchStatus("idle");
       return;
     }
-    rows.forEach((row) => {
-      // Skip users already added
-      if (rosterDraft.some(p => p.user_id === row.id)) return;
+    setRosterSearchStatus("found", String(filteredRows.length));
+    filteredRows.forEach((row) => {
       const li = document.createElement("li");
       li.className = "roster-search-item";
       li.tabIndex = 0;
@@ -867,25 +893,29 @@
   }
 
   async function searchRosterUsers(q) {
+    const trimmed = (q || "").trim();
     if (!window.actoSupabase || !window.actoAuth || !window.actoAuth.state || !window.actoAuth.state.user) {
       // Search requires being authenticated; silently no-op.
-      renderRosterSearchResults([]);
+      renderRosterSearchResults([], trimmed);
       return;
     }
-    if (!q || q.trim().length < 1) {
-      renderRosterSearchResults([]);
+    if (!trimmed) {
+      renderRosterSearchResults([], "");
       return;
     }
+    setRosterSearchStatus("searching", trimmed);
+    rosterLastSearchedQuery = trimmed;
     try {
-      const { data, error } = await window.actoSupabase.rpc("search_users_by_stage_name", { p_query: q.trim() });
-      if (error) { console.warn("roster search failed", error); renderRosterSearchResults([]); return; }
-      // Hide the current user from results (you can't add yourself to the roster
-      // — you're implicitly the launcher).
+      const { data, error } = await window.actoSupabase.rpc("search_users_by_stage_name", { p_query: trimmed });
+      // Discard out-of-order responses (user has typed more since this call started).
+      if (rosterLastSearchedQuery !== trimmed) return;
+      if (error) { console.warn("roster search failed", error); renderRosterSearchResults([], trimmed); return; }
+      // Hide the current user from results (you can't add yourself — you're the launcher).
       const me = window.actoAuth.state.user.id;
-      renderRosterSearchResults((data || []).filter(r => r.id !== me));
+      renderRosterSearchResults((data || []).filter(r => r.id !== me), trimmed);
     } catch (e) {
       console.warn("roster search threw", e);
-      renderRosterSearchResults([]);
+      renderRosterSearchResults([], trimmed);
     }
   }
 
@@ -909,7 +939,8 @@
     setText("rosterAdHocAddBtn",  t.rosterAdHocAdd);
     setText("rosterCancelBtn",    t.rosterCancel || t.authDeleteCancel);
     setText("rosterSaveBtn",      t.rosterSave);
-    renderRosterSearchResults([]);
+    setRosterSearchStatus("idle");
+    renderRosterSearchResults([], "");
     renderRosterDraftList();
     if (typeof dlg.showModal === "function") dlg.showModal();
     else dlg.setAttribute("open", "");

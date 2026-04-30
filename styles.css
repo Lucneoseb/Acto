@@ -592,6 +592,16 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
   max-height: 200px;
   overflow-y: auto;
 }
+.roster-search-status {
+  margin: 0;
+  font-size: 0.825rem;
+  color: var(--ink-faint);
+  font-style: italic;
+  min-height: 1em;
+}
+.roster-search-status.searching { color: var(--ink-muted); }
+.roster-search-status.found     { color: var(--troupe); font-style: normal; }
+.roster-search-status.none      { color: var(--match);  font-style: normal; }
 .roster-search-item {
   display: flex;
   align-items: baseline;

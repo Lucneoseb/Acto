@@ -221,6 +221,16 @@
     showError("authSignupError", "");
     const btn = $("authSignupSubmitBtn");
     if (btn) btn.disabled = true;
+    // Proactive uniqueness check — catches a duplicate before we create the
+    // auth row (which can't be cleanly rolled back from the client).
+    try {
+      const { data: taken } = await sb.rpc("is_stage_name_taken", { p_name: nom_scene });
+      if (taken === true) {
+        if (btn) btn.disabled = false;
+        return showError("authSignupError", t.authErrorStageNameTaken
+          || "Ce nom de scène est déjà pris.");
+      }
+    } catch (e) { /* RPC missing → fall back to DB-level uniqueness */ }
     try {
       const { data, error } = await sb.auth.signUp({
         email, password: pass,
@@ -249,7 +259,7 @@
       }
     } catch (e) {
       console.error("signup error", e);
-      showError("authSignupError", e.message || String(e));
+      showError("authSignupError", friendlyProfileError(e, t));
     } finally {
       if (btn) btn.disabled = false;
     }
@@ -450,6 +460,16 @@
     showError("authEditError", "");
     const btn = $("authEditSaveBtn");
     if (btn) btn.disabled = true;
+    // Proactive uniqueness check — same RPC also excludes the caller, so a
+    // user keeping their own stage name won't get blocked.
+    try {
+      const { data: taken } = await sb.rpc("is_stage_name_taken", { p_name: nom_scene });
+      if (taken === true) {
+        if (btn) btn.disabled = false;
+        return showError("authEditError", t.authErrorStageNameTaken
+          || "Ce nom de scène est déjà pris.");
+      }
+    } catch (e) { /* RPC missing → fall back to DB-level uniqueness */ }
     try {
       const { data, error } = await sb.from("profiles")
         .update({ prenom, nom, date_naissance: dob, nom_scene })
@@ -463,10 +483,29 @@
       if (dlg && dlg.open) dlg.close();
     } catch (e) {
       console.error("editAccount failed:", e);
-      showError("authEditError", e.message || String(e));
+      showError("authEditError", friendlyProfileError(e, t));
     } finally {
       if (btn) btn.disabled = false;
     }
+  }
+
+  /**
+   * Translate raw Postgres / Supabase errors from a profile insert/update into
+   * a user-friendly message. Falls back to the raw message if we don't recognise
+   * the error code.
+   */
+  function friendlyProfileError(e, t) {
+    const msg  = (e && e.message) ? String(e.message) : String(e);
+    const code = e && e.code ? String(e.code) : "";
+    // Postgres unique_violation = 23505. Our index is profiles_nom_scene_unique.
+    if (code === "23505" || /profiles_nom_scene_unique|duplicate key/i.test(msg)) {
+      return t.authErrorStageNameTaken || "Ce nom de scène est déjà pris.";
+    }
+    // Postgres check_violation = 23514. Our constraint is profiles_nom_scene_clean.
+    if (code === "23514" || /profiles_nom_scene_clean|is_clean_stage_name|check constraint/i.test(msg)) {
+      return t.authErrorStageNameUnsuitable || "Ce nom de scène contient un terme inapproprié.";
+    }
+    return msg;
   }
 
   async function deleteAccount() {

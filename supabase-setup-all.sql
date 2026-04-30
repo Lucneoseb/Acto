@@ -31,10 +31,66 @@ create table if not exists public.profiles (
   updated_at    timestamptz not null default now()
 );
 
--- 1.1b STAGE NAME — optional, used by the player-roster feature.
+-- 1.1b STAGE NAME — used by the player-roster feature. Required at the app
+--      level (signup + edit), but kept nullable in DB so legacy rows survive.
 --      Idempotent so the column is added on existing tables without erroring.
 alter table public.profiles
   add column if not exists nom_scene text;
+
+-- 1.1c STAGE NAME UNIQUENESS — case-insensitive. Partial index so existing
+--      rows with NULL nom_scene aren't fighting for the same slot.
+create unique index if not exists profiles_nom_scene_unique
+  on public.profiles (lower(nom_scene))
+  where nom_scene is not null;
+
+-- 1.1d STAGE NAME CONTENT FILTER — rejects a small built-in list of common
+--      French/English vulgarities. Whole-word match (\m…\M) so legitimate
+--      names containing those letters in another context still go through.
+--      Extend the regex below if you spot something that slips by.
+create or replace function public.is_clean_stage_name(p_name text)
+returns boolean
+language sql
+immutable
+as $$
+  select p_name is null
+      or lower(p_name) !~* '\m(merde|putain|connard|connasse|enculé|enculee|encule|salope|salaud|fdp|nique|ntm|conard|conasse|pute|tapette|tarlouze|fuck|shit|bitch|asshole|cunt|nigger|nigga|faggot|whore)\M';
+$$;
+
+-- Add the CHECK constraint only if it doesn't exist yet (manual idempotency
+-- because Postgres has no `add constraint if not exists`).
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'profiles_nom_scene_clean'
+      and conrelid = 'public.profiles'::regclass
+  ) then
+    alter table public.profiles
+      add constraint profiles_nom_scene_clean
+      check (public.is_clean_stage_name(nom_scene));
+  end if;
+end $$;
+
+-- 1.1e STAGE NAME AVAILABILITY RPC — used by the client to give an early
+--      "this name is taken" hint before insert/update. Excludes the caller
+--      (so editing your own profile keeping the same name doesn't trigger).
+--      Public-readable: signup needs to call this BEFORE auth.uid() exists.
+create or replace function public.is_stage_name_taken(p_name text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.profiles
+    where nom_scene is not null
+      and lower(nom_scene) = lower(coalesce(p_name, ''))
+      and (auth.uid() is null or id != auth.uid())
+  );
+$$;
+
+grant execute on function public.is_stage_name_taken(text) to anon, authenticated;
 
 -- 1.2 ROW LEVEL SECURITY — owner-only by default.
 alter table public.profiles enable row level security;

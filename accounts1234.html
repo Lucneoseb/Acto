@@ -316,6 +316,7 @@
           <th data-sort="email">Email</th>
           <th data-sort="prenom">Prénom</th>
           <th data-sort="nom">Nom</th>
+          <th data-sort="nom_scene">Nom de scène</th>
           <th data-sort="age" class="numeric">Âge</th>
           <th data-sort="login_count" class="numeric">Conn.</th>
           <th data-sort="last_login_at">Dernière conn.</th>
@@ -330,7 +331,7 @@
         </tr>
       </thead>
       <tbody id="profilesBody">
-        <tr><td colspan="14" class="empty">Chargement des données…</td></tr>
+        <tr><td colspan="15" class="empty">Chargement des données…</td></tr>
       </tbody>
     </table>
   </div>
@@ -496,7 +497,7 @@
   function renderTable(rows) {
     const body = $("profilesBody");
     if (!rows.length) {
-      body.innerHTML = '<tr><td colspan="14" class="empty">Aucun utilisateur trouvé.</td></tr>';
+      body.innerHTML = '<tr><td colspan="15" class="empty">Aucun utilisateur trouvé.</td></tr>';
       return;
     }
     body.innerHTML = rows.map(r => {
@@ -505,6 +506,7 @@
         <td class="email">${escapeHtml(r.email)}</td>
         <td>${escapeHtml(r.prenom)}</td>
         <td>${escapeHtml(r.nom)}</td>
+        <td>${escapeHtml(r.nom_scene || "")}</td>
         <td class="numeric">${age == null ? "—" : age}</td>
         <td class="numeric">${r.login_count || 0}</td>
         <td>${fmtDate(r.last_login_at)}</td>
@@ -541,12 +543,12 @@
   }
 
   async function loadProfiles() {
-    $("profilesBody").innerHTML = '<tr><td colspan="14" class="empty">Chargement…</td></tr>';
+    $("profilesBody").innerHTML = '<tr><td colspan="15" class="empty">Chargement…</td></tr>';
     const { data, error } = await sb
       .from("profiles")
       .select("id,email,prenom,nom,nom_scene,date_naissance,created_at,login_count,last_login_at,total_impros_generated,total_impros_played,total_impro_seconds,total_records_count,total_record_seconds,is_admin");
     if (error) {
-      $("profilesBody").innerHTML = '<tr><td colspan="14" class="empty">Erreur de chargement : ' + escapeHtml(error.message) + '</td></tr>';
+      $("profilesBody").innerHTML = '<tr><td colspan="15" class="empty">Erreur de chargement : ' + escapeHtml(error.message) + '</td></tr>';
       return;
     }
     allProfiles = data || [];
