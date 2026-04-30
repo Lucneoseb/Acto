@@ -108,6 +108,10 @@
           </div>
         </label>
         <label class="auth-field">
+          <span id="authSignupStageNameLabel"></span>
+          <input type="text" id="authSignupStageName" autocomplete="nickname" maxlength="40" />
+        </label>
+        <label class="auth-field">
           <span id="authSignupEmailLabel"></span>
           <input type="email" id="authSignupEmail" autocomplete="email" required />
         </label>
@@ -432,6 +436,7 @@
         <h3 id="authAccountTitle"></h3>
         <p class="auth-account-info" id="authAccountInfo"></p>
         <div class="auth-account-actions">
+          <button class="auth-btn auth-btn-secondary" id="authOpenEditBtn" type="button"></button>
           <button class="auth-btn auth-btn-secondary" id="authLogoutBtn" type="button"></button>
           <button class="auth-btn auth-btn-danger" id="authOpenDeleteBtn" type="button"></button>
         </div>
@@ -457,6 +462,53 @@
       <input type="file" id="importJsonFile" accept="application/json,.json" hidden />
       <button class="primary-btn" id="saveBtn" type="button">✅ Enregistrer</button>
     </div>
+  </dialog>
+
+  <!-- Edit-account dialog (prenom / nom / date of birth — email is read-only) -->
+  <dialog class="signup-dialog themes-dialog" id="editAccountDialog" aria-labelledby="authEditTitle">
+    <form method="dialog" class="dlg-head">
+      <h2 id="authEditTitle"></h2>
+      <button type="button" class="dlg-close" id="authEditCloseBtn" aria-label="Close">✕</button>
+    </form>
+    <form class="signup-form" id="authEditForm" novalidate>
+      <div class="dlg-body">
+        <div class="form-row">
+          <label class="auth-field">
+            <span id="authEditPrenomLabel"></span>
+            <input type="text" id="authEditPrenom" autocomplete="given-name" required />
+          </label>
+          <label class="auth-field">
+            <span id="authEditNomLabel"></span>
+            <input type="text" id="authEditNom" autocomplete="family-name" required />
+          </label>
+        </div>
+        <label class="auth-field">
+          <span id="authEditDobLabel"></span>
+          <div class="auth-dob-row">
+            <input type="text" inputmode="numeric" autocomplete="bday-day"
+                   id="authEditDobDay" maxlength="2" pattern="[0-9]*"
+                   placeholder="JJ" aria-label="Jour" required />
+            <span class="auth-dob-sep" aria-hidden="true">/</span>
+            <input type="text" inputmode="numeric" autocomplete="bday-month"
+                   id="authEditDobMonth" maxlength="2" pattern="[0-9]*"
+                   placeholder="MM" aria-label="Mois" required />
+            <span class="auth-dob-sep" aria-hidden="true">/</span>
+            <input type="text" inputmode="numeric" autocomplete="bday-year"
+                   id="authEditDobYear" maxlength="4" pattern="[0-9]*"
+                   placeholder="AAAA" aria-label="Année" required />
+          </div>
+        </label>
+        <label class="auth-field">
+          <span id="authEditStageNameLabel"></span>
+          <input type="text" id="authEditStageName" autocomplete="nickname" maxlength="40" />
+        </label>
+        <p class="auth-error" id="authEditError" hidden></p>
+      </div>
+      <div class="dlg-actions">
+        <button type="button" class="auth-btn auth-btn-secondary" id="authEditCancelBtn"></button>
+        <button type="submit" class="auth-btn auth-btn-primary" id="authEditSaveBtn"></button>
+      </div>
+    </form>
   </dialog>
 
   <!-- Delete-account confirmation dialog -->

@@ -91,6 +91,9 @@
     setText("authSignupPrenomLabel",   t.authPrenom);
     setText("authSignupNomLabel",      t.authNom);
     setText("authSignupDobLabel",      t.authDob);
+    setText("authSignupStageNameLabel", t.authStageName);
+    const sStage = $("authSignupStageName");
+    if (sStage) sStage.placeholder = t.authStageNamePlaceholder || "";
     const dobD = $("authSignupDobDay");   if (dobD) dobD.placeholder = t.authDobDay   || "JJ";
     const dobM = $("authSignupDobMonth"); if (dobM) dobM.placeholder = t.authDobMonth || "MM";
     const dobY = $("authSignupDobYear");  if (dobY) dobY.placeholder = t.authDobYear  || "AAAA";
@@ -100,6 +103,19 @@
     setText("authSignupSubmitBtn",     t.authSignupSubmit);
     setText("authAccountTitle",        t.authAccountSection);
     setText("authLogoutBtn",           t.authLogout);
+    setText("authOpenEditBtn",         t.authEditAccount);
+    setText("authEditTitle",           t.authEditAccountTitle);
+    setText("authEditPrenomLabel",     t.authPrenom);
+    setText("authEditNomLabel",        t.authNom);
+    setText("authEditDobLabel",        t.authDob);
+    setText("authEditStageNameLabel",  t.authStageName);
+    const eStage = $("authEditStageName");
+    if (eStage) eStage.placeholder = t.authStageNamePlaceholder || "";
+    setText("authEditCancelBtn",       t.authDeleteCancel);
+    setText("authEditSaveBtn",         t.authEditSave);
+    const eDobD = $("authEditDobDay");   if (eDobD) eDobD.placeholder = t.authDobDay   || "JJ";
+    const eDobM = $("authEditDobMonth"); if (eDobM) eDobM.placeholder = t.authDobMonth || "MM";
+    const eDobY = $("authEditDobYear");  if (eDobY) eDobY.placeholder = t.authDobYear  || "AAAA";
     setText("authOpenDeleteBtn",       t.authDeleteAccount);
     setText("authDeleteTitle",         t.authDeleteAccount);
     setText("authDeleteConfirmMsg",    t.authDeleteConfirm);
@@ -161,6 +177,9 @@
     const confirm = $("authSignupConfirm").value;
     const prenom  = $("authSignupPrenom").value.trim();
     const nom     = $("authSignupNom").value.trim();
+    // Stage name is OPTIONAL — empty string normalises to NULL on the DB.
+    const nomSceneRaw = ($("authSignupStageName").value || "").trim();
+    const nom_scene   = nomSceneRaw || null;
 
     // DOB is now three numeric fields (day / month / year). Combine them into
     // an ISO YYYY-MM-DD string and check the calendar date is real (e.g. so
@@ -205,7 +224,7 @@
       const { data, error } = await sb.auth.signUp({
         email, password: pass,
         options: {
-          data: { prenom, nom, date_naissance: dob },
+          data: { prenom, nom, date_naissance: dob, nom_scene },
           emailRedirectTo: window.location.origin + window.location.pathname
         }
       });
@@ -222,7 +241,8 @@
             id: data.user.id,
             email,
             prenom, nom,
-            date_naissance: dob
+            date_naissance: dob,
+            nom_scene
           });
         } catch (e) { /* will retry after confirmation */ }
       }
@@ -346,7 +366,8 @@
             email: user.email,
             prenom: meta.prenom || "",
             nom: meta.nom || "",
-            date_naissance: meta.date_naissance || null
+            date_naissance: meta.date_naissance || null,
+            nom_scene: meta.nom_scene || null
           }),
           6000, "profile-insert"
         );
@@ -372,6 +393,80 @@
     window.actoAuth.state.user = null;
     window.actoAuth.state.profile = null;
     showAuthScreen();
+  }
+
+  /** Open the edit-account dialog and pre-fill it with the current profile. */
+  function openEditDialog() {
+    const p = window.actoAuth.state.profile || {};
+    const dlg = $("editAccountDialog");
+    if (!dlg) return;
+    showError("authEditError", "");
+    const prenom = $("authEditPrenom"); if (prenom) prenom.value = p.prenom || "";
+    const nom    = $("authEditNom");    if (nom)    nom.value    = p.nom    || "";
+    const stage  = $("authEditStageName"); if (stage) stage.value = p.nom_scene || "";
+    // Split the stored ISO date_naissance back into JJ / MM / AAAA fields.
+    const dob = (p.date_naissance || "").split("-");
+    const day = $("authEditDobDay"), month = $("authEditDobMonth"), year = $("authEditDobYear");
+    if (year)  year.value  = dob[0] || "";
+    if (month) month.value = dob[1] || "";
+    if (day)   day.value   = dob[2] || "";
+    if (typeof dlg.showModal === "function") dlg.showModal();
+    else dlg.setAttribute("open", "");
+  }
+
+  /** Persist the edited prenom / nom / DOB. Email is intentionally not touched. */
+  async function editAccount() {
+    const t = ui();
+    const user = window.actoAuth.state.user;
+    if (!user) return;
+    const prenom = $("authEditPrenom").value.trim();
+    const nom    = $("authEditNom").value.trim();
+    const nomSceneRaw = ($("authEditStageName").value || "").trim();
+    const nom_scene   = nomSceneRaw || null;
+    const dayStr   = $("authEditDobDay").value.trim();
+    const monthStr = $("authEditDobMonth").value.trim();
+    const yearStr  = $("authEditDobYear").value.trim();
+    if (!prenom || !nom || !dayStr || !monthStr || !yearStr) {
+      return showError("authEditError", t.authErrorRequired);
+    }
+    const day = parseInt(dayStr, 10), month = parseInt(monthStr, 10), year = parseInt(yearStr, 10);
+    let dobValid = false, dob = "";
+    if (Number.isInteger(day) && Number.isInteger(month) && Number.isInteger(year)
+        && yearStr.length === 4
+        && day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 1900) {
+      const probe = new Date(year, month - 1, day);
+      dobValid = probe.getFullYear() === year
+              && probe.getMonth() === month - 1
+              && probe.getDate() === day;
+      if (dobValid) {
+        dob = year + "-" + String(month).padStart(2, "0") + "-" + String(day).padStart(2, "0");
+      }
+    }
+    if (!dobValid) return showError("authEditError", t.authErrorDobInvalid);
+    const age = ageFromDob(dob);
+    if (isNaN(age)) return showError("authEditError", t.authErrorDobInvalid);
+    if (age < 13)   return showError("authEditError", t.authErrorDobYoung);
+
+    showError("authEditError", "");
+    const btn = $("authEditSaveBtn");
+    if (btn) btn.disabled = true;
+    try {
+      const { data, error } = await sb.from("profiles")
+        .update({ prenom, nom, date_naissance: dob, nom_scene })
+        .eq("id", user.id)
+        .select("*")
+        .maybeSingle();
+      if (error) throw error;
+      // Refresh local state so any UI reading from window.actoAuth.state.profile sees the new values.
+      if (data) window.actoAuth.state.profile = data;
+      const dlg = $("editAccountDialog");
+      if (dlg && dlg.open) dlg.close();
+    } catch (e) {
+      console.error("editAccount failed:", e);
+      showError("authEditError", e.message || String(e));
+    } finally {
+      if (btn) btn.disabled = false;
+    }
   }
 
   async function deleteAccount() {
@@ -470,6 +565,24 @@
 
     const logoutBtn = $("authLogoutBtn");
     if (logoutBtn) logoutBtn.addEventListener("click", logout);
+
+    // Edit-account dialog wiring
+    const openEdit  = $("authOpenEditBtn");
+    const editDlg   = $("editAccountDialog");
+    const closeEdit = $("authEditCloseBtn");
+    const cancelEdit= $("authEditCancelBtn");
+    const editForm  = $("authEditForm");
+    if (openEdit && editDlg) openEdit.addEventListener("click", openEditDialog);
+    if (closeEdit && editDlg) closeEdit.addEventListener("click", () => editDlg.close());
+    if (cancelEdit && editDlg) cancelEdit.addEventListener("click", () => editDlg.close());
+    if (editForm) editForm.addEventListener("submit", (e) => { e.preventDefault(); editAccount(); });
+    // DOB triplet auto-advance + numeric-only filter for the edit dialog
+    const editDobDay   = $("authEditDobDay");
+    const editDobMonth = $("authEditDobMonth");
+    const editDobYear  = $("authEditDobYear");
+    wireDobField(editDobDay,   2, editDobMonth);
+    wireDobField(editDobMonth, 2, editDobYear);
+    wireDobField(editDobYear,  4, null);
 
     const openDel  = $("authOpenDeleteBtn");
     const delDlg   = $("deleteAccountDialog");

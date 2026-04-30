@@ -31,6 +31,11 @@ create table if not exists public.profiles (
   updated_at    timestamptz not null default now()
 );
 
+-- 1.1b STAGE NAME — optional, used by the player-roster feature.
+--      Idempotent so the column is added on existing tables without erroring.
+alter table public.profiles
+  add column if not exists nom_scene text;
+
 -- 1.2 ROW LEVEL SECURITY — owner-only by default.
 alter table public.profiles enable row level security;
 

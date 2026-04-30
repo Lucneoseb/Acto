@@ -1206,7 +1206,9 @@
         setNestedKey(next, ta.dataset.key, parsed);
       }
       store.setLocaleData(next);
-      setStatus("✅ Modifications enregistrées (localStorage).");
+      // Save succeeded → close the dialog. Errors keep it open with the message
+      // visible so the user can fix the JSON.
+      if (dialogEl && dialogEl.open) dialogEl.close();
     } catch (e) {
       setStatus(`❌ ${e.message}`, true);
     }
