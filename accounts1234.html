@@ -663,7 +663,10 @@
 
   function emailFor(uid) {
     const p = profilesById[uid];
-    return p ? p.email : "?";
+    if (p) return p.email;
+    // No profile row matches this user_id → orphan event. Show a parsable
+    // hint so the admin spots it instead of a silent "?".
+    return uid ? "⚠ profil manquant (" + String(uid).slice(0, 8) + "…)" : "—";
   }
 
   function renderBar(rows, total) {
