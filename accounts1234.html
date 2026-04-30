@@ -140,6 +140,19 @@
     color: var(--gold-soft);
     font-size: 0.7rem; font-weight: 700;
   }
+  /* Participant chips inside the events table — teal for users, gold for guests. */
+  table.events td .badge {
+    background: rgba(109,211,197,0.18);
+    border-color: rgba(109,211,197,0.45);
+    color: var(--teal);
+    font-weight: 600;
+    margin: 1px 2px;
+  }
+  table.events td .badge.badge-guest {
+    background: rgba(245,196,81,0.18);
+    border-color: rgba(245,196,81,0.45);
+    color: var(--gold-soft);
+  }
   table.profiles td.email { font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace; font-size: 0.78rem; }
 
   .empty {
@@ -307,7 +320,8 @@
           <th data-sort="login_count" class="numeric">Conn.</th>
           <th data-sort="last_login_at">Dernière conn.</th>
           <th data-sort="total_impros_generated" class="numeric">Impros gén.</th>
-          <th data-sort="total_impros_played" class="numeric">Impros jouées</th>
+          <th data-sort="total_impros_played" class="numeric">Impros lancées</th>
+          <th data-sort="participation_count" class="numeric">Impros jouées</th>
           <th data-sort="total_impro_seconds" class="numeric">Tps impro</th>
           <th data-sort="total_records_count" class="numeric">Enregis.</th>
           <th data-sort="total_record_seconds" class="numeric">Tps record</th>
@@ -316,7 +330,7 @@
         </tr>
       </thead>
       <tbody id="profilesBody">
-        <tr><td colspan="13" class="empty">Chargement des données…</td></tr>
+        <tr><td colspan="14" class="empty">Chargement des données…</td></tr>
       </tbody>
     </table>
   </div>
@@ -350,6 +364,11 @@
       <h4>Top 10 thèmes</h4>
       <ol class="top-list" id="topThemes"></ol>
     </div>
+  </div>
+
+  <h2 class="section-title">🎭 Top 10 acteurs (par participations)</h2>
+  <div class="breakdown">
+    <ol class="top-list" id="topActors"></ol>
   </div>
 
   <h2 class="section-title">🎬 Journal des impros lancées</h2>
@@ -388,18 +407,19 @@
           <th data-event-sort="duration_planned_seconds" class="numeric">Prévu</th>
           <th data-event-sort="duration_played_seconds" class="numeric">Joué</th>
           <th data-event-sort="was_recorded">Enregistré</th>
+          <th data-event-sort="participants_label">Participants</th>
         </tr>
       </thead>
       <tbody id="eventsBody">
-        <tr><td colspan="10" class="empty">Aucun événement chargé.</td></tr>
+        <tr><td colspan="11" class="empty">Aucun événement chargé.</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./js/config.js"></script>
-<script src="./js/utils.js"></script>
+<script src="./js/config.js?v=20260430"></script>
+<script src="./js/utils.js?v=20260430"></script>
 <script>
 (function () {
   "use strict";
@@ -452,16 +472,18 @@
       acc.logins += r.login_count || 0;
       acc.gen    += r.total_impros_generated || 0;
       acc.played += r.total_impros_played || 0;
+      acc.parts  += r.participation_count || 0;
       acc.iSec   += r.total_impro_seconds || 0;
       acc.rec    += r.total_records_count || 0;
       acc.rSec   += r.total_record_seconds || 0;
       return acc;
-    }, { users:0, logins:0, gen:0, played:0, iSec:0, rec:0, rSec:0 });
+    }, { users:0, logins:0, gen:0, played:0, parts:0, iSec:0, rec:0, rSec:0 });
     const cards = [
       ["Utilisateurs", totals.users],
       ["Connexions totales", totals.logins],
       ["Impros générées", totals.gen],
       ["Impros lancées", totals.played],
+      ["Participations", totals.parts],
       ["Temps impro total", fmtSec(totals.iSec)],
       ["Enregistrements", totals.rec],
       ["Temps record total", fmtSec(totals.rSec)]
@@ -474,7 +496,7 @@
   function renderTable(rows) {
     const body = $("profilesBody");
     if (!rows.length) {
-      body.innerHTML = '<tr><td colspan="13" class="empty">Aucun utilisateur trouvé.</td></tr>';
+      body.innerHTML = '<tr><td colspan="14" class="empty">Aucun utilisateur trouvé.</td></tr>';
       return;
     }
     body.innerHTML = rows.map(r => {
@@ -488,6 +510,7 @@
         <td>${fmtDate(r.last_login_at)}</td>
         <td class="numeric">${r.total_impros_generated || 0}</td>
         <td class="numeric">${r.total_impros_played || 0}</td>
+        <td class="numeric">${r.participation_count || 0}</td>
         <td class="numeric">${fmtSec(r.total_impro_seconds)}</td>
         <td class="numeric">${r.total_records_count || 0}</td>
         <td class="numeric">${fmtSec(r.total_record_seconds)}</td>
@@ -518,21 +541,23 @@
   }
 
   async function loadProfiles() {
-    $("profilesBody").innerHTML = '<tr><td colspan="13" class="empty">Chargement…</td></tr>';
+    $("profilesBody").innerHTML = '<tr><td colspan="14" class="empty">Chargement…</td></tr>';
     const { data, error } = await sb
       .from("profiles")
-      .select("id,email,prenom,nom,date_naissance,created_at,login_count,last_login_at,total_impros_generated,total_impros_played,total_impro_seconds,total_records_count,total_record_seconds,is_admin");
+      .select("id,email,prenom,nom,nom_scene,date_naissance,created_at,login_count,last_login_at,total_impros_generated,total_impros_played,total_impro_seconds,total_records_count,total_record_seconds,is_admin");
     if (error) {
-      $("profilesBody").innerHTML = '<tr><td colspan="13" class="empty">Erreur de chargement : ' + escapeHtml(error.message) + '</td></tr>';
+      $("profilesBody").innerHTML = '<tr><td colspan="14" class="empty">Erreur de chargement : ' + escapeHtml(error.message) + '</td></tr>';
       return;
     }
     allProfiles = data || [];
+    // participation_count gets filled in by loadEvents() once participants are fetched.
+    allProfiles.forEach(p => { p.participation_count = participationCountByUser[p.id] || 0; });
     applyFilter();
   }
 
   function exportCSV() {
     if (!allProfiles.length) return;
-    const cols = ["email","prenom","nom","date_naissance","login_count","last_login_at","total_impros_generated","total_impros_played","total_impro_seconds","total_records_count","total_record_seconds","created_at","is_admin"];
+    const cols = ["email","prenom","nom","nom_scene","date_naissance","login_count","last_login_at","total_impros_generated","total_impros_played","participation_count","total_impro_seconds","total_records_count","total_record_seconds","created_at","is_admin"];
     const head = cols.join(";");
     const rows = allProfiles.map(r =>
       cols.map(c => {
@@ -573,6 +598,9 @@
   let profilesById = {};
   let eventSortKey = "launched_at";
   let eventSortDir = "desc";
+  let allParticipants = [];                // raw rows from impro_participants
+  let participantsByEvent = {};            // event_id → array of { user_id?, nom_scene_text }
+  let participationCountByUser = {};       // user_id → number of impros they participated in
 
   async function loadEvents() {
     const { data, error } = await sb
@@ -582,15 +610,53 @@
       .limit(5000);
     if (error) {
       console.warn("loadEvents", error);
-      $("eventsBody").innerHTML = '<tr><td colspan="10" class="empty">Erreur : ' + escapeHtml(error.message) + '</td></tr>';
+      $("eventsBody").innerHTML = '<tr><td colspan="11" class="empty">Erreur : ' + escapeHtml(error.message) + '</td></tr>';
       return;
     }
     allEvents = data || [];
     profilesById = {};
     allProfiles.forEach(p => { profilesById[p.id] = p; });
+    await loadParticipants();
+    // Decorate each event with a flat label string for searching/sorting on participants.
+    allEvents.forEach((e) => {
+      const list = participantsByEvent[e.id] || [];
+      e.participants_label = list.map(p => p.nom_scene_text || "?").join(", ");
+    });
+    // Decorate each profile with their participation count for the new column / sort.
+    allProfiles.forEach((p) => {
+      p.participation_count = participationCountByUser[p.id] || 0;
+    });
+    applyFilter();        // re-render profiles table with the new column populated
     renderBreakdowns();
     renderTops();
+    renderTopActors();
     renderEvents();
+  }
+
+  /**
+   * Pull all impro_participants rows the admin can see (RLS already filters).
+   * Build two indexes: one keyed by event_id (for the per-event display),
+   * one keyed by user_id (for the per-profile count).
+   */
+  async function loadParticipants() {
+    const { data, error } = await sb
+      .from("impro_participants")
+      .select("event_id,user_id,nom_scene_text")
+      .limit(20000);
+    if (error) {
+      console.warn("loadParticipants", error);
+      allParticipants = [];
+    } else {
+      allParticipants = data || [];
+    }
+    participantsByEvent = {};
+    participationCountByUser = {};
+    for (const p of allParticipants) {
+      (participantsByEvent[p.event_id] = participantsByEvent[p.event_id] || []).push(p);
+      if (p.user_id) {
+        participationCountByUser[p.user_id] = (participationCountByUser[p.user_id] || 0) + 1;
+      }
+    }
   }
 
   function emailFor(uid) {
@@ -662,6 +728,31 @@
     renderTopList("topThemes",      topByField("theme_name",      10));
   }
 
+  /**
+   * Top actors = stage names that show up most often as participants.
+   * Aggregated across both registered users (matched via user_id) and
+   * ad-hoc guests (matched via nom_scene_text). Seconds are summed using
+   * the duration_played of the event each participation row points to.
+   */
+  function renderTopActors() {
+    const eventsById = {};
+    allEvents.forEach(e => { eventsById[e.id] = e; });
+    const counts = {};
+    const seconds = {};
+    for (const p of allParticipants) {
+      const name = (p.nom_scene_text || "").trim();
+      if (!name) continue;
+      counts[name]  = (counts[name]  || 0) + 1;
+      const ev = eventsById[p.event_id];
+      seconds[name] = (seconds[name] || 0) + ((ev && ev.duration_played_seconds) || 0);
+    }
+    const rows = Object.keys(counts)
+      .map(k => ({ name: k, count: counts[k], seconds: seconds[k] }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+    renderTopList("topActors", rows);
+  }
+
   function applyEventFilters() {
     const q   = ($("eventSearch").value || "").toLowerCase().trim();
     const fM  = $("eventFilterMode").value;
@@ -675,7 +766,8 @@
     if (q) rows = rows.filter(e => {
       const fields = [
         e.exercise_name, e.constraint_name, e.theme_name,
-        emailFor(e.user_id)
+        emailFor(e.user_id),
+        e.participants_label
       ].map(s => (s || "").toLowerCase());
       return fields.some(s => s.includes(q));
     });
@@ -702,21 +794,30 @@
     $("eventCount").textContent = sorted.length + " / " + allEvents.length;
     const body = $("eventsBody");
     if (!sorted.length) {
-      body.innerHTML = '<tr><td colspan="10" class="empty">Aucun événement.</td></tr>';
+      body.innerHTML = '<tr><td colspan="11" class="empty">Aucun événement.</td></tr>';
       return;
     }
-    body.innerHTML = sorted.slice(0, 1000).map(e => `<tr>
-      <td>${fmtDate(e.launched_at)}</td>
-      <td class="email">${escapeHtml(emailFor(e.user_id))}</td>
-      <td>${escapeHtml(e.mode)}</td>
-      <td>${escapeHtml(e.level)}</td>
-      <td class="wrap">${escapeHtml(e.exercise_name)}</td>
-      <td class="wrap">${escapeHtml(e.constraint_name)}</td>
-      <td class="wrap">${escapeHtml(e.theme_name)}</td>
-      <td class="numeric">${fmtSec(e.duration_planned_seconds)}</td>
-      <td class="numeric">${fmtSec(e.duration_played_seconds)}</td>
-      <td class="${e.was_recorded ? 'was-recorded' : ''}">${e.was_recorded ? '🎥' : '—'}</td>
-    </tr>`).join("");
+    body.innerHTML = sorted.slice(0, 1000).map(e => {
+      const parts = participantsByEvent[e.id] || [];
+      const partsHtml = parts.length
+        ? parts.map(p =>
+            `<span class="badge ${p.user_id ? '' : 'badge-guest'}" title="${p.user_id ? 'Compte Acto' : 'Invité'}">${escapeHtml(p.nom_scene_text || '?')}</span>`
+          ).join(" ")
+        : '<span style="color:var(--ink-faint);font-size:0.78rem;">—</span>';
+      return `<tr>
+        <td>${fmtDate(e.launched_at)}</td>
+        <td class="email">${escapeHtml(emailFor(e.user_id))}</td>
+        <td>${escapeHtml(e.mode)}</td>
+        <td>${escapeHtml(e.level)}</td>
+        <td class="wrap">${escapeHtml(e.exercise_name)}</td>
+        <td class="wrap">${escapeHtml(e.constraint_name)}</td>
+        <td class="wrap">${escapeHtml(e.theme_name)}</td>
+        <td class="numeric">${fmtSec(e.duration_planned_seconds)}</td>
+        <td class="numeric">${fmtSec(e.duration_played_seconds)}</td>
+        <td class="${e.was_recorded ? 'was-recorded' : ''}">${e.was_recorded ? '🎥' : '—'}</td>
+        <td class="wrap">${partsHtml}</td>
+      </tr>`;
+    }).join("");
 
     document.querySelectorAll("th[data-event-sort]").forEach(th => {
       th.dataset.sortActive = (th.dataset.eventSort === eventSortKey) ? eventSortDir : "";
@@ -725,7 +826,7 @@
 
   function exportEventsCSV() {
     if (!allEvents.length) return;
-    const cols = ["launched_at","email","mode","level","exercise_name","constraint_name","theme_name","duration_planned_seconds","duration_played_seconds","was_recorded"];
+    const cols = ["launched_at","email","mode","level","exercise_name","constraint_name","theme_name","duration_planned_seconds","duration_played_seconds","was_recorded","participants"];
     const rows = applyEventFilters();
     const head = cols.join(";");
     const body = rows.map(e => {
@@ -736,7 +837,8 @@
         exercise_name: e.exercise_name, constraint_name: e.constraint_name, theme_name: e.theme_name,
         duration_planned_seconds: e.duration_planned_seconds,
         duration_played_seconds: e.duration_played_seconds,
-        was_recorded: e.was_recorded
+        was_recorded: e.was_recorded,
+        participants: e.participants_label || ""
       };
       return cols.map(c => {
         const v = row[c] == null ? "" : String(row[c]);
