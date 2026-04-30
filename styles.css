@@ -519,6 +519,154 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
 }
 
 /* ----------------------------------------
+   Roster (team / troupe composition)
+   ---------------------------------------- */
+.roster-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  margin-top: 0.7rem;
+}
+.roster-edit-btn {
+  appearance: none;
+  cursor: pointer;
+  font: inherit;
+  padding: 0.6rem 0.95rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(245, 196, 81, 0.35);
+  color: var(--gold-soft);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.roster-edit-btn:hover {
+  border-color: var(--gold);
+  background: rgba(0, 0, 0, 0.45);
+}
+.roster-edit-btn:active { transform: translateY(1px); }
+.roster-status {
+  font-size: 0.825rem;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+.roster-status.active {
+  color: var(--gold-soft);
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* Roster dialog body — search → results dropdown → ad-hoc add → list */
+.roster-dialog .dlg-body { gap: 0.9rem; }
+.roster-search-row,
+.roster-adhoc-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.roster-search-row input,
+.roster-adhoc-row input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--ink);
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: 0.95rem;
+  outline: none;
+}
+.roster-search-row input:focus,
+.roster-adhoc-row input:focus {
+  border-color: rgba(245, 196, 81, 0.55);
+  background: rgba(0, 0, 0, 0.5);
+}
+.roster-search-results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  max-height: 200px;
+  overflow-y: auto;
+}
+.roster-search-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.55rem 0.8rem;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.12s;
+}
+.roster-search-item:last-child { border-bottom: 0; }
+.roster-search-item:hover,
+.roster-search-item:focus { background: rgba(245, 196, 81, 0.1); outline: none; }
+.roster-search-stage { font-weight: 600; color: var(--ink); }
+.roster-search-prenom { color: var(--ink-muted); font-size: 0.85rem; }
+
+.roster-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-height: 1rem;
+}
+.roster-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.55rem 0.35rem 0.7rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  font-size: 0.875rem;
+}
+.roster-chip-user {
+  border-color: rgba(109, 211, 197, 0.45);
+  background: rgba(109, 211, 197, 0.08);
+}
+.roster-chip-guest {
+  border-color: rgba(245, 196, 81, 0.35);
+  background: rgba(245, 196, 81, 0.06);
+}
+.roster-chip-tag {
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+  width: 1rem;
+  text-align: center;
+}
+.roster-chip-user .roster-chip-tag  { color: var(--troupe); }
+.roster-chip-guest .roster-chip-tag { color: var(--gold-soft); }
+.roster-chip-name { color: var(--ink); font-weight: 500; }
+.roster-chip-remove {
+  appearance: none;
+  cursor: pointer;
+  border: 0;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ink-muted);
+  width: 1.4rem; height: 1.4rem;
+  border-radius: 50%;
+  font-size: 0.85rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+}
+.roster-chip-remove:hover { background: rgba(225, 29, 106, 0.5); color: #fff; }
+.roster-empty {
+  margin: 0;
+  font-size: 0.825rem;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+/* ----------------------------------------
    Generate button
    ---------------------------------------- */
 .generate-btn {

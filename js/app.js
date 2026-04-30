@@ -143,6 +143,20 @@
     } catch (e) {
       console.warn("log_impro_event failed", e);
     }
+    // Once the event row exists, attach the configured roster (if any) so the
+    // participants show up in their own analytics. Fire-and-forget — failures
+    // here must never block the impro flow.
+    if (improEvent.id && Array.isArray(state.roster) && state.roster.length > 0) {
+      try {
+        await window.actoSupabase.rpc("add_impro_participants", {
+          p_event_id: improEvent.id,
+          p_participants: state.roster.map(p => ({
+            user_id: p.user_id || "",
+            nom_scene: p.nom_scene || ""
+          }))
+        });
+      } catch (e) { console.warn("add_impro_participants failed", e); }
+    }
   }
   async function improEventCommitPlayed() {
     if (!improEvent.id || !window.actoSupabase) return;
@@ -180,6 +194,7 @@
      ============================================================ */
   const STORAGE_KEY = "impro-studio:overrides:v1";
   const LOCALE_KEY  = "impro-studio:locale:v1";
+  const ROSTER_KEY  = "impro-studio:roster:v1";
   const ITEM_HEIGHT_REM = 4.5;
   const SPARKLES = ["✨", "⭐", "🎭", "💫", "🌟"];
 
@@ -387,7 +402,17 @@
     // Audience
     audienceEnabled: false,
     audienceIntervalSec: 45,
-    audienceTimer: null
+    audienceTimer: null,
+    // Roster (team / troupe composition) — array of { user_id?: uuid, nom_scene: string }
+    // user_id is set for registered Acto users (matched via search), absent for ad-hoc guests.
+    roster: (function () {
+      try {
+        const raw = localStorage.getItem(ROSTER_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) { return []; }
+    })()
   };
 
   // Per-level max duration (seconds), 30s step
@@ -543,6 +568,8 @@
     setText("label02",          t.label02);
     setText("label03",          t.label03);
     setText("labelTeams",       t.labelTeams);
+    setText("labelRoster",      t.labelRoster);
+    refreshRosterStatus();
     setText("modeTroupeTitle",  t.modeTroupe);
     setText("modeTroupeDesc",   t.modeTroupeDesc);
     setText("modeMatchTitle",   t.modeMatch);
@@ -742,6 +769,162 @@
     if (!dlg) return;
     if (typeof dlg.close === "function") dlg.close();
     else dlg.removeAttribute("open");
+  }
+
+  /* ============================================================
+     1.5 ROSTER (team / troupe composition)
+     ============================================================ */
+
+  // Working copy used while the dialog is open. Committed to state.roster on Save.
+  let rosterDraft = [];
+
+  function persistRoster() {
+    try { localStorage.setItem(ROSTER_KEY, JSON.stringify(state.roster)); }
+    catch (e) { /* localStorage may be full / disabled */ }
+  }
+
+  function refreshRosterStatus() {
+    const t = store.ui;
+    const n = state.roster.length;
+    const status = $("#rosterStatus");
+    const btnLabel = $("#rosterEditBtnLabel");
+    if (btnLabel) btnLabel.textContent = t.rosterEditBtn || "Configurer la composition";
+    if (!status) return;
+    if (n === 0) {
+      status.textContent = t.rosterStatusEmpty || "";
+      status.classList.remove("active");
+    } else {
+      const tpl = (n > 1 && t.rosterStatusN_plural) ? t.rosterStatusN_plural : (t.rosterStatusN || "");
+      status.textContent = tpl.replace("{n}", String(n));
+      status.classList.add("active");
+    }
+  }
+
+  function renderRosterDraftList() {
+    const t = store.ui;
+    const list  = $("#rosterList");
+    const empty = $("#rosterEmpty");
+    if (!list) return;
+    list.innerHTML = "";
+    if (!rosterDraft.length) {
+      if (empty) { empty.textContent = t.rosterListEmpty || ""; empty.hidden = false; }
+      return;
+    }
+    if (empty) empty.hidden = true;
+    rosterDraft.forEach((p, idx) => {
+      const li = document.createElement("li");
+      li.className = "roster-chip" + (p.user_id ? " roster-chip-user" : " roster-chip-guest");
+      const name = document.createElement("span");
+      name.className = "roster-chip-name";
+      name.textContent = p.nom_scene;
+      const tag = document.createElement("span");
+      tag.className = "roster-chip-tag";
+      tag.textContent = p.user_id ? "✓" : "✎";
+      const rm = document.createElement("button");
+      rm.type = "button";
+      rm.className = "roster-chip-remove";
+      rm.setAttribute("aria-label", t.rosterRemove || "Remove");
+      rm.textContent = "✕";
+      rm.addEventListener("click", () => {
+        rosterDraft.splice(idx, 1);
+        renderRosterDraftList();
+      });
+      li.append(tag, name, rm);
+      list.appendChild(li);
+    });
+  }
+
+  let rosterSearchTimer = null;
+  function renderRosterSearchResults(rows) {
+    const ul = $("#rosterSearchResults");
+    if (!ul) return;
+    ul.innerHTML = "";
+    if (!rows || !rows.length) {
+      ul.hidden = true;
+      return;
+    }
+    rows.forEach((row) => {
+      // Skip users already added
+      if (rosterDraft.some(p => p.user_id === row.id)) return;
+      const li = document.createElement("li");
+      li.className = "roster-search-item";
+      li.tabIndex = 0;
+      li.innerHTML =
+        `<span class="roster-search-stage">${escapeHtml(row.nom_scene || "")}</span>` +
+        `<span class="roster-search-prenom">${escapeHtml(row.prenom || "")}</span>`;
+      const pick = () => {
+        rosterDraft.push({ user_id: row.id, nom_scene: row.nom_scene });
+        const input = $("#rosterSearchInput");
+        if (input) input.value = "";
+        ul.hidden = true;
+        renderRosterDraftList();
+      };
+      li.addEventListener("click", pick);
+      li.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+      ul.appendChild(li);
+    });
+    ul.hidden = ul.children.length === 0;
+  }
+
+  async function searchRosterUsers(q) {
+    if (!window.actoSupabase || !window.actoAuth || !window.actoAuth.state || !window.actoAuth.state.user) {
+      // Search requires being authenticated; silently no-op.
+      renderRosterSearchResults([]);
+      return;
+    }
+    if (!q || q.trim().length < 1) {
+      renderRosterSearchResults([]);
+      return;
+    }
+    try {
+      const { data, error } = await window.actoSupabase.rpc("search_users_by_stage_name", { p_query: q.trim() });
+      if (error) { console.warn("roster search failed", error); renderRosterSearchResults([]); return; }
+      // Hide the current user from results (you can't add yourself to the roster
+      // — you're implicitly the launcher).
+      const me = window.actoAuth.state.user.id;
+      renderRosterSearchResults((data || []).filter(r => r.id !== me));
+    } catch (e) {
+      console.warn("roster search threw", e);
+      renderRosterSearchResults([]);
+    }
+  }
+
+  function openRosterDialog() {
+    const dlg = $("#rosterDialog");
+    if (!dlg) return;
+    rosterDraft = state.roster.slice();
+    const search = $("#rosterSearchInput");
+    const adhoc  = $("#rosterAdHocInput");
+    const t = store.ui;
+    if (search) {
+      search.value = "";
+      search.placeholder = t.rosterSearchPlaceholder || "";
+    }
+    if (adhoc) {
+      adhoc.value = "";
+      adhoc.placeholder = t.rosterAdHocPlaceholder || "";
+    }
+    setText("rosterDialogTitle",  t.rosterDialogTitle);
+    setText("rosterDialogHint",   t.rosterDialogHint);
+    setText("rosterAdHocAddBtn",  t.rosterAdHocAdd);
+    setText("rosterCancelBtn",    t.rosterCancel || t.authDeleteCancel);
+    setText("rosterSaveBtn",      t.rosterSave);
+    renderRosterSearchResults([]);
+    renderRosterDraftList();
+    if (typeof dlg.showModal === "function") dlg.showModal();
+    else dlg.setAttribute("open", "");
+  }
+  function closeRosterDialog() {
+    const dlg = $("#rosterDialog");
+    if (!dlg) return;
+    if (typeof dlg.close === "function") dlg.close();
+    else dlg.removeAttribute("open");
+  }
+  function saveRoster() {
+    state.roster = rosterDraft.slice();
+    persistRoster();
+    closeRosterDialog();
+    refreshRosterStatus();
   }
 
   function pickFor(target) {
@@ -1285,6 +1468,49 @@
     if (__themesInput) __themesInput.addEventListener("input", refreshThemeStatus);
     // Initialize hidden state of custom row
     setThemesMode(state.useCustom ? "custom" : "random");
+
+    /* Roster (team / troupe composition) wiring */
+    const __rosterEditBtn = $("#rosterEditBtn");
+    const __rosterDlg     = $("#rosterDialog");
+    const __rosterClose   = $("#rosterDialogClose");
+    const __rosterCancel  = $("#rosterCancelBtn");
+    const __rosterSave    = $("#rosterSaveBtn");
+    const __rosterSearch  = $("#rosterSearchInput");
+    const __rosterAdHocIn = $("#rosterAdHocInput");
+    const __rosterAdHocBtn= $("#rosterAdHocAddBtn");
+    if (__rosterEditBtn) __rosterEditBtn.addEventListener("click", openRosterDialog);
+    if (__rosterClose)   __rosterClose.addEventListener("click", closeRosterDialog);
+    if (__rosterCancel)  __rosterCancel.addEventListener("click", closeRosterDialog);
+    if (__rosterSave)    __rosterSave.addEventListener("click", saveRoster);
+    if (__rosterDlg)     __rosterDlg.addEventListener("click", (e) => { if (e.target === __rosterDlg) closeRosterDialog(); });
+    if (__rosterSearch) {
+      __rosterSearch.addEventListener("input", () => {
+        clearTimeout(rosterSearchTimer);
+        const q = __rosterSearch.value;
+        rosterSearchTimer = setTimeout(() => searchRosterUsers(q), 200);
+      });
+    }
+    function commitAdHoc() {
+      if (!__rosterAdHocIn) return;
+      const name = (__rosterAdHocIn.value || "").trim();
+      if (!name) return;
+      // Don't add a duplicate ad-hoc name (case-insensitive).
+      const key = name.toLowerCase();
+      if (rosterDraft.some(p => !p.user_id && (p.nom_scene || "").toLowerCase() === key)) {
+        __rosterAdHocIn.value = "";
+        return;
+      }
+      rosterDraft.push({ nom_scene: name });
+      __rosterAdHocIn.value = "";
+      renderRosterDraftList();
+    }
+    if (__rosterAdHocBtn) __rosterAdHocBtn.addEventListener("click", commitAdHoc);
+    if (__rosterAdHocIn) {
+      __rosterAdHocIn.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); commitAdHoc(); }
+      });
+    }
+    refreshRosterStatus();
 
     $("#generateBtn").addEventListener("click", generateAll);
 
