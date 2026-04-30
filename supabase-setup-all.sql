@@ -280,15 +280,129 @@ revoke all on function public.update_impro_event(uuid, integer, boolean) from pu
 grant  execute on function public.update_impro_event(uuid, integer, boolean) to authenticated;
 
 
+-- ╔═══════════════════════════════════════════════════════════════════╗
+-- ║              PART 4 — IMPRO PARTICIPANTS (rosters)                ║
+-- ╚═══════════════════════════════════════════════════════════════════╝
+-- Each impro can have N participants. A participant is either:
+--   • a registered Acto user (user_id IS NOT NULL) → impro shows up in
+--     their analytics
+--   • an ad-hoc name typed by the launcher (user_id IS NULL) → just stored
+--     as a label, no analytics
+-- nom_scene_text is captured at recording time so a later rename of the
+-- user's stage name doesn't rewrite history.
+
+-- 4.1 PARTICIPANTS TABLE
+create table if not exists public.impro_participants (
+  id              uuid          primary key default gen_random_uuid(),
+  event_id        uuid          not null references public.impro_events(id) on delete cascade,
+  user_id         uuid          references auth.users(id) on delete set null,
+  nom_scene_text  text          not null,
+  created_at      timestamptz   not null default now()
+);
+
+create index if not exists impro_participants_event_idx on public.impro_participants (event_id);
+create index if not exists impro_participants_user_idx  on public.impro_participants (user_id);
+
+-- 4.2 RLS — owner of the event AND each listed participant can read.
+alter table public.impro_participants enable row level security;
+
+drop policy if exists "select_own_participation"        on public.impro_participants;
+drop policy if exists "admins_select_all_participation" on public.impro_participants;
+
+create policy "select_own_participation"
+  on public.impro_participants for select
+  using (
+    user_id = auth.uid()
+    or event_id in (select id from public.impro_events where user_id = auth.uid())
+  );
+
+create policy "admins_select_all_participation"
+  on public.impro_participants for select
+  using (public.is_admin());
+
+-- Inserts/deletes go through the RPC below — never direct from the client.
+
+-- 4.3 ADD-PARTICIPANTS RPC — called after log_impro_event.
+--     Replaces the participant list for the given event (idempotent re-call).
+--     p_participants is a JSONB array of objects, each shaped:
+--       { "user_id": "<uuid or empty>", "nom_scene": "<display name>" }
+create or replace function public.add_impro_participants(
+  p_event_id     uuid,
+  p_participants jsonb
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_owner uuid;
+  v_part  jsonb;
+  v_uid   uuid;
+  v_name  text;
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+  -- Only the launcher of the event can set its participants.
+  select user_id into v_owner from public.impro_events where id = p_event_id;
+  if v_owner is null then
+    raise exception 'event not found';
+  end if;
+  if v_owner != auth.uid() then
+    raise exception 'not your event';
+  end if;
+  -- Wipe + reinsert so the function is idempotent.
+  delete from public.impro_participants where event_id = p_event_id;
+  if p_participants is null or jsonb_typeof(p_participants) != 'array' then
+    return;
+  end if;
+  for v_part in select * from jsonb_array_elements(p_participants) loop
+    v_uid  := nullif(v_part->>'user_id', '')::uuid;
+    v_name := coalesce(nullif(trim(v_part->>'nom_scene'), ''), '(anonyme)');
+    insert into public.impro_participants (event_id, user_id, nom_scene_text)
+    values (p_event_id, v_uid, v_name);
+  end loop;
+end;
+$$;
+
+revoke all on function public.add_impro_participants(uuid, jsonb) from public;
+grant  execute on function public.add_impro_participants(uuid, jsonb) to authenticated;
+
+-- 4.4 SEARCH-BY-STAGE-NAME RPC — used by the team-builder autocomplete.
+--     Case-insensitive contains-match. Returns at most 20 hits.
+--     Authenticated-only. Exposes only id + nom_scene + prenom (not email).
+create or replace function public.search_users_by_stage_name(p_query text)
+returns table(id uuid, nom_scene text, prenom text)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select id, nom_scene, prenom
+  from public.profiles
+  where auth.uid() is not null
+    and nom_scene is not null
+    and nom_scene <> ''
+    and nom_scene ilike '%' || coalesce(p_query, '') || '%'
+  order by nom_scene asc
+  limit 20;
+$$;
+
+revoke all on function public.search_users_by_stage_name(text) from public;
+grant  execute on function public.search_users_by_stage_name(text) to authenticated;
+
+
 -- =====================================================================
 -- DONE.
 --
 -- Verification checklist (Supabase dashboard):
---   • Database → Tables → "profiles" and "impro_events" both exist
---     with the 🔒 RLS enabled badge.
---   • Database → Functions → all five present:
+--   • Database → Tables → "profiles", "impro_events", "impro_participants"
+--     all exist with the 🔒 RLS enabled badge.
+--   • Database → Functions → all seven present:
 --       delete_my_account, bump_stats, is_admin,
---       log_impro_event, update_impro_event
+--       log_impro_event, update_impro_event,
+--       add_impro_participants, search_users_by_stage_name
 --
 -- Don't forget to:
 --   1. Enable email confirmation:

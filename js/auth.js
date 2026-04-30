@@ -177,9 +177,9 @@
     const confirm = $("authSignupConfirm").value;
     const prenom  = $("authSignupPrenom").value.trim();
     const nom     = $("authSignupNom").value.trim();
-    // Stage name is OPTIONAL — empty string normalises to NULL on the DB.
-    const nomSceneRaw = ($("authSignupStageName").value || "").trim();
-    const nom_scene   = nomSceneRaw || null;
+    // Stage name is REQUIRED — used by the player roster feature to identify
+    // who participated in an impro (with or without an account on Acto).
+    const nom_scene = ($("authSignupStageName").value || "").trim();
 
     // DOB is now three numeric fields (day / month / year). Combine them into
     // an ISO YYYY-MM-DD string and check the calendar date is real (e.g. so
@@ -206,7 +206,8 @@
       }
     }
 
-    if (!email || !pass || !confirm || !prenom || !nom || !dayStr || !monthStr || !yearStr) {
+    if (!email || !pass || !confirm || !prenom || !nom || !nom_scene
+        || !dayStr || !monthStr || !yearStr) {
       return showError("authSignupError", t.authErrorRequired);
     }
     if (!emailValid(email)) return showError("authSignupError", t.authErrorEmailFormat);
@@ -421,12 +422,11 @@
     if (!user) return;
     const prenom = $("authEditPrenom").value.trim();
     const nom    = $("authEditNom").value.trim();
-    const nomSceneRaw = ($("authEditStageName").value || "").trim();
-    const nom_scene   = nomSceneRaw || null;
+    const nom_scene = ($("authEditStageName").value || "").trim();
     const dayStr   = $("authEditDobDay").value.trim();
     const monthStr = $("authEditDobMonth").value.trim();
     const yearStr  = $("authEditDobYear").value.trim();
-    if (!prenom || !nom || !dayStr || !monthStr || !yearStr) {
+    if (!prenom || !nom || !nom_scene || !dayStr || !monthStr || !yearStr) {
       return showError("authEditError", t.authErrorRequired);
     }
     const day = parseInt(dayStr, 10), month = parseInt(monthStr, 10), year = parseInt(yearStr, 10);
