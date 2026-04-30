@@ -93,7 +93,19 @@
         </div>
         <label class="auth-field">
           <span id="authSignupDobLabel"></span>
-          <input type="date" id="authSignupDob" required />
+          <div class="auth-dob-row">
+            <input type="text" inputmode="numeric" autocomplete="bday-day"
+                   id="authSignupDobDay" maxlength="2" pattern="[0-9]*"
+                   placeholder="JJ" aria-label="Jour" required />
+            <span class="auth-dob-sep" aria-hidden="true">/</span>
+            <input type="text" inputmode="numeric" autocomplete="bday-month"
+                   id="authSignupDobMonth" maxlength="2" pattern="[0-9]*"
+                   placeholder="MM" aria-label="Mois" required />
+            <span class="auth-dob-sep" aria-hidden="true">/</span>
+            <input type="text" inputmode="numeric" autocomplete="bday-year"
+                   id="authSignupDobYear" maxlength="4" pattern="[0-9]*"
+                   placeholder="AAAA" aria-label="Année" required />
+          </div>
         </label>
         <label class="auth-field">
           <span id="authSignupEmailLabel"></span>

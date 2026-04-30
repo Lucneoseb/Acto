@@ -3299,6 +3299,29 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
   border-color: rgba(255, 100, 100, 0.5);
 }
 
+/* DOB triplet — three small numeric inputs side by side (JJ / MM / AAAA).
+   Friendlier than `<input type="date">`, especially for older year picking. */
+.auth-dob-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.auth-dob-row input {
+  flex: 0 0 auto;
+  width: 3.2em;
+  padding: 0.7rem 0.5rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.auth-dob-row input#authSignupDobYear { width: 5em; }
+.auth-dob-row .auth-dob-sep {
+  color: var(--ink-faint);
+  font-weight: 600;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  font-size: 1rem !important;
+}
+
 .auth-error {
   margin: 0;
   padding: 0.55rem 0.75rem;

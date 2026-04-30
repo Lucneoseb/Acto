@@ -91,6 +91,9 @@
     setText("authSignupPrenomLabel",   t.authPrenom);
     setText("authSignupNomLabel",      t.authNom);
     setText("authSignupDobLabel",      t.authDob);
+    const dobD = $("authSignupDobDay");   if (dobD) dobD.placeholder = t.authDobDay   || "JJ";
+    const dobM = $("authSignupDobMonth"); if (dobM) dobM.placeholder = t.authDobMonth || "MM";
+    const dobY = $("authSignupDobYear");  if (dobY) dobY.placeholder = t.authDobYear  || "AAAA";
     setText("authSignupEmailLabel",    t.authEmail);
     setText("authSignupPasswordLabel", t.authPassword);
     setText("authSignupConfirmLabel",  t.authConfirmPassword);
@@ -158,14 +161,39 @@
     const confirm = $("authSignupConfirm").value;
     const prenom  = $("authSignupPrenom").value.trim();
     const nom     = $("authSignupNom").value.trim();
-    const dob     = $("authSignupDob").value;
 
-    if (!email || !pass || !confirm || !prenom || !nom || !dob) {
+    // DOB is now three numeric fields (day / month / year). Combine them into
+    // an ISO YYYY-MM-DD string and check the calendar date is real (e.g. so
+    // 31/02/1990 doesn't sneak through as 02/03/1990 via Date()'s rollover).
+    const dayStr   = $("authSignupDobDay").value.trim();
+    const monthStr = $("authSignupDobMonth").value.trim();
+    const yearStr  = $("authSignupDobYear").value.trim();
+    const day   = parseInt(dayStr, 10);
+    const month = parseInt(monthStr, 10);
+    const year  = parseInt(yearStr, 10);
+    let dob = "";
+    let dobValid = false;
+    if (Number.isInteger(day) && Number.isInteger(month) && Number.isInteger(year)
+        && yearStr.length === 4
+        && day   >= 1 && day   <= 31
+        && month >= 1 && month <= 12
+        && year  >= 1900) {
+      const probe = new Date(year, month - 1, day);
+      dobValid = probe.getFullYear() === year
+              && probe.getMonth() === month - 1
+              && probe.getDate() === day;
+      if (dobValid) {
+        dob = year + "-" + String(month).padStart(2, "0") + "-" + String(day).padStart(2, "0");
+      }
+    }
+
+    if (!email || !pass || !confirm || !prenom || !nom || !dayStr || !monthStr || !yearStr) {
       return showError("authSignupError", t.authErrorRequired);
     }
     if (!emailValid(email)) return showError("authSignupError", t.authErrorEmailFormat);
     if (pass.length < 8)    return showError("authSignupError", t.authErrorPasswordShort);
     if (pass !== confirm)   return showError("authSignupError", t.authErrorPasswordMismatch);
+    if (!dobValid)          return showError("authSignupError", t.authErrorDobInvalid);
     const age = ageFromDob(dob);
     if (isNaN(age))         return showError("authSignupError", t.authErrorDobInvalid);
     if (age < 13)           return showError("authSignupError", t.authErrorDobYoung);
@@ -412,6 +440,24 @@
       e.preventDefault();
       signUp();
     });
+
+    // DOB triplet UX:
+    //   - strip non-digits as the user types
+    //   - jump focus to the next field once the current one is full
+    const dobDay   = $("authSignupDobDay");
+    const dobMonth = $("authSignupDobMonth");
+    const dobYear  = $("authSignupDobYear");
+    function wireDobField(el, maxLen, nextEl) {
+      if (!el) return;
+      el.addEventListener("input", () => {
+        const cleaned = el.value.replace(/\D/g, "").slice(0, maxLen);
+        if (cleaned !== el.value) el.value = cleaned;
+        if (nextEl && cleaned.length === maxLen) nextEl.focus();
+      });
+    }
+    wireDobField(dobDay,   2, dobMonth);
+    wireDobField(dobMonth, 2, dobYear);
+    wireDobField(dobYear,  4, null);
 
     const resend = $("authResendBtn");
     if (resend) resend.addEventListener("click", resendConfirmation);
