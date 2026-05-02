@@ -131,11 +131,18 @@
     if (!window.actoSupabase || !window.actoAuth || !window.actoAuth.state || !window.actoAuth.state.user) return;
     const ex = state.currentExercise || {};
     try {
+      // In Match mode the official announcement has no separate "constraint"
+      // (the Catégorie IS the style constraint). We repurpose the constraint
+      // column to log the Nature (Mixte / Comparée) so the admin can still
+      // filter / aggregate the meaningful match metadata.
+      const constraintForLog = state.mode === "match"
+        ? (state.currentNature || "")
+        : (state.currentConstraint || "");
       const { data, error } = await window.actoSupabase.rpc("log_impro_event", {
         p_mode: state.mode,
         p_level: state.level,
         p_exercise: ex.name || "",
-        p_constraint: state.currentConstraint || "",
+        p_constraint: constraintForLog,
         p_theme: state.currentTheme || "",
         p_duration_planned: state.currentDurationSec || state.chronoTotal || 0
       });
@@ -601,6 +608,8 @@
     setText("labelCardTheme",      t.cardTheme);
     setText("labelCardDuration",   t.cardDuration);
     setText("labelCardPlayers",    t.cardPlayers);
+    setText("labelCardNature",     t.cardNature);
+    refreshNatureBanner();
 
     // Duration block
     setText("label04",              t.label04);
@@ -668,6 +677,17 @@
     if (el) el.innerHTML = `<div class="reel-item placeholder">${escapeHtml(txt)}</div>`;
   }
 
+  /** Update the Nature banner (Match mode only) with the current value. */
+  function refreshNatureBanner() {
+    const el = document.getElementById("natureValue");
+    if (!el) return;
+    el.textContent = state.currentNature || "—";
+    // Re-trigger the appearing animation each pick / reroll
+    el.classList.remove("appearing");
+    void el.offsetWidth;
+    el.classList.add("appearing");
+  }
+
   function setMode(mode) {
     state.mode = mode;
     $$(".mode-btn").forEach((b) => {
@@ -677,6 +697,10 @@
     });
     $$(".match-only").forEach((el) => { el.hidden = mode !== "match"; });
     $$(".troupe-only").forEach((el) => { el.hidden = mode !== "troupe"; });
+    // Set a body-level class so CSS can reorder the result cards per mode
+    // (Match: Nature → Thème → Joueurs → Catégorie | Troupe: Exercice → Contrainte → Thème).
+    document.body.classList.toggle("mode-match",  mode === "match");
+    document.body.classList.toggle("mode-troupe", mode === "troupe");
     refreshAudienceCard();
   }
   function setLevel(level) {
@@ -974,15 +998,28 @@
         return { value: ex.name, meta: meta };
       }
       case "constraint": {
+        // Match no longer uses a separate constraint (the official rules fold
+        // it into "Catégorie"). Troupe still picks one normally.
         const v = pick(data.constraints[mode][level]);
         state.currentConstraint = v;
-        // In Match mode the players card is gone; the player count lives as
-        // the meta sub-line of the constraint card. Re-pick on every reroll
-        // so the count stays in sync with the constraint.
-        if (mode === "match") {
-          state.currentPlayers = pick(data.players[level]);
-          return { value: v, meta: state.currentPlayers };
-        }
+        return { value: v };
+      }
+      case "nature": {
+        // Match-only. Mirrors the referee's first announcement card: the
+        // improvisation is either Mixte (both teams together) or Comparée
+        // (one team plays, then the other on the same theme).
+        const t = store.ui;
+        const opts = [
+          t.natureMixte    || "Mixte",
+          t.natureComparee || "Comparée"
+        ];
+        const v = pick(opts);
+        state.currentNature = v;
+        return { value: v };
+      }
+      case "players": {
+        const v = pick(data.players[level]);
+        state.currentPlayers = v;
         return { value: v };
       }
       case "theme":      { const pool = state.useCustom ? state.customThemes : data.themes[level]; const v = pick(pool); state.currentTheme = v; return { value: v }; }
@@ -1000,12 +1037,12 @@
         state.currentDurationSec = sec;
         return { value: formatSec(sec) };
       }
-      case "players":    return { value: pick(data.players[level]) };
     }
     return { value: "—" };
   }
   function poolFor(target) {
     const data = store.data;
+    const t = store.ui;
     const { mode, level } = state;
     switch (target) {
       case "exercise":   return data.exercises[mode][level].map(e => e.name);
@@ -1014,6 +1051,7 @@
       case "category":   return data.categories.map(c => c.name);
       case "duration":   return durationSteps(level).map(formatSec);
       case "players":    return data.players[level];
+      case "nature":     return [t.natureMixte || "Mixte", t.natureComparee || "Comparée"];
     }
     return [];
   }
@@ -1038,9 +1076,17 @@
     setTimeout(() => $$(".card").forEach(c => c.classList.remove("appearing")), 600);
     // Both modes pick the duration silently — the chrono card displays it.
     state.currentDurationSec = pickDurationSec();
-    const targets = state.mode === "match"
-      ? ["category", "constraint", "theme"]
-      : ["exercise", "constraint", "theme"];
+    let targets;
+    if (state.mode === "match") {
+      // Match: official announcement order = Nature → Thème → Joueurs → Catégorie.
+      // Nature has no slot reel (just a banner) — pick it instantly here so the
+      // value is ready by the time the cycling overlay reads currentNature.
+      pickFor("nature");
+      refreshNatureBanner();
+      targets = ["theme", "players", "category"];
+    } else {
+      targets = ["exercise", "constraint", "theme"];
+    }
     try {
       await Promise.all(targets.map((t, i) => spinTarget(t, i * 220)));
     } catch (e) {
@@ -1474,6 +1520,8 @@
 
     $$(".mode-btn").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
     $$(".level-btn").forEach(b => b.addEventListener("click", () => setLevel(b.dataset.level)));
+    // Sync the initial mode so CSS card-order classes apply on first paint.
+    setMode(state.mode);
 
     /* Themes mode toggle + modal */
     $$(".themes-mode-btn").forEach(b =>
@@ -1543,6 +1591,28 @@
     }
     refreshRosterStatus();
 
+    /* Match d'impro rules dialog */
+    const __rulesOpen      = $("#rulesOpenBtn");
+    const __rulesDlg       = $("#rulesDialog");
+    const __rulesClose     = $("#rulesDialogClose");
+    const __rulesCloseBtn  = $("#rulesDialogCloseBtn");
+    function openRulesDialog() {
+      if (!__rulesDlg) return;
+      // Close Settings first so a single foreground modal is shown.
+      if (dialogEl && dialogEl.open) dialogEl.close();
+      if (typeof __rulesDlg.showModal === "function") __rulesDlg.showModal();
+      else __rulesDlg.setAttribute("open", "");
+    }
+    function closeRulesDialog() {
+      if (!__rulesDlg) return;
+      if (typeof __rulesDlg.close === "function") __rulesDlg.close();
+      else __rulesDlg.removeAttribute("open");
+    }
+    if (__rulesOpen)     __rulesOpen.addEventListener("click", openRulesDialog);
+    if (__rulesClose)    __rulesClose.addEventListener("click", closeRulesDialog);
+    if (__rulesCloseBtn) __rulesCloseBtn.addEventListener("click", closeRulesDialog);
+    if (__rulesDlg)      __rulesDlg.addEventListener("click", (e) => { if (e.target === __rulesDlg) closeRulesDialog(); });
+
     $("#generateBtn").addEventListener("click", generateAll);
 
     $$(".card-reroll").forEach((b) =>
@@ -1556,6 +1626,12 @@
           state.chronoRemaining = state.chronoTotal;
           const display = $("#chronoDisplay");
           if (display) display.textContent = formatMMSS(state.chronoTotal);
+          return;
+        }
+        if (target === "nature") {
+          // Nature has no slot reel — just re-pick + refresh the banner.
+          pickFor("nature");
+          refreshNatureBanner();
           return;
         }
         b.disabled = true;
@@ -1639,13 +1715,19 @@
     if (__recSwitch)   __recSwitch.addEventListener("click", recSwitchCamera);
     if (__recRecBtn)   __recRecBtn.addEventListener("click", () => {
       if (rec.isRecording) return;
-      audio(); // unlock audio context on user gesture
-      recPlayPreCountdown(() => {
-        recStart();
-        // The description popup was already shown at modal-open;
-        // schedule it to fade out 6 s after the countdown ends.
+      audio(); // unlock audio context on user gesture (required by mobile Safari)
+      // Recording starts IMMEDIATELY so the 17s intro + 3-2-1 + logo flash
+      // are all baked into the final video file (just like a real match).
+      // The HTML #recorderPreCountdown overlay is skipped — the entire
+      // ceremony is now drawn on the canvas itself.
+      recStart();
+      // Hide the floating exercise description during the ceremony, then
+      // bring it back a few seconds after the live phase starts.
+      recHideExerciseDesc();
+      setTimeout(() => {
+        recShowExerciseDesc({ persistent: true });
         recArmExerciseDescHide(5000);
-      });
+      }, PRE_LIVE_MS + 200);
     });
     if (__recPauseBtn) __recPauseBtn.addEventListener("click", recPauseResume);
     if (__recStopBtn)  __recStopBtn.addEventListener("click", recRequestStop);
@@ -1795,10 +1877,32 @@
       rec.canvas.width = w; rec.canvas.height = h;
     }
     rec.ctx.drawImage(v, 0, 0, w, h);
+    recDrawLogoWatermark(rec.ctx, w, h);
+
+    // Cinematic pre-live ceremony — plays for the first PRE_LIVE_MS of every
+    // recording. The user sees the official announcement (intro), then the
+    // 3-2-1, then a logo flourish, all baked into the video file. When the
+    // recording is paused (rec.startedAt = 0) we treat the ceremony as
+    // frozen at its last elapsed value.
+    if (rec.isRecording) {
+      const liveSession = rec.startedAt > 0 ? (Date.now() - rec.startedAt) : 0;
+      const elapsed = liveSession + (rec.elapsedBeforePause || 0);
+      if (elapsed < PRE_LIVE_MS) {
+        recMaybeTriggerIntroSounds(elapsed);
+        const phase = recIntroPhase(elapsed);
+        if (phase === "intro")          recDrawIntro(rec.ctx, w, h, elapsed);
+        else if (phase === "countdown") recDrawCountdown(rec.ctx, w, h, elapsed);
+        else                            recDrawGoFlash(rec.ctx, w, h, elapsed);
+        // No top-right cycling overlay or description popup during the ceremony.
+        rec.rafId = requestAnimationFrame(recDrawLoop);
+        return;
+      }
+    }
+
+    // Live phase — usual overlays
     recDrawTopOverlay(rec.ctx, w, h);
     recDrawDescription(rec.ctx, w, h);
     recDrawBottomOverlay(rec.ctx, w, h);
-    recDrawLogoWatermark(rec.ctx, w, h);
     const __desc = document.getElementById("recorderExerciseDesc");
     if (__desc && !__desc.hidden) recPositionExerciseDesc();
     rec.rafId = requestAnimationFrame(recDrawLoop);
@@ -1889,6 +1993,194 @@
     theme:      "#b794f4"
   };
 
+  /* ============================================================
+     6.5 RECORDER — INTRO CEREMONY (drawn ON the canvas, IN the recording)
+     Order: 17s sexy intro (info reveal) → 3s countdown → 1s GO + logo
+     After this, the cycling overlay (recDrawTopOverlay) takes over.
+     ============================================================ */
+  const INTRO_MS     = 17000;
+  const COUNTDOWN_MS = 3000;
+  const GO_MS        = 1000;
+  const PRE_LIVE_MS  = INTRO_MS + COUNTDOWN_MS + GO_MS;
+
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+  function recIntroPhase(elapsedMs) {
+    if (elapsedMs < INTRO_MS)               return "intro";
+    if (elapsedMs < INTRO_MS + COUNTDOWN_MS) return "countdown";
+    if (elapsedMs < PRE_LIVE_MS)             return "go";
+    return "live";
+  }
+
+  /** Items shown one-by-one during the 17s intro. Mirrors the main UI order. */
+  function recBuildIntroItems() {
+    const t = store.ui;
+    const items = [];
+    if (state.mode === "match") {
+      if (state.currentNature) items.push({ label: (t.cardNature   || "Nature").toUpperCase(),   value: state.currentNature });
+      if (state.currentTheme)  items.push({ label: (t.recordOverlayTheme || "Thème").toUpperCase(), value: state.currentTheme });
+      if (state.currentPlayers)items.push({ label: (t.cardPlayers  || "Joueurs").toUpperCase(),  value: state.currentPlayers });
+      if (state.currentExercise && state.currentExercise.name)
+        items.push({ label: (t.cardCategory || "Catégorie").toUpperCase(), value: state.currentExercise.name });
+    } else {
+      if (state.currentExercise && state.currentExercise.name)
+        items.push({ label: (t.recordOverlayExercise || "Exercice").toUpperCase(), value: state.currentExercise.name });
+      if (state.currentConstraint)
+        items.push({ label: (t.recordOverlayCons || "Contrainte").toUpperCase(),  value: state.currentConstraint });
+      if (state.currentTheme)
+        items.push({ label: (t.recordOverlayTheme || "Thème").toUpperCase(),       value: state.currentTheme });
+    }
+    return items;
+  }
+
+  function recDrawIntro(ctx, w, h, elapsedMs) {
+    const items = recBuildIntroItems();
+    if (!items.length) return;
+    const slotMs   = INTRO_MS / items.length;
+    const slotIdx  = Math.min(items.length - 1, Math.floor(elapsedMs / slotMs));
+    const inSlotMs = elapsedMs - slotIdx * slotMs;
+    const item     = items[slotIdx];
+
+    const IN_MS  = 600;
+    const OUT_MS = 600;
+    const holdMs = slotMs - IN_MS - OUT_MS;
+    let opacity = 1, scale = 1, ty = 0;
+    if (inSlotMs < IN_MS) {
+      const e = easeOutCubic(inSlotMs / IN_MS);
+      opacity = e;
+      scale   = 0.85 + 0.15 * e;
+      ty      = 60 * (1 - e);
+    } else if (inSlotMs > IN_MS + holdMs) {
+      const e = easeOutCubic(Math.min(1, (inSlotMs - IN_MS - holdMs) / OUT_MS));
+      opacity = 1 - e;
+      scale   = 1 - 0.15 * e;
+      ty      = -60 * e;
+    }
+
+    // Stage curtain — darkens the camera so the text reads cleanly.
+    ctx.fillStyle = "rgba(0,0,0,0.55)";
+    ctx.fillRect(0, 0, w, h);
+
+    const baseDim   = Math.min(w, h);
+    const labelSize = Math.max(20, Math.round(baseDim * 0.034));
+    const valueSize = Math.max(48, Math.round(baseDim * 0.10));
+    const maxTextW  = w * 0.85;
+
+    ctx.save();
+    ctx.globalAlpha = opacity;
+    ctx.translate(w / 2, h / 2 + ty);
+    ctx.scale(scale, scale);
+    ctx.textAlign = "center";
+
+    // LABEL (gold, above the value)
+    ctx.font = "700 " + labelSize + 'px Inter, "Helvetica Neue", sans-serif';
+    ctx.fillStyle = "#f5c451";
+    ctx.shadowColor = "rgba(0,0,0,0.85)";
+    ctx.shadowBlur = 14;
+    ctx.fillText(item.label, 0, -valueSize * 0.55);
+
+    // VALUE (white, huge, with a warm gold glow)
+    ctx.font = "400 " + valueSize + 'px "Bebas Neue", Inter, sans-serif';
+    ctx.fillStyle = "#ffffff";
+    ctx.shadowColor = "rgba(245,196,81,0.65)";
+    ctx.shadowBlur = 28;
+    const lines = recWrapText(ctx, item.value, maxTextW);
+    let yo = labelSize * 0.5;
+    for (const line of lines) {
+      yo += valueSize * 0.95;
+      ctx.fillText(line, 0, yo);
+    }
+    ctx.restore();
+    ctx.shadowBlur = 0;
+  }
+
+  function recDrawCountdown(ctx, w, h, elapsedMs) {
+    const phaseMs = elapsedMs - INTRO_MS;
+    const second  = Math.min(2, Math.floor(phaseMs / 1000));
+    const number  = String(3 - second); // "3", "2", "1"
+    const t       = (phaseMs - second * 1000) / 1000;
+
+    ctx.fillStyle = "rgba(0,0,0,0.55)";
+    ctx.fillRect(0, 0, w, h);
+
+    const baseDim = Math.min(w, h);
+    const fs = Math.round(baseDim * 0.4);
+
+    // Each tick: scale 0.6 → 1.15, opacity 1 → 0.6 over 1 second
+    const e = easeOutCubic(Math.min(1, t));
+    const scale   = 0.6 + 0.55 * e;
+    const opacity = 1 - 0.4 * e;
+
+    ctx.save();
+    ctx.globalAlpha = opacity;
+    ctx.translate(w / 2, h / 2);
+    ctx.scale(scale, scale);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "400 " + fs + 'px "Bebas Neue", Inter, sans-serif';
+    ctx.fillStyle = "#f5c451";
+    ctx.shadowColor = "rgba(245,196,81,0.6)";
+    ctx.shadowBlur = 40;
+    ctx.fillText(number, 0, 0);
+    ctx.restore();
+    ctx.shadowBlur = 0;
+    ctx.textBaseline = "alphabetic";
+  }
+
+  function recDrawGoFlash(ctx, w, h, elapsedMs) {
+    const phaseMs = elapsedMs - INTRO_MS - COUNTDOWN_MS;
+    const t = Math.min(1, phaseMs / GO_MS);
+
+    // Quick white flash for the first 150ms, then dark stage.
+    if (t < 0.15) {
+      const a = 0.65 * (1 - t / 0.15);
+      ctx.fillStyle = "rgba(255,255,255," + a + ")";
+      ctx.fillRect(0, 0, w, h);
+    } else {
+      ctx.fillStyle = "rgba(0,0,0,0.55)";
+      ctx.fillRect(0, 0, w, h);
+    }
+
+    // Logo enters: fade in 0.15-0.45, hold 0.45-0.85, fade out 0.85-1
+    let alpha;
+    if (t < 0.15) alpha = 0;
+    else if (t < 0.45) alpha = (t - 0.15) / 0.30;
+    else if (t < 0.85) alpha = 1;
+    else              alpha = (1 - t) / 0.15;
+
+    if (rec.logoLoaded && rec.logoImg) {
+      const baseDim = Math.min(w, h);
+      const logoW = Math.round(baseDim * 0.55);
+      const ratio = (rec.logoImg.naturalWidth && rec.logoImg.naturalHeight)
+        ? rec.logoImg.naturalHeight / rec.logoImg.naturalWidth : 0.66;
+      const logoH = Math.round(logoW * ratio);
+      const x = (w - logoW) / 2;
+      const y = (h - logoH) / 2;
+      // Subtle scale-up on entry
+      const eIn = easeOutCubic(Math.min(1, (t - 0.15) / 0.30));
+      const scale = 0.92 + 0.08 * eIn;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+      ctx.shadowColor = "rgba(245,196,81,0.85)";
+      ctx.shadowBlur  = 70;
+      ctx.translate(w / 2, h / 2);
+      ctx.scale(scale, scale);
+      try { ctx.drawImage(rec.logoImg, -logoW / 2, -logoH / 2, logoW, logoH); } catch (e) {}
+      ctx.restore();
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  /** Trigger countdown / GO sounds at the right moments. Idempotent: each
+   *  cue plays at most once per recording session. */
+  function recMaybeTriggerIntroSounds(elapsedMs) {
+    const cdStart = INTRO_MS;
+    if (!rec._tick3 && elapsedMs >= cdStart)               { rec._tick3 = true;   playTick(); }
+    if (!rec._tick2 && elapsedMs >= cdStart + 1000)        { rec._tick2 = true;   playTick(); }
+    if (!rec._tick1 && elapsedMs >= cdStart + 2000)        { rec._tick1 = true;   playTick(); }
+    if (!rec._goPlayed && elapsedMs >= cdStart + 3000)     { rec._goPlayed = true; playGoSound(); }
+  }
+
   // Helper: rounded rectangle path
   function recRoundedRect(ctx, x, y, w, h, r) {
     r = Math.max(0, Math.min(r, w / 2, h / 2));
@@ -1901,11 +2193,160 @@
     ctx.closePath();
   }
 
+  /**
+   * Build the ordered list of items the top-right overlay can show.
+   * In Match mode we follow the official announcement order
+   * (Thème → Joueurs → Catégorie). Items with empty/null values are skipped.
+   */
+  function recBuildOverlayItems() {
+    const t = store.ui;
+    const items = [];
+    if (state.mode === "match") {
+      // Match: official announcement order = Nature → Thème → Joueurs → Catégorie
+      if (state.currentNature) {
+        items.push({ key: "nature",
+          label: (t.cardNature || "Nature").toUpperCase(),
+          value: state.currentNature,
+          color: REC_COLORS.theme });
+      }
+      if (state.currentTheme) {
+        items.push({ key: "theme",
+          label: (t.recordOverlayTheme || "Thème").toUpperCase(),
+          value: state.currentTheme,
+          color: REC_COLORS.theme });
+      }
+      if (state.currentPlayers) {
+        items.push({ key: "players",
+          label: (t.cardPlayers || "Joueurs").toUpperCase(),
+          value: state.currentPlayers,
+          color: REC_COLORS.constraint });
+      }
+      if (state.currentExercise && state.currentExercise.name) {
+        items.push({ key: "category",
+          label: (t.cardCategory || "Catégorie").toUpperCase(),
+          value: state.currentExercise.name,
+          color: REC_COLORS.exercise });
+      }
+    } else {
+      // Troupe mode keeps the existing exercise / constraint / theme order.
+      if (state.currentExercise && state.currentExercise.name) {
+        items.push({ key: "exercise",
+          label: (t.recordOverlayExercise || "Exercice").toUpperCase(),
+          value: state.currentExercise.name,
+          color: REC_COLORS.exercise });
+      }
+      if (state.currentConstraint) {
+        items.push({ key: "constraint",
+          label: (t.recordOverlayCons || "Contrainte").toUpperCase(),
+          value: state.currentConstraint,
+          color: REC_COLORS.constraint });
+      }
+      if (state.currentTheme) {
+        items.push({ key: "theme",
+          label: (t.recordOverlayTheme || "Thème").toUpperCase(),
+          value: state.currentTheme,
+          color: REC_COLORS.theme });
+      }
+    }
+    return items;
+  }
+
+  /**
+   * Draw a small (one-item) info card in the top-right corner. Used during
+   * the cycling overlay while recording — each item appears for SLOT_VISIBLE
+   * seconds, then disappears for SLOT_HIDDEN seconds, then the next item
+   * cycles in. Loops forever until the recording stops.
+   */
+  function recDrawSingleItem(ctx, w, h, item) {
+    const baseDim = Math.min(w, h);
+    const subSize = Math.max(13, Math.round(baseDim * 0.026));
+    const labelSize = Math.max(10, Math.round(baseDim * 0.018));
+    const padX = Math.round(baseDim * 0.022);
+    const padY = Math.round(baseDim * 0.022);
+    const lineGap = Math.round(baseDim * 0.005);
+    const isPortrait = h >= w;
+    const maxBoxW = isPortrait
+      ? Math.min(w * 0.78, 620)
+      : Math.min(w * 0.50, 720);
+    const maxTextW = maxBoxW - padX * 2;
+
+    ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
+    const lines = recWrapText(ctx, item.value, maxTextW);
+
+    let blockW = 0;
+    ctx.font = "700 " + labelSize + 'px Inter, "Helvetica Neue", sans-serif';
+    blockW = Math.max(blockW, ctx.measureText(item.label).width);
+    ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
+    for (const l of lines) blockW = Math.max(blockW, ctx.measureText(l).width);
+    blockW = Math.min(blockW + padX * 2, maxBoxW);
+
+    const blockH = padY * 2 + labelSize + lineGap + lines.length * (subSize + lineGap);
+    const margin = Math.round(w * 0.025);
+    const boxX = w - blockW - margin;
+    const boxY = margin;
+
+    ctx.fillStyle = "rgba(10, 6, 18, 0.78)";
+    recRoundedRect(ctx, boxX, boxY, blockW, blockH, Math.round(baseDim * 0.022));
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.textAlign = "left";
+    let y = boxY + padY;
+    ctx.font = "700 " + labelSize + 'px Inter, "Helvetica Neue", sans-serif';
+    ctx.fillStyle = item.color;
+    y += labelSize;
+    ctx.fillText(item.label, boxX + padX, y);
+    y += lineGap;
+
+    ctx.font = "500 " + subSize + 'px Inter, "Helvetica Neue", sans-serif';
+    ctx.fillStyle = "#fff";
+    for (const line of lines) {
+      y += subSize;
+      ctx.fillText(line, boxX + padX, y);
+      y += lineGap;
+    }
+
+    rec.panelTopY    = boxY;
+    rec.panelLeftX   = boxX;
+    rec.panelWidth   = blockW;
+    rec.panelBottomY = boxY + blockH;
+  }
+
   function recDrawTopOverlay(ctx, w, h) {
     const ex = state.currentExercise;
     const t  = store.ui;
     if (!ex && !state.currentConstraint && !state.currentTheme) return;
 
+    // === Cycling mode: while recording (after the ceremony), show one item at a time ===
+    if (rec.isRecording) {
+      const items = recBuildOverlayItems();
+      if (!items.length) return;
+      const elapsedMs = (rec.startedAt > 0 ? Date.now() - rec.startedAt : 0)
+                     + (rec.elapsedBeforePause || 0);
+      // The cycling timer starts AFTER the ceremony, so subtract PRE_LIVE_MS.
+      // (recDrawLoop already gates this branch, but extra safety.)
+      const liveMs = elapsedMs - PRE_LIVE_MS;
+      if (liveMs < 0) return;
+      const liveSec = liveMs / 1000;
+      const SLOT_VISIBLE = 3;  // seconds an item stays on screen
+      const SLOT_HIDDEN  = 3;  // seconds the rectangle disappears between items
+      const SLOT_TOTAL   = SLOT_VISIBLE + SLOT_HIDDEN;
+      const cyclePeriod  = items.length * SLOT_TOTAL;
+      const position     = liveSec % cyclePeriod;
+      const slotIndex    = Math.floor(position / SLOT_TOTAL);
+      const inSlot       = position % SLOT_TOTAL;
+      if (inSlot >= SLOT_VISIBLE) {
+        // Hidden phase — draw nothing. Keep the previous panel rect so the
+        // exercise-description popup that follows it doesn't snap around.
+        return;
+      }
+      recDrawSingleItem(ctx, w, h, items[slotIndex]);
+      return;
+    }
+
+    // === Preview mode: render all sections (the recorder isn't recording yet) ===
     // Sizing — small text. Anchored on min(w, h) so portrait & landscape match.
     const baseDim   = Math.min(w, h);
     const titleSize = Math.max(16, Math.round(baseDim * 0.040));
@@ -2141,6 +2582,9 @@
     rec.isPaused = false;
     rec.startedAt = Date.now();
     rec.elapsedBeforePause = 0;
+    // Reset the one-shot intro flags so the ceremony plays its sounds again
+    // for this fresh recording session.
+    rec._tick3 = rec._tick2 = rec._tick1 = rec._goPlayed = false;
     statsRecordStartTracking();
     recShowActiveControls();
     recRefreshPauseLabel();

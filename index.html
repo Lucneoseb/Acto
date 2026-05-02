@@ -256,7 +256,34 @@
     </section>
 
     <!-- Results -->
+    <!-- MATCH MODE display order matches the official announcement of the
+         referee at a real match d'impro:
+           1. Nature (Mixte / Comparée) — small banner above the cards
+           2. Thème
+           3. Joueurs (number / "toute l'équipe")
+           4. Catégorie (style constraint — replaces the "exercise" slot)
+           5. Durée (silently driven into the chrono card)
+         TROUPE MODE keeps the existing exercise / constraint / theme cards. -->
     <section class="results" aria-live="polite">
+      <!-- Nature banner (Mixte / Comparée) — Match-only, full-width strip -->
+      <div class="nature-banner match-only" id="card-nature" hidden>
+        <span class="nature-label" id="labelCardNature"></span>
+        <span class="nature-value" id="natureValue">—</span>
+        <button class="card-reroll nature-reroll" data-reroll="nature" type="button" aria-label="Re-tirer">🎲</button>
+      </div>
+
+      <article class="card card-theme" id="card-theme">
+        <header class="card-head"><span class="card-label" id="labelCardTheme"></span><button class="card-reroll" data-reroll="theme" type="button" aria-label="Re-tirer">🎲</button><span class="card-icon" aria-hidden="true">💭</span></header>
+        <div class="reel" data-target="theme"><div class="reel-window"><div class="reel-track" id="reel-theme"></div></div></div>
+        <p class="card-meta" id="meta-theme"></p>
+      </article>
+
+      <article class="card card-players match-only" id="card-players" hidden>
+        <header class="card-head"><span class="card-label" id="labelCardPlayers"></span><button class="card-reroll" data-reroll="players" type="button" aria-label="Re-tirer">🎲</button><span class="card-icon" aria-hidden="true">👥</span></header>
+        <div class="reel" data-target="players"><div class="reel-window"><div class="reel-track" id="reel-players"></div></div></div>
+        <p class="card-meta" id="meta-players"></p>
+      </article>
+
       <article class="card card-category match-only" id="card-category" hidden>
         <header class="card-head"><span class="card-label" id="labelCardCategory"></span><button class="card-reroll" data-reroll="category" type="button" aria-label="Re-tirer">🎲</button><span class="card-icon" aria-hidden="true">🎯</span></header>
         <div class="reel" data-target="category"><div class="reel-window"><div class="reel-track" id="reel-category"></div></div></div>
@@ -269,16 +296,10 @@
         <p class="card-meta" id="meta-exercise"></p>
       </article>
 
-      <article class="card card-constraint" id="card-constraint">
+      <article class="card card-constraint troupe-only" id="card-constraint">
         <header class="card-head"><span class="card-label" id="labelCardConstraint"></span><button class="card-reroll" data-reroll="constraint" type="button" aria-label="Re-tirer">🎲</button><span class="card-icon" aria-hidden="true">🔒</span></header>
         <div class="reel" data-target="constraint"><div class="reel-window"><div class="reel-track" id="reel-constraint"></div></div></div>
         <p class="card-meta" id="meta-constraint"></p>
-      </article>
-
-      <article class="card card-theme" id="card-theme">
-        <header class="card-head"><span class="card-label" id="labelCardTheme"></span><button class="card-reroll" data-reroll="theme" type="button" aria-label="Re-tirer">🎲</button><span class="card-icon" aria-hidden="true">💭</span></header>
-        <div class="reel" data-target="theme"><div class="reel-window"><div class="reel-track" id="reel-theme"></div></div></div>
-        <p class="card-meta" id="meta-theme"></p>
       </article>
 
     </section>
@@ -447,6 +468,11 @@
         <select id="langSelect"></select>
       </div>
 
+      <!-- Match d'impro rules (modal) -->
+      <div class="dlg-field">
+        <button class="ghost-btn" id="rulesOpenBtn" type="button">📖 Règles du match d'impro</button>
+      </div>
+
       <!-- Account section -->
       <div class="dlg-field auth-account-section" id="authAccountSection" hidden>
         <h3 id="authAccountTitle"></h3>
@@ -477,6 +503,70 @@
       <button class="ghost-btn" id="importBtn" type="button">📥 Importer</button>
       <input type="file" id="importJsonFile" accept="application/json,.json" hidden />
       <button class="primary-btn" id="saveBtn" type="button">✅ Enregistrer</button>
+    </div>
+  </dialog>
+
+  <!-- Match d'impro rules dialog (read-only reference) -->
+  <dialog class="themes-dialog rules-dialog" id="rulesDialog" aria-labelledby="rulesDialogTitle">
+    <form method="dialog" class="dlg-head">
+      <h2 id="rulesDialogTitle">📖 Règles du match d'impro</h2>
+      <button type="button" class="dlg-close" id="rulesDialogClose" aria-label="Close">✕</button>
+    </form>
+    <div class="dlg-body rules-body">
+      <p>Le match d'improvisation théâtrale (créé au Québec en 1977 par Robert Gravel et Yvon Leduc) possède un décorum et des règles très strictes, inspirées du hockey sur glace.</p>
+
+      <h3>L'annonce du thème — l'ordre officiel</h3>
+      <p>L'arbitre principal tire un carton (« la carte ») et annonce les éléments toujours dans cet ordre :</p>
+      <ol>
+        <li><strong>La nature de l'improvisation</strong> :
+          <ul>
+            <li><strong>Mixte</strong> — les deux équipes jouent ensemble sur la patinoire.</li>
+            <li><strong>Comparée</strong> — une équipe joue, puis l'autre joue à son tour sur le même thème.</li>
+          </ul>
+        </li>
+        <li><strong>Le titre (le thème)</strong> — le sujet de l'improvisation.</li>
+        <li><strong>Le nombre de joueurs</strong> — souvent « libre » (toute l'équipe), parfois restreint (« deux par équipe »).</li>
+        <li><strong>La catégorie (ou contrainte de style)</strong> — le style théâtral imposé (souvent « libre »).</li>
+        <li><strong>La durée</strong> — généralement entre 2 et 5 minutes, parfois plus.</li>
+      </ol>
+
+      <h3>Le caucus</h3>
+      <p>Après ces 5 informations, l'arbitre siffle. Les équipes ont <strong>20 secondes</strong> exactement pour se concerter, trouver une idée et décider qui monte sur la patinoire. Au second coup de sifflet, l'improvisation commence immédiatement — un retard à entrer en scène se sanctionne par une faute de « Retard ».</p>
+
+      <h3>Les catégories les plus fréquentes</h3>
+      <ul>
+        <li><strong>Libre</strong> — aucune contrainte de forme.</li>
+        <li><strong>À la manière de…</strong> — la catégorie reine. Genre imposé : Molière, Western, Science-fiction, Telenovela, Film noir, Tarantino, comédie musicale…</li>
+        <li><strong>Chantée</strong> — dialogues chantés (souvent avec un musicien improvisateur).</li>
+        <li><strong>Rimes</strong> — toutes les répliques riment, souvent en alexandrins (« à la manière de Racine »).</li>
+        <li><strong>Muette</strong> — interdiction absolue de parler. Tout passe par le mime et le corps.</li>
+        <li><strong>Grommelot (sans frontières)</strong> — langue inventée, mais l'intention reste compréhensible.</li>
+        <li><strong>Abécédaire</strong> — chaque réplique commence par la lettre suivante de l'alphabet.</li>
+        <li><strong>Fusillade</strong> — souvent sans caucus ; chaque joueur fait un gag de 10 secondes sur un thème donné.</li>
+      </ul>
+
+      <h3>Les thèmes (titres)</h3>
+      <p>Les thèmes peuvent être absolument tout :</p>
+      <ul>
+        <li><strong>Situations</strong> : « Le dernier bus », « Panne de courant », « Le secret ».</li>
+        <li><strong>Phrases ou proverbes</strong> : « Il ne fallait pas ouvrir cette porte », « Tel est pris qui croyait prendre ».</li>
+        <li><strong>Mots abstraits ou uniques</strong> : « Jaune », « Rupture », « L'infini ».</li>
+        <li><strong>Titres absurdes ou poétiques</strong> : « Le pingouin a mangé ma montre », « La tristesse du grille-pain ».</li>
+      </ul>
+
+      <h3>Les fautes</h3>
+      <p>L'arbitre, sifflet et maillot rayé, est le maître du jeu. Trois fautes accumulées par une équipe donnent un point à l'équipe adverse. Les plus courantes :</p>
+      <ul>
+        <li><strong>Cliché</strong> — blague connue, jeu de mots facile, situation vue mille fois.</li>
+        <li><strong>Cabotinage</strong> — un joueur « fait le show » au détriment de l'histoire et de ses partenaires.</li>
+        <li><strong>Décrochage</strong> — sortir de son personnage (par exemple éclater de rire d'une réplique du partenaire).</li>
+        <li><strong>Refus de personnage / Refus d'idée</strong> — l'autre dit « voilà ton épée », tu réponds « non, c'est un parapluie ». Tu refuses la proposition imposée.</li>
+        <li><strong>Confusion</strong> — l'histoire devient incompréhensible.</li>
+        <li><strong>Non-respect de la catégorie</strong> — parler en muette, ne pas rimer en rimes, etc.</li>
+      </ul>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="primary-btn" id="rulesDialogCloseBtn">Fermer</button>
     </div>
   </dialog>
 
@@ -579,10 +669,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Bump v= on each deploy when you change one of these assets, so users
        fetch the fresh version without needing Ctrl+Shift+R. -->
-  <script src="./js/config.js?v=20260430"></script>
-  <script src="./js/utils.js?v=20260430"></script>
-  <script src="./data/all.js?v=20260430"></script>
-  <script src="./js/auth.js?v=20260430"></script>
-  <script src="./js/app.js?v=20260430"></script>
+  <script src="./js/config.js?v=20260503"></script>
+  <script src="./js/utils.js?v=20260503"></script>
+  <script src="./data/all.js?v=20260503"></script>
+  <script src="./js/auth.js?v=20260503"></script>
+  <script src="./js/app.js?v=20260503"></script>
 </body>
 </html>
