@@ -1750,9 +1750,19 @@
     try {
       const constraints = {
         video: { facingMode: rec.facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: true
+        // Explicit audio constraints (vs `audio: true`) so iOS / Android
+        // honour them — without these, some mobile browsers silently route
+        // the camera stream without a usable mic track.
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
       };
       rec.stream = await navigator.mediaDevices.getUserMedia(constraints);
+      if (rec.stream.getAudioTracks().length === 0) {
+        console.warn("[recorder] getUserMedia returned no audio track — mic permission may have been denied");
+      }
       if (rec.videoEl) {
         rec.videoEl.srcObject = rec.stream;
         await rec.videoEl.play().catch(() => {});
@@ -2099,13 +2109,25 @@
   function recStart() {
     if (!rec.stream || rec.isRecording) return;
     const canvasStream = rec.canvas.captureStream(30);
-    const audio = rec.stream.getAudioTracks();
-    const tracks = canvasStream.getVideoTracks().concat(audio);
-    const composite = new MediaStream(tracks);
+    // Build the composite stream piece by piece: some MediaRecorder
+    // implementations on iOS/Android silently drop audio when tracks are
+    // passed via the `new MediaStream([...])` array form. addTrack() is the
+    // reliable path on every browser.
+    const composite = new MediaStream();
+    canvasStream.getVideoTracks().forEach(t => composite.addTrack(t));
+    const audioTracks = rec.stream.getAudioTracks();
+    audioTracks.forEach(t => composite.addTrack(t));
+    if (audioTracks.length === 0) {
+      console.warn("[recorder] no audio track on camera stream — recording will be silent");
+    }
     const mime = recPickMime();
     try {
-      rec.recorder = mime ? new MediaRecorder(composite, { mimeType: mime, videoBitsPerSecond: 4_000_000 })
-                          : new MediaRecorder(composite);
+      const opts = { videoBitsPerSecond: 4_000_000 };
+      if (mime) opts.mimeType = mime;
+      // Always pin an audio bitrate when audio is present. Some mobile
+      // encoders default to 0 (= no audio) when this option is missing.
+      if (audioTracks.length > 0) opts.audioBitsPerSecond = 128_000;
+      rec.recorder = new MediaRecorder(composite, opts);
     } catch (e) {
       const t = store.ui;
       recShowError((t.recordUnsupported || "Recording not supported") + " (" + e.message + ")", "");
