@@ -150,14 +150,18 @@
     } catch (e) {
       console.warn("log_impro_event failed", e);
     }
-    // Once the event row exists, attach the configured roster (if any) so the
+    // Once the event row exists, attach the configured roster(s) so the
     // participants show up in their own analytics. Fire-and-forget — failures
     // here must never block the impro flow.
-    if (improEvent.id && Array.isArray(state.roster) && state.roster.length > 0) {
+    // Match mode: combine rosterA + rosterB. Troupe: state.roster.
+    const combinedRoster = state.mode === "match"
+      ? [...(state.rosterA || []), ...(state.rosterB || [])]
+      : (state.roster || []);
+    if (improEvent.id && combinedRoster.length > 0) {
       try {
         await window.actoSupabase.rpc("add_impro_participants", {
           p_event_id: improEvent.id,
-          p_participants: state.roster.map(p => ({
+          p_participants: combinedRoster.map(p => ({
             user_id: p.user_id || "",
             nom_scene: p.nom_scene || ""
           }))
@@ -201,7 +205,13 @@
      ============================================================ */
   const STORAGE_KEY = "impro-studio:overrides:v1";
   const LOCALE_KEY  = "impro-studio:locale:v1";
-  const ROSTER_KEY  = "impro-studio:roster:v1";
+  // Three roster slots: troupe (one team) + match (Team A and Team B).
+  // Match mode uses A/B; troupe mode uses the legacy single roster.
+  const ROSTER_KEYS = {
+    troupe: "impro-studio:roster:v1",
+    a:      "impro-studio:rosterA:v1",
+    b:      "impro-studio:rosterB:v1"
+  };
   const ITEM_HEIGHT_REM = 4.5;
   const SPARKLES = ["✨", "⭐", "🎭", "💫", "🌟"];
 
@@ -380,6 +390,46 @@
   }
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
+  /**
+   * Shuffle bags — random without replacement, by category.
+   *
+   * Each call to `pickFromBag(key, pool)` returns an item that hasn't been
+   * picked since the bag was last refilled. When the bag empties, it is
+   * automatically reshuffled from the full pool. If the underlying pool
+   * changes (e.g. user switches level / mode / locale), the bag is reset.
+   *
+   * The bag is keyed per (target × mode × level × pool-size × pool-shape) so
+   * concurrent contexts don't fight each other.
+   */
+  const _bags = {};
+  function _shuffleArray(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  function _poolFingerprint(pool) {
+    // Cheap signature: length + a few sample values. Catches level/mode swaps.
+    if (!pool || !pool.length) return "0";
+    const head = pool[0];
+    const tail = pool[pool.length - 1];
+    const sample = (typeof head === "object") ? (head && head.name) : String(head);
+    const sampleT = (typeof tail === "object") ? (tail && tail.name) : String(tail);
+    return pool.length + ":" + sample + "|" + sampleT;
+  }
+  function pickFromBag(key, pool) {
+    if (!pool || pool.length === 0) return undefined;
+    const fp = _poolFingerprint(pool);
+    let bag = _bags[key];
+    if (!bag || bag.fp !== fp || bag.remaining.length === 0) {
+      bag = { fp, remaining: _shuffleArray(pool) };
+      _bags[key] = bag;
+    }
+    return bag.remaining.shift();
+  }
+
   /* ============================================================
      3. UI BINDINGS
      ============================================================ */
@@ -410,17 +460,23 @@
     audienceEnabled: false,
     audienceIntervalSec: 45,
     audienceTimer: null,
-    // Roster (team / troupe composition) — array of { user_id?: uuid, nom_scene: string }
-    // user_id is set for registered Acto users (matched via search), absent for ad-hoc guests.
-    roster: (function () {
-      try {
-        const raw = localStorage.getItem(ROSTER_KEY);
-        if (!raw) return [];
-        const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch (e) { return []; }
-    })()
+    // Rosters — arrays of { user_id?: uuid, nom_scene: string }
+    //   roster   = Troupe mode (single composition)
+    //   rosterA  = Match mode Team A
+    //   rosterB  = Match mode Team B
+    roster:  loadRosterFromStorage("troupe"),
+    rosterA: loadRosterFromStorage("a"),
+    rosterB: loadRosterFromStorage("b")
   };
+
+  function loadRosterFromStorage(target) {
+    try {
+      const raw = localStorage.getItem(ROSTER_KEYS[target]);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) { return []; }
+  }
 
   // Per-level max duration (seconds), 30s step
   const LEVEL_MAX_DURATION = { debutant: 180, confirme: 300, expert: 480 };
@@ -553,7 +609,8 @@
     const max = LEVEL_MAX_DURATION[state.level] || 180;
     if (state.durationRandom) {
       const steps = durationSteps(state.level);
-      return steps[Math.floor(Math.random() * steps.length)];
+      // Use a shuffle bag too — exhaust all step values before any repeats.
+      return pickFromBag("duration:" + state.level, steps);
     }
     return Math.min(Math.max(30, state.durationManualSec), max);
   }
@@ -666,8 +723,10 @@
     const __dl = document.getElementById("recorderDownloadLink");
     if (__dl) __dl.textContent = t.recordDownload || "";
     setText("settingsLabelText",t.settings);
+    setText("rulesLabelText",   t.rulesBtn);
     setText("dlgTitle",         t.settings);
     setText("dlgLanguageLabel", t.language);
+    setText("dlgHelpEditor",    t.settingsEditorHelp);
     if (window.actoAuth && typeof window.actoAuth.applyTranslations === "function") {
       window.actoAuth.applyTranslations();
     }
@@ -799,20 +858,42 @@
      1.5 ROSTER (team / troupe composition)
      ============================================================ */
 
-  // Working copy used while the dialog is open. Committed to state.roster on Save.
+  // Working copy used while the dialog is open. Committed to the right state
+  // field (state.roster / rosterA / rosterB) on Save. The active target is
+  // tracked in `rosterDraftTarget` ("troupe" | "a" | "b").
   let rosterDraft = [];
+  let rosterDraftTarget = "troupe";
 
-  function persistRoster() {
-    try { localStorage.setItem(ROSTER_KEY, JSON.stringify(state.roster)); }
+  function getRosterFor(target) {
+    if (target === "a") return state.rosterA;
+    if (target === "b") return state.rosterB;
+    return state.roster;
+  }
+  function setRosterFor(target, list) {
+    if (target === "a")      state.rosterA = list;
+    else if (target === "b") state.rosterB = list;
+    else                     state.roster  = list;
+  }
+  function persistRoster(target) {
+    try { localStorage.setItem(ROSTER_KEYS[target], JSON.stringify(getRosterFor(target))); }
     catch (e) { /* localStorage may be full / disabled */ }
   }
 
   function refreshRosterStatus() {
+    refreshOneRosterStatus("troupe", "rosterStatus", "rosterEditBtnLabel");
+    refreshOneRosterStatus("a",      "rosterStatusA", "rosterEditBtnLabelA");
+    refreshOneRosterStatus("b",      "rosterStatusB", "rosterEditBtnLabelB");
+  }
+  function refreshOneRosterStatus(target, statusId, btnLabelId) {
     const t = store.ui;
-    const n = state.roster.length;
-    const status = $("#rosterStatus");
-    const btnLabel = $("#rosterEditBtnLabel");
-    if (btnLabel) btnLabel.textContent = t.rosterEditBtn || "Configurer la composition";
+    const n = getRosterFor(target).length;
+    const btnLabel = document.getElementById(btnLabelId);
+    if (btnLabel) {
+      btnLabel.textContent = (target === "troupe")
+        ? (t.rosterEditBtn || "Configurer la composition")
+        : (t.rosterEditBtnShort || "👥 Composition");
+    }
+    const status = document.getElementById(statusId);
     if (!status) return;
     if (n === 0) {
       status.textContent = t.rosterStatusEmpty || "";
@@ -934,19 +1015,20 @@
       // Discard out-of-order responses (user has typed more since this call started).
       if (rosterLastSearchedQuery !== trimmed) return;
       if (error) { console.warn("roster search failed", error); renderRosterSearchResults([], trimmed); return; }
-      // Hide the current user from results (you can't add yourself — you're the launcher).
-      const me = window.actoAuth.state.user.id;
-      renderRosterSearchResults((data || []).filter(r => r.id !== me), trimmed);
+      // Show ALL matches including the current user — useful for Match mode
+      // where the launcher might still want to add themselves to a team roster.
+      renderRosterSearchResults(data || [], trimmed);
     } catch (e) {
       console.warn("roster search threw", e);
       renderRosterSearchResults([], trimmed);
     }
   }
 
-  function openRosterDialog() {
+  function openRosterDialog(target) {
     const dlg = $("#rosterDialog");
     if (!dlg) return;
-    rosterDraft = state.roster.slice();
+    rosterDraftTarget = target || "troupe";
+    rosterDraft = getRosterFor(rosterDraftTarget).slice();
     const search = $("#rosterSearchInput");
     const adhoc  = $("#rosterAdHocInput");
     const t = store.ui;
@@ -958,7 +1040,16 @@
       adhoc.value = "";
       adhoc.placeholder = t.rosterAdHocPlaceholder || "";
     }
-    setText("rosterDialogTitle",  t.rosterDialogTitle);
+    // Show the team name in the dialog title when editing a Match team.
+    let titleText = t.rosterDialogTitle || "Composition";
+    if (rosterDraftTarget === "a") {
+      const teamName = ($("#teamA") && $("#teamA").value) || "Team A";
+      titleText = (titleText) + " — " + teamName;
+    } else if (rosterDraftTarget === "b") {
+      const teamName = ($("#teamB") && $("#teamB").value) || "Team B";
+      titleText = (titleText) + " — " + teamName;
+    }
+    setText("rosterDialogTitle",  titleText);
     setText("rosterDialogHint",   t.rosterDialogHint);
     setText("rosterAdHocAddBtn",  t.rosterAdHocAdd);
     setText("rosterCancelBtn",    t.rosterCancel || t.authDeleteCancel);
@@ -976,8 +1067,8 @@
     else dlg.removeAttribute("open");
   }
   function saveRoster() {
-    state.roster = rosterDraft.slice();
-    persistRoster();
+    setRosterFor(rosterDraftTarget, rosterDraft.slice());
+    persistRoster(rosterDraftTarget);
     closeRosterDialog();
     refreshRosterStatus();
   }
@@ -987,20 +1078,20 @@
     const { mode, level } = state;
     switch (target) {
       case "exercise":   {
-        const ex = pick(data.exercises[mode][level]);
+        const ex = pickFromBag("exercise:" + mode + ":" + level, data.exercises[mode][level]);
         state.currentExercise = ex;
-        let meta = ex.desc || "";
-        if (mode === "troupe" && ex.needsAudience) {
+        let meta = (ex && ex.desc) || "";
+        if (mode === "troupe" && ex && ex.needsAudience) {
           const t = store.ui;
           const badge = t.audienceBadge || "Audience interaction";
           meta = badge + " — " + meta;
         }
-        return { value: ex.name, meta: meta };
+        return { value: ex && ex.name, meta: meta };
       }
       case "constraint": {
         // Match no longer uses a separate constraint (the official rules fold
         // it into "Catégorie"). Troupe still picks one normally.
-        const v = pick(data.constraints[mode][level]);
+        const v = pickFromBag("constraint:" + mode + ":" + level, data.constraints[mode][level]);
         state.currentConstraint = v;
         return { value: v };
       }
@@ -1013,24 +1104,30 @@
           t.natureMixte    || "Mixte",
           t.natureComparee || "Comparée"
         ];
-        const v = pick(opts);
+        const v = pickFromBag("nature", opts);
         state.currentNature = v;
         return { value: v };
       }
       case "players": {
-        const v = pick(data.players[level]);
+        const v = pickFromBag("players:" + level, data.players[level]);
         state.currentPlayers = v;
         return { value: v };
       }
-      case "theme":      { const pool = state.useCustom ? state.customThemes : data.themes[level]; const v = pick(pool); state.currentTheme = v; return { value: v }; }
+      case "theme": {
+        const pool = state.useCustom ? state.customThemes : data.themes[level];
+        const bagKey = state.useCustom ? "theme:custom" : ("theme:level:" + level);
+        const v = pickFromBag(bagKey, pool);
+        state.currentTheme = v;
+        return { value: v };
+      }
       case "category":   {
-        const c = pick(data.categories);
+        const c = pickFromBag("category", data.categories);
         state.currentCategory = c;
         // In Match mode the Category card replaces Exercise. Mirror the picked
         // category onto state.currentExercise so the recorder overlay (which
         // reads currentExercise.name + .desc) renders the category instead.
-        state.currentExercise = { name: c.name, desc: c.desc };
-        return { value: c.name, meta: c.desc };
+        state.currentExercise = { name: c && c.name, desc: c && c.desc };
+        return { value: c && c.name, meta: c && c.desc };
       }
       case "duration":   {
         const sec = pickDurationSec();
@@ -1548,8 +1645,12 @@
     // Initialize hidden state of custom row
     setThemesMode(state.useCustom ? "custom" : "random");
 
-    /* Roster (team / troupe composition) wiring */
-    const __rosterEditBtn = $("#rosterEditBtn");
+    /* Roster wiring — three triggers (Troupe, Match Team A, Match Team B)
+       all share the same dialog. The clicked button decides which roster
+       gets edited. */
+    const __rosterEditBtn  = $("#rosterEditBtn");
+    const __rosterEditBtnA = $("#rosterEditBtnA");
+    const __rosterEditBtnB = $("#rosterEditBtnB");
     const __rosterDlg     = $("#rosterDialog");
     const __rosterClose   = $("#rosterDialogClose");
     const __rosterCancel  = $("#rosterCancelBtn");
@@ -1557,7 +1658,9 @@
     const __rosterSearch  = $("#rosterSearchInput");
     const __rosterAdHocIn = $("#rosterAdHocInput");
     const __rosterAdHocBtn= $("#rosterAdHocAddBtn");
-    if (__rosterEditBtn) __rosterEditBtn.addEventListener("click", openRosterDialog);
+    if (__rosterEditBtn)  __rosterEditBtn.addEventListener("click",  () => openRosterDialog("troupe"));
+    if (__rosterEditBtnA) __rosterEditBtnA.addEventListener("click", () => openRosterDialog("a"));
+    if (__rosterEditBtnB) __rosterEditBtnB.addEventListener("click", () => openRosterDialog("b"));
     if (__rosterClose)   __rosterClose.addEventListener("click", closeRosterDialog);
     if (__rosterCancel)  __rosterCancel.addEventListener("click", closeRosterDialog);
     if (__rosterSave)    __rosterSave.addEventListener("click", saveRoster);
@@ -1591,15 +1694,25 @@
     }
     refreshRosterStatus();
 
-    /* Match d'impro rules dialog */
-    const __rulesOpen      = $("#rulesOpenBtn");
+    /* Match d'impro rules dialog — content is populated based on the
+       active locale at open time (translations live in RULES_CONTENT). */
+    const __rulesOpen      = $("#rulesBtn");
     const __rulesDlg       = $("#rulesDialog");
     const __rulesClose     = $("#rulesDialogClose");
     const __rulesCloseBtn  = $("#rulesDialogCloseBtn");
+    const __rulesBody      = $("#rulesBody");
     function openRulesDialog() {
       if (!__rulesDlg) return;
       // Close Settings first so a single foreground modal is shown.
       if (dialogEl && dialogEl.open) dialogEl.close();
+      // Populate localized content + title before opening.
+      const RULES = window.actoRules || { fr: "" };
+      const lang = (RULES[store.locale] ? store.locale : "fr");
+      const t = store.ui;
+      const titleEl = $("#rulesDialogTitle");
+      if (titleEl) titleEl.textContent = "📖 " + (t.rulesTitle || "Règles du match d'impro");
+      if (__rulesBody) __rulesBody.innerHTML = RULES[lang];
+      if (__rulesCloseBtn) __rulesCloseBtn.textContent = t.rulesClose || "Fermer";
       if (typeof __rulesDlg.showModal === "function") __rulesDlg.showModal();
       else __rulesDlg.setAttribute("open", "");
     }

@@ -22,13 +22,21 @@
     <div class="curtain curtain-right"></div>
   </div>
 
-  <!-- Settings trigger -->
-  <button class="settings-trigger" id="settingsBtn" type="button" aria-label="Settings">
-    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-      <path fill="currentColor" d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm9.4 4-2 1.2.5 2.3-2.3.4-1 2-2.1-1L12 18l-2.5-1.1-2 1-1.2-2.1L4 15.4l.5-2.3-2-1.1V12l2-1.2-.5-2.3 2.3-.4 1-2 2.1 1L12 6l2.5 1.1 2-1 1.2 2.1L20 8.6l-.5 2.3 2 1.1Z"/>
-    </svg>
-    <span id="settingsLabelText">Réglages</span>
-  </button>
+  <!-- Top-right floating actions (Rules + Settings, side by side) -->
+  <div class="top-actions">
+    <button class="top-trigger rules-trigger" id="rulesBtn" type="button" aria-label="Rules">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <path fill="currentColor" d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
+      </svg>
+      <span id="rulesLabelText">Règles</span>
+    </button>
+    <button class="top-trigger settings-trigger" id="settingsBtn" type="button" aria-label="Settings">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <path fill="currentColor" d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm9.4 4-2 1.2.5 2.3-2.3.4-1 2-2.1-1L12 18l-2.5-1.1-2 1-1.2-2.1L4 15.4l.5-2.3-2-1.1V12l2-1.2-.5-2.3 2.3-.4 1-2 2.1 1L12 6l2.5 1.1 2-1 1.2 2.1L20 8.6l-.5 2.3 2 1.1Z"/>
+      </svg>
+      <span id="settingsLabelText">Réglages</span>
+    </button>
+  </div>
 
   <header class="hero">
     <a class="hero-logo-link" href="#" aria-label="Acto - The Impro Studio">
@@ -157,23 +165,38 @@
         </div>
       </div>
 
-      <!-- Match-only: team names -->
+      <!-- Match-only: each team gets its own name input + roster button.
+           Two separate rosters (rosterA, rosterB) so the launcher can
+           configure who plays for each side. -->
       <div class="config-block match-only" id="matchOptions" hidden>
         <label class="config-label">
           <span class="label-num">★</span>
           <span class="label-text" id="labelTeams"></span>
         </label>
-        <div class="team-inputs">
-          <div class="team team-a"><span class="team-color"></span><input type="text" id="teamA" maxlength="24" /></div>
-          <span class="vs">VS</span>
-          <div class="team team-b"><span class="team-color"></span><input type="text" id="teamB" maxlength="24" /></div>
+        <div class="team-block" data-team="a">
+          <div class="team-block-row">
+            <div class="team team-a"><span class="team-color"></span><input type="text" id="teamA" maxlength="24" /></div>
+            <button class="roster-edit-btn roster-edit-btn-compact" id="rosterEditBtnA" type="button">
+              <span id="rosterEditBtnLabelA"></span>
+            </button>
+          </div>
+          <span class="roster-status" id="rosterStatusA"></span>
+        </div>
+        <div class="team-vs">VS</div>
+        <div class="team-block" data-team="b">
+          <div class="team-block-row">
+            <div class="team team-b"><span class="team-color"></span><input type="text" id="teamB" maxlength="24" /></div>
+            <button class="roster-edit-btn roster-edit-btn-compact" id="rosterEditBtnB" type="button">
+              <span id="rosterEditBtnLabelB"></span>
+            </button>
+          </div>
+          <span class="roster-status" id="rosterStatusB"></span>
         </div>
       </div>
 
-      <!-- Roster (optional) — list of participants for this impro session.
-           Members can either be other Acto users (matched by stage name) or
-           ad-hoc names typed for guests with no account. -->
-      <div class="config-block">
+      <!-- Troupe-only roster (single composition for the troupe). Match mode
+           uses the per-team rosters defined inside #matchOptions above. -->
+      <div class="config-block troupe-only">
         <label class="config-label">
           <span class="label-num">★</span>
           <span class="label-text" id="labelRoster"></span>
@@ -468,11 +491,6 @@
         <select id="langSelect"></select>
       </div>
 
-      <!-- Match d'impro rules (modal) -->
-      <div class="dlg-field">
-        <button class="ghost-btn" id="rulesOpenBtn" type="button">📖 Règles du match d'impro</button>
-      </div>
-
       <!-- Account section -->
       <div class="dlg-field auth-account-section" id="authAccountSection" hidden>
         <h3 id="authAccountTitle"></h3>
@@ -486,11 +504,7 @@
 
       <!-- Editor -->
       <div class="dlg-editor">
-        <p class="dlg-help">
-          Édite directement les listes. Chaque section est un tableau JSON.
-          <code>exercices</code> et <code>catégories</code> attendent <code>{"name","desc"}</code> ;
-          les autres sont des chaînes.
-        </p>
+        <p class="dlg-help" id="dlgHelpEditor"></p>
         <div id="editorList"></div>
       </div>
 
@@ -506,65 +520,13 @@
     </div>
   </dialog>
 
-  <!-- Match d'impro rules dialog (read-only reference) -->
+  <!-- Match d'impro rules dialog (content + title populated by JS based on locale) -->
   <dialog class="themes-dialog rules-dialog" id="rulesDialog" aria-labelledby="rulesDialogTitle">
     <form method="dialog" class="dlg-head">
-      <h2 id="rulesDialogTitle">📖 Règles du match d'impro</h2>
+      <h2 id="rulesDialogTitle">📖</h2>
       <button type="button" class="dlg-close" id="rulesDialogClose" aria-label="Close">✕</button>
     </form>
-    <div class="dlg-body rules-body">
-      <p>Le match d'improvisation théâtrale (créé au Québec en 1977 par Robert Gravel et Yvon Leduc) possède un décorum et des règles très strictes, inspirées du hockey sur glace.</p>
-
-      <h3>L'annonce du thème — l'ordre officiel</h3>
-      <p>L'arbitre principal tire un carton (« la carte ») et annonce les éléments toujours dans cet ordre :</p>
-      <ol>
-        <li><strong>La nature de l'improvisation</strong> :
-          <ul>
-            <li><strong>Mixte</strong> — les deux équipes jouent ensemble sur la patinoire.</li>
-            <li><strong>Comparée</strong> — une équipe joue, puis l'autre joue à son tour sur le même thème.</li>
-          </ul>
-        </li>
-        <li><strong>Le titre (le thème)</strong> — le sujet de l'improvisation.</li>
-        <li><strong>Le nombre de joueurs</strong> — souvent « libre » (toute l'équipe), parfois restreint (« deux par équipe »).</li>
-        <li><strong>La catégorie (ou contrainte de style)</strong> — le style théâtral imposé (souvent « libre »).</li>
-        <li><strong>La durée</strong> — généralement entre 2 et 5 minutes, parfois plus.</li>
-      </ol>
-
-      <h3>Le caucus</h3>
-      <p>Après ces 5 informations, l'arbitre siffle. Les équipes ont <strong>20 secondes</strong> exactement pour se concerter, trouver une idée et décider qui monte sur la patinoire. Au second coup de sifflet, l'improvisation commence immédiatement — un retard à entrer en scène se sanctionne par une faute de « Retard ».</p>
-
-      <h3>Les catégories les plus fréquentes</h3>
-      <ul>
-        <li><strong>Libre</strong> — aucune contrainte de forme.</li>
-        <li><strong>À la manière de…</strong> — la catégorie reine. Genre imposé : Molière, Western, Science-fiction, Telenovela, Film noir, Tarantino, comédie musicale…</li>
-        <li><strong>Chantée</strong> — dialogues chantés (souvent avec un musicien improvisateur).</li>
-        <li><strong>Rimes</strong> — toutes les répliques riment, souvent en alexandrins (« à la manière de Racine »).</li>
-        <li><strong>Muette</strong> — interdiction absolue de parler. Tout passe par le mime et le corps.</li>
-        <li><strong>Grommelot (sans frontières)</strong> — langue inventée, mais l'intention reste compréhensible.</li>
-        <li><strong>Abécédaire</strong> — chaque réplique commence par la lettre suivante de l'alphabet.</li>
-        <li><strong>Fusillade</strong> — souvent sans caucus ; chaque joueur fait un gag de 10 secondes sur un thème donné.</li>
-      </ul>
-
-      <h3>Les thèmes (titres)</h3>
-      <p>Les thèmes peuvent être absolument tout :</p>
-      <ul>
-        <li><strong>Situations</strong> : « Le dernier bus », « Panne de courant », « Le secret ».</li>
-        <li><strong>Phrases ou proverbes</strong> : « Il ne fallait pas ouvrir cette porte », « Tel est pris qui croyait prendre ».</li>
-        <li><strong>Mots abstraits ou uniques</strong> : « Jaune », « Rupture », « L'infini ».</li>
-        <li><strong>Titres absurdes ou poétiques</strong> : « Le pingouin a mangé ma montre », « La tristesse du grille-pain ».</li>
-      </ul>
-
-      <h3>Les fautes</h3>
-      <p>L'arbitre, sifflet et maillot rayé, est le maître du jeu. Trois fautes accumulées par une équipe donnent un point à l'équipe adverse. Les plus courantes :</p>
-      <ul>
-        <li><strong>Cliché</strong> — blague connue, jeu de mots facile, situation vue mille fois.</li>
-        <li><strong>Cabotinage</strong> — un joueur « fait le show » au détriment de l'histoire et de ses partenaires.</li>
-        <li><strong>Décrochage</strong> — sortir de son personnage (par exemple éclater de rire d'une réplique du partenaire).</li>
-        <li><strong>Refus de personnage / Refus d'idée</strong> — l'autre dit « voilà ton épée », tu réponds « non, c'est un parapluie ». Tu refuses la proposition imposée.</li>
-        <li><strong>Confusion</strong> — l'histoire devient incompréhensible.</li>
-        <li><strong>Non-respect de la catégorie</strong> — parler en muette, ne pas rimer en rimes, etc.</li>
-      </ul>
-    </div>
+    <div class="dlg-body rules-body" id="rulesBody"></div>
     <div class="dlg-actions">
       <button type="button" class="primary-btn" id="rulesDialogCloseBtn">Fermer</button>
     </div>
@@ -669,10 +631,11 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Bump v= on each deploy when you change one of these assets, so users
        fetch the fresh version without needing Ctrl+Shift+R. -->
-  <script src="./js/config.js?v=20260504"></script>
-  <script src="./js/utils.js?v=20260504"></script>
-  <script src="./data/all.js?v=20260504"></script>
-  <script src="./js/auth.js?v=20260504"></script>
-  <script src="./js/app.js?v=20260504"></script>
+  <script src="./js/config.js?v=20260507"></script>
+  <script src="./js/utils.js?v=20260507"></script>
+  <script src="./js/rules.js?v=20260507"></script>
+  <script src="./data/all.js?v=20260507"></script>
+  <script src="./js/auth.js?v=20260507"></script>
+  <script src="./js/app.js?v=20260507"></script>
 </body>
 </html>
