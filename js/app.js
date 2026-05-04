@@ -1721,13 +1721,10 @@
       // The HTML #recorderPreCountdown overlay is skipped — the entire
       // ceremony is now drawn on the canvas itself.
       recStart();
-      // Hide the floating exercise description during the ceremony, then
-      // bring it back a few seconds after the live phase starts.
+      // The exercise / category description is shown DURING the intro
+      // (below the value on its slide), so the floating popup is no longer
+      // needed once recording starts. Hide it for the entire session.
       recHideExerciseDesc();
-      setTimeout(() => {
-        recShowExerciseDesc({ persistent: true });
-        recArmExerciseDescHide(5000);
-      }, PRE_LIVE_MS + 200);
     });
     if (__recPauseBtn) __recPauseBtn.addEventListener("click", recPauseResume);
     if (__recStopBtn)  __recStopBtn.addEventListener("click", recRequestStop);
@@ -2012,24 +2009,59 @@
     return "live";
   }
 
-  /** Items shown one-by-one during the 17s intro. Mirrors the main UI order. */
+  /**
+   * Items shown one-by-one during the 17s intro. Mirrors the official
+   * referee announcement order for Match (Nature → Thème → Joueurs →
+   * Catégorie → Durée), and the matching flow for Troupe (Exercice →
+   * Contrainte → Thème → Durée).
+   *
+   * The Catégorie slide (Match) and Exercice slide (Troupe) carry the
+   * description text in `desc`, rendered below the value during the intro
+   * so the spectator gets the rule explanation as part of the announcement.
+   */
   function recBuildIntroItems() {
     const t = store.ui;
+    const ex = state.currentExercise || {};
     const items = [];
     if (state.mode === "match") {
-      if (state.currentNature) items.push({ label: (t.cardNature   || "Nature").toUpperCase(),   value: state.currentNature });
-      if (state.currentTheme)  items.push({ label: (t.recordOverlayTheme || "Thème").toUpperCase(), value: state.currentTheme });
-      if (state.currentPlayers)items.push({ label: (t.cardPlayers  || "Joueurs").toUpperCase(),  value: state.currentPlayers });
-      if (state.currentExercise && state.currentExercise.name)
-        items.push({ label: (t.cardCategory || "Catégorie").toUpperCase(), value: state.currentExercise.name });
+      if (state.currentNature) items.push({
+        label: (t.cardNature || "Nature").toUpperCase(),
+        value: state.currentNature
+      });
+      if (state.currentTheme) items.push({
+        label: (t.recordOverlayTheme || "Thème").toUpperCase(),
+        value: state.currentTheme
+      });
+      if (state.currentPlayers) items.push({
+        label: (t.cardPlayers || "Joueurs").toUpperCase(),
+        value: state.currentPlayers
+      });
+      if (ex.name) items.push({
+        label: (t.cardCategory || "Catégorie").toUpperCase(),
+        value: ex.name,
+        desc:  ex.desc || ""
+      });
     } else {
-      if (state.currentExercise && state.currentExercise.name)
-        items.push({ label: (t.recordOverlayExercise || "Exercice").toUpperCase(), value: state.currentExercise.name });
-      if (state.currentConstraint)
-        items.push({ label: (t.recordOverlayCons || "Contrainte").toUpperCase(),  value: state.currentConstraint });
-      if (state.currentTheme)
-        items.push({ label: (t.recordOverlayTheme || "Thème").toUpperCase(),       value: state.currentTheme });
+      if (ex.name) items.push({
+        label: (t.recordOverlayExercise || "Exercice").toUpperCase(),
+        value: ex.name,
+        desc:  ex.desc || ""
+      });
+      if (state.currentConstraint) items.push({
+        label: (t.recordOverlayCons || "Contrainte").toUpperCase(),
+        value: state.currentConstraint
+      });
+      if (state.currentTheme) items.push({
+        label: (t.recordOverlayTheme || "Thème").toUpperCase(),
+        value: state.currentTheme
+      });
     }
+    // Both modes always end with the duration — it's the last thing the
+    // referee announces before signalling the caucus.
+    if (state.currentDurationSec) items.push({
+      label: (t.cardDuration || "Durée").toUpperCase(),
+      value: formatSec(state.currentDurationSec)
+    });
     return items;
   }
 
@@ -2064,7 +2096,22 @@
     const baseDim   = Math.min(w, h);
     const labelSize = Math.max(20, Math.round(baseDim * 0.034));
     const valueSize = Math.max(48, Math.round(baseDim * 0.10));
+    const descSize  = Math.max(16, Math.round(baseDim * 0.024));
     const maxTextW  = w * 0.85;
+    const maxDescW  = w * 0.78;
+
+    // Pre-wrap value + optional description so we can vertically center the
+    // whole block (label + value + desc) around (w/2, h/2 + ty).
+    ctx.font = "400 " + valueSize + 'px "Bebas Neue", Inter, sans-serif';
+    const valueLines = recWrapText(ctx, item.value, maxTextW);
+    ctx.font = "400 " + descSize + 'px Inter, "Helvetica Neue", sans-serif';
+    const descLines = item.desc ? recWrapText(ctx, item.desc, maxDescW) : [];
+
+    const valueBlockH = valueLines.length * valueSize * 0.95;
+    const descBlockH  = descLines.length  * (descSize * 1.25);
+    const totalH      = labelSize + valueSize * 0.4 + valueBlockH
+                      + (descBlockH ? descSize * 1.2 + descBlockH : 0);
+    const startY = -totalH / 2;
 
     ctx.save();
     ctx.globalAlpha = opacity;
@@ -2077,18 +2124,33 @@
     ctx.fillStyle = "#f5c451";
     ctx.shadowColor = "rgba(0,0,0,0.85)";
     ctx.shadowBlur = 14;
-    ctx.fillText(item.label, 0, -valueSize * 0.55);
+    let yCursor = startY + labelSize;
+    ctx.fillText(item.label, 0, yCursor);
+    yCursor += valueSize * 0.4;
 
     // VALUE (white, huge, with a warm gold glow)
     ctx.font = "400 " + valueSize + 'px "Bebas Neue", Inter, sans-serif';
     ctx.fillStyle = "#ffffff";
     ctx.shadowColor = "rgba(245,196,81,0.65)";
     ctx.shadowBlur = 28;
-    const lines = recWrapText(ctx, item.value, maxTextW);
-    let yo = labelSize * 0.5;
-    for (const line of lines) {
-      yo += valueSize * 0.95;
-      ctx.fillText(line, 0, yo);
+    for (const line of valueLines) {
+      yCursor += valueSize * 0.95;
+      ctx.fillText(line, 0, yCursor);
+    }
+
+    // DESCRIPTION (smaller, soft white) — only on slides that carry desc
+    // (Catégorie in Match, Exercice in Troupe). Mirrors the rule explanation
+    // a referee or coach would give just after announcing the category.
+    if (descLines.length) {
+      yCursor += descSize * 1.2;
+      ctx.font = "400 " + descSize + 'px Inter, "Helvetica Neue", sans-serif';
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      ctx.shadowColor = "rgba(0,0,0,0.7)";
+      ctx.shadowBlur = 10;
+      for (const line of descLines) {
+        yCursor += descSize * 1.25;
+        ctx.fillText(line, 0, yCursor);
+      }
     }
     ctx.restore();
     ctx.shadowBlur = 0;
@@ -2202,7 +2264,7 @@
     const t = store.ui;
     const items = [];
     if (state.mode === "match") {
-      // Match: official announcement order = Nature → Thème → Joueurs → Catégorie
+      // Match: official announcement order = Nature → Thème → Joueurs → Catégorie → Durée
       if (state.currentNature) {
         items.push({ key: "nature",
           label: (t.cardNature || "Nature").toUpperCase(),
@@ -2228,7 +2290,7 @@
           color: REC_COLORS.exercise });
       }
     } else {
-      // Troupe mode keeps the existing exercise / constraint / theme order.
+      // Troupe: Exercice → Contrainte → Thème → Durée
       if (state.currentExercise && state.currentExercise.name) {
         items.push({ key: "exercise",
           label: (t.recordOverlayExercise || "Exercice").toUpperCase(),
@@ -2247,6 +2309,13 @@
           value: state.currentTheme,
           color: REC_COLORS.theme });
       }
+    }
+    // Durée — last item of the announcement, both modes.
+    if (state.currentDurationSec) {
+      items.push({ key: "duration",
+        label: (t.cardDuration || "Durée").toUpperCase(),
+        value: formatSec(state.currentDurationSec),
+        color: REC_COLORS.constraint });
     }
     return items;
   }
