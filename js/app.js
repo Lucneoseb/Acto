@@ -1695,24 +1695,21 @@
     refreshRosterStatus();
 
     /* Match d'impro rules dialog — content is populated based on the
-       active locale at open time (translations live in RULES_CONTENT). */
+       active locale at open time (translations live in RULES_CONTENT).
+       Close paths: the X button in the header, click on the backdrop, or Esc. */
     const __rulesOpen      = $("#rulesBtn");
     const __rulesDlg       = $("#rulesDialog");
     const __rulesClose     = $("#rulesDialogClose");
-    const __rulesCloseBtn  = $("#rulesDialogCloseBtn");
     const __rulesBody      = $("#rulesBody");
     function openRulesDialog() {
       if (!__rulesDlg) return;
-      // Close Settings first so a single foreground modal is shown.
       if (dialogEl && dialogEl.open) dialogEl.close();
-      // Populate localized content + title before opening.
       const RULES = window.actoRules || { fr: "" };
       const lang = (RULES[store.locale] ? store.locale : "fr");
       const t = store.ui;
       const titleEl = $("#rulesDialogTitle");
       if (titleEl) titleEl.textContent = "📖 " + (t.rulesTitle || "Règles du match d'impro");
       if (__rulesBody) __rulesBody.innerHTML = RULES[lang];
-      if (__rulesCloseBtn) __rulesCloseBtn.textContent = t.rulesClose || "Fermer";
       if (typeof __rulesDlg.showModal === "function") __rulesDlg.showModal();
       else __rulesDlg.setAttribute("open", "");
     }
@@ -1721,10 +1718,9 @@
       if (typeof __rulesDlg.close === "function") __rulesDlg.close();
       else __rulesDlg.removeAttribute("open");
     }
-    if (__rulesOpen)     __rulesOpen.addEventListener("click", openRulesDialog);
-    if (__rulesClose)    __rulesClose.addEventListener("click", closeRulesDialog);
-    if (__rulesCloseBtn) __rulesCloseBtn.addEventListener("click", closeRulesDialog);
-    if (__rulesDlg)      __rulesDlg.addEventListener("click", (e) => { if (e.target === __rulesDlg) closeRulesDialog(); });
+    if (__rulesOpen)  __rulesOpen.addEventListener("click", openRulesDialog);
+    if (__rulesClose) __rulesClose.addEventListener("click", closeRulesDialog);
+    if (__rulesDlg)   __rulesDlg.addEventListener("click", (e) => { if (e.target === __rulesDlg) closeRulesDialog(); });
 
     $("#generateBtn").addEventListener("click", generateAll);
 

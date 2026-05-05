@@ -2106,20 +2106,20 @@ body.mode-troupe #card-theme      { order: 3; }
 }
 
 /* === Match d'impro rules dialog ===
-   Bigger than the other dialogs: this is reference material the user wants
-   to read comfortably in landscape OR portrait, on phone OR desktop.
-   Selector includes both classes so the override beats `.themes-dialog`
-   defaults regardless of CSS source order. */
-.themes-dialog.rules-dialog {
+   Bigger than the other dialogs. Both `display:` and the size rules are
+   gated behind `[open]` — a closed `<dialog>` MUST stay `display: none`
+   (UA default), otherwise it renders inline below the page.
+   The double-class selector beats `.themes-dialog` defaults regardless
+   of CSS source order. */
+.themes-dialog.rules-dialog[open] {
   width: min(960px, 96vw);
   max-width: 96vw;
   max-height: 96vh;
   display: flex;
   flex-direction: column;
 }
-.themes-dialog.rules-dialog .dlg-head    { flex: 0 0 auto; }
-.themes-dialog.rules-dialog .rules-body  { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
-.themes-dialog.rules-dialog .dlg-actions { flex: 0 0 auto; }
+.themes-dialog.rules-dialog[open] .dlg-head   { flex: 0 0 auto; }
+.themes-dialog.rules-dialog[open] .rules-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
 .rules-body {
   line-height: 1.6;
   padding: 1rem 1.5rem 1.5rem;
