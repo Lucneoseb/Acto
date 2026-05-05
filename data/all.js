@@ -30,7 +30,8 @@ window.IMPRO_BUNDLE = {
     "fr": {
       "title": "Impro",
       "titleAccent": "Studio",
-      "subtitle": "Générateur d'exercices, de contraintes et de thèmes pour l'improvisation théâtrale",
+      "subtitle": "Générateur d'exercices, de contraintes et de thèmes",
+      "subtitle2": "pour l'improvisation théâtrale",
       "settings": "Réglages",
       "rulesBtn": "Règles",
       "rulesTitle": "Règles du match d'impro",
@@ -192,7 +193,8 @@ window.IMPRO_BUNDLE = {
     "en": {
       "title": "Impro",
       "titleAccent": "Studio",
-      "subtitle": "Generator of exercises, constraints and themes for theatrical improvisation",
+      "subtitle": "Generator of exercises, constraints and themes",
+      "subtitle2": "for theatrical improvisation",
       "settings": "Settings",
       "rulesBtn": "Rules",
       "rulesTitle": "Match d'impro rules",
@@ -354,7 +356,8 @@ window.IMPRO_BUNDLE = {
     "de": {
       "title": "Impro",
       "titleAccent": "Studio",
-      "subtitle": "Generator für Übungen, Vorgaben und Themen der Improvisationstheaterarbeit",
+      "subtitle": "Generator für Übungen, Vorgaben und Themen",
+      "subtitle2": "für Improvisationstheater",
       "settings": "Einstellungen",
       "rulesBtn": "Regeln",
       "rulesTitle": "Match d'impro - Regeln",
@@ -516,7 +519,8 @@ window.IMPRO_BUNDLE = {
     "es": {
       "title": "Impro",
       "titleAccent": "Studio",
-      "subtitle": "Generador de ejercicios, restricciones y temas para la improvisación teatral",
+      "subtitle": "Generador de ejercicios, restricciones y temas",
+      "subtitle2": "para la improvisación teatral",
       "settings": "Ajustes",
       "rulesBtn": "Reglas",
       "rulesTitle": "Reglas del match de impro",
@@ -678,7 +682,8 @@ window.IMPRO_BUNDLE = {
     "pt": {
       "title": "Impro",
       "titleAccent": "Studio",
-      "subtitle": "Gerador de exercícios, restrições e temas para a improvisação teatral",
+      "subtitle": "Gerador de exercícios, restrições e temas",
+      "subtitle2": "para a improvisação teatral",
       "settings": "Definições",
       "rulesBtn": "Regras",
       "rulesTitle": "Regras do match de impro",
@@ -840,7 +845,8 @@ window.IMPRO_BUNDLE = {
     "nl": {
       "title": "Impro",
       "titleAccent": "Studio",
-      "subtitle": "Generator van oefeningen, beperkingen en thema's voor theaterimprovisatie",
+      "subtitle": "Generator van oefeningen, beperkingen en thema's",
+      "subtitle2": "voor theaterimprovisatie",
       "settings": "Instellingen",
       "rulesBtn": "Regels",
       "rulesTitle": "Regels van de improvisatiematch",

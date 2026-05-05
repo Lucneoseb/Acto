@@ -628,6 +628,7 @@
     setText("titleLine",        t.title);
     setText("titleAccent",      t.titleAccent);
     setText("subtitle",         t.subtitle);
+    setText("subtitle2",        t.subtitle2);
     setText("label01",          t.label01);
     setText("label02",          t.label02);
     setText("label03",          t.label03);
