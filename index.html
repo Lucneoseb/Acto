@@ -102,22 +102,25 @@
             <input type="text" id="authSignupNom" autocomplete="family-name" required />
           </label>
         </div>
-        <label class="auth-field">
-          <span id="authSignupDobLabel"></span>
+        <fieldset class="auth-field auth-field-fieldset">
+          <legend id="authSignupDobLabel"></legend>
           <div class="auth-dob-row">
+            <label for="authSignupDobDay" class="visually-hidden">Jour</label>
             <input type="text" inputmode="numeric" autocomplete="bday-day"
                    id="authSignupDobDay" maxlength="2" pattern="[0-9]*"
-                   placeholder="JJ" aria-label="Jour" required />
+                   placeholder="JJ" required />
             <span class="auth-dob-sep" aria-hidden="true">/</span>
+            <label for="authSignupDobMonth" class="visually-hidden">Mois</label>
             <input type="text" inputmode="numeric" autocomplete="bday-month"
                    id="authSignupDobMonth" maxlength="2" pattern="[0-9]*"
-                   placeholder="MM" aria-label="Mois" required />
+                   placeholder="MM" required />
             <span class="auth-dob-sep" aria-hidden="true">/</span>
+            <label for="authSignupDobYear" class="visually-hidden">Année</label>
             <input type="text" inputmode="numeric" autocomplete="bday-year"
                    id="authSignupDobYear" maxlength="4" pattern="[0-9]*"
-                   placeholder="AAAA" aria-label="Année" required />
+                   placeholder="AAAA" required />
           </div>
-        </label>
+        </fieldset>
         <label class="auth-field">
           <span id="authSignupStageNameLabel"></span>
           <input type="text" id="authSignupStageName" autocomplete="nickname" maxlength="40" required />
@@ -604,22 +607,25 @@
             <input type="text" id="authEditNom" autocomplete="family-name" required />
           </label>
         </div>
-        <label class="auth-field">
-          <span id="authEditDobLabel"></span>
+        <fieldset class="auth-field auth-field-fieldset">
+          <legend id="authEditDobLabel"></legend>
           <div class="auth-dob-row">
+            <label for="authEditDobDay" class="visually-hidden">Jour</label>
             <input type="text" inputmode="numeric" autocomplete="bday-day"
                    id="authEditDobDay" maxlength="2" pattern="[0-9]*"
-                   placeholder="JJ" aria-label="Jour" required />
+                   placeholder="JJ" required />
             <span class="auth-dob-sep" aria-hidden="true">/</span>
+            <label for="authEditDobMonth" class="visually-hidden">Mois</label>
             <input type="text" inputmode="numeric" autocomplete="bday-month"
                    id="authEditDobMonth" maxlength="2" pattern="[0-9]*"
-                   placeholder="MM" aria-label="Mois" required />
+                   placeholder="MM" required />
             <span class="auth-dob-sep" aria-hidden="true">/</span>
+            <label for="authEditDobYear" class="visually-hidden">Année</label>
             <input type="text" inputmode="numeric" autocomplete="bday-year"
                    id="authEditDobYear" maxlength="4" pattern="[0-9]*"
-                   placeholder="AAAA" aria-label="Année" required />
+                   placeholder="AAAA" required />
           </div>
-        </label>
+        </fieldset>
         <label class="auth-field">
           <span id="authEditStageNameLabel"></span>
           <input type="text" id="authEditStageName" autocomplete="nickname" maxlength="40" required />
@@ -653,11 +659,11 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Bump v= on each deploy when you change one of these assets, so users
        fetch the fresh version without needing Ctrl+Shift+R. -->
-  <script src="./js/config.js?v=20260512"></script>
-  <script src="./js/utils.js?v=20260512"></script>
-  <script src="./js/rules.js?v=20260512"></script>
-  <script src="./data/all.js?v=20260512"></script>
-  <script src="./js/auth.js?v=20260512"></script>
-  <script src="./js/app.js?v=20260512"></script>
+  <script src="./js/config.js?v=20260515"></script>
+  <script src="./js/utils.js?v=20260515"></script>
+  <script src="./js/rules.js?v=20260515"></script>
+  <script src="./data/all.js?v=20260515"></script>
+  <script src="./js/auth.js?v=20260515"></script>
+  <script src="./js/app.js?v=20260515"></script>
 </body>
 </html>

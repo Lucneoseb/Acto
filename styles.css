@@ -3625,11 +3625,40 @@ body.mode-troupe #card-theme      { order: 3; }
   font-size: 0.85rem;
   color: var(--ink-muted);
 }
-.auth-field span {
+.auth-field span,
+.auth-field legend {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 600;
   font-size: 0.72rem;
+}
+/* Fieldset variant: used to group the DOB JJ/MM/AAAA inputs under one
+   accessible group label (the <legend>). Strip default browser styling so
+   it renders identically to the <label class="auth-field"> variant. */
+.auth-field-fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.auth-field-fieldset legend {
+  padding: 0;
+  margin: 0 0 0.32rem;
+  display: block;
+  color: var(--ink-muted);
+}
+/* Visually-hidden — keeps content available to screen readers / a11y
+   checks but invisible on screen. Used for per-input DOB labels. */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }
 .auth-field input {
   background: rgba(0, 0, 0, 0.35);

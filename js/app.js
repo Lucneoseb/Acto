@@ -478,6 +478,130 @@
     } catch (e) { return []; }
   }
 
+  /* ----------------------------------------------------------------
+     Persist the most-recently generated impro across reloads.
+     The user expects the cards (Theme / Constraint / Exercise / etc.)
+     to still show their last picked values after a refresh or after
+     coming back from another app. We save the in-memory state.current*
+     to localStorage on every change, and replay it on boot.
+     ---------------------------------------------------------------- */
+  const LAST_IMPRO_KEY = "acto-last-impro:v1";
+
+  function saveLastImpro() {
+    try {
+      // Skip if nothing meaningful has been picked yet (avoids overwriting
+      // a real saved impro with a blank state on first paint).
+      const hasContent =
+        state.currentTheme ||
+        state.currentConstraint ||
+        (state.currentExercise && state.currentExercise.name) ||
+        (state.currentCategory && state.currentCategory.name) ||
+        state.currentNature ||
+        state.currentPlayers != null ||
+        state.currentDurationSec;
+      if (!hasContent) return;
+      const payload = {
+        mode:               state.mode,
+        level:              state.level,
+        currentExercise:    state.currentExercise || null,
+        currentConstraint:  state.currentConstraint || "",
+        currentTheme:       state.currentTheme || "",
+        currentCategory:    state.currentCategory || null,
+        currentNature:      state.currentNature || "",
+        currentPlayers:     state.currentPlayers != null ? state.currentPlayers : null,
+        currentDurationSec: state.currentDurationSec || 0,
+        ts:                 Date.now()
+      };
+      localStorage.setItem(LAST_IMPRO_KEY, JSON.stringify(payload));
+    } catch (e) { /* localStorage may be full or disabled; ignore */ }
+  }
+
+  function loadLastImpro() {
+    try {
+      const raw = localStorage.getItem(LAST_IMPRO_KEY);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      if (!data || typeof data !== "object") return null;
+      return data;
+    } catch (e) { return null; }
+  }
+
+  /**
+   * Replay a saved impro on top of the current DOM:
+   *   - restore mode + level (so card layout matches),
+   *   - restore state.current* values,
+   *   - paint each card's reel as a single settled item,
+   *   - paint exercise/category descriptions,
+   *   - show the chrono section pre-loaded with the saved duration,
+   *   - refresh the Match-mode nature banner + audience card.
+   * Called once from boot() — silently no-ops if there's nothing to replay.
+   */
+  function restoreLastImpro() {
+    const saved = loadLastImpro();
+    if (!saved) return;
+
+    // Mode + level — driving the card layout class on body and the duration slider.
+    if (saved.mode  === "troupe" || saved.mode  === "match")    setMode(saved.mode);
+    if (saved.level === "debutant" || saved.level === "confirme" || saved.level === "expert") setLevel(saved.level);
+
+    // Push values back into state so further reroll/edit/Generate logic
+    // sees the same context as before the reload.
+    state.currentExercise    = saved.currentExercise || null;
+    state.currentConstraint  = saved.currentConstraint || "";
+    state.currentTheme       = saved.currentTheme || "";
+    state.currentCategory    = saved.currentCategory || null;
+    state.currentNature      = saved.currentNature || "";
+    state.currentPlayers     = saved.currentPlayers != null ? saved.currentPlayers : null;
+    state.currentDurationSec = saved.currentDurationSec || 0;
+
+    // Helper: paint a reel without animating — single .final item.
+    function paintReel(target, value) {
+      const text = String(value == null ? "" : value);
+      if (!text) return;
+      const reelEl  = $(`.reel[data-target="${target}"]`);
+      const trackEl = $(`#reel-${target}`);
+      const cardEl  = $(`#card-${target}`);
+      if (trackEl) {
+        trackEl.style.transition = "none";
+        trackEl.style.transform  = "translateY(0)";
+        trackEl.innerHTML = `<div class="reel-item final">${escapeHtml(text)}</div>`;
+      }
+      if (reelEl) reelEl.classList.add("settled");
+      if (cardEl) cardEl.classList.add("revealed");
+    }
+
+    // Paint cards based on which mode we're in. (Visible cards differ —
+    // CSS hides the irrelevant ones for the active mode.)
+    paintReel("theme",      state.currentTheme);
+    paintReel("constraint", state.currentConstraint);
+    paintReel("exercise",   state.currentExercise && state.currentExercise.name);
+    paintReel("category",   state.currentCategory && state.currentCategory.name);
+    paintReel("players",    state.currentPlayers);
+
+    // Meta lines under exercise / category cards (descriptions).
+    const exDesc = (state.currentExercise && state.currentExercise.desc) || "";
+    const exMeta = $("#meta-exercise");
+    if (exMeta) exMeta.textContent = exDesc;
+    const catDesc = (state.currentCategory && state.currentCategory.desc) || "";
+    const catMeta = $("#meta-category");
+    if (catMeta) catMeta.textContent = catDesc;
+
+    // Match-mode banner.
+    if (state.mode === "match" && typeof refreshNatureBanner === "function") {
+      try { refreshNatureBanner(); } catch (e) {}
+    }
+
+    // Show + populate the chrono section with the saved duration.
+    if (state.currentDurationSec > 0) {
+      const __chronoSection = $("#chronoSection");
+      if (__chronoSection) __chronoSection.hidden = false;
+      try { chronoReset(); } catch (e) {}
+    }
+
+    // Audience card visibility depends on currentExercise.needsAudience.
+    try { refreshAudienceCard(); } catch (e) {}
+  }
+
   // Per-level max duration (seconds), 30s step
   const LEVEL_MAX_DURATION = { debutant: 180, confirme: 300, expert: 480 };
 
@@ -1198,6 +1322,7 @@
       if (!state.currentDurationSec) state.currentDurationSec = pickDurationSec();
       chronoReset();
       refreshAudienceCard();
+      saveLastImpro();
     }
   }
 
@@ -1897,6 +2022,7 @@
       if (metaEl && (target === "category" || target === "exercise")) {
         metaEl.textContent = (state.currentExercise && state.currentExercise.desc) || "";
       }
+      saveLastImpro();
 
       // If the typed value is new, log it to user_submissions so the admin
       // can review and (later) promote it to the bundled data.
@@ -1954,18 +2080,21 @@
           state.chronoRemaining = state.chronoTotal;
           const display = $("#chronoDisplay");
           if (display) display.textContent = formatMMSS(state.chronoTotal);
+          saveLastImpro();
           return;
         }
         if (target === "nature") {
           // Nature has no slot reel — just re-pick + refresh the banner.
           pickFor("nature");
           refreshNatureBanner();
+          saveLastImpro();
           return;
         }
         b.disabled = true;
         await spinTarget(target, 0);
         b.disabled = false;
         if (target === "exercise") refreshAudienceCard();
+        saveLastImpro();
       })
     );
 
@@ -2098,6 +2227,11 @@
         loadApprovedSubmissionsIntoBundle().catch(() => {});
       }
     }
+
+    // Re-paint the most recent impro from localStorage so the user keeps
+    // their last picks across reloads / app-switches. Runs after all UI
+    // wiring so setMode / chronoReset / refreshAudienceCard exist.
+    try { restoreLastImpro(); } catch (e) { console.warn("[acto] restoreLastImpro failed", e); }
   }
 
 

@@ -665,7 +665,8 @@
       }
       ensureProfile(session.user).catch(() => {});
       if (event === "SIGNED_IN" && wasLoggedOut) {
-        sb.rpc("bump_stats", { delta_login: 1 })
+        // PostgrestBuilder from sb.rpc() is thenable but lacks .catch — wrap.
+        Promise.resolve(sb.rpc("bump_stats", { delta_login: 1 }))
           .catch((e) => console.warn("[auth] login bump failed", e));
       }
     } else if (event === "SIGNED_OUT") {
