@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=20260529" />
+<link rel="stylesheet" href="styles.css?v=20260533" />
 <style>
   /* Page-local layout. Keeps the same visual identity as index.html
      (backdrop + hero + auth-card visuals) but uses a wider working
@@ -274,7 +274,13 @@
   </footer>
 
   <!-- Reuse the bundled UI strings shipped with the app. -->
-  <script src="./data/all.js?v=20260529"></script>
+  <script src="./data/all.js?v=20260533"></script>
+  <!-- Supabase SDK + config: optional. When the user is authenticated,
+       additions made on this page are also sent to the admin for review
+       via the existing submit_user_text RPC (see Phase 1 / mes-impros
+       admin queue). Logged-out users keep the local-only behavior. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/config.js?v=20260533"></script>
   <script>
   (function () {
     "use strict";
@@ -323,6 +329,45 @@
         && (rec.level || "") === (ref.level || "")
         && rec.locale === ref.locale
         && lc(rec.text) === lc(ref.text);
+    }
+
+    /* ---------- Background submission to admin queue ----------------
+       When the user is authenticated, every new local addition is ALSO
+       sent to public.user_submissions (status='pending') so the admin
+       can review it on /admin.html#impro and approve it for everyone.
+       Failures are silent (logged-out / network error / RLS) — the
+       user's local copy still works either way. */
+    let _sbClient = null;
+    function getSupabaseClient() {
+      if (_sbClient) return _sbClient;
+      if (!window.supabase || !window.actoConfig) return null;
+      try {
+        _sbClient = window.supabase.createClient(
+          window.actoConfig.supabase.url,
+          window.actoConfig.supabase.key,
+          { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }
+        );
+      } catch (e) {
+        _sbClient = null;
+      }
+      return _sbClient;
+    }
+    function submitToAdminInBackground(filter, text, desc) {
+      const sb = getSupabaseClient();
+      if (!sb) return;
+      sb.auth.getSession().then(({ data }) => {
+        if (!data || !data.session || !data.session.user) return;
+        // submit_user_text RPC is idempotent: same (user, kind, mode,
+        // level, locale, lower(text)) tuple while pending → reuses row.
+        Promise.resolve(sb.rpc("submit_user_text", {
+          p_kind:        filter.kind,
+          p_mode:        filter.mode  || null,
+          p_level:       filter.level || null,
+          p_locale:      filter.locale,
+          p_text:        text,
+          p_description: desc || null
+        })).catch(err => console.warn("[acto] mes-impros admin submit failed", err));
+      }).catch(() => { /* ignore */ });
     }
 
     /* ---------- Pool readers (from bundled data, untouched by hides
@@ -566,6 +611,9 @@
       }
       list.push({ ...ref, desc });
       writeList(ADDED_KEY, list);
+      // ALSO push to the admin's pending queue (no-op if the user is
+      // logged out — the local addition still works either way).
+      submitToAdminInBackground(filter, text, desc);
       $("addItemText").value = "";
       $("addItemDesc").value = "";
       flashSaved();

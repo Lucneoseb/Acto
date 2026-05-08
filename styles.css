@@ -616,6 +616,111 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
   gap: 0.5rem;
   align-items: center;
 }
+/* Team-name input: sits above the saved-teams row. For Match A/B it
+   syncs with the #teamA / #teamB inputs on the main page; for Troupe
+   it's persisted independently in localStorage. The status line below
+   warns the user if the typed name collides with an already-saved
+   team (theirs → updates on save, others' → no real conflict). */
+.roster-team-name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0 0 0.85rem;
+}
+.roster-team-name label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  font-weight: 600;
+}
+.roster-team-name input[type="text"] {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--ink);
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: 0.95rem;
+  outline: none;
+}
+.roster-team-name input[type="text"]:focus {
+  border-color: rgba(245, 196, 81, 0.55);
+  background: rgba(0, 0, 0, 0.5);
+}
+.roster-team-name-status {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  line-height: 1.4;
+}
+.roster-team-name-status.is-available { color: var(--troupe); }
+.roster-team-name-status.is-self      { color: var(--gold-soft); }
+.roster-team-name-status.is-other     { color: var(--ink-muted); }
+
+/* Saved-teams section sits at the top of the roster dialog: dropdown
+   to pick a team + load/update/delete actions. The "save this team"
+   button lives in the dialog action bar so it can't be missed. */
+.saved-teams-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.45rem;
+  align-items: center;
+  padding: 0.7rem 0.85rem;
+  margin-bottom: 0.85rem;
+  background: rgba(245, 196, 81, 0.06);
+  border: 1px solid rgba(245, 196, 81, 0.2);
+  border-radius: var(--radius-md);
+}
+.saved-teams-row label {
+  grid-column: 1 / -1;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  font-weight: 600;
+}
+.saved-teams-row select {
+  grid-column: 1 / 2;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--ink);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+}
+.saved-teams-row select:focus { border-color: rgba(245, 196, 81, 0.5); }
+/* Ensure black text on the OS-rendered dropdown panel. */
+.saved-teams-row select option {
+  color: #000;
+  background: #fff;
+  font-weight: 500;
+}
+.saved-teams-row select option:checked,
+.saved-teams-row select option:hover {
+  color: #000;
+  font-weight: 700;
+  background: #fde08a;
+}
+.saved-teams-row .ghost-btn {
+  white-space: nowrap;
+  font-size: 0.82rem;
+  padding: 0.45rem 0.75rem;
+}
+.saved-teams-row .ghost-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+@media (max-width: 600px) {
+  .saved-teams-row {
+    grid-template-columns: 1fr;
+  }
+}
+.saved-teams-share-btn { margin-right: auto; }
 .roster-search-row input,
 .roster-adhoc-row input {
   flex: 1;
@@ -686,6 +791,26 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
   font-size: 0.875rem;
+  cursor: pointer;        /* clickable: toggles presence for tonight */
+  user-select: none;
+  transition: opacity 0.15s, border-style 0.15s, background 0.15s;
+}
+/* Absent: dimmed + dashed border + struck-through name. The participant
+   stays visible in the dialog so the user can re-mark them present, but
+   they're filtered out of the active roster on Save. */
+.roster-chip.is-absent {
+  opacity: 0.45;
+  border-style: dashed;
+  background: rgba(255, 255, 255, 0.02);
+}
+.roster-chip.is-absent .roster-chip-name { text-decoration: line-through; }
+.roster-chip.is-absent::after {
+  content: attr(data-absent-label);
+  margin-left: 0.25rem;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
 }
 .roster-chip-user {
   border-color: rgba(109, 211, 197, 0.45);

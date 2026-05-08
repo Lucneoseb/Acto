@@ -461,9 +461,14 @@ $$;
 revoke all on function public.add_impro_participants(uuid, jsonb) from public;
 grant  execute on function public.add_impro_participants(uuid, jsonb) to authenticated;
 
--- 4.4 SEARCH-BY-STAGE-NAME RPC — used by the team-builder autocomplete.
---     Case-insensitive contains-match. Returns at most 20 hits.
---     Authenticated-only. Exposes only id + nom_scene + prenom (not email).
+-- 4.4 SEARCH-USERS RPC — powers the team-builder autocomplete.
+--     The function name is kept for backward compat ("by stage name")
+--     but the query now matches case-insensitively across stage name,
+--     last name, first name AND email. Result rows still expose only
+--     id + nom_scene + prenom — emails / last names are NEVER returned.
+--     Profiles with a NULL/empty nom_scene stay excluded because they
+--     can't be added to a roster (the chip displays the stage name).
+--     Authenticated-only. Returns at most 20 hits.
 create or replace function public.search_users_by_stage_name(p_query text)
 returns table(id uuid, nom_scene text, prenom text)
 language sql
@@ -476,7 +481,12 @@ as $$
   where auth.uid() is not null
     and nom_scene is not null
     and nom_scene <> ''
-    and nom_scene ilike '%' || coalesce(p_query, '') || '%'
+    and (
+         nom_scene ilike '%' || coalesce(p_query, '') || '%'
+      or nom       ilike '%' || coalesce(p_query, '') || '%'
+      or prenom    ilike '%' || coalesce(p_query, '') || '%'
+      or email     ilike '%' || coalesce(p_query, '') || '%'
+    )
   order by nom_scene asc
   limit 20;
 $$;
@@ -954,6 +964,70 @@ grant  execute on function public.delete_bundled_item(text, text, text, text, te
 
 
 -- ╔═══════════════════════════════════════════════════════════════════╗
+-- ║  PART 5c — SAVED TEAMS (sharable rosters)                          ║
+-- ╚═══════════════════════════════════════════════════════════════════╝
+-- A user can save a roster (team name + actor list) so other users can
+-- load it into their own Match A / B / Troupe slot. Public read is the
+-- whole point — that's the warning the client surfaces before saving.
+-- Writes are restricted to the owner so nobody can clobber other users'
+-- teams.
+
+create table if not exists public.saved_teams (
+  id          uuid          primary key default gen_random_uuid(),
+  owner_id    uuid          not null references auth.users(id) on delete cascade,
+  name        text          not null,
+  -- Members shape: [{ user_id?: uuid, nom_scene: text }, …]
+  -- (user_id is optional — ad-hoc guests have only nom_scene.)
+  members     jsonb         not null default '[]'::jsonb,
+  created_at  timestamptz   not null default now(),
+  updated_at  timestamptz   not null default now()
+);
+
+-- Owner + name is unique per user — keeps "save twice with same name"
+-- from creating duplicates. Other owners CAN reuse the same team name,
+-- which is fine since the UI lists "<name> (<owner email>)".
+create unique index if not exists saved_teams_owner_name_unique
+  on public.saved_teams (owner_id, lower(name));
+
+create index if not exists saved_teams_owner_idx on public.saved_teams (owner_id);
+create index if not exists saved_teams_updated_idx on public.saved_teams (updated_at desc);
+
+alter table public.saved_teams enable row level security;
+
+drop policy if exists "everyone_reads_saved_teams" on public.saved_teams;
+drop policy if exists "owner_inserts_saved_teams"  on public.saved_teams;
+drop policy if exists "owner_updates_saved_teams"  on public.saved_teams;
+drop policy if exists "owner_deletes_saved_teams"  on public.saved_teams;
+
+-- READ: any authenticated user can read every saved team — that's how
+-- one team's roster ends up reusable by other users.
+create policy "everyone_reads_saved_teams"
+  on public.saved_teams for select
+  using (auth.uid() is not null);
+
+-- WRITE: only the owner can mutate their own rows.
+create policy "owner_inserts_saved_teams"
+  on public.saved_teams for insert
+  with check (auth.uid() = owner_id);
+
+create policy "owner_updates_saved_teams"
+  on public.saved_teams for update
+  using (auth.uid() = owner_id)
+  with check (auth.uid() = owner_id);
+
+create policy "owner_deletes_saved_teams"
+  on public.saved_teams for delete
+  using (auth.uid() = owner_id);
+
+-- Trigger to bump updated_at on row updates. Reuses set_updated_at()
+-- from PART 1 (already defined for the profiles table).
+drop trigger if exists saved_teams_set_updated_at on public.saved_teams;
+create trigger saved_teams_set_updated_at
+  before update on public.saved_teams
+  for each row execute function public.set_updated_at();
+
+
+-- ╔═══════════════════════════════════════════════════════════════════╗
 -- ║  PART 6 — EMAIL NOTIFICATIONS ON NEW SUBMISSIONS (Phase 3)         ║
 -- ╚═══════════════════════════════════════════════════════════════════╝
 -- When a row is inserted into user_submissions (status='pending'), fire
@@ -1127,8 +1201,8 @@ create trigger trg_notify_admin_on_new_submission
 --
 -- Verification checklist (Supabase dashboard):
 --   • Database → Tables → "profiles", "impro_events", "impro_participants",
---     "user_submissions", "app_secrets", "bundled_hidden_items" all exist
---     with the 🔒 RLS enabled badge.
+--     "user_submissions", "app_secrets", "bundled_hidden_items",
+--     "saved_teams" all exist with the 🔒 RLS enabled badge.
 --   • Database → Functions → all sixteen present:
 --       delete_my_account, bump_stats, is_admin,
 --       log_impro_event, update_impro_event,

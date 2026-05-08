@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=20260529" />
+<link rel="stylesheet" href="styles.css?v=20260533" />
 </head>
 <body>
   <!-- Stage backdrop -->
@@ -601,6 +601,30 @@
     <div class="dlg-body">
       <p class="dlg-help" id="rosterDialogHint"></p>
 
+      <!-- Team name — used both for the saved-teams server key and as
+           the #teamA/#teamB display on the main page (Match mode). The
+           status line below shows whether the typed name collides with
+           an existing saved team. Own teams will be UPDATED on save,
+           other users' don't collide because the unique index is
+           (owner_id, lower(name)). -->
+      <div class="roster-team-name">
+        <label for="rosterTeamNameInput" id="rosterTeamNameLabel"></label>
+        <input type="text" id="rosterTeamNameInput" maxlength="40" autocomplete="off" />
+        <p class="roster-team-name-status" id="rosterTeamNameStatus" hidden></p>
+      </div>
+
+      <!-- Saved teams section: load/update/delete teams shared by all
+           authenticated users. The Save button at the bottom of the
+           dialog action bar (#savedTeamsSaveBtn) writes to Supabase
+           after a privacy confirmation. -->
+      <div class="saved-teams-row">
+        <label for="savedTeamsSelect" id="savedTeamsLabel"></label>
+        <select id="savedTeamsSelect"></select>
+        <button type="button" class="ghost-btn" id="savedTeamsLoadBtn" disabled></button>
+        <button type="button" class="ghost-btn" id="savedTeamsUpdateBtn" disabled hidden></button>
+        <button type="button" class="ghost-btn" id="savedTeamsDeleteBtn" disabled hidden></button>
+      </div>
+
       <!-- Search-by-stage-name (registered users) -->
       <div class="roster-search-row">
         <input type="search" id="rosterSearchInput" autocomplete="off" />
@@ -619,6 +643,7 @@
       <p class="roster-empty" id="rosterEmpty" hidden></p>
     </div>
     <div class="dlg-actions">
+      <button type="button" class="auth-btn auth-btn-secondary saved-teams-share-btn" id="savedTeamsSaveBtn"></button>
       <button type="button" class="auth-btn auth-btn-secondary" id="rosterCancelBtn"></button>
       <button type="button" class="primary-btn" id="rosterSaveBtn"></button>
     </div>
@@ -694,11 +719,11 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Bump v= on each deploy when you change one of these assets, so users
        fetch the fresh version without needing Ctrl+Shift+R. -->
-  <script src="./js/config.js?v=20260529"></script>
-  <script src="./js/utils.js?v=20260529"></script>
-  <script src="./js/rules.js?v=20260529"></script>
-  <script src="./data/all.js?v=20260529"></script>
-  <script src="./js/auth.js?v=20260529"></script>
-  <script src="./js/app.js?v=20260529"></script>
+  <script src="./js/config.js?v=20260533"></script>
+  <script src="./js/utils.js?v=20260533"></script>
+  <script src="./js/rules.js?v=20260533"></script>
+  <script src="./data/all.js?v=20260533"></script>
+  <script src="./js/auth.js?v=20260533"></script>
+  <script src="./js/app.js?v=20260533"></script>
 </body>
 </html>

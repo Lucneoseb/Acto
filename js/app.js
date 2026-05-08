@@ -481,7 +481,11 @@
   /* Team names (Match mode A / B) are persisted independently of the
      roster lists: the user can rename the teams without touching the
      player lineup. Stored as plain strings under TEAM_NAME_KEYS. */
-  const TEAM_NAME_KEYS = { a: "acto-team-name-a", b: "acto-team-name-b" };
+  const TEAM_NAME_KEYS = {
+    a:      "acto-team-name-a",
+    b:      "acto-team-name-b",
+    troupe: "acto-team-name-troupe"
+  };
   function loadTeamNameFromStorage(side) {
     try {
       const raw = localStorage.getItem(TEAM_NAME_KEYS[side]);
@@ -1072,8 +1076,14 @@
     }
     if (empty) empty.hidden = true;
     rosterDraft.forEach((p, idx) => {
+      const isAbsent = p.present === false;
       const li = document.createElement("li");
-      li.className = "roster-chip" + (p.user_id ? " roster-chip-user" : " roster-chip-guest");
+      li.className = "roster-chip" + (p.user_id ? " roster-chip-user" : " roster-chip-guest")
+                     + (isAbsent ? " is-absent" : "");
+      // The ::after pseudo-element reads its label from this attribute
+      // so we keep the i18n string in sync with the active locale.
+      li.setAttribute("data-absent-label", t.rosterChipAbsent || "absent");
+      li.setAttribute("title", t.rosterPresenceHint || "");
       const name = document.createElement("span");
       name.className = "roster-chip-name";
       name.textContent = p.nom_scene;
@@ -1085,8 +1095,20 @@
       rm.className = "roster-chip-remove";
       rm.setAttribute("aria-label", t.rosterRemove || "Remove");
       rm.textContent = "✕";
-      rm.addEventListener("click", () => {
+      rm.addEventListener("click", (ev) => {
+        // Don't bubble to the chip click handler (which would toggle
+        // presence) — remove the chip outright.
+        ev.stopPropagation();
         rosterDraft.splice(idx, 1);
+        renderRosterDraftList();
+      });
+      // Click on the chip body → toggle presence for tonight. Absent
+      // members are filtered out on Save (active roster only); the
+      // saved-team server copy is unaffected.
+      li.addEventListener("click", () => {
+        // present is undefined or true → currently present → become absent.
+        // present === false → currently absent → become present.
+        rosterDraft[idx].present = (rosterDraft[idx].present === false);
         renderRosterDraftList();
       });
       li.append(tag, name, rm);
@@ -1206,12 +1228,38 @@
     }
     setText("rosterDialogTitle",  titleText);
     setText("rosterDialogHint",   t.rosterDialogHint);
+    setText("rosterTeamNameLabel", t.rosterTeamNameLabel || "Team name");
     setText("rosterAdHocAddBtn",  t.rosterAdHocAdd);
     setText("rosterCancelBtn",    t.rosterCancel || t.authDeleteCancel);
     setText("rosterSaveBtn",      t.rosterSave);
+
+    // Pre-fill the team-name input from the active source:
+    //   Match A/B → the #teamA / #teamB input on the main page
+    //   Troupe    → its own localStorage slot
+    const teamNameInput = $("#rosterTeamNameInput");
+    if (teamNameInput) {
+      let initial = "";
+      if (rosterDraftTarget === "a") {
+        initial = ($("#teamA") && $("#teamA").value) || "";
+      } else if (rosterDraftTarget === "b") {
+        initial = ($("#teamB") && $("#teamB").value) || "";
+      } else {
+        initial = loadTeamNameFromStorage("troupe");
+      }
+      teamNameInput.value = initial;
+      teamNameInput.placeholder = t.rosterTeamNamePlaceholder || "";
+    }
+    refreshTeamNameStatus();
+
     setRosterSearchStatus("idle");
     renderRosterSearchResults([], "");
     renderRosterDraftList();
+    // Saved-teams: render the dropdown right away (cached entries
+    // appear instantly), then refresh from the server in background.
+    renderSavedTeamsControls();
+    if (isSignedIn()) {
+      loadSavedTeamsList().then(renderSavedTeamsControls).catch(() => {});
+    }
     if (typeof dlg.showModal === "function") dlg.showModal();
     else dlg.setAttribute("open", "");
   }
@@ -1222,10 +1270,335 @@
     else dlg.removeAttribute("open");
   }
   function saveRoster() {
-    setRosterFor(rosterDraftTarget, rosterDraft.slice());
+    // Persist the team name FIRST. For Match A/B we also push the new
+    // value into the #teamA / #teamB input so the main-page label
+    // updates without needing a page reload.
+    const tnInput = $("#rosterTeamNameInput");
+    const teamName = tnInput ? (tnInput.value || "").trim() : "";
+    if (rosterDraftTarget === "a") {
+      const ta = $("#teamA");
+      if (ta) {
+        ta.value = teamName;
+        persistTeamName("a", teamName);
+      }
+    } else if (rosterDraftTarget === "b") {
+      const tb = $("#teamB");
+      if (tb) {
+        tb.value = teamName;
+        persistTeamName("b", teamName);
+      }
+    } else {
+      persistTeamName("troupe", teamName);
+    }
+
+    // Active roster = only members marked present. Strip the `present`
+    // flag itself before persisting so we don't store transient state
+    // alongside the long-lived participant entries.
+    const activeRoster = rosterDraft
+      .filter(p => p && p.present !== false)
+      .map(({ present, ...rest }) => rest);
+    setRosterFor(rosterDraftTarget, activeRoster);
     persistRoster(rosterDraftTarget);
     closeRosterDialog();
     refreshRosterStatus();
+  }
+
+  /* ================================================================
+     SAVED TEAMS  — server-shared rosters
+
+     Lets a user persist a (team_name, members[]) pair to Supabase
+     where every authenticated user can read it. The dialog surfaces
+     load / update / delete actions. Saving requires explicit consent
+     because the team name and stage names become public-readable to
+     other Acto users.
+     ================================================================ */
+  let savedTeams = [];
+  let savedTeamsLoaded = false;
+
+  function isSignedIn() {
+    return !!(window.actoSupabase && window.actoAuth
+              && window.actoAuth.state && window.actoAuth.state.user);
+  }
+
+  /** Update the inline team-name availability hint based on the
+   *  cached `savedTeams` list. Three states:
+   *    available   → no saved team has this name (any owner)
+   *    self        → user already has a team with this name; saving
+   *                  will UPDATE it (the unique index ensures this)
+   *    other       → another user has a team with the same name;
+   *                  technically not a conflict (unique on owner_id +
+   *                  lower(name)) but worth surfacing for clarity.
+   */
+  function refreshTeamNameStatus() {
+    const input  = $("#rosterTeamNameInput");
+    const status = $("#rosterTeamNameStatus");
+    if (!input || !status) return;
+    const t = store.ui;
+    const v = (input.value || "").trim();
+    if (!v) {
+      status.hidden = true;
+      status.textContent = "";
+      status.className = "roster-team-name-status";
+      return;
+    }
+    const lcv = v.toLowerCase();
+    const meId = (window.actoAuth && window.actoAuth.state && window.actoAuth.state.user
+                  && window.actoAuth.state.user.id) || null;
+    const mine  = savedTeams.find(s => s.owner_id === meId && s.name.toLowerCase() === lcv);
+    const other = !mine && savedTeams.find(s => s.name.toLowerCase() === lcv);
+
+    status.hidden = false;
+    if (mine) {
+      status.textContent = (t.rosterTeamNameTakenSelf || "You already have a team named “{name}”").replace("{name}", mine.name);
+      status.className = "roster-team-name-status is-self";
+    } else if (other) {
+      status.textContent = (t.rosterTeamNameTakenOther || "Someone else has named a team “{name}”").replace("{name}", other.name);
+      status.className = "roster-team-name-status is-other";
+    } else {
+      status.textContent = t.rosterTeamNameAvailable || "Name available";
+      status.className = "roster-team-name-status is-available";
+    }
+  }
+
+  /** Fetch every shared team from Supabase. Cached on `savedTeams` so
+   *  subsequent dialog opens don't refetch unless an action invalidates. */
+  async function loadSavedTeamsList() {
+    if (!isSignedIn()) { savedTeams = []; savedTeamsLoaded = false; return; }
+    try {
+      const { data, error } = await window.actoSupabase
+        .from("saved_teams")
+        .select("id, owner_id, name, members, updated_at")
+        .order("name", { ascending: true })
+        .limit(2000);
+      if (error) {
+        console.warn("[acto] loadSavedTeamsList error", error);
+        savedTeams = [];
+      } else {
+        savedTeams = (data || []).map(row => ({
+          id:       row.id,
+          owner_id: row.owner_id,
+          name:     row.name,
+          members:  Array.isArray(row.members) ? row.members : []
+        }));
+      }
+    } catch (e) {
+      console.warn("[acto] loadSavedTeamsList threw", e);
+      savedTeams = [];
+    }
+    savedTeamsLoaded = true;
+  }
+
+  /** Repaint the <select> + enable/disable load/update/delete buttons. */
+  function renderSavedTeamsControls() {
+    const sel    = $("#savedTeamsSelect");
+    const labelEl= $("#savedTeamsLabel");
+    const loadBtn= $("#savedTeamsLoadBtn");
+    const upBtn  = $("#savedTeamsUpdateBtn");
+    const delBtn = $("#savedTeamsDeleteBtn");
+    const saveBtn= $("#savedTeamsSaveBtn");
+    const t = store.ui;
+    if (labelEl) labelEl.textContent = t.savedTeamsLabel || "Saved teams";
+    if (loadBtn) loadBtn.textContent = t.savedTeamsLoadBtn   || "Load";
+    if (upBtn)   upBtn.textContent   = t.savedTeamsUpdateBtn || "Update";
+    if (delBtn)  delBtn.textContent  = t.savedTeamsDeleteBtn || "Delete";
+    if (saveBtn) saveBtn.textContent = t.savedTeamsSaveBtn   || "Save this team";
+
+    if (!sel) return;
+    sel.innerHTML = "";
+
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = t.savedTeamsPlaceholder || "— Pick a team —";
+    sel.appendChild(placeholder);
+
+    if (!savedTeams.length) {
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.disabled = true;
+      opt.textContent = t.savedTeamsEmpty || "No saved teams yet.";
+      sel.appendChild(opt);
+    } else {
+      const meId = (window.actoAuth && window.actoAuth.state && window.actoAuth.state.user
+                    && window.actoAuth.state.user.id) || null;
+      for (const team of savedTeams) {
+        const opt = document.createElement("option");
+        opt.value = team.id;
+        const isMine = team.owner_id === meId;
+        const mark = isMine ? " ★" : "";
+        opt.textContent = `${team.name} (${team.members.length})${mark}`;
+        sel.appendChild(opt);
+      }
+    }
+    syncSavedTeamsButtons();
+  }
+
+  function syncSavedTeamsButtons() {
+    const sel    = $("#savedTeamsSelect");
+    const loadBtn= $("#savedTeamsLoadBtn");
+    const upBtn  = $("#savedTeamsUpdateBtn");
+    const delBtn = $("#savedTeamsDeleteBtn");
+    const saveBtn= $("#savedTeamsSaveBtn");
+    const id = sel && sel.value;
+    const team = id ? savedTeams.find(t => t.id === id) : null;
+    const meId = (window.actoAuth && window.actoAuth.state && window.actoAuth.state.user
+                  && window.actoAuth.state.user.id) || null;
+    const isMine = !!(team && meId && team.owner_id === meId);
+
+    if (loadBtn) loadBtn.disabled = !team;
+    if (upBtn)   { upBtn.disabled  = !isMine; upBtn.hidden  = !isMine; }
+    if (delBtn)  { delBtn.disabled = !isMine; delBtn.hidden = !isMine; }
+    if (saveBtn) saveBtn.disabled = !isSignedIn();
+  }
+
+  /** Replace the active draft (rosterDraft) with the picked team's
+   *  members. For Match teams (a/b), also overwrite the team-name input. */
+  function loadSavedTeamIntoDraft() {
+    const sel = $("#savedTeamsSelect");
+    if (!sel || !sel.value) return;
+    const team = savedTeams.find(t => t.id === sel.value);
+    if (!team) return;
+    // Reset every loaded member to "present" — the user can then click
+    // any chip to mark someone absent for tonight only.
+    rosterDraft = team.members.map(m => ({ ...m, present: true }));
+    // Push the team's name into the dialog's team-name input AND into
+    // the matching main-page slot so the label updates immediately.
+    const tnInput = $("#rosterTeamNameInput");
+    if (tnInput) tnInput.value = team.name;
+    if (rosterDraftTarget === "a") {
+      const teamA = $("#teamA");
+      if (teamA) { teamA.value = team.name; persistTeamName("a", team.name); }
+    } else if (rosterDraftTarget === "b") {
+      const teamB = $("#teamB");
+      if (teamB) { teamB.value = team.name; persistTeamName("b", team.name); }
+    } else {
+      persistTeamName("troupe", team.name);
+    }
+    refreshTeamNameStatus();
+    renderRosterDraftList();
+    refreshRosterStatus();
+  }
+
+  /** Build the team-name to use when saving. The dialog's team-name
+   *  input is the source of truth now; we fall back to the main-page
+   *  Match A/B inputs (for legacy reasons) and finally to a prompt. */
+  function pickTeamNameForSave() {
+    const t = store.ui;
+    const tn = $("#rosterTeamNameInput");
+    if (tn && tn.value && tn.value.trim()) return tn.value.trim();
+    if (rosterDraftTarget === "a") {
+      const v = $("#teamA"); return (v && v.value && v.value.trim()) || prompt(t.savedTeamsNamePrompt || "Team name:", "");
+    }
+    if (rosterDraftTarget === "b") {
+      const v = $("#teamB"); return (v && v.value && v.value.trim()) || prompt(t.savedTeamsNamePrompt || "Team name:", "");
+    }
+    return prompt(t.savedTeamsNamePrompt || "Team name:", "");
+  }
+
+  /** Strip member objects to the public shape the table stores: only
+   *  user_id (optional) + nom_scene. The transient `present` flag is
+   *  intentionally dropped — the saved team retains its FULL roster
+   *  regardless of who's absent tonight. */
+  function publicMembersFromDraft() {
+    return rosterDraft.map(p => {
+      const out = { nom_scene: (p && p.nom_scene) || "" };
+      if (p && p.user_id) out.user_id = p.user_id;
+      return out;
+    }).filter(m => m.nom_scene);
+  }
+
+  async function actionSaveCurrentTeam() {
+    const t = store.ui;
+    if (!isSignedIn()) {
+      alert(t.savedTeamsLoginRequired || "Sign in first.");
+      return;
+    }
+    const members = publicMembersFromDraft();
+    if (!members.length) return;
+    const name = (pickTeamNameForSave() || "").trim();
+    if (!name) return;
+    if (!confirm(t.savedTeamsWarning || "Saving will share the team name and actor stage names with other users. Continue?")) return;
+
+    // Upsert by (owner_id, lower(name)) — use the unique index. Easier
+    // to do an explicit insert + fall back to update on conflict.
+    const meId = window.actoAuth.state.user.id;
+    try {
+      const { error: insErr } = await window.actoSupabase
+        .from("saved_teams")
+        .insert({ owner_id: meId, name, members });
+      if (insErr) {
+        // Conflict on the unique (owner_id, lower(name)) index → update existing.
+        if (String(insErr.code) === "23505" || /duplicate key/i.test(insErr.message || "")) {
+          const existing = savedTeams.find(s => s.owner_id === meId && s.name.toLowerCase() === name.toLowerCase());
+          if (existing) {
+            const { error: updErr } = await window.actoSupabase
+              .from("saved_teams")
+              .update({ name, members })
+              .eq("id", existing.id);
+            if (updErr) { alert("❌ " + updErr.message); return; }
+          } else {
+            // We don't have it cached — fetch fresh and retry once via update.
+            await loadSavedTeamsList();
+            const fresh = savedTeams.find(s => s.owner_id === meId && s.name.toLowerCase() === name.toLowerCase());
+            if (fresh) {
+              const { error: updErr } = await window.actoSupabase
+                .from("saved_teams")
+                .update({ name, members })
+                .eq("id", fresh.id);
+              if (updErr) { alert("❌ " + updErr.message); return; }
+            }
+          }
+        } else {
+          alert("❌ " + insErr.message);
+          return;
+        }
+      }
+    } catch (e) {
+      alert("❌ " + (e && e.message || e));
+      return;
+    }
+    await loadSavedTeamsList();
+    renderSavedTeamsControls();
+  }
+
+  async function actionUpdateSelectedTeam() {
+    const sel = $("#savedTeamsSelect");
+    if (!sel || !sel.value) return;
+    const team = savedTeams.find(s => s.id === sel.value);
+    if (!team) return;
+    const t = store.ui;
+    const msg = (t.savedTeamsConfirmUpdate || "Replace saved {name} contents with the current roster?").replace("{name}", team.name);
+    if (!confirm(msg)) return;
+    const members = publicMembersFromDraft();
+    try {
+      const { error } = await window.actoSupabase
+        .from("saved_teams")
+        .update({ members })
+        .eq("id", team.id);
+      if (error) { alert("❌ " + error.message); return; }
+    } catch (e) { alert("❌ " + (e && e.message || e)); return; }
+    await loadSavedTeamsList();
+    renderSavedTeamsControls();
+    sel.value = team.id;
+    syncSavedTeamsButtons();
+  }
+
+  async function actionDeleteSelectedTeam() {
+    const sel = $("#savedTeamsSelect");
+    if (!sel || !sel.value) return;
+    const team = savedTeams.find(s => s.id === sel.value);
+    if (!team) return;
+    const t = store.ui;
+    const msg = (t.savedTeamsConfirmDelete || "Permanently delete {name}?").replace("{name}", team.name);
+    if (!confirm(msg)) return;
+    try {
+      const { error } = await window.actoSupabase
+        .from("saved_teams")
+        .delete()
+        .eq("id", team.id);
+      if (error) { alert("❌ " + error.message); return; }
+    } catch (e) { alert("❌ " + (e && e.message || e)); return; }
+    await loadSavedTeamsList();
+    renderSavedTeamsControls();
   }
 
   function pickFor(target) {
@@ -1954,6 +2327,38 @@
     if (__rosterCancel)  __rosterCancel.addEventListener("click", closeRosterDialog);
     if (__rosterSave)    __rosterSave.addEventListener("click", saveRoster);
     if (__rosterDlg)     __rosterDlg.addEventListener("click", (e) => { if (e.target === __rosterDlg) closeRosterDialog(); });
+
+    // Saved-teams wiring (CRUD on the shared saved_teams table).
+    const __savedSel    = $("#savedTeamsSelect");
+    const __savedLoad   = $("#savedTeamsLoadBtn");
+    const __savedUpdate = $("#savedTeamsUpdateBtn");
+    const __savedDelete = $("#savedTeamsDeleteBtn");
+    const __savedSave   = $("#savedTeamsSaveBtn");
+    if (__savedSel)    __savedSel.addEventListener("change", syncSavedTeamsButtons);
+    if (__savedLoad)   __savedLoad.addEventListener("click", loadSavedTeamIntoDraft);
+    if (__savedUpdate) __savedUpdate.addEventListener("click", actionUpdateSelectedTeam);
+    if (__savedDelete) __savedDelete.addEventListener("click", actionDeleteSelectedTeam);
+    if (__savedSave)   __savedSave.addEventListener("click", actionSaveCurrentTeam);
+
+    // Team-name input: refresh the availability hint on every keystroke
+    // AND keep the matching main-page input (#teamA/#teamB) in sync so
+    // the label visible behind the dialog updates live.
+    const __rosterTeamName = $("#rosterTeamNameInput");
+    if (__rosterTeamName) {
+      __rosterTeamName.addEventListener("input", () => {
+        refreshTeamNameStatus();
+        const v = __rosterTeamName.value;
+        if (rosterDraftTarget === "a" && $("#teamA")) {
+          $("#teamA").value = v;
+          persistTeamName("a", v);
+          refreshRosterStatus();
+        } else if (rosterDraftTarget === "b" && $("#teamB")) {
+          $("#teamB").value = v;
+          persistTeamName("b", v);
+          refreshRosterStatus();
+        }
+      });
+    }
     if (__rosterSearch) {
       __rosterSearch.addEventListener("input", () => {
         clearTimeout(rosterSearchTimer);
