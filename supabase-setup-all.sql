@@ -1140,7 +1140,7 @@ create trigger saved_teams_set_updated_at
 --        ('resend_api_key', 're_xxxxxxxxxxxxxxxxxxx'),
 --        ('admin_email',    'lucneoseb@gmail.com'),
 --        ('from_email',     'Acto <noreply@acto.yourdomain>'),
---        ('admin_url',      'https://thriving-trifle-e565e3.netlify.app/admin.html#impro')
+--        ('admin_url',      'https://acto-theimprostudio.com/admin.html#impro')
 --      on conflict (key) do update set value = excluded.value;
 --   The `from_email` domain MUST be verified on Resend.
 --   If app_secrets is missing any of these, the trigger silently no-ops.
@@ -1215,7 +1215,7 @@ begin
     return NEW;
   end if;
   if v_admin_url is null then
-    v_admin_url := 'https://thriving-trifle-e565e3.netlify.app/admin.html#impro';
+    v_admin_url := 'https://acto-theimprostudio.com/admin.html#impro';
   end if;
 
   v_kind_lbl := case NEW.kind
@@ -1317,8 +1317,11 @@ create trigger trg_notify_admin_on_new_submission
 --      Authentication → Providers → Email → "Confirm email" ON
 --   2. Set redirect URL:
 --      Authentication → URL Configuration →
---      Site URL: https://thriving-trifle-e565e3.netlify.app
---      Redirect URLs: same
+--      Site URL: https://acto-theimprostudio.com
+--      Redirect URLs:
+--        https://acto-theimprostudio.com/**
+--        https://www.acto-theimprostudio.com/**
+--        (optionally) https://acto-theimprostudio.lucneoseb.workers.dev/**
 --   3. Promote yourself to admin (after first signup):
 --      update public.profiles set is_admin = true
 --      where email = 'lucneoseb@gmail.com';
@@ -1330,6 +1333,6 @@ create trigger trg_notify_admin_on_new_submission
 --            ('resend_api_key', 're_xxxxxxxxxxxxxxxxxxx'),
 --            ('admin_email',    'lucneoseb@gmail.com'),
 --            ('from_email',     'Acto <noreply@your-verified-domain>'),
---            ('admin_url',      'https://thriving-trifle-e565e3.netlify.app/admin.html#impro')
+--            ('admin_url',      'https://acto-theimprostudio.com/admin.html#impro')
 --          on conflict (key) do update set value = excluded.value;
 -- =====================================================================

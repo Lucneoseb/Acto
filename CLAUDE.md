@@ -1,7 +1,15 @@
 # Acto — The Impro Studio
 
-Static web app (vanilla JS, no build step) deployed on Netlify at
-**https://thriving-trifle-e565e3.netlify.app/**.
+Static web app (vanilla JS, no build step) deployed on **Cloudflare Workers
+Static Assets** at the custom domain **https://acto-theimprostudio.com**
+(legacy URLs `https://acto-theimprostudio.lucneoseb.workers.dev` and
+`https://thriving-trifle-e565e3.netlify.app` may still resolve during the
+migration window).
+
+Deploy is auto-triggered by every push to `main` via Cloudflare Workers
+Builds — see `wrangler.toml` and `.assetsignore` at the repo root. The
+`netlify.toml` is kept around only for parity reference; the live config
+is `_headers` (read by Cloudflare).
 
 It's a French-language randomizer for theatre improvisation. Auth, per-user
 stats, impro event log, and an admin dashboard all run on **Supabase**
@@ -14,7 +22,10 @@ stats, impro event log, and an admin dashboard all run on **Supabase**
 ├── index.html             — public app shell
 ├── admin.html      — admin dashboard (self-contained; loads config + utils)
 ├── styles.css             — all visual styling for index.html
-├── netlify.toml           — security headers + cache policy
+├── netlify.toml           — legacy headers config (Netlify, kept for parity)
+├── wrangler.toml          — Cloudflare Worker Static Assets config (live)
+├── _headers               — security/cache headers served by Cloudflare
+├── .assetsignore          — files excluded from Cloudflare upload (.git, etc.)
 ├── .gitignore             — excludes .claude/, OS cruft, future .env
 ├── README.md              — project blurb
 ├── CLAUDE.md              — this file
@@ -70,10 +81,11 @@ are useful for read-only exploration, not for the primary edit target.
 The `mcp__Claude_in_Chrome__*` tools are available. Standard loop:
 
 1. `tabs_context_mcp { createIfEmpty: true }` to get a tab id.
-2. `navigate { url, tabId }` to either the live Netlify URL or a local server
-   URL (the navigate tool prepends `https://` if missing, so `file:///` URLs
-   don't work — run `python -m http.server` and use `http://localhost:8000`
-   for local testing).
+2. `navigate { url, tabId }` to either the live custom domain
+   `https://acto-theimprostudio.com` or a local server URL (the navigate
+   tool prepends `https://` if missing, so `file:///` URLs don't work —
+   run `python -m http.server` and use `http://localhost:8000` for local
+   testing).
 3. `read_page { tabId, filter: "all" }` to confirm the rendered DOM.
 4. `read_console_messages { tabId, pattern: "admin|error|supabase" }` —
    `admin.html` logs `[admin] init starting…`, `[admin] session: …`,
