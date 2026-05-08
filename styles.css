@@ -2390,36 +2390,47 @@ body.mode-troupe #card-theme      { order: 3; }
   color: var(--gold);
   opacity: 0.6;
 }
-/* Support link: same italic muted aesthetic as the credit line, with the
-   gold heart prefix matching footer-credit's "✦". Discreet on purpose —
-   it's a tip jar, not a CTA. Underline appears on hover only. */
+/* Support button: outlined, gold-accented — visible without being loud.
+   Sits above the "Made with ♥" footer line so it's the first thing the
+   reader sees, but stays a subdued color until hovered. */
 .footer-support {
-  margin: 0.4rem 0 0;
-  font-size: 0.8rem;
+  margin: 0 0 1rem;          /* space below it before footerText */
+  text-align: center;
+}
+.footer-support-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid rgba(245, 196, 81, 0.5);   /* gold @ 50% */
+  border-radius: var(--radius-md);
+  background: rgba(245, 196, 81, 0.08);        /* gold @ 8% */
+  color: var(--gold-soft);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
   letter-spacing: 0.04em;
-  font-style: italic;
-}
-.footer-support a {
-  color: var(--ink-faint);
   text-decoration: none;
-  border-bottom: 1px solid transparent;
-  padding-bottom: 1px;
-  transition: color 0.15s, border-color 0.15s;
+  transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.1s;
 }
-.footer-support a:hover,
-.footer-support a:focus-visible {
-  color: var(--ink-muted);
-  border-bottom-color: var(--ink-faint);
+.footer-support-btn:hover,
+.footer-support-btn:focus-visible {
+  background: rgba(245, 196, 81, 0.18);
+  border-color: var(--gold);
+  color: var(--gold);
   outline: none;
+  transform: translateY(-1px);
+}
+.footer-support-btn:active {
+  transform: translateY(0);
 }
 .footer-support-heart {
   color: var(--gold);
-  opacity: 0.6;
-  margin-right: 0.3em;
+  font-size: 1em;
 }
 @media (max-width: 480px) {
-  .footer-credit,
-  .footer-support { font-size: 0.74rem; }
+  .footer-credit { font-size: 0.74rem; }
+  .footer-support-btn { font-size: 0.82rem; padding: 0.5rem 0.95rem; }
 }
 
 /* ==========================================================

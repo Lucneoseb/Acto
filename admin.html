@@ -381,6 +381,23 @@
   }
   .bundle-show-hidden input { accent-color: var(--gold); }
 
+  /* Native <select> dropdown options — the .btn class sets color:
+     var(--ink) (near-white) which inherits into options and renders as
+     washed-out grey on the OS-white panel. Force black + bold-on-hover
+     so all dropdowns stay legible when opened. */
+  select option {
+    color: #000;
+    background: #fff;
+    font-weight: 500;
+  }
+  select option:hover,
+  select option:checked,
+  select option:focus {
+    color: #000;
+    font-weight: 700;
+    background: #fde08a; /* gold-soft tint, hardcoded — option doesn't always pick up CSS vars */
+  }
+
   /* View toggling: admin.html hosts two pages, "Tableau de bord" and
      "Impro" (submissions + bundled lists). The body class drives which
      sections are visible; the URL hash (#impro vs nothing) is the
@@ -656,12 +673,12 @@
 </div><!-- /adminApp -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./js/config.js?v=20260522"></script>
-<script src="./js/utils.js?v=20260522"></script>
+<script src="./js/config.js?v=20260524"></script>
+<script src="./js/utils.js?v=20260524"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=20260522"></script>
+<script src="./data/all.js?v=20260524"></script>
 <script>
 (function () {
   "use strict";
