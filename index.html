@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=20260537" />
+<link rel="stylesheet" href="styles.css?v=20260539" />
 </head>
 <body>
   <!-- Stage backdrop -->
@@ -307,6 +307,17 @@
         <button class="card-reroll nature-reroll" data-reroll="nature" type="button" aria-label="Re-tirer">🎲</button>
       </div>
 
+      <!-- Random-draw banner: only shown when Nature is "Comparée" so
+           the troupes know which team gets to choose first (start or
+           pass). The 🔄 button flips the result if the chosen team
+           wants to pass. -->
+      <div class="tirage-banner match-only" id="card-tirage" hidden>
+        <span class="tirage-icon" aria-hidden="true">🎲</span>
+        <span class="tirage-text" id="tirageText"></span>
+        <button class="card-reroll tirage-flip" id="tirageFlipBtn" type="button"
+                aria-label="Inverser">🔄</button>
+      </div>
+
       <article class="card card-theme" id="card-theme">
         <header class="card-head"><span class="card-label" id="labelCardTheme"></span><button class="card-reroll" data-reroll="theme" type="button" aria-label="Re-tirer">🎲</button><button class="card-edit" data-edit="theme" type="button" aria-label="Modifier">✎</button><span class="card-icon" aria-hidden="true">💭</span></header>
         <div class="reel" data-target="theme"><div class="reel-window"><div class="reel-track" id="reel-theme"></div></div></div>
@@ -402,6 +413,12 @@
         <span class="recorder-rec-time" id="recorderRecTime">00:00</span>
       </div>
 
+      <!-- Match Comparée: shows which team is being recorded right now,
+           so the room knows whose turn it is. Hidden in Mixte / Troupe. -->
+      <div class="recorder-team-indicator" id="recorderTeamIndicator" hidden>
+        <span id="recorderTeamLabel"></span>
+      </div>
+
       <!-- Bottom controls — IDLE state: just the big record button -->
       <div class="recorder-bottom-bar" id="recorderControlsIdle">
         <button class="recorder-record" id="recorderRecordBtn" type="button" aria-label="Record">
@@ -463,6 +480,14 @@
           </div>
           <div class="recorder-preview-actions">
             <a class="recorder-action recorder-download" id="recorderDownloadLink" download></a>
+            <!-- Match Comparée: 2nd-team record button. Only visible
+                 after the first team's video is finalized AND the
+                 second team hasn't been recorded yet. Click → resets
+                 the recorder for the other team while keeping the
+                 just-finished file accessible until the user closes
+                 the popup. -->
+            <button class="recorder-action recorder-record-other"
+                    id="recorderRecordOtherBtn" type="button" hidden></button>
             <button class="recorder-action recorder-exit" id="recorderExitBtn" type="button"></button>
           </div>
         </div>
@@ -777,11 +802,11 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Bump v= on each deploy when you change one of these assets, so users
        fetch the fresh version without needing Ctrl+Shift+R. -->
-  <script src="./js/config.js?v=20260537"></script>
-  <script src="./js/utils.js?v=20260537"></script>
-  <script src="./js/rules.js?v=20260537"></script>
-  <script src="./data/all.js?v=20260537"></script>
-  <script src="./js/auth.js?v=20260537"></script>
-  <script src="./js/app.js?v=20260537"></script>
+  <script src="./js/config.js?v=20260539"></script>
+  <script src="./js/utils.js?v=20260539"></script>
+  <script src="./js/rules.js?v=20260539"></script>
+  <script src="./data/all.js?v=20260539"></script>
+  <script src="./js/auth.js?v=20260539"></script>
+  <script src="./js/app.js?v=20260539"></script>
 </body>
 </html>

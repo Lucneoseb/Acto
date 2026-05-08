@@ -466,7 +466,19 @@
     //   rosterB  = Match mode Team B
     roster:  loadRosterFromStorage("troupe"),
     rosterA: loadRosterFromStorage("a"),
-    rosterB: loadRosterFromStorage("b")
+    rosterB: loadRosterFromStorage("b"),
+    // Match Comparée only:
+    //   firstStarter — random "a" | "b" picked at impro generation
+    //                  to tell the troupes which team chooses first
+    //                  (play or pass).
+    //   currentRecordingTeam — which team is in the camera RIGHT NOW;
+    //                  used for the indicator + filename.
+    //   recordedTeamsSet — Set of teams already finalized for the
+    //                  current impro_event ("a", "b"); drives the
+    //                  "Record the other team" CTA.
+    firstStarter: null,
+    currentRecordingTeam: null,
+    recordedTeamsSet: new Set()
   };
 
   function loadRosterFromStorage(target) {
@@ -894,6 +906,64 @@
     el.classList.remove("appearing");
     void el.offsetWidth;
     el.classList.add("appearing");
+    // Tirage banner is a satellite of the nature banner — stays in sync.
+    refreshTirageBanner();
+  }
+
+  /** Lookup label for "Team A" / "Team B" using the user's typed
+   *  values where possible, otherwise the i18n placeholder fallbacks. */
+  function teamDisplayName(side) {
+    const t = store.ui;
+    if (side === "a") {
+      const v = ($("#teamA") && $("#teamA").value || "").trim();
+      return v || t.teamA || "Team A";
+    }
+    if (side === "b") {
+      const v = ($("#teamB") && $("#teamB").value || "").trim();
+      return v || t.teamB || "Team B";
+    }
+    return "";
+  }
+
+  /** Show / update / hide the "🎲 X commence" banner depending on the
+   *  current nature pick. Hidden in Mixte / Troupe / un-generated. */
+  function refreshTirageBanner() {
+    const el = document.getElementById("card-tirage");
+    if (!el) return;
+    const t = store.ui;
+    const isComparee = state.mode === "match"
+      && /compar/i.test(state.currentNature || "");
+    if (!isComparee || !state.firstStarter) {
+      el.hidden = true;
+      return;
+    }
+    const txt = $("#tirageText");
+    if (txt) {
+      const name = teamDisplayName(state.firstStarter);
+      const tpl = (state.firstStarter === "a")
+        ? (t.tirageStartsA || "🎲 {team} starts.")
+        : (t.tirageStartsB || "🎲 {team} starts.");
+      txt.textContent = tpl.replace("{team}", name);
+    }
+    el.hidden = false;
+  }
+
+  /** Re-roll which team starts (random). Called from the 🎲 button on
+   *  the tirage banner if the Comparée nature is active. */
+  function rollFirstStarter() {
+    state.firstStarter = (Math.random() < 0.5) ? "a" : "b";
+    // The default "currently-recording" team also resets to whoever
+    // starts so the recorder UI matches expectations.
+    state.currentRecordingTeam = state.firstStarter;
+    refreshTirageBanner();
+  }
+  /** Flip the result without re-rolling — used by the team that
+   *  decides to PASS the start to the other team. */
+  function flipFirstStarter() {
+    if (!state.firstStarter) return rollFirstStarter();
+    state.firstStarter = (state.firstStarter === "a") ? "b" : "a";
+    state.currentRecordingTeam = state.firstStarter;
+    refreshTirageBanner();
   }
 
   function setMode(mode) {
@@ -910,6 +980,10 @@
     document.body.classList.toggle("mode-match",  mode === "match");
     document.body.classList.toggle("mode-troupe", mode === "troupe");
     refreshAudienceCard();
+    // Ensure the tirage banner + recording-team indicator follow the
+    // mode: hidden in Troupe, conditionally visible in Match.
+    try { refreshTirageBanner(); } catch (e) {}
+    try { refreshRecordingTeamIndicator(); } catch (e) {}
   }
   function setLevel(level) {
     state.level = level;
@@ -1722,6 +1796,11 @@
       // Nature has no slot reel (just a banner) — pick it instantly here so the
       // value is ready by the time the cycling overlay reads currentNature.
       pickFor("nature");
+      // Fresh generation = fresh draw + fresh record tracking. Only
+      // matters for Comparée; refreshTirageBanner gates on nature.
+      state.recordedTeamsSet = new Set();
+      state.firstStarter = (Math.random() < 0.5) ? "a" : "b";
+      state.currentRecordingTeam = state.firstStarter;
       refreshNatureBanner();
       targets = ["theme", "players", "category"];
     } else {
@@ -2416,6 +2495,10 @@
       __teamA.addEventListener("input", () => {
         persistTeamName("a", __teamA.value);
         refreshRosterStatus();
+        // Tirage banner shows the team name — re-render so renames
+        // are visible immediately.
+        refreshTirageBanner();
+        refreshRecordingTeamIndicator();
       });
     }
     if (__teamB) {
@@ -2424,6 +2507,8 @@
       __teamB.addEventListener("input", () => {
         persistTeamName("b", __teamB.value);
         refreshRosterStatus();
+        refreshTirageBanner();
+        refreshRecordingTeamIndicator();
       });
     }
     if (__teamTroupe) {
@@ -2627,7 +2712,17 @@
         if (target === "nature") {
           // Nature has no slot reel — just re-pick + refresh the banner.
           pickFor("nature");
+          // Match Comparée only: any change to the nature implies a
+          // fresh setup, so we re-roll the first-starter and clear
+          // the "this team has already recorded" tracking. Mixte wins
+          // → these are no-ops (the banner just hides).
+          if (state.mode === "match" && /compar/i.test(state.currentNature || "")) {
+            state.firstStarter = (Math.random() < 0.5) ? "a" : "b";
+            state.currentRecordingTeam = state.firstStarter;
+            state.recordedTeamsSet = new Set();
+          }
           refreshNatureBanner();
+          refreshRecordingTeamIndicator();
           saveLastImpro();
           return;
         }
@@ -2755,6 +2850,42 @@
       });
     }
 
+    // Match Comparée: tirage banner flip button.
+    const __tirageFlip = $("#tirageFlipBtn");
+    if (__tirageFlip) __tirageFlip.addEventListener("click", flipFirstStarter);
+
+    // Match Comparée: "Record the other team" button on the preview
+    // popup. Switches the active recording team to the one not yet
+    // finalized, hides the popup, and re-opens the recorder for a
+    // fresh capture. The first video stays available via the user's
+    // download (already triggered on click), so we don't need to
+    // preserve the old blob URL here.
+    const __recOther = $("#recorderRecordOtherBtn");
+    if (__recOther) {
+      __recOther.addEventListener("click", async () => {
+        const done = state.recordedTeamsSet;
+        const next = (done && done.has("a")) ? "b"
+                   : (done && done.has("b")) ? "a"
+                   : (state.currentRecordingTeam === "a" ? "b" : "a");
+        state.currentRecordingTeam = next;
+        // Reset the camera/recorder UI to the idle state for a 2nd take.
+        rec.chunks = [];
+        rec.recorder = null;
+        rec.isRecording = false;
+        rec.isPaused = false;
+        rec.elapsedBeforePause = 0;
+        recHidePreviewPopup();
+        const stage = $("#recorderStage");
+        if (stage) stage.classList.remove("recorder-stage-finished");
+        if (rec.canvas) rec.canvas.style.display = "";
+        recShowIdleControls();
+        refreshRecordingTeamIndicator();
+        // Re-open the camera (recOpen is idempotent — modal already
+        // visible, recStartCamera replaces the existing stream).
+        try { await recOpen(); } catch (e) { /* recOpen logs its own */ }
+      });
+    }
+
     document.addEventListener("keydown", (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
         e.preventDefault();
@@ -2879,6 +3010,7 @@
     recHideConfirm();
     recHidePreviewPopup();
     recShowIdleControls();
+    refreshRecordingTeamIndicator();
     await recStartCamera();
     // After the camera is live and the first frame has rendered (panel rect
     // known), pop the description in & let it follow the panel.
@@ -3799,7 +3931,8 @@
 
   /** Build the filename for the just-recorded video using whatever the
    *  user has typed into the participants editor (falls back to the
-   *  active rosters / team-name inputs if the editor is empty). */
+   *  active rosters / team-name inputs if the editor is empty). For
+   *  Match Comparée we name after the SINGLE team being recorded. */
   function computeRecordedVideoFilename(ext) {
     const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
     const segs = [];
@@ -3810,7 +3943,15 @@
                  || ($("#teamB") && $("#teamB").value) || "";
       const aSlug = slugForFilename(aName, 20);
       const bSlug = slugForFilename(bName, 20);
-      if (aSlug || bSlug) segs.push((aSlug || "TeamA") + "-vs-" + (bSlug || "TeamB"));
+      const isComparee = /compar/i.test(state.currentNature || "");
+      if (isComparee && state.currentRecordingTeam) {
+        // Comparée → solo team name in the filename.
+        const sideSlug = (state.currentRecordingTeam === "a") ? aSlug : bSlug;
+        const fallback = (state.currentRecordingTeam === "a") ? "TeamA" : "TeamB";
+        segs.push(sideSlug || fallback);
+      } else if (aSlug || bSlug) {
+        segs.push((aSlug || "TeamA") + "-vs-" + (bSlug || "TeamB"));
+      }
     } else {
       const tName = ($("#recParticipantsTroupeName") && $("#recParticipantsTroupeName").value)
                  || ($("#teamTroupe") && $("#teamTroupe").value) || "";
@@ -3823,6 +3964,40 @@
     }
     segs.push(ts);
     return "acto-" + segs.filter(Boolean).join("-") + "." + (ext || "webm");
+  }
+
+  /** Show / update / hide the floating "🎬 Recording: Team X" chip
+   *  inside the camera UI. Visible only in Match Comparée. */
+  function refreshRecordingTeamIndicator() {
+    const el = $("#recorderTeamIndicator");
+    if (!el) return;
+    const t = store.ui;
+    const isComparee = state.mode === "match"
+      && /compar/i.test(state.currentNature || "");
+    if (!isComparee || !state.currentRecordingTeam) {
+      el.hidden = true;
+      return;
+    }
+    const name = teamDisplayName(state.currentRecordingTeam);
+    const tpl = t.recordingTeamLabel || "🎬 Recording: {team}";
+    setText("recorderTeamLabel", tpl.replace("{team}", name));
+    el.hidden = false;
+  }
+
+  /** Show / hide the "Record the other team" button on the preview
+   *  popup. Only meaningful in Match Comparée after exactly one team
+   *  has been finalized. Click → reset the recorder state for the
+   *  OTHER team and re-open it. */
+  function refreshRecordOtherTeamButton() {
+    const btn = $("#recorderRecordOtherBtn");
+    if (!btn) return;
+    const t = store.ui;
+    const isComparee = state.mode === "match"
+      && /compar/i.test(state.currentNature || "");
+    const oneDone = state.recordedTeamsSet && state.recordedTeamsSet.size === 1;
+    if (!isComparee || !oneDone) { btn.hidden = true; return; }
+    btn.textContent = t.recordOtherTeamBtn || "🎬 Record the other team";
+    btn.hidden = false;
   }
 
   /** Pre-fill the editor with the current rosters + team names. Show
@@ -3930,6 +4105,14 @@
     const act  = $("#recorderControlsActive");
     if (act)  act.hidden = true;
     if (rec.canvas) rec.canvas.style.display = "none";
+    // Match Comparée: remember which team we just recorded so the
+    // "Record the other team" CTA can appear on the preview popup
+    // when exactly one of the two teams is done.
+    if (state.mode === "match" && /compar/i.test(state.currentNature || "")
+        && state.currentRecordingTeam) {
+      state.recordedTeamsSet.add(state.currentRecordingTeam);
+    }
+    refreshRecordOtherTeamButton();
     // Show preview popup
     const pop = $("#recorderPreviewPopup");
     if (pop) pop.hidden = false;

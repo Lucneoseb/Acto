@@ -1248,6 +1248,27 @@ body.mode-troupe #card-theme      { order: 3; }
   border-radius: var(--radius-md);
   position: relative;
 }
+/* Match Comparée tirage banner — same vibe as the nature one but
+   slightly more subdued (smaller padding, softer border) since it's
+   informational rather than result-revealing. */
+.tirage-banner {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 0.5rem 1rem;
+  border: 1px dashed rgba(245, 196, 81, 0.3);
+  background: rgba(245, 196, 81, 0.06);
+  border-radius: var(--radius-md);
+  font-size: 0.92rem;
+  color: var(--ink);
+  margin-top: -0.4rem;
+}
+.tirage-banner[hidden] { display: none; }
+.tirage-icon { font-size: 1.05rem; }
+.tirage-text { font-weight: 500; letter-spacing: 0.02em; }
+.tirage-flip { font-size: 0.95rem; }
 .nature-label {
   font-size: 0.72rem;
   letter-spacing: 0.12em;
@@ -3413,6 +3434,39 @@ body.mode-troupe #card-theme      { order: 3; }
     padding: 0.32rem 0.6rem;
   }
 }
+
+/* Recording team indicator (Match Comparée only): floating chip
+   showing whose video is being captured right now. Sits below the
+   REC dot so the room knows whose turn it is. */
+.recorder-team-indicator {
+  position: absolute;
+  top: max(0.85rem, env(safe-area-inset-top));
+  right: 0.85rem;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  background: rgba(10, 6, 18, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(245, 196, 81, 0.55);
+  border-radius: 999px;
+  color: var(--gold-soft);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+}
+.recorder-team-indicator[hidden] { display: none; }
+/* "Enregistrer la 2e équipe" — same shape as the download/exit
+   buttons; gold-soft accent so it reads as the primary next action. */
+.recorder-record-other {
+  background: linear-gradient(135deg, rgba(245, 196, 81, 0.95), rgba(253, 224, 138, 0.95));
+  color: var(--bg-deep);
+  border: 0;
+  font-weight: 700;
+}
+.recorder-record-other[hidden] { display: none !important; }
 
 /* === Removed in this version (kept here only as no-ops in case old markup survives) === */
 .recorder-brand-logo,
