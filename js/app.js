@@ -2575,28 +2575,29 @@
         category:   t.cardCategory   || "Catégorie",
         exercise:   t.cardExercise   || "Exercice"
       };
-      const currentValue = (
-        target === "theme"      ? state.currentTheme
-      : target === "constraint" ? state.currentConstraint
-      : (state.currentExercise && state.currentExercise.name)
-      ) || "";
-      $("#editValueTitle").textContent = (t.editValueTitle || "Modifier la valeur") + " — " + labelMap[target];
+      // The dialog is now a pure "suggest a new entry to the admin" flow —
+      // we no longer pre-fill the input with the rolled value. The user
+      // types a brand-new theme/constraint/category/exercise; on save it
+      // creates a pending user_submission, the admin reviews it, and once
+      // approved it joins the bundled pool for everyone.
+      $("#editValueTitle").textContent = (t.editValueTitle || "Ajouter") + " — " + labelMap[target];
       $("#editValueLabel").textContent = labelMap[target];
-      $("#editValueHelp").textContent  = t.editValueHelp || "Si la valeur est nouvelle, elle sera proposée à l'admin pour validation.";
+      $("#editValueHelp").textContent  = t.editValueHelp || "Ta proposition sera envoyée à l'admin pour validation.";
       $("#editValueCancel").textContent = t.rosterCancel || "Annuler";
-      $("#editValueSave").textContent   = t.editValueSave || "Enregistrer";
-      __evInput.value = currentValue;
+      $("#editValueSave").textContent   = t.editValueSave || "Soumettre";
+      __evInput.value = "";
       __evStatus.hidden = true;
       __evStatus.textContent = "";
       __evStatus.classList.remove("error");
-      // Description field: only show for exercise/category targets.
+      // Description field: only show for exercise/category targets so the
+      // user can explain how the new exercise/category works.
       const showDesc = (target === "exercise" || target === "category");
       if (__evDescWrap) __evDescWrap.hidden = !showDesc;
       if (showDesc) {
         if (__evDescLabel) __evDescLabel.textContent = t.editValueDescLabel || "Description";
         if (__evDescInput) {
           __evDescInput.placeholder = t.editValueDescPlaceholder || "";
-          __evDescInput.value = (state.currentExercise && state.currentExercise.desc) || "";
+          __evDescInput.value = "";
         }
       } else if (__evDescInput) {
         __evDescInput.value = "";
@@ -2624,24 +2625,75 @@
       });
     }
 
+    /** Persist a new entry to the user's local pool (visible only to them
+     *  on this device + on /mes-impros). De-dupes case-insensitively against
+     *  the existing list so a re-submit doesn't pile up duplicates. The
+     *  shape mirrors what applyUserLocalPool() reads back. */
+    function pushUserLocalAddition(entry) {
+      try {
+        const raw = localStorage.getItem("acto-user-added:v1");
+        const list = raw ? JSON.parse(raw) : [];
+        const arr = Array.isArray(list) ? list : [];
+        const lc = (s) => String(s || "").trim().toLowerCase();
+        const dupe = arr.some(a =>
+          a && a.kind === entry.kind
+          && (a.mode  || "") === (entry.mode  || "")
+          && (a.level || "") === (entry.level || "")
+          && a.locale === entry.locale
+          && lc(a.text) === lc(entry.text)
+        );
+        if (!dupe) arr.push(entry);
+        localStorage.setItem("acto-user-added:v1", JSON.stringify(arr));
+      } catch (e) { /* localStorage full / unavailable — silent */ }
+    }
+
     async function saveEditValue() {
       const target = __evDlg && __evDlg.dataset.editTarget;
       if (!target) return;
+      const t = store.ui;
       const value = (__evInput.value || "").trim();
-      if (!value) return;
-      // Description is only collected for exercise/category. For other
-      // targets we keep the existing description (or empty) so the meta
-      // line under the card stays in sync.
+      if (!value) {
+        __evStatus.textContent = t.editValueErrorEmpty || "Le texte est obligatoire.";
+        __evStatus.classList.add("error");
+        __evStatus.hidden = false;
+        return;
+      }
+      // Description is collected only for exercise/category targets where
+      // a "how does it work" explanation makes sense.
       const wantsDesc = (target === "exercise" || target === "category");
       const desc = wantsDesc ? (__evDescInput && __evDescInput.value || "").trim() : "";
 
-      // Apply the override locally so the impro proceeds with the typed value.
+      // Reject duplicates against the current pool so the user gets a clear
+      // message instead of a silent no-op.
+      if (isValueInPool(target, value)) {
+        __evStatus.textContent = t.editValueErrorDuplicate
+          || "Cette entrée existe déjà dans la liste.";
+        __evStatus.classList.add("error");
+        __evStatus.hidden = false;
+        return;
+      }
+
+      // (kind, mode, level) tuple used by both submit_user_text and the
+      // local pool. Theme: level only. Category: mode='match' only. Both
+      // constraint and exercise: mode + level from the current generation.
+      const meta = {
+        kind:   target,
+        mode:   (target === "exercise" || target === "constraint") ? state.mode
+              : (target === "category" ? "match" : ""),
+        level:  (target === "exercise" || target === "constraint" || target === "theme") ? state.level
+              : "",
+        locale: store.locale || "fr",
+        text:   value,
+        desc:   wantsDesc ? desc : ""
+      };
+
+      // 1) Apply locally: override the rolled value so the impro proceeds
+      //    with what the user typed. (Restores the pre-2026-05 behavior.)
       if (target === "theme") {
         state.currentTheme = value;
       } else if (target === "constraint") {
         state.currentConstraint = value;
       } else {
-        // category (Match) and exercise (Troupe) both live on currentExercise.
         state.currentExercise = {
           name: value,
           desc: desc || (state.currentExercise && state.currentExercise.desc) || ""
@@ -2661,22 +2713,62 @@
       }
       saveLastImpro();
 
-      // If the typed value is new, log it to user_submissions so the admin
-      // can review and (later) promote it to the bundled data. Fire the RPC
-      // in the background — the UX is "save closes immediately"; we don't
-      // surface success/failure to the user (silently logged to console).
-      const isNew = !isValueInPool(target, value);
-      if (isNew && window.actoSupabase && window.actoAuth && window.actoAuth.state.user) {
-        Promise.resolve(window.actoSupabase.rpc("submit_user_text", {
-          p_kind:        target,
-          p_mode:        target === "exercise" || target === "constraint" ? state.mode : (target === "category" ? "match" : ""),
-          p_level:       (target === "exercise" || target === "constraint") ? state.level : "",
-          p_locale:      store.locale || "fr",
-          p_text:        value,
-          p_description: wantsDesc ? (desc || null) : null
-        })).catch(err => console.warn("submit_user_text failed", err));
+      // 2) Persist in the user's per-device additions list. The next time
+      //    applyUserLocalPool() runs (locale change, page reload), this
+      //    entry shows up in /mes-impros and is eligible for future rolls.
+      pushUserLocalAddition(meta);
+
+      // 3) Submit to admin queue — this is the part that needs auth + RPC.
+      //    If the user is signed out, we still want (1) and (2) to take
+      //    effect, but skip the submit and tell them so. RPC errors here
+      //    don't roll back the local-pool addition: the local data is
+      //    durable, the admin propagation is best-effort.
+      if (!(window.actoSupabase && window.actoAuth && window.actoAuth.state.user)) {
+        __evStatus.textContent = t.editValueErrorNotSignedIn
+          || "Connecte-toi pour soumettre la proposition à l'admin (l'entrée a été ajoutée localement).";
+        __evStatus.classList.add("error");
+        __evStatus.hidden = false;
+        return;
       }
-      closeEditValueDialog();
+
+      // Disable buttons during RPC so a fast double-click can't create dupes.
+      const saveBtn   = $("#editValueSave");
+      const cancelBtn = $("#editValueCancel");
+      const originalSaveLabel = saveBtn ? saveBtn.textContent : "";
+      if (saveBtn)   { saveBtn.disabled = true; saveBtn.textContent = t.editValueSaving || "Envoi…"; }
+      if (cancelBtn) cancelBtn.disabled = true;
+      __evStatus.hidden = true; __evStatus.classList.remove("error"); __evStatus.textContent = "";
+
+      try {
+        const { error } = await Promise.resolve(window.actoSupabase.rpc("submit_user_text", {
+          p_kind:        meta.kind,
+          p_mode:        meta.mode,
+          p_level:       meta.level,
+          p_locale:      meta.locale,
+          p_text:        meta.text,
+          p_description: wantsDesc ? (desc || null) : null
+        }));
+        if (error) throw error;
+        __evStatus.textContent = t.editValueSubmitted
+          || "✓ Ajouté à ta liste et proposé à l'admin pour tous.";
+        __evStatus.classList.remove("error");
+        __evStatus.hidden = false;
+        if (saveBtn)   { saveBtn.disabled = false; saveBtn.textContent = originalSaveLabel; }
+        if (cancelBtn) cancelBtn.disabled = false;
+        setTimeout(closeEditValueDialog, 1200);
+      } catch (err) {
+        // Local override + local pool already happened — only the admin
+        // propagation failed. Tell the user that's a partial success.
+        console.warn("submit_user_text failed", err);
+        const failLbl = t.editValueSubmitFailed || "Échec de la soumission à l'admin";
+        __evStatus.textContent = (err && err.message)
+          ? failLbl + " : " + err.message
+          : failLbl + ".";
+        __evStatus.classList.add("error");
+        __evStatus.hidden = false;
+        if (saveBtn)   { saveBtn.disabled = false; saveBtn.textContent = originalSaveLabel; }
+        if (cancelBtn) cancelBtn.disabled = false;
+      }
     }
 
     if (__evClose)  __evClose.addEventListener("click",  closeEditValueDialog);
