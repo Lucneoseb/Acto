@@ -2888,6 +2888,10 @@
         rec.isRecording = false;
         rec.isPaused = false;
         rec.elapsedBeforePause = 0;
+        rec._chronoArmed = false;
+        // The first impro consumed the chrono — reset it so the 2nd team
+        // gets a fresh full-duration timer that starts on GO.
+        try { chronoReset(); } catch (e) { /* ignore */ }
         recHidePreviewPopup();
         const stage = $("#recorderStage");
         if (stage) stage.classList.remove("recorder-stage-finished");
@@ -3443,13 +3447,25 @@
   }
 
   /** Trigger countdown / GO sounds at the right moments. Idempotent: each
-   *  cue plays at most once per recording session. */
+   *  cue plays at most once per recording session. The chrono is also
+   *  armed here so it starts on "GO", not at the start of recording. */
   function recMaybeTriggerIntroSounds(elapsedMs) {
     const cdStart = INTRO_MS;
     if (!rec._tick3 && elapsedMs >= cdStart)               { rec._tick3 = true;   playTick(); }
     if (!rec._tick2 && elapsedMs >= cdStart + 1000)        { rec._tick2 = true;   playTick(); }
     if (!rec._tick1 && elapsedMs >= cdStart + 2000)        { rec._tick1 = true;   playTick(); }
-    if (!rec._goPlayed && elapsedMs >= cdStart + 3000)     { rec._goPlayed = true; playGoSound(); }
+    if (!rec._goPlayed && elapsedMs >= cdStart + 3000)     {
+      rec._goPlayed = true;
+      playGoSound();
+    }
+    // Start the chrono when the 3-2-1 ceremony ends (on "GO"). Using the
+    // RAF-driven elapsed clock means the chrono naturally pauses with the
+    // recorder — if the user pauses during the ceremony, elapsed freezes
+    // and we won't fire chronoStart() until they resume and reach GO.
+    if (!rec._chronoArmed && elapsedMs >= cdStart + 3000) {
+      rec._chronoArmed = true;
+      if (!state.chronoRunning && state.chronoTotal > 0) chronoStart();
+    }
   }
 
   // Helper: rounded rectangle path
@@ -3861,8 +3877,9 @@
     rec.startedAt = Date.now();
     rec.elapsedBeforePause = 0;
     // Reset the one-shot intro flags so the ceremony plays its sounds again
-    // for this fresh recording session.
-    rec._tick3 = rec._tick2 = rec._tick1 = rec._goPlayed = false;
+    // for this fresh recording session. `_chronoArmed` defers the chrono
+    // start until the 3-2-1-GO ceremony ends — see recMaybeTriggerIntroSounds.
+    rec._tick3 = rec._tick2 = rec._tick1 = rec._goPlayed = rec._chronoArmed = false;
     statsRecordStartTracking();
     // The team is locked once recording starts — hide the selector,
     // keep only the indicator chip visible.
@@ -3872,7 +3889,10 @@
     const ind = $("#recorderRecIndicator");
     if (ind) ind.hidden = false;
     rec.recTimerId = setInterval(recUpdateRecElapsed, 500);
-    if (!state.chronoRunning && state.chronoTotal > 0) chronoStart();
+    // The chrono no longer starts here — it would race against the 20s
+    // ceremony (intro 17s + countdown 3s) and burn most of a short impro
+    // before "GO". Instead, recMaybeTriggerIntroSounds arms it exactly
+    // when the GO sound plays.
   }
   function recUpdateRecElapsed() {
     const tEl = $("#recorderRecTime");

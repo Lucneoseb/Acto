@@ -2493,7 +2493,10 @@ body.mode-troupe #card-theme      { order: 3; }
 .hero-logo {
   display: block;
   width: 100%;
-  max-width: 540px;
+  /* Logo sizing reduced by 20% across every breakpoint compared to
+     the original (540 / 420 / 320 / 280). Less hero real estate so
+     the config panel + impro cards sit higher on the screen. */
+  max-width: 432px;
   height: auto;
   -webkit-user-drag: none;
   user-select: none;
@@ -2507,15 +2510,15 @@ body.mode-troupe #card-theme      { order: 3; }
 
 /* Tighter on tablets */
 @media (max-width: 768px) {
-  .hero-logo { max-width: 420px; }
+  .hero-logo { max-width: 336px; }
 }
 /* Mobile portrait */
 @media (max-width: 480px) {
   .hero { padding: 1.6rem 0.75rem 0.4rem; }
-  .hero-logo { max-width: 320px; }
+  .hero-logo { max-width: 256px; }
 }
 @media (max-width: 380px) {
-  .hero-logo { max-width: 280px; }
+  .hero-logo { max-width: 224px; }
 }
 
 /* Reduced motion: keep the logo still */
