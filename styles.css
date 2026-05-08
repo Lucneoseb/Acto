@@ -3891,6 +3891,16 @@ body.mode-troupe #card-theme      { order: 3; }
   .signup-dialog .form-row { grid-template-columns: 1fr; }
 }
 
+/* "Personnaliser mes impros" link inside the Settings dialog —
+   reuses .auth-btn .auth-btn-secondary, just full-width. */
+.settings-personalize-link {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-decoration: none;
+}
+
 /* Account section (inside settings) — also has class .dlg-field which
    imposes `display: flex; align-items: center` (great for the Langue
    row, but it would lay out the section's h3 / p / actions div as a

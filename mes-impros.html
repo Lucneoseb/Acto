@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Personnaliser les listes d'impros — Acto" />
+<meta name="theme-color" content="#0c0814" />
+<title>Acto — Mes impros</title>
+<link rel="icon" type="image/png" href="./assets/logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css?v=20260529" />
+<style>
+  /* Page-local layout. Keeps the same visual identity as index.html
+     (backdrop + hero + auth-card visuals) but uses a wider working
+     area because this is a tool, not a content page. */
+  .personalize-screen {
+    position: relative;
+    z-index: 5;
+    margin: clamp(1rem, 4vw, 2rem) auto clamp(2rem, 6vw, 3rem);
+    max-width: 920px;
+    padding: 0 1rem;
+  }
+  .personalize-card { padding: 1.5rem 1.6rem; }
+  .personalize-card h1 { margin: 0 0 0.6rem; }
+  .personalize-blurb {
+    color: var(--ink-muted);
+    font-size: 0.9rem;
+    margin: 0 0 1.2rem;
+    line-height: 1.55;
+  }
+  /* Filter bar — locale + kind + mode + level */
+  .personalize-filters {
+    display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;
+    margin: 0 0 1rem;
+  }
+  .personalize-filters select {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--ink);
+    padding: 0.55rem 0.85rem;
+    border-radius: var(--radius-md);
+    font: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    cursor: pointer;
+  }
+  .personalize-filters select:focus { border-color: rgba(245, 196, 81, 0.5); }
+  /* Native option styling: ensure black text on the OS-white panel
+     when the dropdown opens — same fix as admin.html. */
+  .personalize-filters select option {
+    color: #000;
+    background: #fff;
+    font-weight: 500;
+  }
+  .personalize-filters select option:checked,
+  .personalize-filters select option:hover,
+  .personalize-filters select option:focus {
+    color: #000;
+    font-weight: 700;
+    background: #fde08a;
+  }
+  .personalize-count {
+    color: var(--ink-muted);
+    font-size: 0.85rem;
+    margin-left: auto;
+  }
+  /* Add-new row */
+  .personalize-add {
+    display: flex; gap: 0.5rem; flex-wrap: wrap;
+    background: rgba(245, 196, 81, 0.06);
+    border: 1px solid rgba(245, 196, 81, 0.25);
+    border-radius: var(--radius-md);
+    padding: 0.7rem 0.85rem;
+    margin: 0 0 0.9rem;
+    align-items: center;
+  }
+  .personalize-add input,
+  .personalize-add textarea {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--ink);
+    padding: 0.55rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    flex: 1 1 200px;
+    min-width: 160px;
+  }
+  .personalize-add textarea { resize: vertical; min-height: 38px; }
+  .personalize-add input:focus,
+  .personalize-add textarea:focus { border-color: rgba(245, 196, 81, 0.55); }
+  .personalize-add button {
+    flex: 0 0 auto;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  /* Item list */
+  .personalize-list {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-direction: column; gap: 0.5rem;
+  }
+  .personalize-list li {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.65rem 0.9rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: var(--radius-sm);
+  }
+  .personalize-list li.is-hidden {
+    opacity: 0.55;
+  }
+  .personalize-list li.is-hidden .item-name { text-decoration: line-through; }
+  .personalize-list .item-main { min-width: 0; }
+  .personalize-list .item-name {
+    font-weight: 600;
+    color: var(--ink);
+    word-break: break-word;
+  }
+  .personalize-list .item-desc {
+    margin-top: 0.15rem;
+    color: var(--ink-muted);
+    font-size: 0.82rem;
+    line-height: 1.4;
+    word-break: break-word;
+  }
+  .personalize-list .item-tag {
+    display: inline-block;
+    margin-left: 0.4rem;
+    padding: 0.05rem 0.45rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gold);
+    background: rgba(245, 196, 81, 0.12);
+    border: 1px solid rgba(245, 196, 81, 0.35);
+    border-radius: 999px;
+    vertical-align: middle;
+  }
+  .personalize-list .item-toggle {
+    appearance: none;
+    cursor: pointer;
+    padding: 0.4rem 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--ink);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    min-width: 88px;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .personalize-list .item-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(245, 196, 81, 0.45);
+  }
+  .personalize-list .item-state {
+    color: var(--ink-faint);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: right;
+    min-width: 60px;
+  }
+  .personalize-list .empty {
+    padding: 1.4rem 1rem;
+    text-align: center;
+    color: var(--ink-faint);
+    font-style: italic;
+  }
+  /* Back-to-app button */
+  .personalize-back { text-align: center; margin: 1.2rem 0 0; }
+  .personalize-back .auth-btn {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 220px;
+  }
+  /* Saved indicator */
+  .personalize-saved {
+    color: var(--ink-faint);
+    font-size: 0.78rem;
+    font-style: italic;
+    text-align: right;
+    height: 1.1em;
+    transition: opacity 0.3s;
+  }
+  .personalize-saved.flash { color: var(--gold); opacity: 1; }
+  @media (max-width: 600px) {
+    .personalize-list li {
+      grid-template-columns: 1fr auto;
+    }
+    .personalize-list .item-state { display: none; }
+    .personalize-add input,
+    .personalize-add textarea { flex: 1 1 100%; }
+    .personalize-add button  { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+  <!-- Same backdrop as index.html / support.html so the page feels
+       like a real branch of the app. -->
+  <div class="stage-backdrop" aria-hidden="true">
+    <div class="spotlight spotlight-1"></div>
+    <div class="spotlight spotlight-2"></div>
+    <div class="spotlight spotlight-3"></div>
+    <div class="curtain curtain-left"></div>
+    <div class="curtain curtain-right"></div>
+  </div>
+
+  <header class="hero">
+    <a class="hero-logo-link" href="./index.html" aria-label="Acto - The Impro Studio">
+      <img class="hero-logo" src="./assets/logo.png" alt="Acto - The Impro Studio" />
+    </a>
+  </header>
+
+  <section class="personalize-screen">
+    <div class="auth-card personalize-card">
+      <h1 class="auth-title" id="personalizeTitle">Personnaliser mes impros</h1>
+      <p class="personalize-blurb" id="personalizeBlurb"></p>
+
+      <div class="personalize-filters">
+        <select id="filterLocale" aria-label="Langue"></select>
+        <select id="filterKind" aria-label="Type">
+          <option value="theme">💭 Thèmes</option>
+          <option value="category">🎯 Catégories</option>
+          <option value="constraint">🔒 Contraintes</option>
+          <option value="exercise">🎬 Exercices</option>
+        </select>
+        <select id="filterMode" aria-label="Mode" hidden>
+          <option value="troupe">Troupe</option>
+          <option value="match">Match</option>
+        </select>
+        <select id="filterLevel" aria-label="Niveau">
+          <option value="debutant">Débutant</option>
+          <option value="confirme">Confirmé</option>
+          <option value="expert">Expert</option>
+        </select>
+        <span class="personalize-count" id="itemCount"></span>
+      </div>
+
+      <!-- Add new item form. Description input is shown for exercise/
+           category targets where it makes sense. -->
+      <div class="personalize-add">
+        <input type="text" id="addItemText" maxlength="200"
+               autocomplete="off" placeholder="" />
+        <textarea id="addItemDesc" rows="1" maxlength="500"
+                  autocomplete="off" placeholder="" hidden></textarea>
+        <button class="auth-btn auth-btn-primary" id="addItemBtn" type="button"></button>
+      </div>
+
+      <ul class="personalize-list" id="itemList">
+        <li class="empty" id="itemEmpty"></li>
+      </ul>
+
+      <p class="personalize-saved" id="savedFlash">&nbsp;</p>
+    </div>
+
+    <p class="personalize-back">
+      <a class="auth-btn auth-btn-secondary" href="./index.html" id="personalizeBackLink"></a>
+    </p>
+  </section>
+
+  <footer class="footer">
+    <p id="footerText"></p>
+  </footer>
+
+  <!-- Reuse the bundled UI strings shipped with the app. -->
+  <script src="./data/all.js?v=20260529"></script>
+  <script>
+  (function () {
+    "use strict";
+
+    const bundle = window.IMPRO_BUNDLE || { locales: { fr: { name: "Français" } }, ui: {}, data: {} };
+    const LOCALE_KEY = "impro-studio:locale:v1";
+    const ADDED_KEY  = "acto-user-added:v1";
+    const HIDDEN_KEY = "acto-user-hidden:v1";
+
+    /* ---------- Locale detection ------------------------------------ */
+    function detectLocale() {
+      try {
+        const stored = localStorage.getItem(LOCALE_KEY);
+        if (stored && bundle.locales && bundle.locales[stored]) return stored;
+      } catch (e) { /* ignore */ }
+      const list = (navigator.languages && navigator.languages.length)
+        ? navigator.languages : [navigator.language || "fr"];
+      for (const raw of list) {
+        const code = String(raw || "").toLowerCase().split(/[-_]/)[0];
+        if (code && bundle.locales && bundle.locales[code]) return code;
+      }
+      return "fr";
+    }
+    let activeLocale = detectLocale();
+    document.documentElement.lang = activeLocale;
+    function uiText() { return (bundle.ui && (bundle.ui[activeLocale] || bundle.ui.fr)) || {}; }
+
+    /* ---------- localStorage helpers -------------------------------- */
+    function readList(key) {
+      try {
+        const raw = localStorage.getItem(key);
+        const v = raw ? JSON.parse(raw) : [];
+        return Array.isArray(v) ? v : [];
+      } catch (e) { return []; }
+    }
+    function writeList(key, list) {
+      try { localStorage.setItem(key, JSON.stringify(list)); }
+      catch (e) { /* localStorage full / disabled — ignore */ }
+    }
+
+    function lc(s) { return String(s || "").trim().toLowerCase(); }
+    function matchesKey(rec, ref) {
+      return rec
+        && rec.kind   === ref.kind
+        && (rec.mode  || "") === (ref.mode  || "")
+        && (rec.level || "") === (ref.level || "")
+        && rec.locale === ref.locale
+        && lc(rec.text) === lc(ref.text);
+    }
+
+    /* ---------- Pool readers (from bundled data, untouched by hides
+                  & adds — those layers are managed separately here) -- */
+    function bundledItemsFor(kind, mode, level, locale) {
+      const data = (bundle.data && bundle.data[locale]) || {};
+      if (kind === "theme")      return Array.isArray(data.themes && data.themes[level]) ? data.themes[level] : [];
+      if (kind === "category")   return Array.isArray(data.categories) ? data.categories : [];
+      if (kind === "constraint") return Array.isArray(data.constraints && data.constraints[mode] && data.constraints[mode][level])
+                                          ? data.constraints[mode][level] : [];
+      if (kind === "exercise")   return Array.isArray(data.exercises   && data.exercises[mode]   && data.exercises[mode][level])
+                                          ? data.exercises[mode][level]   : [];
+      return [];
+    }
+
+    /* ---------- Render ---------------------------------------------- */
+    const $ = (id) => document.getElementById(id);
+
+    function populateLocaleOptions() {
+      const sel = $("filterLocale");
+      sel.innerHTML = "";
+      Object.keys(bundle.locales || {}).forEach((code) => {
+        const meta = bundle.locales[code];
+        const label = (typeof meta === "object" && meta)
+          ? ((meta.flag ? meta.flag + " " : "") + (meta.name || code))
+          : String(meta || code);
+        const opt = document.createElement("option");
+        opt.value = code;
+        opt.textContent = label;
+        if (code === activeLocale) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function applyTranslations() {
+      const t = uiText();
+      const set = (id, v) => { const el = $(id); if (el && v != null) el.textContent = v; };
+      set("personalizeTitle",      t.personalizeTitle);
+      set("personalizeBlurb",      t.personalizeBlurb);
+      set("personalizeBackLink",   t.personalizeBackToApp);
+      set("addItemBtn",            t.personalizeAddBtn);
+      set("itemEmpty",             t.personalizeNoItems);
+      set("footerText",            t.footer);
+      const inText = $("addItemText");
+      if (inText) inText.placeholder = t.personalizeAddPlaceholder || "";
+      const inDesc = $("addItemDesc");
+      if (inDesc) inDesc.placeholder = t.personalizeAddDescPlaceholder || "";
+      // Re-label kind options with the regular i18n labels we already ship.
+      const kindSel = $("filterKind");
+      if (kindSel) {
+        const opts = {
+          theme:      "💭 " + (t.cardTheme      || "Thèmes"),
+          category:   "🎯 " + (t.cardCategory   || "Catégories"),
+          constraint: "🔒 " + (t.cardConstraint || "Contraintes"),
+          exercise:   "🎬 " + (t.cardExercise   || "Exercices")
+        };
+        [...kindSel.options].forEach(o => { if (opts[o.value]) o.textContent = opts[o.value]; });
+      }
+      const lvlSel = $("filterLevel");
+      if (lvlSel) {
+        [...lvlSel.options].forEach(o => {
+          if (o.value === "debutant") o.textContent = t.levelDebutant || "Débutant";
+          if (o.value === "confirme") o.textContent = t.levelConfirme || "Confirmé";
+          if (o.value === "expert")   o.textContent = t.levelExpert   || "Expert";
+        });
+      }
+      const mdSel = $("filterMode");
+      if (mdSel) {
+        [...mdSel.options].forEach(o => {
+          if (o.value === "troupe") o.textContent = t.modeTroupe || "Troupe";
+          if (o.value === "match")  o.textContent = t.modeMatch  || "Match";
+        });
+      }
+      document.title = (t.personalizeTitle ? t.personalizeTitle + " · Acto" : "Acto — Mes impros");
+    }
+
+    /* ---------- Filter state ---------------------------------------- */
+    function currentFilter() {
+      const kind = $("filterKind").value;
+      const mode = ($("filterMode").hidden ? "" : $("filterMode").value);
+      const level = ($("filterLevel").hidden ? "" : $("filterLevel").value);
+      return {
+        locale: $("filterLocale").value,
+        kind:   kind,
+        mode:   (kind === "constraint" || kind === "exercise") ? ($("filterMode").value || "") : "",
+        level:  (kind !== "category") ? ($("filterLevel").value || "") : ""
+      };
+    }
+
+    function syncFilterVisibility() {
+      const kind = $("filterKind").value;
+      const needsMode  = (kind === "constraint" || kind === "exercise");
+      const needsLevel = (kind !== "category");
+      $("filterMode").hidden  = !needsMode;
+      $("filterLevel").hidden = !needsLevel;
+      // Toggle desc input on the add form for exercise/category.
+      $("addItemDesc").hidden = !(kind === "exercise" || kind === "category");
+    }
+
+    /* ---------- Render the list ------------------------------------- */
+    function renderList() {
+      const filter = currentFilter();
+      const t = uiText();
+
+      // 1) Bundled items (raw, before user customization).
+      const bundled = bundledItemsFor(filter.kind, filter.mode, filter.level, filter.locale);
+      const bundledRows = bundled.map((it) => {
+        const isObj = typeof it === "object";
+        return {
+          name: isObj ? (it && it.name) : it,
+          desc: isObj ? (it && it.desc) || "" : "",
+          source: "bundled"
+        };
+      });
+
+      // 2) User additions matching the current filter.
+      const added = readList(ADDED_KEY).filter((a) =>
+        a && a.locale === filter.locale &&
+        a.kind === filter.kind &&
+        (a.mode  || "") === (filter.mode  || "") &&
+        (a.level || "") === (filter.level || "")
+      );
+      const addedRows = added.map((a) => ({ name: a.text, desc: a.desc || "", source: "user" }));
+
+      // De-dupe (case-insensitive): bundled wins if a user add collides.
+      const seen = new Set(bundledRows.map(r => lc(r.name)));
+      const merged = bundledRows.concat(addedRows.filter(r => {
+        if (seen.has(lc(r.name))) return false;
+        seen.add(lc(r.name));
+        return true;
+      }));
+
+      // 3) Hidden state (from localStorage).
+      const hiddenList = readList(HIDDEN_KEY);
+      const isHidden = (name) => hiddenList.some((h) =>
+        matchesKey(h, { ...filter, text: name })
+      );
+
+      // 4) Render
+      const ul = $("itemList");
+      ul.innerHTML = "";
+      if (merged.length === 0) {
+        const li = document.createElement("li");
+        li.className = "empty";
+        li.textContent = t.personalizeNoItems || "Aucun item à afficher.";
+        ul.appendChild(li);
+      } else {
+        for (const row of merged) {
+          const hidden = isHidden(row.name);
+          const li = document.createElement("li");
+          li.className = hidden ? "is-hidden" : "";
+
+          const main = document.createElement("div");
+          main.className = "item-main";
+          const nameEl = document.createElement("div");
+          nameEl.className = "item-name";
+          nameEl.textContent = row.name;
+          if (row.source === "user") {
+            const tag = document.createElement("span");
+            tag.className = "item-tag";
+            tag.textContent = t.personalizeAddedByMe || "added by me";
+            nameEl.appendChild(tag);
+          }
+          main.appendChild(nameEl);
+          if (row.desc) {
+            const descEl = document.createElement("div");
+            descEl.className = "item-desc";
+            descEl.textContent = row.desc;
+            main.appendChild(descEl);
+          }
+          li.appendChild(main);
+
+          const state = document.createElement("span");
+          state.className = "item-state";
+          state.textContent = hidden ? (t.personalizeHidden || "hidden") : (t.personalizeVisible || "visible");
+          li.appendChild(state);
+
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "item-toggle";
+          btn.textContent = hidden ? (t.personalizeShow || "Show") : (t.personalizeHide || "Hide");
+          btn.addEventListener("click", () => {
+            toggleHide({ ...filter, text: row.name }, !hidden);
+          });
+          li.appendChild(btn);
+          ul.appendChild(li);
+        }
+      }
+      // Counter
+      const visibleCount = merged.filter(r => !isHidden(r.name)).length;
+      $("itemCount").textContent = visibleCount + " / " + merged.length;
+    }
+
+    /* ---------- Mutations ------------------------------------------ */
+    function flashSaved() {
+      const f = $("savedFlash");
+      if (!f) return;
+      const t = uiText();
+      f.textContent = "✓ " + (t.personalizeSaved || "Saved");
+      f.classList.add("flash");
+      setTimeout(() => f.classList.remove("flash"), 1200);
+    }
+
+    function toggleHide(ref, shouldHide) {
+      const list = readList(HIDDEN_KEY);
+      if (shouldHide) {
+        if (!list.some(h => matchesKey(h, ref))) list.push(ref);
+      } else {
+        const idx = list.findIndex(h => matchesKey(h, ref));
+        if (idx >= 0) list.splice(idx, 1);
+      }
+      writeList(HIDDEN_KEY, list);
+      flashSaved();
+      renderList();
+    }
+
+    function addNewItem() {
+      const filter = currentFilter();
+      const text = ($("addItemText").value || "").trim();
+      if (!text) return;
+      const desc = ($("addItemDesc").hidden ? "" : ($("addItemDesc").value || "").trim());
+
+      const list = readList(ADDED_KEY);
+      const ref = { ...filter, text };
+      // Don't add duplicates (case-insensitive in the same context).
+      if (list.some(a => matchesKey(a, ref))) {
+        $("addItemText").value = "";
+        $("addItemDesc").value = "";
+        return;
+      }
+      // Also skip if the text already exists in the bundled pool.
+      const bundled = bundledItemsFor(filter.kind, filter.mode, filter.level, filter.locale);
+      const inBundled = bundled.some(it => {
+        const n = (typeof it === "object") ? (it && it.name) : it;
+        return lc(n) === lc(text);
+      });
+      if (inBundled) {
+        $("addItemText").value = "";
+        $("addItemDesc").value = "";
+        return;
+      }
+      list.push({ ...ref, desc });
+      writeList(ADDED_KEY, list);
+      $("addItemText").value = "";
+      $("addItemDesc").value = "";
+      flashSaved();
+      renderList();
+    }
+
+    /* ---------- Wire up --------------------------------------------- */
+    populateLocaleOptions();
+    applyTranslations();
+    syncFilterVisibility();
+    renderList();
+
+    $("filterLocale").addEventListener("change", (e) => {
+      activeLocale = e.target.value;
+      try { localStorage.setItem(LOCALE_KEY, activeLocale); } catch (_) {}
+      document.documentElement.lang = activeLocale;
+      applyTranslations();
+      renderList();
+    });
+    ["filterKind","filterMode","filterLevel"].forEach(id => {
+      $(id).addEventListener("change", () => {
+        if (id === "filterKind") syncFilterVisibility();
+        renderList();
+      });
+    });
+    $("addItemBtn").addEventListener("click", addNewItem);
+    $("addItemText").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); addNewItem(); }
+    });
+  })();
+  </script>
+</body>
+</html>

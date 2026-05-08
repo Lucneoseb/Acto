@@ -870,7 +870,7 @@
     setText("rulesLabelText",   t.rulesBtn);
     setText("dlgTitle",         t.settings);
     setText("dlgLanguageLabel", t.language);
-    setText("dlgHelpEditor",    t.settingsEditorHelp);
+    setText("settingsPersonalizeLink", t.settingsPersonalize);
     if (window.actoAuth && typeof window.actoAuth.applyTranslations === "function") {
       window.actoAuth.applyTranslations();
     }
@@ -1621,31 +1621,26 @@
 
   /* ============================================================
      4. SETTINGS DIALOG
+
+     Holds the language selector + the read-only account info block +
+     a link to the dedicated personalize page (mes-impros.html). The
+     old inline JSON editor (and its reset/import/export controls)
+     used to live here; it was retired in favor of the friendlier
+     dedicated page where users toggle visibility per item and add
+     their own — see mes-impros.html.
      ============================================================ */
-  let dialogEl, langSelect, editorList, statusEl, importInput;
+  let dialogEl, langSelect, statusEl;
 
   function initSettings() {
     dialogEl    = $("#settingsDialog");
     langSelect  = $("#langSelect");
-    editorList  = $("#editorList");
     statusEl    = $("#settingsStatus");
-    importInput = $("#importJsonFile");
 
     $("#settingsBtn").addEventListener("click", openDialog);
     $("#settingsClose").addEventListener("click", () => dialogEl.close());
     dialogEl.addEventListener("click", (e) => { if (e.target === dialogEl) dialogEl.close(); });
 
     langSelect.addEventListener("change", () => store.setLocale(langSelect.value));
-
-    $("#saveBtn").addEventListener("click", saveAll);
-    $("#resetBtn").addEventListener("click", resetCurrent);
-    $("#exportBtn").addEventListener("click", exportCurrent);
-    $("#importBtn").addEventListener("click", () => importInput.click());
-    importInput.addEventListener("change", importFromFile);
-
-    store.addEventListener("change", () => {
-      if (dialogEl.open) renderEditor();
-    });
   }
 
   function openDialog() {
@@ -1657,103 +1652,10 @@
       if (code === store.locale) opt.selected = true;
       langSelect.appendChild(opt);
     }
-    renderEditor();
     setStatus("");
     dialogEl.showModal();
   }
 
-  function renderEditor() {
-    const data = store.data;
-    editorList.innerHTML = "";
-
-    const branches = [
-      { key: "exercises.troupe.debutant", label: "🎬 Exercices · Troupe · Débutant",  arr: data?.exercises?.troupe?.debutant },
-      { key: "exercises.troupe.confirme", label: "🎬 Exercices · Troupe · Confirmé",  arr: data?.exercises?.troupe?.confirme },
-      { key: "exercises.troupe.expert",   label: "🎬 Exercices · Troupe · Expert",    arr: data?.exercises?.troupe?.expert },
-      { key: "exercises.match.debutant",  label: "⚔️ Exercices · Match · Débutant",   arr: data?.exercises?.match?.debutant },
-      { key: "exercises.match.confirme",  label: "⚔️ Exercices · Match · Confirmé",   arr: data?.exercises?.match?.confirme },
-      { key: "exercises.match.expert",    label: "⚔️ Exercices · Match · Expert",     arr: data?.exercises?.match?.expert },
-      { key: "constraints.troupe.debutant", label: "🔒 Contraintes · Troupe · Débutant", arr: data?.constraints?.troupe?.debutant },
-      { key: "constraints.troupe.confirme", label: "🔒 Contraintes · Troupe · Confirmé", arr: data?.constraints?.troupe?.confirme },
-      { key: "constraints.troupe.expert",   label: "🔒 Contraintes · Troupe · Expert",   arr: data?.constraints?.troupe?.expert },
-      { key: "constraints.match.debutant",  label: "🔒 Contraintes · Match · Débutant",  arr: data?.constraints?.match?.debutant },
-      { key: "constraints.match.confirme",  label: "🔒 Contraintes · Match · Confirmé",  arr: data?.constraints?.match?.confirme },
-      { key: "constraints.match.expert",    label: "🔒 Contraintes · Match · Expert",    arr: data?.constraints?.match?.expert },
-      { key: "themes.debutant",  label: "💭 Thèmes · Débutant",  arr: data?.themes?.debutant },
-      { key: "themes.confirme",  label: "💭 Thèmes · Confirmé",  arr: data?.themes?.confirme },
-      { key: "themes.expert",    label: "💭 Thèmes · Expert",    arr: data?.themes?.expert },
-      { key: "categories",       label: "🎯 Catégories (match)", arr: data?.categories }
-    ];
-
-    for (const b of branches) {
-      const details = document.createElement("details");
-      const summary = document.createElement("summary");
-      summary.textContent = `${b.label}  (${b.arr?.length ?? 0})`;
-      details.appendChild(summary);
-      const ta = document.createElement("textarea");
-      ta.dataset.key = b.key;
-      ta.spellcheck = false;
-      ta.value = JSON.stringify(b.arr ?? [], null, 2);
-      ta.rows = Math.min(20, (b.arr?.length ?? 0) + 2);
-      details.appendChild(ta);
-      editorList.appendChild(details);
-    }
-  }
-
-  function setNestedKey(obj, dotted, value) {
-    const parts = dotted.split(".");
-    let cur = obj;
-    for (let i = 0; i < parts.length - 1; i++) {
-      if (!cur[parts[i]] || typeof cur[parts[i]] !== "object") cur[parts[i]] = {};
-      cur = cur[parts[i]];
-    }
-    cur[parts[parts.length - 1]] = value;
-  }
-
-  function saveAll() {
-    try {
-      const next = structuredClone(store.data);
-      for (const ta of editorList.querySelectorAll("textarea[data-key]")) {
-        const parsed = JSON.parse(ta.value);
-        if (!Array.isArray(parsed)) throw new Error(`${ta.dataset.key} doit être un tableau JSON`);
-        setNestedKey(next, ta.dataset.key, parsed);
-      }
-      store.setLocaleData(next);
-      // Save succeeded → close the dialog. Errors keep it open with the message
-      // visible so the user can fix the JSON.
-      if (dialogEl && dialogEl.open) dialogEl.close();
-    } catch (e) {
-      setStatus(`❌ ${e.message}`, true);
-    }
-  }
-  function resetCurrent() {
-    if (!confirm("Réinitialiser cette langue aux valeurs par défaut ?")) return;
-    store.resetLocale();
-    renderEditor();
-    setStatus("↩️ Réinitialisé.");
-  }
-  function exportCurrent() {
-    const blob = new Blob([store.exportLocale()], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = `impro-studio-${store.locale}.json`; a.click();
-    URL.revokeObjectURL(url);
-    setStatus(`💾 Téléchargé : impro-studio-${store.locale}.json`);
-  }
-  async function importFromFile(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      const text = await file.text();
-      store.importLocale(text);
-      renderEditor();
-      setStatus(`📥 Importé : ${file.name}`);
-    } catch (err) {
-      setStatus(`❌ Import invalide : ${err.message}`, true);
-    } finally {
-      e.target.value = "";
-    }
-  }
   function setStatus(msg, isError = false) {
     if (!statusEl) return;
     statusEl.textContent = msg;
@@ -1888,9 +1790,107 @@
       }
     }
 
-    if (merged || removed) {
-      console.log(`[acto] pool reconciled (${locale}): +${merged} approved · -${removed} hidden`);
+    // 3. Apply per-user pool customization from localStorage on top.
+    const userStats = applyUserLocalPool(target, locale);
+
+    if (merged || removed || userStats.added || userStats.hidden) {
+      console.log(`[acto] pool reconciled (${locale}): +${merged} approved · -${removed} admin-hidden · +${userStats.added} user · -${userStats.hidden} user-hidden`);
     }
+  }
+
+  /**
+   * Apply per-user pool customization stored in localStorage. Runs on
+   * boot regardless of auth (so logged-out users still see their own
+   * prefs from /mes-impros.html), and again whenever the locale changes.
+   *
+   *   acto-user-added:v1   — user's local additions (only visible to them)
+   *   acto-user-hidden:v1  — user's per-device hide list
+   *
+   * Both are arrays of { kind, mode, level, locale, text [, desc] }.
+   * Returns { added, hidden } counters for logging.
+   */
+  function applyUserLocalPool(target, locale) {
+    if (!target) return { added: 0, hidden: 0 };
+    const lc = (s) => String(s || "").trim().toLowerCase();
+    let added = 0, hidden = 0;
+
+    // Additions first — items the user wants to see in their pool.
+    try {
+      const raw = localStorage.getItem("acto-user-added:v1");
+      const list = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(list)) {
+        for (const a of list) {
+          if (!a || a.locale !== locale) continue;
+          const text = (a.text || "").trim();
+          if (!text) continue;
+          const desc = (a.desc || "").trim();
+
+          if (a.kind === "theme" && a.level) {
+            target.themes = target.themes || {};
+            const arr = (target.themes[a.level] = target.themes[a.level] || []);
+            if (!arr.some(t => lc(t) === lc(text))) { arr.push(text); added++; }
+          } else if (a.kind === "category") {
+            target.categories = target.categories || [];
+            if (!target.categories.some(c => lc(c && c.name || c) === lc(text))) {
+              target.categories.push({ name: text, desc });
+              added++;
+            }
+          } else if (a.kind === "constraint" && a.mode && a.level) {
+            target.constraints = target.constraints || {};
+            target.constraints[a.mode] = target.constraints[a.mode] || {};
+            const arr = (target.constraints[a.mode][a.level] = target.constraints[a.mode][a.level] || []);
+            if (!arr.some(c => lc(c) === lc(text))) { arr.push(text); added++; }
+          } else if (a.kind === "exercise" && a.mode && a.level) {
+            target.exercises = target.exercises || {};
+            target.exercises[a.mode] = target.exercises[a.mode] || {};
+            const arr = (target.exercises[a.mode][a.level] = target.exercises[a.mode][a.level] || []);
+            if (!arr.some(e => lc(e && e.name) === lc(text))) {
+              arr.push({ name: text, desc });
+              added++;
+            }
+          }
+        }
+      }
+    } catch (e) { /* malformed localStorage — ignore */ }
+
+    // Hides — strip items the user has chosen not to see.
+    try {
+      const raw = localStorage.getItem("acto-user-hidden:v1");
+      const list = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(list)) {
+        for (const h of list) {
+          if (!h || h.locale !== locale) continue;
+          const text = (h.text || "").trim();
+          if (!text) continue;
+
+          if (h.kind === "theme" && h.level && target.themes && target.themes[h.level]) {
+            const before = target.themes[h.level].length;
+            target.themes[h.level] = target.themes[h.level].filter(t => lc(t) !== lc(text));
+            hidden += before - target.themes[h.level].length;
+          } else if (h.kind === "category" && target.categories) {
+            const before = target.categories.length;
+            target.categories = target.categories.filter(c => lc(c && c.name || c) !== lc(text));
+            hidden += before - target.categories.length;
+          } else if (h.kind === "constraint" && h.mode && h.level
+                     && target.constraints && target.constraints[h.mode]
+                     && target.constraints[h.mode][h.level]) {
+            const arr = target.constraints[h.mode][h.level];
+            const before = arr.length;
+            target.constraints[h.mode][h.level] = arr.filter(c => lc(c) !== lc(text));
+            hidden += before - target.constraints[h.mode][h.level].length;
+          } else if (h.kind === "exercise" && h.mode && h.level
+                     && target.exercises && target.exercises[h.mode]
+                     && target.exercises[h.mode][h.level]) {
+            const arr = target.exercises[h.mode][h.level];
+            const before = arr.length;
+            target.exercises[h.mode][h.level] = arr.filter(e => lc(e && e.name) !== lc(text));
+            hidden += before - target.exercises[h.mode][h.level].length;
+          }
+        }
+      }
+    } catch (e) { /* ignore */ }
+
+    return { added, hidden };
   }
 
   /* ============================================================
@@ -2313,11 +2313,24 @@
       } else {
         applyTranslations();
       }
-      // Locale changed → re-fetch approved submissions for the new locale.
+      // Locale changed → re-apply user-local prefs on the new locale's
+      // pool, then re-fetch approved submissions if signed in.
+      try {
+        const b = window.IMPRO_BUNDLE;
+        if (b && b.data && b.data[store.locale]) applyUserLocalPool(b.data[store.locale], store.locale);
+      } catch (e) { /* ignore */ }
       if (window.actoAuth && window.actoAuth.state && window.actoAuth.state.user) {
         loadApprovedSubmissionsIntoBundle().catch(() => {});
       }
     });
+
+    // Apply user-local pool prefs (additions + hides) NOW, regardless of
+    // auth state — this is a per-device feature stored in localStorage,
+    // so it has to work for logged-out users too.
+    try {
+      const b = window.IMPRO_BUNDLE;
+      if (b && b.data && b.data[store.locale]) applyUserLocalPool(b.data[store.locale], store.locale);
+    } catch (e) { /* ignore */ }
 
     // Phase 2: pull approved user submissions into the in-memory pool.
     // Runs on every auth state change (login/refresh/initial-session) so a

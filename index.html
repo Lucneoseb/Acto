@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=20260528" />
+<link rel="stylesheet" href="styles.css?v=20260529" />
 </head>
 <body>
   <!-- Stage backdrop -->
@@ -540,21 +540,17 @@
         </div>
       </div>
 
-      <!-- Editor -->
-      <div class="dlg-editor">
-        <p class="dlg-help" id="dlgHelpEditor"></p>
-        <div id="editorList"></div>
+      <!-- "Personnaliser" navigates to a dedicated page where the user
+           can toggle which themes/categories/constraints/exercises they
+           want to see and add their own — auto-saved per-device. The
+           old inline JSON editor used to live here; it was replaced by
+           the friendlier dedicated page. -->
+      <div class="dlg-field">
+        <a class="auth-btn auth-btn-secondary settings-personalize-link"
+           href="./mes-impros.html" id="settingsPersonalizeLink"></a>
       </div>
 
       <p class="dlg-status" id="settingsStatus"></p>
-    </div>
-
-    <div class="dlg-actions">
-      <button class="ghost-btn" id="resetBtn"  type="button">↩️ Réinitialiser</button>
-      <button class="ghost-btn" id="exportBtn" type="button">💾 Exporter</button>
-      <button class="ghost-btn" id="importBtn" type="button">📥 Importer</button>
-      <input type="file" id="importJsonFile" accept="application/json,.json" hidden />
-      <button class="primary-btn" id="saveBtn" type="button">✅ Enregistrer</button>
     </div>
   </dialog>
 
@@ -698,11 +694,11 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Bump v= on each deploy when you change one of these assets, so users
        fetch the fresh version without needing Ctrl+Shift+R. -->
-  <script src="./js/config.js?v=20260528"></script>
-  <script src="./js/utils.js?v=20260528"></script>
-  <script src="./js/rules.js?v=20260528"></script>
-  <script src="./data/all.js?v=20260528"></script>
-  <script src="./js/auth.js?v=20260528"></script>
-  <script src="./js/app.js?v=20260528"></script>
+  <script src="./js/config.js?v=20260529"></script>
+  <script src="./js/utils.js?v=20260529"></script>
+  <script src="./js/rules.js?v=20260529"></script>
+  <script src="./data/all.js?v=20260529"></script>
+  <script src="./js/auth.js?v=20260529"></script>
+  <script src="./js/app.js?v=20260529"></script>
 </body>
 </html>
