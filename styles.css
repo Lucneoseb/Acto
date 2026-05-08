@@ -2390,8 +2390,36 @@ body.mode-troupe #card-theme      { order: 3; }
   color: var(--gold);
   opacity: 0.6;
 }
+/* Support link: same italic muted aesthetic as the credit line, with the
+   gold heart prefix matching footer-credit's "✦". Discreet on purpose —
+   it's a tip jar, not a CTA. Underline appears on hover only. */
+.footer-support {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  font-style: italic;
+}
+.footer-support a {
+  color: var(--ink-faint);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 1px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.footer-support a:hover,
+.footer-support a:focus-visible {
+  color: var(--ink-muted);
+  border-bottom-color: var(--ink-faint);
+  outline: none;
+}
+.footer-support-heart {
+  color: var(--gold);
+  opacity: 0.6;
+  margin-right: 0.3em;
+}
 @media (max-width: 480px) {
-  .footer-credit { font-size: 0.74rem; }
+  .footer-credit,
+  .footer-support { font-size: 0.74rem; }
 }
 
 /* ==========================================================

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Soutenir Acto · The Impro Studio" />
+<meta name="theme-color" content="#0c0814" />
+<title>Acto — Support</title>
+<link rel="icon" type="image/png" href="./assets/logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+  /* Page-local layout: same backdrop + hero as index.html, with the
+     content sitting in an .auth-card-style box (reuses existing card
+     visuals — no new colors, no new radii). */
+  .support-screen {
+    position: relative;
+    z-index: 5;
+    margin: clamp(1rem, 4vw, 2rem) auto clamp(2rem, 6vw, 3rem);
+    max-width: 560px;
+    padding: 0 1rem;
+  }
+  .support-card p { color: var(--ink-muted); margin: 0 0 0.9rem; line-height: 1.55; }
+  .support-card .support-thanks { color: var(--gold-soft); font-style: italic; margin-top: 1.2rem; }
+  .support-card .support-suggested {
+    color: var(--ink-faint);
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    text-align: center;
+    margin: 0.4rem 0 0;
+  }
+  .support-card .support-note {
+    color: var(--ink-faint);
+    font-size: 0.78rem;
+    margin-top: 1.5rem;
+    line-height: 1.5;
+  }
+  .support-card .support-cta-wrap {
+    display: flex; justify-content: center;
+    margin: 1.4rem 0 0.2rem;
+  }
+  .support-card .support-cta {
+    /* extends .auth-btn .auth-btn-primary visually */
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    text-decoration: none;
+  }
+  .support-back {
+    text-align: center;
+    margin: 1rem 0 0;
+  }
+  .support-back a {
+    color: var(--ink-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    border-bottom: 1px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .support-back a:hover,
+  .support-back a:focus-visible {
+    color: var(--gold-soft);
+    border-bottom-color: var(--ink-faint);
+    outline: none;
+  }
+</style>
+</head>
+<body>
+  <!-- Same backdrop as index.html so the page feels like a real branch
+       of the app, not a separate site. -->
+  <div class="stage-backdrop" aria-hidden="true">
+    <div class="spotlight spotlight-1"></div>
+    <div class="spotlight spotlight-2"></div>
+    <div class="spotlight spotlight-3"></div>
+    <div class="curtain curtain-left"></div>
+    <div class="curtain curtain-right"></div>
+  </div>
+
+  <header class="hero">
+    <a class="hero-logo-link" href="./index.html" aria-label="Acto - The Impro Studio">
+      <img class="hero-logo" src="./assets/logo.png" alt="Acto - The Impro Studio" />
+    </a>
+  </header>
+
+  <section class="support-screen">
+    <div class="auth-card support-card">
+      <h1 class="auth-title" id="supportTitle">Soutenir Acto</h1>
+      <p id="supportBlurb"></p>
+      <p class="support-suggested" id="supportSuggested"></p>
+      <div class="support-cta-wrap">
+        <a class="auth-btn auth-btn-primary support-cta"
+           href="https://donate.stripe.com/28E6oA2921jp1WE20jdUY00"
+           target="_blank" rel="noopener">
+          <span aria-hidden="true">♥</span>
+          <span id="supportButton"></span>
+        </a>
+      </div>
+      <p class="support-note" id="supportNote"></p>
+      <p class="support-thanks" id="supportThanks"></p>
+    </div>
+    <p class="support-back">
+      <a href="./index.html" id="supportBackLink"></a>
+    </p>
+  </section>
+
+  <footer class="footer">
+    <p id="footerText"></p>
+    <p class="footer-credit" id="footerCredit"></p>
+  </footer>
+
+  <!-- Reuse the bundled UI strings already shipped with the app — same
+       i18n source as index.html / admin.html, no duplication. -->
+  <script src="./data/all.js?v=20260522"></script>
+  <script>
+  (function () {
+    "use strict";
+    const bundle = window.IMPRO_BUNDLE || { locales: { fr: { name: "Français" } }, ui: {} };
+    const LOCALE_KEY = "impro-studio:locale:v1";
+
+    function detectLocale() {
+      // 1. localStorage choice from the main app (if user already set one)
+      try {
+        const stored = localStorage.getItem(LOCALE_KEY);
+        if (stored && bundle.locales && bundle.locales[stored]) return stored;
+      } catch (e) { /* ignore */ }
+      // 2. browser preferred languages
+      const list = (navigator.languages && navigator.languages.length)
+        ? navigator.languages : [navigator.language || "fr"];
+      for (const raw of list) {
+        const code = String(raw || "").toLowerCase().split(/[-_]/)[0];
+        if (code && bundle.locales && bundle.locales[code]) return code;
+      }
+      return "fr";
+    }
+
+    const locale = detectLocale();
+    document.documentElement.lang = locale;
+    const t = (bundle.ui && (bundle.ui[locale] || bundle.ui.fr)) || {};
+
+    function set(id, value) {
+      const el = document.getElementById(id);
+      if (el && value != null) el.textContent = value;
+    }
+    set("supportTitle",     t.supportTitle);
+    set("supportBlurb",     t.supportBlurb);
+    set("supportSuggested", t.supportSuggested);
+    set("supportButton",    t.supportButton);
+    set("supportNote",      t.supportNote);
+    set("supportThanks",    t.supportThanks);
+    set("supportBackLink",  t.supportBackToApp);
+    // Footer mirrors index.html exactly.
+    set("footerText",       t.footer);
+    set("footerCredit",     t.footerCredit);
+    document.title = (t.supportTitle ? t.supportTitle + " · Acto" : "Acto — Support");
+  })();
+  </script>
+</body>
+</html>

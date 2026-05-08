@@ -852,6 +852,7 @@
     }
 
     setText("footerText",       t.footer);
+    setText("footerSupportLabel", t.supportLabel);
     setText("footerCredit",     t.footerCredit);
     setText("recordOpenBtn",     t.recordOpenBtn);
     setText("recorderRecLabel",  t.recordRec);
