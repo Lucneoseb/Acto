@@ -815,6 +815,143 @@ $$;
 revoke all on function public.unhide_bundled_item(uuid) from public;
 grant  execute on function public.unhide_bundled_item(uuid) to authenticated;
 
+-- 5b.4 REPLACE — admin "edits" a bundled item: hide the original, then
+--      add a new approved user_submission with the override text+desc.
+--      The Phase 2 client loader merges approved submissions back in, so
+--      the new value shows up immediately on next page load.
+create or replace function public.replace_bundled_item(
+  p_kind          text,
+  p_mode          text,
+  p_level         text,
+  p_locale        text,
+  p_original_text text,
+  p_new_text      text,
+  p_new_desc      text default null
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_orig    text;
+  v_new     text;
+  v_desc    text;
+  new_id    uuid;
+begin
+  if auth.uid() is null or not public.is_admin() then
+    raise exception 'admin only';
+  end if;
+  if p_kind not in ('theme','category','constraint','exercise') then
+    raise exception 'invalid kind: %', p_kind;
+  end if;
+  v_orig := nullif(trim(coalesce(p_original_text, '')), '');
+  v_new  := nullif(trim(coalesce(p_new_text, '')), '');
+  if v_orig is null or v_new is null then
+    raise exception 'text is empty';
+  end if;
+  v_desc := nullif(trim(coalesce(p_new_desc, '')), '');
+
+  -- 1) Hide the original (idempotent — silently no-op if already hidden).
+  insert into public.bundled_hidden_items (kind, mode, level, locale, text, hidden_by)
+  values (p_kind, nullif(p_mode, ''), nullif(p_level, ''), p_locale, v_orig, auth.uid())
+  on conflict (kind, coalesce(mode, ''), coalesce(level, ''), locale, lower(text))
+  do nothing;
+
+  -- 2) Create an approved replacement submission (or reuse if same text already
+  --    exists as approved → just refresh its description).
+  if exists (
+    select 1 from public.user_submissions
+    where kind = p_kind
+      and coalesce(mode, '')  = coalesce(p_mode, '')
+      and coalesce(level, '') = coalesce(p_level, '')
+      and locale = p_locale
+      and lower(text) = lower(v_new)
+      and status = 'approved'
+  ) then
+    update public.user_submissions
+       set description = coalesce(v_desc, description)
+     where kind = p_kind
+       and coalesce(mode, '')  = coalesce(p_mode, '')
+       and coalesce(level, '') = coalesce(p_level, '')
+       and locale = p_locale
+       and lower(text) = lower(v_new)
+       and status = 'approved';
+    select id into new_id from public.user_submissions
+    where kind = p_kind
+      and coalesce(mode, '')  = coalesce(p_mode, '')
+      and coalesce(level, '') = coalesce(p_level, '')
+      and locale = p_locale
+      and lower(text) = lower(v_new)
+      and status = 'approved'
+    limit 1;
+    return new_id;
+  end if;
+
+  insert into public.user_submissions (
+    user_id, kind, mode, level, locale, text, description,
+    status, approved_by, approved_at
+  )
+  values (
+    auth.uid(), p_kind, nullif(p_mode, ''), nullif(p_level, ''), p_locale, v_new, v_desc,
+    'approved', auth.uid(), now()
+  )
+  returning id into new_id;
+  return new_id;
+end;
+$$;
+
+revoke all on function public.replace_bundled_item(text, text, text, text, text, text, text) from public;
+grant  execute on function public.replace_bundled_item(text, text, text, text, text, text, text) to authenticated;
+
+-- 5b.5 DELETE — strong removal: hide the bundled entry AND nuke the
+--      corresponding user_submissions row(s) if any. Effectively the
+--      item is gone for good (the JSON original is still hidden).
+create or replace function public.delete_bundled_item(
+  p_kind   text,
+  p_mode   text,
+  p_level  text,
+  p_locale text,
+  p_text   text
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_text text;
+begin
+  if auth.uid() is null or not public.is_admin() then
+    raise exception 'admin only';
+  end if;
+  if p_kind not in ('theme','category','constraint','exercise') then
+    raise exception 'invalid kind: %', p_kind;
+  end if;
+  v_text := nullif(trim(coalesce(p_text, '')), '');
+  if v_text is null then
+    raise exception 'text is empty';
+  end if;
+
+  -- 1) Hide the bundled JSON original (no-op if not present).
+  insert into public.bundled_hidden_items (kind, mode, level, locale, text, hidden_by)
+  values (p_kind, nullif(p_mode, ''), nullif(p_level, ''), p_locale, v_text, auth.uid())
+  on conflict (kind, coalesce(mode, ''), coalesce(level, ''), locale, lower(text))
+  do nothing;
+
+  -- 2) Delete any matching user_submission (approved/pending/rejected).
+  delete from public.user_submissions
+   where kind = p_kind
+     and coalesce(mode, '')  = coalesce(p_mode, '')
+     and coalesce(level, '') = coalesce(p_level, '')
+     and locale = p_locale
+     and lower(text) = lower(v_text);
+end;
+$$;
+
+revoke all on function public.delete_bundled_item(text, text, text, text, text) from public;
+grant  execute on function public.delete_bundled_item(text, text, text, text, text) to authenticated;
+
 
 -- ╔═══════════════════════════════════════════════════════════════════╗
 -- ║  PART 6 — EMAIL NOTIFICATIONS ON NEW SUBMISSIONS (Phase 3)         ║
@@ -831,7 +968,7 @@ grant  execute on function public.unhide_bundled_item(uuid) to authenticated;
 --        ('resend_api_key', 're_xxxxxxxxxxxxxxxxxxx'),
 --        ('admin_email',    'lucneoseb@gmail.com'),
 --        ('from_email',     'Acto <noreply@acto.yourdomain>'),
---        ('admin_url',      'https://thriving-trifle-e565e3.netlify.app/admin.html')
+--        ('admin_url',      'https://thriving-trifle-e565e3.netlify.app/admin.html#impro')
 --      on conflict (key) do update set value = excluded.value;
 --   The `from_email` domain MUST be verified on Resend.
 --   If app_secrets is missing any of these, the trigger silently no-ops.
@@ -906,7 +1043,7 @@ begin
     return NEW;
   end if;
   if v_admin_url is null then
-    v_admin_url := 'https://thriving-trifle-e565e3.netlify.app/admin.html';
+    v_admin_url := 'https://thriving-trifle-e565e3.netlify.app/admin.html#impro';
   end if;
 
   v_kind_lbl := case NEW.kind
@@ -992,13 +1129,14 @@ create trigger trg_notify_admin_on_new_submission
 --   • Database → Tables → "profiles", "impro_events", "impro_participants",
 --     "user_submissions", "app_secrets", "bundled_hidden_items" all exist
 --     with the 🔒 RLS enabled badge.
---   • Database → Functions → all fourteen present:
+--   • Database → Functions → all sixteen present:
 --       delete_my_account, bump_stats, is_admin,
 --       log_impro_event, update_impro_event,
 --       add_impro_participants, search_users_by_stage_name,
 --       submit_user_text, set_submission_status,
 --       update_user_submission, delete_user_submission,
 --       hide_bundled_item, unhide_bundled_item,
+--       replace_bundled_item, delete_bundled_item,
 --       notify_admin_on_new_submission
 --   • Database → Extensions → pg_net is ENABLED (required by Phase 3).
 --
@@ -1020,6 +1158,6 @@ create trigger trg_notify_admin_on_new_submission
 --            ('resend_api_key', 're_xxxxxxxxxxxxxxxxxxx'),
 --            ('admin_email',    'lucneoseb@gmail.com'),
 --            ('from_email',     'Acto <noreply@your-verified-domain>'),
---            ('admin_url',      'https://thriving-trifle-e565e3.netlify.app/admin.html')
+--            ('admin_url',      'https://thriving-trifle-e565e3.netlify.app/admin.html#impro')
 --          on conflict (key) do update set value = excluded.value;
 -- =====================================================================

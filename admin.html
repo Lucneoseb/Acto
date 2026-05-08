@@ -328,6 +328,17 @@
   table.bundled-list { min-width: 720px; }
   table.bundled-list td.text { white-space: normal; max-width: 360px; }
   table.bundled-list td.text .name { font-weight: 600; color: var(--gold-soft); }
+  /* Actions column gets 3 buttons (Cacher/Restaurer + Éditer + Supprimer)
+     so let them wrap on narrower screens instead of overflowing. */
+  table.bundled-list td:last-child {
+    display: flex; gap: 0.35rem; flex-wrap: wrap;
+    align-items: center;
+  }
+  table.bundled-list td:last-child .btn {
+    padding: 0.35rem 0.65rem;
+    min-height: 30px;
+    font-size: 0.75rem;
+  }
   table.bundled-list tr.is-hidden td.text .name { color: var(--ink-faint); text-decoration: line-through; }
   table.bundled-list td.desc { white-space: normal; max-width: 360px; color: var(--ink-muted); font-size: 0.82rem; }
   table.bundled-list td.state .pill {
@@ -369,6 +380,20 @@
     user-select: none;
   }
   .bundle-show-hidden input { accent-color: var(--gold); }
+
+  /* View toggling: admin.html hosts two pages, "Tableau de bord" and
+     "Impro" (submissions + bundled lists). The body class drives which
+     sections are visible; the URL hash (#impro vs nothing) is the
+     source of truth so refreshes & bookmarks land on the same view. */
+  body.view-tableau [data-view="impro"]     { display: none !important; }
+  body.view-impro   [data-view="tableau"]   { display: none !important; }
+  body.view-tableau .nav-on-impro           { display: none !important; }
+  body.view-impro   .nav-on-tableau         { display: none !important; }
+  /* In the Impro view, replace the H1 "Tableau de bord" text with "Impro"
+     using a sibling span we'll toggle from JS — visibility:hidden on the
+     dashboard label and a positioned overlay span keeps the markup simple. */
+  body.view-impro header.bar h1 .h1-tableau { display: none; }
+  body.view-tableau header.bar h1 .h1-impro { display: none; }
 </style>
 </head>
 <body>
@@ -393,26 +418,30 @@
 
 <div id="adminApp" class="wrap" hidden>
   <header class="bar">
-    <h1>Acto · Tableau de bord</h1>
+    <h1>Acto · <span class="h1-tableau">Tableau de bord</span><span class="h1-impro">Impro</span></h1>
     <div>
       <span class="who" id="whoami"></span>
       <div class="actions" style="margin-top:0.4rem;">
         <button class="btn" id="refreshBtn">↻ Rafraîchir</button>
-        <button class="btn btn-primary" id="exportBtn">⬇ Export CSV</button>
+        <button class="btn btn-primary nav-on-tableau" id="exportBtn">⬇ Export CSV</button>
         <button class="btn" id="logoutBtn">Se déconnecter</button>
+        <!-- Tableau de bord-only nav: jump to the Impro view (submissions + bundled). -->
+        <button class="btn nav-on-tableau" id="goImproBtn" type="button">🎭 Impro →</button>
+        <!-- Impro view-only nav: come back to the analytics view. -->
+        <button class="btn nav-on-impro" id="backToTableauBtn" type="button">← Tableau de bord</button>
         <a class="btn" href="./index.html" style="display:inline-flex;align-items:center;text-decoration:none;">← App</a>
       </div>
     </div>
   </header>
 
-  <section class="summary" id="summary"></section>
+  <section class="summary" data-view="tableau" id="summary"></section>
 
-  <div class="toolbar">
+  <div class="toolbar" data-view="tableau">
     <input type="search" id="searchInput" placeholder="Rechercher (email, prénom, nom)…" autocomplete="off" />
     <span class="count" id="countLabel"></span>
   </div>
 
-  <div class="table-wrap">
+  <div class="table-wrap" data-view="tableau">
     <table class="profiles" id="profilesTable">
       <thead>
         <tr>
@@ -440,8 +469,9 @@
   </div>
 
   <!-- ============================================================
-       Event analytics
+       Event analytics  (Tableau de bord view)
        ============================================================ -->
+  <div data-view="tableau">
   <h2 class="section-title">📊 Statistiques par mode &amp; niveau</h2>
   <div class="grid-2">
     <div class="breakdown" id="bdMode">
@@ -519,10 +549,12 @@
       </tbody>
     </table>
   </div>
+  </div><!-- /data-view="tableau" -->
 
   <!-- ============================================================
-       User submissions
+       Impro view: User submissions + bundled lists
        ============================================================ -->
+  <div data-view="impro">
   <h2 class="section-title">📝 Soumissions utilisateurs</h2>
   <div class="submission-filters">
     <select id="submissionFilterStatus" class="btn">
@@ -542,6 +574,10 @@
       <option value="">Tous modes</option>
       <option value="troupe">Troupe</option>
       <option value="match">Match</option>
+    </select>
+    <!-- Language filter — populated by JS from IMPRO_BUNDLE.locales. -->
+    <select id="submissionFilterLocale" class="btn">
+      <option value="">Toutes langues</option>
     </select>
     <span class="count" id="submissionCount"></span>
   </div>
@@ -616,15 +652,16 @@
       </tbody>
     </table>
   </div>
-</div>
+  </div><!-- /data-view="impro" -->
+</div><!-- /adminApp -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./js/config.js?v=20260518"></script>
-<script src="./js/utils.js?v=20260518"></script>
+<script src="./js/config.js?v=20260521"></script>
+<script src="./js/utils.js?v=20260521"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=20260518"></script>
+<script src="./data/all.js?v=20260521"></script>
 <script>
 (function () {
   "use strict";
@@ -1100,10 +1137,12 @@
     const fStatus = $("submissionFilterStatus").value;
     const fKind   = $("submissionFilterKind").value;
     const fMode   = $("submissionFilterMode").value;
+    const fLocale = $("submissionFilterLocale").value;
     let rows = allSubmissions;
     if (fStatus) rows = rows.filter(s => s.status === fStatus);
     if (fKind)   rows = rows.filter(s => s.kind === fKind);
     if (fMode)   rows = rows.filter(s => (s.mode || "") === fMode);
+    if (fLocale) rows = rows.filter(s => s.locale === fLocale);
 
     $("submissionCount").textContent = rows.length + " / " + allSubmissions.length;
     const body = $("submissionsBody");
@@ -1186,7 +1225,7 @@
   }
 
   // Wire submission filters + delegated action buttons
-  ["submissionFilterStatus","submissionFilterKind","submissionFilterMode"].forEach(id => {
+  ["submissionFilterStatus","submissionFilterKind","submissionFilterMode","submissionFilterLocale"].forEach(id => {
     const el = $(id); if (el) el.addEventListener("change", renderSubmissions);
   });
   $("submissionsBody").addEventListener("click", (ev) => {
@@ -1238,16 +1277,33 @@
     allHiddenItems = data || [];
   }
 
-  /** Build the list of locale options based on what's in IMPRO_BUNDLE. */
+  /** Build the list of locale options based on what's in IMPRO_BUNDLE.
+   *  `IMPRO_BUNDLE.locales` is shaped `{ fr: { name, flag }, en: {…}, … }`.
+   *  Used by both the bundled-list filter (mandatory choice) and the
+   *  submissions filter (optional, with a "Toutes langues" sentinel). */
   function populateLocaleOptions() {
-    const sel = $("bundleFilterLocale");
-    if (!sel) return;
-    const locales = (window.IMPRO_BUNDLE && window.IMPRO_BUNDLE.locales) || { fr: "Français" };
-    sel.innerHTML = Object.keys(locales)
-      .map(code => `<option value="${escapeHtml(code)}">${escapeHtml(locales[code] || code)}</option>`)
-      .join("");
-    // Default to French.
-    if (locales.fr) sel.value = "fr";
+    const locales = (window.IMPRO_BUNDLE && window.IMPRO_BUNDLE.locales) || { fr: { name: "Français", flag: "" } };
+    const optionsHtml = Object.keys(locales).map(code => {
+      const meta  = locales[code];
+      const label = (typeof meta === "object" && meta)
+        ? ((meta.flag ? meta.flag + " " : "") + (meta.name || code))
+        : String(meta || code);
+      return `<option value="${escapeHtml(code)}">${escapeHtml(label)}</option>`;
+    }).join("");
+
+    // Bundled-list filter: mandatory locale, defaults to FR.
+    const bundleSel = $("bundleFilterLocale");
+    if (bundleSel) {
+      bundleSel.innerHTML = optionsHtml;
+      if (locales.fr) bundleSel.value = "fr";
+    }
+
+    // Submissions filter: optional locale, "Toutes langues" sentinel kept.
+    const subSel = $("submissionFilterLocale");
+    if (subSel) {
+      subSel.innerHTML =
+        '<option value="">Toutes langues</option>' + optionsHtml;
+    }
   }
 
   /** Pull the array of items for the current (kind, mode, level, locale). */
@@ -1326,15 +1382,19 @@
       const desc  = isObj ? ((it && it.desc) || "") : "";
       const hiddenRow = findHiddenRow(kind, mode, level, locale, name);
       const isHidden = !!hiddenRow;
-      const action = isHidden
-        ? `<button class="btn btn-unhide" data-bundle-act="unhide" data-id="${escapeHtml(hiddenRow.id)}">↩ Restaurer</button>`
-        : `<button class="btn btn-hide"
-                   data-bundle-act="hide"
-                   data-kind="${escapeHtml(kind)}"
-                   data-mode="${escapeHtml(mode)}"
-                   data-level="${escapeHtml(level)}"
-                   data-locale="${escapeHtml(locale)}"
-                   data-text="${escapeHtml(name)}">🚫 Cacher</button>`;
+      // Common dataset for hide / edit / delete actions.
+      const dsAttrs = `data-kind="${escapeHtml(kind)}"
+                       data-mode="${escapeHtml(mode)}"
+                       data-level="${escapeHtml(level)}"
+                       data-locale="${escapeHtml(locale)}"
+                       data-text="${escapeHtml(name)}"
+                       data-desc="${escapeHtml(desc)}"`;
+      const visibilityBtn = isHidden
+        ? `<button class="btn btn-unhide" data-bundle-act="unhide" data-id="${escapeHtml(hiddenRow.id)}">↩ Afficher</button>`
+        : `<button class="btn btn-hide" data-bundle-act="hide" ${dsAttrs}>🚫 Cacher</button>`;
+      const editBtn   = `<button class="btn" data-bundle-act="edit"   ${dsAttrs}>✎ Éditer</button>`;
+      const deleteBtn = `<button class="btn btn-reject" data-bundle-act="delete" ${dsAttrs}>🗑 Supprimer</button>`;
+      const action = `${visibilityBtn} ${editBtn} ${deleteBtn}`;
       return `<tr class="${isHidden ? 'is-hidden' : ''}">
         <td class="text"><span class="name">${escapeHtml(name)}</span></td>
         <td class="desc">${escapeHtml(desc) || '<span style="color:var(--ink-faint);">—</span>'}</td>
@@ -1364,6 +1424,57 @@
     renderBundled();
   }
 
+  /** Edit: replace a bundled item with new text/desc. Backend hides the
+   *  original and inserts an approved user_submission with the new value
+   *  → next page load merges it back into the pool. */
+  async function editBundledItem(payload) {
+    const newText = prompt("Nouveau texte :", payload.text || "");
+    if (newText == null) return;
+    if (!newText.trim()) { alert("Le texte ne peut pas être vide."); return; }
+    let newDesc = payload.desc || "";
+    if (payload.kind === "exercise" || payload.kind === "category") {
+      const r = prompt("Nouvelle description (vide = aucune) :", newDesc);
+      if (r == null) return;
+      newDesc = r;
+    } else {
+      newDesc = "";
+    }
+    const { error } = await sb.rpc("replace_bundled_item", {
+      p_kind:          payload.kind,
+      p_mode:          payload.mode  || null,
+      p_level:         payload.level || null,
+      p_locale:        payload.locale,
+      p_original_text: payload.text,
+      p_new_text:      newText.trim(),
+      p_new_desc:      newDesc.trim() || null
+    });
+    if (error) { alert("Erreur : " + error.message); return; }
+    // Local state needs both the new approved submission AND the new hide
+    // entry — easiest is a full reload. Also re-fetch submissions so the
+    // Soumissions table reflects the new approved row.
+    await loadHiddenItems();
+    await loadSubmissions();
+    renderBundled();
+    alert("✓ Item mis à jour. Le changement sera visible côté app après rechargement de la page.");
+  }
+
+  /** Delete: hide the bundled original AND nuke any matching user_submission
+   *  rows (so a previously-approved entry truly disappears). */
+  async function deleteBundledItem(payload) {
+    if (!confirm(`Supprimer définitivement « ${payload.text} » ?\nL'original sera caché et toute soumission utilisateur correspondante sera effacée.`)) return;
+    const { error } = await sb.rpc("delete_bundled_item", {
+      p_kind:   payload.kind,
+      p_mode:   payload.mode  || null,
+      p_level:  payload.level || null,
+      p_locale: payload.locale,
+      p_text:   payload.text
+    });
+    if (error) { alert("Erreur : " + error.message); return; }
+    await loadHiddenItems();
+    await loadSubmissions();
+    renderBundled();
+  }
+
   // Wire the bundled-list controls
   function wireBundledControls() {
     populateLocaleOptions();
@@ -1375,17 +1486,18 @@
       const btn = ev.target.closest("button[data-bundle-act]");
       if (!btn) return;
       const act = btn.dataset.bundleAct;
-      if (act === "hide") {
-        hideBundledItem({
-          kind:   btn.dataset.kind,
-          mode:   btn.dataset.mode,
-          level:  btn.dataset.level,
-          locale: btn.dataset.locale,
-          text:   btn.dataset.text
-        });
-      } else if (act === "unhide") {
-        unhideBundledItem(btn.dataset.id);
-      }
+      const payload = {
+        kind:   btn.dataset.kind,
+        mode:   btn.dataset.mode,
+        level:  btn.dataset.level,
+        locale: btn.dataset.locale,
+        text:   btn.dataset.text,
+        desc:   btn.dataset.desc
+      };
+      if      (act === "hide")    hideBundledItem(payload);
+      else if (act === "unhide")  unhideBundledItem(btn.dataset.id);
+      else if (act === "edit")    editBundledItem(payload);
+      else if (act === "delete")  deleteBundledItem(payload);
     });
   }
 
@@ -1425,11 +1537,46 @@
     if (!me || !me.is_admin) { showGate("forbiddenGate"); return; }
     $("whoami").textContent = "Connecté : " + me.email;
     showGate("adminApp");
+    // Wire view router BEFORE data loading so the right view is visible
+    // on first paint (avoids a flash of the wrong section).
+    wireViewRouter();
     try { await loadProfiles();    } catch (e) { console.error("[admin] loadProfiles error:", e); }
     try { await loadEvents();      } catch (e) { console.error("[admin] loadEvents error:", e); }
     try { await loadSubmissions(); } catch (e) { console.error("[admin] loadSubmissions error:", e); }
     try { wireBundledControls(); await loadHiddenItems(); renderBundled(); } catch (e) { console.error("[admin] bundled init error:", e); }
   })();
+
+  /* ============================================================
+     View router — toggles "Tableau de bord" vs "Impro" using the URL
+     hash (#impro). Clicking the dedicated nav buttons rewrites the
+     hash; the hashchange listener sets a body class that the CSS
+     selectors above use to show/hide the right sections.
+     ============================================================ */
+  function setView(name) {
+    const v = (name === "impro") ? "impro" : "tableau";
+    document.body.classList.remove("view-tableau", "view-impro");
+    document.body.classList.add("view-" + v);
+    // Reflect in the page title so browser tabs / history make sense.
+    document.title = (v === "impro") ? "Acto — Admin · Impro" : "Acto — Admin";
+  }
+  function viewFromHash() {
+    const h = (window.location.hash || "").replace(/^#/, "").toLowerCase();
+    return (h === "impro") ? "impro" : "tableau";
+  }
+  function wireViewRouter() {
+    setView(viewFromHash());
+    window.addEventListener("hashchange", () => setView(viewFromHash()));
+    const goImpro = $("goImproBtn");
+    const back    = $("backToTableauBtn");
+    if (goImpro) goImpro.addEventListener("click", () => { window.location.hash = "impro"; });
+    if (back)    back.addEventListener("click",    () => {
+      // Use replaceState to nuke the #impro fragment without leaving a
+      // stranded history entry. Then trigger setView manually since
+      // replaceState doesn't fire hashchange.
+      history.replaceState(null, "", window.location.pathname + window.location.search);
+      setView("tableau");
+    });
+  }
 })();
 </script>
 </body>
