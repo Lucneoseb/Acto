@@ -1,0 +1,22 @@
+# Cloudflare Workers — Static Assets config for Acto.
+#
+# This deploys the repo root as a static site (no build step). Cloudflare's
+# new "Workers + Static Assets" flow replaces the old Pages-only flow; this
+# file is what `npx wrangler deploy` reads.
+#
+# - `name`              → becomes the worker URL: <name>.<account>.workers.dev
+# - `compatibility_date` → pins the Workers runtime behavior; bump as needed.
+# - `[assets].directory` → folder served as static content. "." = repo root,
+#   matching the layout (index.html, admin.html, js/, data/, assets/).
+# - `not_found_handling = "single-page-application"` → on a 404, fall back to
+#   index.html. Acto is multi-page (admin.html, mes-impros.html, support.html)
+#   but Cloudflare's pretty-URL routing serves /admin → admin.html
+#   automatically; the SPA fallback only triggers for genuinely unknown
+#   paths, which is the safest behavior.
+
+name = "acto"
+compatibility_date = "2024-12-01"
+
+[assets]
+directory = "."
+not_found_handling = "single-page-application"
