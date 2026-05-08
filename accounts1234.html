@@ -266,6 +266,51 @@
   /* Event log table styling reuses .profiles, just narrower min-width */
   table.events { min-width: 900px; }
   table.events td.was-recorded { color: var(--teal); font-weight: 700; }
+
+  /* Submissions table */
+  table.submissions { min-width: 900px; }
+  table.submissions td.text { white-space: normal; max-width: 320px; font-weight: 600; color: var(--gold-soft); }
+  table.submissions td .kind {
+    display: inline-block; padding: 0.15rem 0.5rem;
+    background: rgba(109,211,197,0.18);
+    border: 1px solid rgba(109,211,197,0.45);
+    color: var(--teal);
+    border-radius: 999px;
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  table.submissions td .status-pending {
+    color: var(--gold);
+  }
+  table.submissions td .status-approved {
+    color: var(--teal);
+  }
+  table.submissions td .status-rejected {
+    color: #ff8896;
+  }
+  table.submissions td.actions {
+    display: flex; gap: 0.35rem; flex-wrap: nowrap;
+  }
+  .btn-approve {
+    background: linear-gradient(135deg, #6dd3c5, #3aa597);
+    color: var(--bg-deep);
+    border: 0;
+    padding: 0.35rem 0.65rem;
+    min-height: 30px;
+    font-size: 0.75rem;
+  }
+  .btn-reject {
+    background: linear-gradient(135deg, #ff6b8a, #b91c4d);
+    color: #fff;
+    border: 0;
+    padding: 0.35rem 0.65rem;
+    min-height: 30px;
+    font-size: 0.75rem;
+  }
+  .submission-filters {
+    display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;
+    margin-bottom: 0.7rem;
+  }
 </style>
 </head>
 <body>
@@ -416,11 +461,57 @@
       </tbody>
     </table>
   </div>
+
+  <!-- ============================================================
+       User submissions
+       ============================================================ -->
+  <h2 class="section-title">📝 Soumissions utilisateurs</h2>
+  <div class="submission-filters">
+    <select id="submissionFilterStatus" class="btn">
+      <option value="pending" selected>En attente</option>
+      <option value="approved">Approuvées</option>
+      <option value="rejected">Rejetées</option>
+      <option value="">Toutes</option>
+    </select>
+    <select id="submissionFilterKind" class="btn">
+      <option value="">Tous types</option>
+      <option value="theme">Thèmes</option>
+      <option value="category">Catégories</option>
+      <option value="constraint">Contraintes</option>
+      <option value="exercise">Exercices</option>
+    </select>
+    <select id="submissionFilterMode" class="btn">
+      <option value="">Tous modes</option>
+      <option value="troupe">Troupe</option>
+      <option value="match">Match</option>
+    </select>
+    <span class="count" id="submissionCount"></span>
+  </div>
+  <div class="table-wrap">
+    <table class="profiles submissions" id="submissionsTable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Mode</th>
+          <th>Niveau</th>
+          <th>Langue</th>
+          <th>Texte proposé</th>
+          <th>Email</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="submissionsBody">
+        <tr><td colspan="9" class="empty">Chargement…</td></tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./js/config.js?v=20260510"></script>
-<script src="./js/utils.js?v=20260510"></script>
+<script src="./js/config.js?v=20260512"></script>
+<script src="./js/utils.js?v=20260512"></script>
 <script>
 (function () {
   "use strict";
@@ -591,7 +682,7 @@
     });
   });
   $("searchInput").addEventListener("input", applyFilter);
-  $("refreshBtn").addEventListener("click", async () => { await loadProfiles(); await loadEvents(); });
+  $("refreshBtn").addEventListener("click", async () => { await loadProfiles(); await loadEvents(); await loadSubmissions(); });
   $("exportBtn").addEventListener("click", exportCSV);
   $("logoutBtn").addEventListener("click", logout);
 
@@ -865,6 +956,93 @@
     if (el) el.addEventListener("change", renderEvents);
   });
   $("exportEventsBtn").addEventListener("click", exportEventsCSV);
+
+  // ----- User submissions -----
+  let allSubmissions = [];
+
+  async function loadSubmissions() {
+    const body = $("submissionsBody");
+    body.innerHTML = '<tr><td colspan="9" class="empty">Chargement…</td></tr>';
+    const { data, error } = await sb
+      .from("user_submissions")
+      .select("id,user_id,kind,mode,level,locale,text,status,approved_at,created_at")
+      .order("created_at", { ascending: false })
+      .limit(2000);
+    if (error) {
+      console.warn("loadSubmissions", error);
+      body.innerHTML = '<tr><td colspan="9" class="empty">Erreur : ' + escapeHtml(error.message) + '</td></tr>';
+      return;
+    }
+    allSubmissions = data || [];
+    renderSubmissions();
+  }
+
+  function renderSubmissions() {
+    const fStatus = $("submissionFilterStatus").value;
+    const fKind   = $("submissionFilterKind").value;
+    const fMode   = $("submissionFilterMode").value;
+    let rows = allSubmissions;
+    if (fStatus) rows = rows.filter(s => s.status === fStatus);
+    if (fKind)   rows = rows.filter(s => s.kind === fKind);
+    if (fMode)   rows = rows.filter(s => (s.mode || "") === fMode);
+
+    $("submissionCount").textContent = rows.length + " / " + allSubmissions.length;
+    const body = $("submissionsBody");
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="9" class="empty">Aucune soumission.</td></tr>';
+      return;
+    }
+    body.innerHTML = rows.map(s => {
+      const isPending = s.status === "pending";
+      const actions = isPending
+        ? `<button class="btn btn-approve" data-act="approve" data-id="${escapeHtml(s.id)}">✓ Approuver</button>
+           <button class="btn btn-reject"  data-act="reject"  data-id="${escapeHtml(s.id)}">✗ Rejeter</button>`
+        : '<span style="color:var(--ink-faint);font-size:0.78rem;">—</span>';
+      return `<tr>
+        <td>${fmtDate(s.created_at)}</td>
+        <td><span class="kind">${escapeHtml(s.kind)}</span></td>
+        <td>${escapeHtml(s.mode || "—")}</td>
+        <td>${escapeHtml(s.level || "—")}</td>
+        <td>${escapeHtml(s.locale || "—")}</td>
+        <td class="text">${escapeHtml(s.text)}</td>
+        <td class="email">${escapeHtml(emailFor(s.user_id))}</td>
+        <td><span class="status-${escapeHtml(s.status)}">${escapeHtml(s.status)}</span></td>
+        <td class="actions">${actions}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  async function setSubmissionStatus(id, status) {
+    const { error } = await sb.rpc("set_submission_status", {
+      p_submission_id: id,
+      p_status: status
+    });
+    if (error) {
+      alert("Erreur : " + error.message);
+      return;
+    }
+    // Update locally then re-render (avoids a full reload).
+    const row = allSubmissions.find(s => s.id === id);
+    if (row) {
+      row.status = status;
+      row.approved_at = new Date().toISOString();
+    }
+    renderSubmissions();
+  }
+
+  // Wire submission filters + delegated action buttons
+  ["submissionFilterStatus","submissionFilterKind","submissionFilterMode"].forEach(id => {
+    const el = $(id); if (el) el.addEventListener("change", renderSubmissions);
+  });
+  $("submissionsBody").addEventListener("click", (ev) => {
+    const btn = ev.target.closest("button[data-act]");
+    if (!btn) return;
+    const id  = btn.dataset.id;
+    const act = btn.dataset.act;
+    if (!id || !act) return;
+    if (act === "reject" && !confirm("Rejeter cette soumission ?")) return;
+    setSubmissionStatus(id, act === "approve" ? "approved" : "rejected");
+  });
   document.querySelectorAll("th[data-event-sort]").forEach(th => {
     th.addEventListener("click", () => {
       const k = th.dataset.eventSort;
@@ -910,8 +1088,9 @@
     if (!me || !me.is_admin) { showGate("forbiddenGate"); return; }
     $("whoami").textContent = "Connecté : " + me.email;
     showGate("adminApp");
-    try { await loadProfiles(); } catch (e) { console.error("[admin] loadProfiles error:", e); }
-    try { await loadEvents();   } catch (e) { console.error("[admin] loadEvents error:", e); }
+    try { await loadProfiles();    } catch (e) { console.error("[admin] loadProfiles error:", e); }
+    try { await loadEvents();      } catch (e) { console.error("[admin] loadEvents error:", e); }
+    try { await loadSubmissions(); } catch (e) { console.error("[admin] loadSubmissions error:", e); }
   })();
 })();
 </script>

@@ -485,16 +485,332 @@ revoke all on function public.search_users_by_stage_name(text) from public;
 grant  execute on function public.search_users_by_stage_name(text) to authenticated;
 
 
+-- ╔═══════════════════════════════════════════════════════════════════╗
+-- ║         PART 5 — USER SUBMISSIONS (themes / categories /          ║
+-- ║                    constraints / exercises typed by users)        ║
+-- ╚═══════════════════════════════════════════════════════════════════╝
+-- When a user types a custom value in a card (theme, category, etc.) and
+-- it doesn't match anything in the existing pool, the client logs it here.
+-- The admin reviews pending rows on accounts1234.html and approves the
+-- ones worth promoting to the bundled data.
+
+-- 5.1 SUBMISSIONS TABLE
+create table if not exists public.user_submissions (
+  id              uuid          primary key default gen_random_uuid(),
+  user_id         uuid          references auth.users(id) on delete set null,
+  kind            text          not null check (kind in ('theme','category','constraint','exercise')),
+  mode            text,                                          -- 'match' | 'troupe' | NULL
+  level           text,                                          -- 'debutant' | 'confirme' | 'expert' | NULL
+  locale          text          not null,                        -- 'fr' | 'en' | 'de' | 'es' | 'pt' | 'nl'
+  text            text          not null,
+  status          text          not null default 'pending'
+                                check (status in ('pending','approved','rejected')),
+  approved_by     uuid          references auth.users(id) on delete set null,
+  approved_at     timestamptz,
+  created_at      timestamptz   not null default now()
+);
+
+create index if not exists user_submissions_status_idx  on public.user_submissions (status);
+create index if not exists user_submissions_kind_idx    on public.user_submissions (kind);
+create index if not exists user_submissions_user_idx    on public.user_submissions (user_id);
+create index if not exists user_submissions_created_idx on public.user_submissions (created_at desc);
+
+-- 5.2 RLS — submitter can read their own rows; admins read everything.
+alter table public.user_submissions enable row level security;
+
+drop policy if exists "users_read_own_submissions"          on public.user_submissions;
+drop policy if exists "admins_read_all_submissions"         on public.user_submissions;
+drop policy if exists "authenticated_read_approved_submissions" on public.user_submissions;
+
+create policy "users_read_own_submissions"
+  on public.user_submissions for select
+  using (user_id = auth.uid());
+
+create policy "admins_read_all_submissions"
+  on public.user_submissions for select
+  using (public.is_admin());
+
+-- Phase 2: any authenticated user can read submissions that have been
+-- approved. The client merges them into the bundled pool at app startup so
+-- approved user-submitted themes/categories/constraints/exercises start
+-- showing up in random picks for everyone.
+create policy "authenticated_read_approved_submissions"
+  on public.user_submissions for select
+  using (auth.uid() is not null and status = 'approved');
+
+-- 5.3 SUBMIT RPC — called by the client when a user types a value that
+--     doesn't already exist in the bundled pool. Caller must be authenticated.
+create or replace function public.submit_user_text(
+  p_kind   text,
+  p_mode   text,
+  p_level  text,
+  p_locale text,
+  p_text   text
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  new_id uuid;
+  v_text text;
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+  if p_kind not in ('theme','category','constraint','exercise') then
+    raise exception 'invalid kind: %', p_kind;
+  end if;
+  v_text := nullif(trim(p_text), '');
+  if v_text is null then
+    raise exception 'text is empty';
+  end if;
+  -- De-duplicate: don't insert if the same user already submitted the same
+  -- (kind, mode, level, locale, lower(text)) tuple AND it's still pending.
+  if exists (
+    select 1 from public.user_submissions
+    where user_id = auth.uid()
+      and kind = p_kind
+      and coalesce(mode, '')  = coalesce(p_mode, '')
+      and coalesce(level, '') = coalesce(p_level, '')
+      and locale = p_locale
+      and lower(text) = lower(v_text)
+      and status = 'pending'
+  ) then
+    -- Return the existing id (idempotent).
+    select id into new_id from public.user_submissions
+    where user_id = auth.uid()
+      and kind = p_kind
+      and coalesce(mode, '')  = coalesce(p_mode, '')
+      and coalesce(level, '') = coalesce(p_level, '')
+      and locale = p_locale
+      and lower(text) = lower(v_text)
+      and status = 'pending'
+    limit 1;
+    return new_id;
+  end if;
+  insert into public.user_submissions (user_id, kind, mode, level, locale, text)
+  values (auth.uid(), p_kind, nullif(p_mode, ''), nullif(p_level, ''), p_locale, v_text)
+  returning id into new_id;
+  return new_id;
+end;
+$$;
+
+revoke all on function public.submit_user_text(text, text, text, text, text) from public;
+grant  execute on function public.submit_user_text(text, text, text, text, text) to authenticated;
+
+-- 5.4 APPROVE / REJECT RPC — admin only.
+create or replace function public.set_submission_status(
+  p_submission_id uuid,
+  p_status        text   -- 'approved' or 'rejected'
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if auth.uid() is null or not public.is_admin() then
+    raise exception 'admin only';
+  end if;
+  if p_status not in ('approved','rejected') then
+    raise exception 'invalid status: %', p_status;
+  end if;
+  update public.user_submissions
+     set status      = p_status,
+         approved_by = auth.uid(),
+         approved_at = now()
+   where id = p_submission_id;
+end;
+$$;
+
+revoke all on function public.set_submission_status(uuid, text) from public;
+grant  execute on function public.set_submission_status(uuid, text) to authenticated;
+
+
+-- ╔═══════════════════════════════════════════════════════════════════╗
+-- ║  PART 6 — EMAIL NOTIFICATIONS ON NEW SUBMISSIONS (Phase 3)         ║
+-- ╚═══════════════════════════════════════════════════════════════════╝
+-- When a row is inserted into user_submissions (status='pending'), fire
+-- a non-blocking HTTP POST to Resend so the admin gets an email with a
+-- link to the admin dashboard.
+--
+-- One-time manual setup (after running this script):
+--   1. Enable the pg_net extension (it's available in Supabase by default
+--      but must be enabled in the Database → Extensions page).
+--   2. Insert your Resend API key + addresses into app_secrets:
+--      insert into public.app_secrets (key, value) values
+--        ('resend_api_key', 're_xxxxxxxxxxxxxxxxxxx'),
+--        ('admin_email',    'lucneoseb@gmail.com'),
+--        ('from_email',     'Acto <noreply@acto.yourdomain>'),
+--        ('admin_url',      'https://thriving-trifle-e565e3.netlify.app/accounts1234.html')
+--      on conflict (key) do update set value = excluded.value;
+--   The `from_email` domain MUST be verified on Resend.
+--   If app_secrets is missing any of these, the trigger silently no-ops.
+
+-- 6.1 SECRETS TABLE — admin-only via RLS. The trigger reads it via
+--     security definer (so it bypasses RLS) but we still gate writes.
+create table if not exists public.app_secrets (
+  key   text primary key,
+  value text not null,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.app_secrets enable row level security;
+
+drop policy if exists "admins_read_app_secrets"   on public.app_secrets;
+drop policy if exists "admins_write_app_secrets"  on public.app_secrets;
+drop policy if exists "admins_update_app_secrets" on public.app_secrets;
+drop policy if exists "admins_delete_app_secrets" on public.app_secrets;
+
+create policy "admins_read_app_secrets"
+  on public.app_secrets for select
+  using (public.is_admin());
+
+create policy "admins_write_app_secrets"
+  on public.app_secrets for insert
+  with check (public.is_admin());
+
+create policy "admins_update_app_secrets"
+  on public.app_secrets for update
+  using (public.is_admin())
+  with check (public.is_admin());
+
+create policy "admins_delete_app_secrets"
+  on public.app_secrets for delete
+  using (public.is_admin());
+
+-- 6.2 EMAIL TRIGGER FUNCTION
+-- Fires after each insert into user_submissions. Reads the four secrets,
+-- builds an HTML email referencing the new submission, and POSTs it to
+-- Resend. The pg_net call is fire-and-forget (returns a bigint request id
+-- but we don't await it — the trigger completes immediately).
+create or replace function public.notify_admin_on_new_submission()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, extensions
+as $$
+declare
+  v_api_key   text;
+  v_admin     text;
+  v_from      text;
+  v_admin_url text;
+  v_subject   text;
+  v_kind_lbl  text;
+  v_user_email text;
+  v_html      text;
+  v_payload   jsonb;
+begin
+  -- Only notify on freshly-inserted, pending rows. (set_submission_status
+  -- updates rows after admin review — we don't want to spam on those.)
+  if NEW.status is distinct from 'pending' then
+    return NEW;
+  end if;
+
+  select value into v_api_key   from public.app_secrets where key = 'resend_api_key';
+  select value into v_admin     from public.app_secrets where key = 'admin_email';
+  select value into v_from      from public.app_secrets where key = 'from_email';
+  select value into v_admin_url from public.app_secrets where key = 'admin_url';
+
+  -- Missing config → silently no-op so the insert isn't blocked.
+  if v_api_key is null or v_admin is null or v_from is null then
+    return NEW;
+  end if;
+  if v_admin_url is null then
+    v_admin_url := 'https://thriving-trifle-e565e3.netlify.app/accounts1234.html';
+  end if;
+
+  v_kind_lbl := case NEW.kind
+    when 'theme'      then 'thème'
+    when 'category'   then 'catégorie'
+    when 'constraint' then 'contrainte'
+    when 'exercise'   then 'exercice'
+    else NEW.kind
+  end;
+
+  -- Best-effort: include the submitter's email (won't fail if profile missing).
+  begin
+    select email into v_user_email
+      from public.profiles
+     where id = NEW.user_id;
+  exception when others then
+    v_user_email := null;
+  end;
+
+  v_subject := '[Acto] Nouvelle soumission — ' || v_kind_lbl;
+
+  v_html :=
+    '<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#1a0f2b;background:#f5f0ea;padding:24px;">' ||
+      '<h2 style="color:#b91c4d;margin:0 0 12px;">Nouvelle soumission utilisateur</h2>' ||
+      '<p>Un utilisateur a proposé un nouveau <strong>' || v_kind_lbl || '</strong> :</p>' ||
+      '<blockquote style="background:#fff;border-left:4px solid #f5c451;padding:12px 16px;margin:16px 0;font-size:1.1rem;">' ||
+        replace(replace(coalesce(NEW.text, ''), '<', '&lt;'), '>', '&gt;') ||
+      '</blockquote>' ||
+      '<table style="border-collapse:collapse;font-size:0.9rem;">' ||
+        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Type</td><td>' || coalesce(NEW.kind, '') || '</td></tr>' ||
+        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Mode</td><td>' || coalesce(NEW.mode, '—') || '</td></tr>' ||
+        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Niveau</td><td>' || coalesce(NEW.level, '—') || '</td></tr>' ||
+        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Langue</td><td>' || coalesce(NEW.locale, '—') || '</td></tr>' ||
+        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Soumis par</td><td>' || coalesce(v_user_email, NEW.user_id::text, '—') || '</td></tr>' ||
+      '</table>' ||
+      '<p style="margin-top:24px;">' ||
+        '<a href="' || v_admin_url || '" style="background:#f5c451;color:#1a0f2b;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block;">' ||
+          '→ Examiner sur le tableau d''admin' ||
+        '</a>' ||
+      '</p>' ||
+      '<p style="color:#999;font-size:0.8rem;margin-top:32px;">Acto · The Impro Studio</p>' ||
+    '</div>';
+
+  v_payload := jsonb_build_object(
+    'from',    v_from,
+    'to',      jsonb_build_array(v_admin),
+    'subject', v_subject,
+    'html',    v_html
+  );
+
+  -- Fire-and-forget HTTP POST to Resend. pg_net runs this asynchronously
+  -- so the user's INSERT completes immediately even if Resend is slow.
+  perform net.http_post(
+    url     := 'https://api.resend.com/emails',
+    body    := v_payload,
+    headers := jsonb_build_object(
+      'Authorization', 'Bearer ' || v_api_key,
+      'Content-Type',  'application/json'
+    ),
+    timeout_milliseconds := 5000
+  );
+
+  return NEW;
+exception when others then
+  -- Never let a notification failure block the insert.
+  raise warning 'notify_admin_on_new_submission failed: %', SQLERRM;
+  return NEW;
+end;
+$$;
+
+-- 6.3 TRIGGER WIRING
+drop trigger if exists trg_notify_admin_on_new_submission on public.user_submissions;
+create trigger trg_notify_admin_on_new_submission
+  after insert on public.user_submissions
+  for each row
+  execute function public.notify_admin_on_new_submission();
+
+
 -- =====================================================================
 -- DONE.
 --
 -- Verification checklist (Supabase dashboard):
---   • Database → Tables → "profiles", "impro_events", "impro_participants"
---     all exist with the 🔒 RLS enabled badge.
---   • Database → Functions → all seven present:
+--   • Database → Tables → "profiles", "impro_events", "impro_participants",
+--     "user_submissions", "app_secrets" all exist with the 🔒 RLS enabled badge.
+--   • Database → Functions → all ten present:
 --       delete_my_account, bump_stats, is_admin,
 --       log_impro_event, update_impro_event,
---       add_impro_participants, search_users_by_stage_name
+--       add_impro_participants, search_users_by_stage_name,
+--       submit_user_text, set_submission_status,
+--       notify_admin_on_new_submission
+--   • Database → Extensions → pg_net is ENABLED (required by Phase 3).
 --
 -- Don't forget to:
 --   1. Enable email confirmation:
@@ -506,4 +822,14 @@ grant  execute on function public.search_users_by_stage_name(text) to authentica
 --   3. Promote yourself to admin (after first signup):
 --      update public.profiles set is_admin = true
 --      where email = 'lucneoseb@gmail.com';
+--   4. Wire Phase 3 notifications (optional — silently skipped if missing):
+--      • Sign up at https://resend.com, verify a sender domain.
+--      • Create an API key (Resend → API Keys).
+--      • Run, as admin, in SQL editor:
+--          insert into public.app_secrets (key, value) values
+--            ('resend_api_key', 're_xxxxxxxxxxxxxxxxxxx'),
+--            ('admin_email',    'lucneoseb@gmail.com'),
+--            ('from_email',     'Acto <noreply@your-verified-domain>'),
+--            ('admin_url',      'https://thriving-trifle-e565e3.netlify.app/accounts1234.html')
+--          on conflict (key) do update set value = excluded.value;
 -- =====================================================================

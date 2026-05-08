@@ -2035,6 +2035,63 @@ body.mode-troupe #card-theme      { order: 3; }
 /* Hide the (now-deleted) reroll-bar in case it's somehow referenced anywhere */
 .reroll-bar { display: none !important; }
 
+/* Edit-value button — sibling of .card-reroll. Clicking opens the
+   #editValueDialog so the user can override the picked value, and if the
+   typed text doesn't match the bundled pool it gets submitted to the admin. */
+.card-edit {
+  appearance: none;
+  border: 1px solid rgba(108, 211, 197, 0.25);
+  background: rgba(108, 211, 197, 0.08);
+  color: var(--troupe);
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+  flex-shrink: 0;
+  min-height: 28px;
+  min-width: 32px;
+}
+.card-edit:hover {
+  background: rgba(108, 211, 197, 0.18);
+  border-color: rgba(108, 211, 197, 0.55);
+  transform: translateY(-1px);
+}
+@media (max-width: 480px) {
+  .card-edit { font-size: 0.85rem; padding: 3px 6px; min-height: 26px; min-width: 28px; }
+}
+.edit-value-dialog .dlg-body { padding: 1rem 1.25rem; }
+.edit-value-dialog input[type="text"] {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--ink);
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: 0.95rem;
+  outline: none;
+}
+.edit-value-dialog input[type="text"]:focus {
+  border-color: rgba(245, 196, 81, 0.55);
+  background: rgba(0, 0, 0, 0.5);
+}
+.edit-value-status {
+  background: rgba(109, 211, 197, 0.12);
+  border: 1px solid rgba(109, 211, 197, 0.4);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  color: var(--troupe);
+  font-weight: 500;
+}
+.edit-value-status.error {
+  background: rgba(255, 60, 80, 0.12);
+  border-color: rgba(255, 100, 110, 0.4);
+  color: #ffd0d4;
+}
+
 /* ==========================================================
    Themes mode toggle (Random / Custom) + edit modal
    ========================================================== */

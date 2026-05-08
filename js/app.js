@@ -1606,6 +1606,93 @@
   }
 
   /* ============================================================
+     4.b PHASE 2 — APPROVED USER SUBMISSIONS
+
+     Once an admin flips a row in `user_submissions` to status='approved',
+     it should start appearing alongside the bundled themes / categories /
+     constraints / exercises in everyone's random picks. This loader
+     fetches every approved row for the current locale and merges them
+     into the in-memory bundle.
+
+     Notes:
+     - We mutate `window.IMPRO_BUNDLE.data[locale]` directly so the store's
+       getters see the new entries, AND so re-fetching `data.themes[level]`
+       in the shuffle bag returns the augmented array (its fingerprint then
+       changes, which auto-resets the bag — no manual reset needed).
+     - Pool comparisons are case-insensitive (`p.name`/`p`) so an existing
+       bundled item is never duplicated.
+     - Authenticated reads only — RLS policy
+       `authenticated_read_approved_submissions` filters on the server.
+     ============================================================ */
+  async function loadApprovedSubmissionsIntoBundle() {
+    if (!window.actoSupabase) return;
+    const bundle = window.IMPRO_BUNDLE;
+    if (!bundle || !bundle.data) return;
+    const locale = (typeof store !== "undefined" && store.locale) ? store.locale : "fr";
+    const target = bundle.data[locale];
+    if (!target) return;
+
+    let rows;
+    try {
+      const { data, error } = await window.actoSupabase
+        .from("user_submissions")
+        .select("kind,mode,level,locale,text")
+        .eq("status",  "approved")
+        .eq("locale",  locale)
+        .limit(2000);
+      if (error) { console.warn("[acto] loadApprovedSubmissions error", error); return; }
+      rows = data || [];
+    } catch (e) {
+      console.warn("[acto] loadApprovedSubmissions threw", e);
+      return;
+    }
+    if (!rows.length) return;
+
+    const lc = (s) => String(s || "").trim().toLowerCase();
+    let merged = 0;
+
+    for (const s of rows) {
+      const text = (s.text || "").trim();
+      if (!text) continue;
+
+      if (s.kind === "theme") {
+        if (!s.level) continue;
+        target.themes = target.themes || {};
+        const arr = (target.themes[s.level] = target.themes[s.level] || []);
+        if (!arr.some(t => lc(t) === lc(text))) { arr.push(text); merged++; }
+
+      } else if (s.kind === "category") {
+        target.categories = target.categories || [];
+        const arr = target.categories;
+        if (!arr.some(c => lc(c && c.name || c) === lc(text))) {
+          arr.push({ name: text });
+          merged++;
+        }
+
+      } else if (s.kind === "constraint") {
+        if (!s.mode || !s.level) continue;
+        target.constraints = target.constraints || {};
+        target.constraints[s.mode] = target.constraints[s.mode] || {};
+        const arr = (target.constraints[s.mode][s.level] = target.constraints[s.mode][s.level] || []);
+        if (!arr.some(c => lc(c) === lc(text))) { arr.push(text); merged++; }
+
+      } else if (s.kind === "exercise") {
+        if (!s.mode || !s.level) continue;
+        target.exercises = target.exercises || {};
+        target.exercises[s.mode] = target.exercises[s.mode] || {};
+        const arr = (target.exercises[s.mode][s.level] = target.exercises[s.mode][s.level] || []);
+        if (!arr.some(e => lc(e && e.name) === lc(text))) {
+          arr.push({ name: text, desc: "" });
+          merged++;
+        }
+      }
+    }
+    if (merged) {
+      console.log("[acto] merged " + merged + " approved submission(s) into pool (" + locale + ")");
+    }
+  }
+
+  /* ============================================================
      5. BOOT
      ============================================================ */
   function boot() {
@@ -1724,6 +1811,137 @@
     if (__rulesDlg)   __rulesDlg.addEventListener("click", (e) => { if (e.target === __rulesDlg) closeRulesDialog(); });
 
     $("#generateBtn").addEventListener("click", generateAll);
+
+    /* === Edit-value dialog (✎ button on each card) ===
+       Lets the user override the picked Theme / Constraint / Category /
+       Exercise. If the typed value isn't in the bundled pool, it's also
+       submitted to the admin via the submit_user_text RPC. */
+    const __evDlg     = $("#editValueDialog");
+    const __evInput   = $("#editValueInput");
+    const __evClose   = $("#editValueClose");
+    const __evCancel  = $("#editValueCancel");
+    const __evSave    = $("#editValueSave");
+    const __evStatus  = $("#editValueStatus");
+
+    function openEditValueDialog(target) {
+      if (!__evDlg) return;
+      const t = store.ui;
+      const labelMap = {
+        theme:      t.cardTheme      || "Thème",
+        constraint: t.cardConstraint || "Contrainte",
+        category:   t.cardCategory   || "Catégorie",
+        exercise:   t.cardExercise   || "Exercice"
+      };
+      const currentValue = (
+        target === "theme"      ? state.currentTheme
+      : target === "constraint" ? state.currentConstraint
+      : (state.currentExercise && state.currentExercise.name)
+      ) || "";
+      $("#editValueTitle").textContent = (t.editValueTitle || "Modifier la valeur") + " — " + labelMap[target];
+      $("#editValueLabel").textContent = labelMap[target];
+      $("#editValueHelp").textContent  = t.editValueHelp || "Si la valeur est nouvelle, elle sera proposée à l'admin pour validation.";
+      $("#editValueCancel").textContent = t.rosterCancel || "Annuler";
+      $("#editValueSave").textContent   = t.editValueSave || "Enregistrer";
+      __evInput.value = currentValue;
+      __evStatus.hidden = true;
+      __evStatus.textContent = "";
+      __evStatus.classList.remove("error");
+      __evDlg.dataset.editTarget = target;
+      if (typeof __evDlg.showModal === "function") __evDlg.showModal();
+      else __evDlg.setAttribute("open", "");
+      setTimeout(() => __evInput.focus(), 50);
+    }
+
+    function closeEditValueDialog() {
+      if (!__evDlg) return;
+      if (typeof __evDlg.close === "function") __evDlg.close();
+      else __evDlg.removeAttribute("open");
+    }
+
+    /** True if `value` is already present in the bundled pool for `target`,
+     *  case-insensitive. Used to decide whether to submit it to the admin. */
+    function isValueInPool(target, value) {
+      const pool = poolFor(target) || [];
+      const v = String(value || "").trim().toLowerCase();
+      return pool.some(p => {
+        const pv = (typeof p === "object") ? (p && p.name) : p;
+        return String(pv || "").trim().toLowerCase() === v;
+      });
+    }
+
+    async function saveEditValue() {
+      const target = __evDlg && __evDlg.dataset.editTarget;
+      if (!target) return;
+      const t = store.ui;
+      const value = (__evInput.value || "").trim();
+      if (!value) return;
+
+      // Apply the override locally so the impro proceeds with the typed value.
+      if (target === "theme") {
+        state.currentTheme = value;
+      } else if (target === "constraint") {
+        state.currentConstraint = value;
+      } else {
+        // category (Match) and exercise (Troupe) both live on currentExercise.
+        state.currentExercise = { name: value, desc: (state.currentExercise && state.currentExercise.desc) || "" };
+        if (target === "category") state.currentCategory = state.currentExercise;
+      }
+      // Update the visible reel without re-spinning.
+      const trackEl = $("#reel-" + target);
+      if (trackEl) {
+        trackEl.style.transition = "none";
+        trackEl.style.transform = "translateY(0)";
+        trackEl.innerHTML = `<div class="reel-item final">${escapeHtml(value)}</div>`;
+      }
+      const metaEl = $("#meta-" + target);
+      if (metaEl && (target === "category" || target === "exercise")) {
+        metaEl.textContent = (state.currentExercise && state.currentExercise.desc) || "";
+      }
+
+      // If the typed value is new, log it to user_submissions so the admin
+      // can review and (later) promote it to the bundled data.
+      const isNew = !isValueInPool(target, value);
+      if (isNew && window.actoSupabase && window.actoAuth && window.actoAuth.state.user) {
+        try {
+          await window.actoSupabase.rpc("submit_user_text", {
+            p_kind:   target,
+            p_mode:   target === "exercise" || target === "constraint" ? state.mode : (target === "category" ? "match" : ""),
+            p_level:  (target === "exercise" || target === "constraint") ? state.level : "",
+            p_locale: store.locale || "fr",
+            p_text:   value
+          });
+          __evStatus.textContent = t.editValueSubmitted || "✓ Valeur soumise à l'admin pour validation.";
+          __evStatus.classList.remove("error");
+          __evStatus.hidden = false;
+          setTimeout(closeEditValueDialog, 1400);
+          return;
+        } catch (e) {
+          console.warn("submit_user_text failed", e);
+          __evStatus.textContent = (t.editValueSubmitFailed || "Échec de la soumission") + " (" + (e.message || e) + ")";
+          __evStatus.classList.add("error");
+          __evStatus.hidden = false;
+          return;
+        }
+      }
+      // Existing value (or not authenticated) → just close.
+      closeEditValueDialog();
+    }
+
+    if (__evClose)  __evClose.addEventListener("click",  closeEditValueDialog);
+    if (__evCancel) __evCancel.addEventListener("click", closeEditValueDialog);
+    if (__evSave)   __evSave.addEventListener("click",   saveEditValue);
+    if (__evDlg)    __evDlg.addEventListener("click", (e) => { if (e.target === __evDlg) closeEditValueDialog(); });
+    if (__evInput) {
+      __evInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); saveEditValue(); }
+      });
+    }
+    $$(".card-edit").forEach((b) =>
+      b.addEventListener("click", () => {
+        if (state.isGenerating) return;
+        openEditValueDialog(b.dataset.edit);
+      })
+    );
 
     $$(".card-reroll").forEach((b) =>
       b.addEventListener("click", async () => {
@@ -1857,7 +2075,29 @@
       } else {
         applyTranslations();
       }
+      // Locale changed → re-fetch approved submissions for the new locale.
+      if (window.actoAuth && window.actoAuth.state && window.actoAuth.state.user) {
+        loadApprovedSubmissionsIntoBundle().catch(() => {});
+      }
     });
+
+    // Phase 2: pull approved user submissions into the in-memory pool.
+    // Runs on every auth state change (login/refresh/initial-session) so a
+    // fresh page load picks them up as soon as the session resolves.
+    if (window.actoSupabase && window.actoSupabase.auth) {
+      window.actoSupabase.auth.onAuthStateChange((event, session) => {
+        if ((event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED")
+            && session && session.user) {
+          loadApprovedSubmissionsIntoBundle().catch(() => {});
+        }
+      });
+      // The auth listener above only fires on *transitions*. If app.js boots
+      // after auth.js has already restored a session, no event will arrive —
+      // load now in that case.
+      if (window.actoAuth && window.actoAuth.state && window.actoAuth.state.user) {
+        loadApprovedSubmissionsIntoBundle().catch(() => {});
+      }
+    }
   }
 
 
