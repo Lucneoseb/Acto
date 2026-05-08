@@ -143,6 +143,43 @@
     setText("accountValNom",    p.nom    || "");
     setText("accountValStage",  p.nom_scene || "");
     setText("accountValDob",    formatDobForLocale(p.date_naissance));
+    refreshAccountStats();
+  }
+
+  /** Populate the "📊 Mes statistiques" section in Settings from the
+   *  profile row + a one-time count from impro_participants for the
+   *  "impros I performed" line (server-side aggregate). */
+  async function refreshAccountStats() {
+    const sect = $("authStatsSection");
+    if (!sect) return;
+    const u = window.actoAuth.state.user;
+    const p = window.actoAuth.state.profile || {};
+    if (!u) { sect.hidden = true; return; }
+    sect.hidden = false;
+    const t = ui();
+    setText("authStatsTitle",       t.authStatsTitle       || "📊 My stats");
+    setText("statsLabelLaunched",   t.statsLabelLaunched   || "Impros I started");
+    setText("statsLabelPerformed",  t.statsLabelPerformed  || "Impros I performed");
+    setText("statsLabelImproSec",   t.statsLabelImproSec   || "Improv playing time");
+    setText("statsLabelRecordCount",t.statsLabelRecordCount|| "Videos recorded");
+    setText("statsLabelRecordSec",  t.statsLabelRecordSec  || "Time on camera");
+
+    const fmtSec = (window.actoUtils && window.actoUtils.fmtSec) || (s => String(Math.round((s||0)/60)) + " min");
+    setText("statsValLaunched",    String(p.total_impros_played    || 0));
+    setText("statsValImproSec",    fmtSec(p.total_impro_seconds    || 0));
+    setText("statsValRecordCount", String(p.total_records_count    || 0));
+    setText("statsValRecordSec",   fmtSec(p.total_record_seconds   || 0));
+    // Participations count — live query against impro_participants.
+    setText("statsValPerformed", "…");
+    try {
+      const { count } = await sb
+        .from("impro_participants")
+        .select("event_id", { count: "exact", head: true })
+        .eq("user_id", u.id);
+      setText("statsValPerformed", String(count || 0));
+    } catch (e) {
+      setText("statsValPerformed", String(p.participation_count || 0));
+    }
   }
 
   /** Format an ISO date (YYYY-MM-DD) using the active app locale.

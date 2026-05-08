@@ -452,6 +452,8 @@ input, textarea {
 
 .team-a .team-color { background: #4a90e2; box-shadow: 0 0 12px #4a90e2; }
 .team-b .team-color { background: #ff6b8a; box-shadow: 0 0 12px #ff6b8a; }
+/* Troupe variant: gold accent — distinct from Match A (blue) / B (pink). */
+.team-troupe .team-color { background: var(--gold); box-shadow: 0 0 12px rgba(245, 196, 81, 0.6); }
 
 .team input {
   flex: 1;
@@ -3260,6 +3262,57 @@ body.mode-troupe #card-theme      { order: 3; }
   font-size: 1.6rem;
   font-weight: 400;
 }
+/* Participants confirmation block — shown above the download button.
+   Auto-populated from the active rosters; the user can tweak before
+   downloading so the filename + analytics carry the right names. */
+.recorder-participants {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: left;
+  max-height: 26vh;
+  overflow: auto;
+}
+.recorder-participants-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  line-height: 1.4;
+}
+.recorder-participant-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.55rem 0.75rem;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+}
+.recorder-participant-row[hidden] { display: none; }
+.recorder-participant-row label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  font-weight: 600;
+}
+.recorder-participant-row input,
+.recorder-participant-row textarea {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--ink);
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: 0.85rem;
+  outline: none;
+  resize: vertical;
+}
+.recorder-participant-row textarea { min-height: 2.4rem; }
+.recorder-participant-row input:focus,
+.recorder-participant-row textarea:focus { border-color: rgba(245, 196, 81, 0.55); }
+
 .recorder-preview-card .recorder-preview {
   position: static;
   inset: auto;

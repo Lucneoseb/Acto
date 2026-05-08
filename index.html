@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=20260535" />
+<link rel="stylesheet" href="styles.css?v=20260537" />
 </head>
 <body>
   <!-- Stage backdrop -->
@@ -201,16 +201,22 @@
       </div>
 
       <!-- Troupe-only roster (single composition for the troupe). Match mode
-           uses the per-team rosters defined inside #matchOptions above. -->
+           uses the per-team rosters defined inside #matchOptions above.
+           The team-name input mirrors the Match A/B layout so the troupe
+           can be named (e.g. "Les Improbables") and the name shows up in
+           the rosterStatus alongside the actor list. -->
       <div class="config-block troupe-only">
         <label class="config-label">
           <span class="label-num">★</span>
           <span class="label-text" id="labelRoster"></span>
         </label>
-        <div class="roster-row">
-          <button class="roster-edit-btn" id="rosterEditBtn" type="button">
-            <span id="rosterEditBtnLabel"></span>
-          </button>
+        <div class="team-block" data-team="troupe">
+          <div class="team-block-row">
+            <div class="team team-troupe"><span class="team-color"></span><input type="text" id="teamTroupe" maxlength="24" /></div>
+            <button class="roster-edit-btn" id="rosterEditBtn" type="button">
+              <span id="rosterEditBtnLabel"></span>
+            </button>
+          </div>
           <span class="roster-status" id="rosterStatus"></span>
         </div>
       </div>
@@ -428,11 +434,33 @@
         </div>
       </div>
 
-      <!-- Preview / download popup (shown after confirm-stop) -->
+      <!-- Preview / download popup (shown after confirm-stop). The
+           participants block lets the user confirm or edit team + actor
+           names before downloading. The names go into the video's
+           filename and are also sent to the impro_participants table
+           so analytics reflect who was actually on stage. -->
       <div class="recorder-preview-popup" id="recorderPreviewPopup" hidden>
         <div class="recorder-preview-card">
           <h3 class="recorder-preview-title" id="recorderPreviewTitle"></h3>
           <video class="recorder-preview" id="recorderPreview" controls playsinline></video>
+          <div class="recorder-participants" id="recorderParticipants">
+            <p class="recorder-participants-hint" id="recorderParticipantsHint"></p>
+            <div class="recorder-participant-row" data-team="troupe" hidden>
+              <label for="recParticipantsTroupeName" id="recParticipantsTroupeLabel"></label>
+              <input type="text" id="recParticipantsTroupeName" maxlength="40" autocomplete="off" />
+              <textarea id="recParticipantsTroupeActors" rows="2" maxlength="500" autocomplete="off"></textarea>
+            </div>
+            <div class="recorder-participant-row" data-team="a" hidden>
+              <label for="recParticipantsTeamA" id="recParticipantsLabelA"></label>
+              <input type="text" id="recParticipantsTeamA" maxlength="40" autocomplete="off" />
+              <textarea id="recParticipantsActorsA" rows="2" maxlength="500" autocomplete="off"></textarea>
+            </div>
+            <div class="recorder-participant-row" data-team="b" hidden>
+              <label for="recParticipantsTeamB" id="recParticipantsLabelB"></label>
+              <input type="text" id="recParticipantsTeamB" maxlength="40" autocomplete="off" />
+              <textarea id="recParticipantsActorsB" rows="2" maxlength="500" autocomplete="off"></textarea>
+            </div>
+          </div>
           <div class="recorder-preview-actions">
             <a class="recorder-action recorder-download" id="recorderDownloadLink" download></a>
             <button class="recorder-action recorder-exit" id="recorderExitBtn" type="button"></button>
@@ -538,6 +566,36 @@
           <button class="auth-btn auth-btn-secondary" id="authLogoutBtn" type="button"></button>
           <button class="auth-btn auth-btn-danger" id="authOpenDeleteBtn" type="button"></button>
         </div>
+      </div>
+
+      <!-- Personal stats — read-only summary of how much the user has
+           played. Numbers come from public.profiles (already maintained
+           via the bump_stats RPC) plus a count from impro_participants
+           for the "impros I performed" line. -->
+      <div class="dlg-field auth-account-section auth-stats-section" id="authStatsSection" hidden>
+        <h3 id="authStatsTitle"></h3>
+        <dl class="auth-account-info" id="authStatsList">
+          <div class="account-row">
+            <dt id="statsLabelLaunched"></dt>
+            <dd id="statsValLaunched"></dd>
+          </div>
+          <div class="account-row">
+            <dt id="statsLabelPerformed"></dt>
+            <dd id="statsValPerformed"></dd>
+          </div>
+          <div class="account-row">
+            <dt id="statsLabelImproSec"></dt>
+            <dd id="statsValImproSec"></dd>
+          </div>
+          <div class="account-row">
+            <dt id="statsLabelRecordCount"></dt>
+            <dd id="statsValRecordCount"></dd>
+          </div>
+          <div class="account-row">
+            <dt id="statsLabelRecordSec"></dt>
+            <dd id="statsValRecordSec"></dd>
+          </div>
+        </dl>
       </div>
 
       <!-- "Personnaliser" navigates to a dedicated page where the user
@@ -719,11 +777,11 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Bump v= on each deploy when you change one of these assets, so users
        fetch the fresh version without needing Ctrl+Shift+R. -->
-  <script src="./js/config.js?v=20260535"></script>
-  <script src="./js/utils.js?v=20260535"></script>
-  <script src="./js/rules.js?v=20260535"></script>
-  <script src="./data/all.js?v=20260535"></script>
-  <script src="./js/auth.js?v=20260535"></script>
-  <script src="./js/app.js?v=20260535"></script>
+  <script src="./js/config.js?v=20260537"></script>
+  <script src="./js/utils.js?v=20260537"></script>
+  <script src="./js/rules.js?v=20260537"></script>
+  <script src="./data/all.js?v=20260537"></script>
+  <script src="./js/auth.js?v=20260537"></script>
+  <script src="./js/app.js?v=20260537"></script>
 </body>
 </html>

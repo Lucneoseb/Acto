@@ -789,9 +789,10 @@
     setText("levelConfirme",    t.levelConfirme);
     setText("levelExpert",      t.levelExpert);
 
-    const teamA = $("#teamA"), teamB = $("#teamB");
+    const teamA = $("#teamA"), teamB = $("#teamB"), teamTroupe = $("#teamTroupe");
     if (teamA) teamA.placeholder = t.teamA ?? "";
     if (teamB) teamB.placeholder = t.teamB ?? "";
+    if (teamTroupe) teamTroupe.placeholder = t.teamTroupe ?? "";
 
     setText("themesModeRandomLabel", t.themesModeRandom);
     setText("themesModeCustomLabel", t.themesModeCustom);
@@ -1049,8 +1050,9 @@
       status.classList.remove("active");
       return;
     }
-    // Render the actor names directly instead of a count. For Match teams,
-    // prefix with the editable team name → "Team A : Bowie, Lavalanche, …".
+    // Render the actor names directly instead of a count. The team
+    // name (Match A / B and Troupe) prefixes the line when set, e.g.
+    // "Les Improbables : Bowie, Lavalanche, Phoenix".
     const names = list.map(p => (p && p.nom_scene) || "").filter(Boolean).join(", ");
     let prefix = "";
     if (target === "a") {
@@ -1059,6 +1061,11 @@
     } else if (target === "b") {
       const v = ($("#teamB") && $("#teamB").value || "").trim();
       prefix = (v || ($("#teamB") && $("#teamB").placeholder) || "Team B") + " : ";
+    } else if (target === "troupe") {
+      const v = ($("#teamTroupe") && $("#teamTroupe").value || "").trim();
+      // Only prefix if the user actually named the troupe — keep the
+      // status clean ("Bowie, Lavalanche, Phoenix") otherwise.
+      if (v) prefix = v + " : ";
     }
     status.textContent = prefix + names;
     status.classList.add("active");
@@ -1217,7 +1224,7 @@
       adhoc.value = "";
       adhoc.placeholder = t.rosterAdHocPlaceholder || "";
     }
-    // Show the team name in the dialog title when editing a Match team.
+    // Show the team / troupe name in the dialog title when set.
     let titleText = t.rosterDialogTitle || "Composition";
     if (rosterDraftTarget === "a") {
       const teamName = ($("#teamA") && $("#teamA").value) || "Team A";
@@ -1225,6 +1232,9 @@
     } else if (rosterDraftTarget === "b") {
       const teamName = ($("#teamB") && $("#teamB").value) || "Team B";
       titleText = (titleText) + " — " + teamName;
+    } else if (rosterDraftTarget === "troupe") {
+      const tn = ($("#teamTroupe") && $("#teamTroupe").value || "").trim();
+      if (tn) titleText = titleText + " — " + tn;
     }
     setText("rosterDialogTitle",  titleText);
     setText("rosterDialogHint",   t.rosterDialogHint);
@@ -1288,6 +1298,10 @@
         persistTeamName("b", teamName);
       }
     } else {
+      const tt = $("#teamTroupe");
+      if (tt) {
+        tt.value = teamName;
+      }
       persistTeamName("troupe", teamName);
     }
 
@@ -1471,7 +1485,8 @@
       const teamB = $("#teamB");
       if (teamB) { teamB.value = team.name; persistTeamName("b", team.name); }
     } else {
-      persistTeamName("troupe", team.name);
+      const teamTroupe = $("#teamTroupe");
+      if (teamTroupe) { teamTroupe.value = team.name; persistTeamName("troupe", team.name); }
     }
     refreshTeamNameStatus();
     renderRosterDraftList();
@@ -2341,8 +2356,8 @@
     if (__savedSave)   __savedSave.addEventListener("click", actionSaveCurrentTeam);
 
     // Team-name input: refresh the availability hint on every keystroke
-    // AND keep the matching main-page input (#teamA/#teamB) in sync so
-    // the label visible behind the dialog updates live.
+    // AND keep the matching main-page input (#teamA / #teamB / #teamTroupe)
+    // in sync so the label visible behind the dialog updates live.
     const __rosterTeamName = $("#rosterTeamNameInput");
     if (__rosterTeamName) {
       __rosterTeamName.addEventListener("input", () => {
@@ -2355,6 +2370,10 @@
         } else if (rosterDraftTarget === "b" && $("#teamB")) {
           $("#teamB").value = v;
           persistTeamName("b", v);
+          refreshRosterStatus();
+        } else if (rosterDraftTarget === "troupe" && $("#teamTroupe")) {
+          $("#teamTroupe").value = v;
+          persistTeamName("troupe", v);
           refreshRosterStatus();
         }
       });
@@ -2387,10 +2406,10 @@
       });
     }
 
-    /* Team-name persistence (Match mode A / B). Restore stored names on
-       boot and re-emit the rosterStatus line whenever the user edits the
-       name so the "Team A : Bowie, Lavalanche" display stays in sync. */
-    const __teamA = $("#teamA"), __teamB = $("#teamB");
+    /* Team-name persistence — same pattern for Match A, Match B AND
+       Troupe so the troupe can be named ("Les Improbables") and the
+       name shows up in the rosterStatus prefix on the main page. */
+    const __teamA = $("#teamA"), __teamB = $("#teamB"), __teamTroupe = $("#teamTroupe");
     if (__teamA) {
       const saved = loadTeamNameFromStorage("a");
       if (saved) __teamA.value = saved;
@@ -2404,6 +2423,14 @@
       if (saved) __teamB.value = saved;
       __teamB.addEventListener("input", () => {
         persistTeamName("b", __teamB.value);
+        refreshRosterStatus();
+      });
+    }
+    if (__teamTroupe) {
+      const saved = loadTeamNameFromStorage("troupe");
+      if (saved) __teamTroupe.value = saved;
+      __teamTroupe.addEventListener("input", () => {
+        persistTeamName("troupe", __teamTroupe.value);
         refreshRosterStatus();
       });
     }
@@ -2702,6 +2729,31 @@
     if (__recCfmYes)   __recCfmYes.addEventListener("click", recConfirmStop);
     if (__recCfmNo)    __recCfmNo.addEventListener("click", recCancelStop);
     if (__recExitBtn)  __recExitBtn.addEventListener("click", recClose);
+
+    // Participants editor inputs: live-update the filename whenever
+    // the user tweaks team / actor names so the download has the
+    // right name. The download <a> uses its `download` attribute, so
+    // we just have to keep that attribute fresh.
+    ["recParticipantsTeamA","recParticipantsTeamB","recParticipantsTroupeName",
+     "recParticipantsActorsA","recParticipantsActorsB","recParticipantsTroupeActors"
+    ].forEach(id => {
+      const el = $("#" + id);
+      if (!el) return;
+      el.addEventListener("input", () => {
+        const link = $("#recorderDownloadLink");
+        if (link) link.download = computeRecordedVideoFilename(rec.videoExt || "webm");
+      });
+    });
+
+    // Push the (possibly-edited) participants to the server right
+    // before the file actually downloads. Fire-and-forget so the
+    // browser doesn't delay the download.
+    const __recDl = $("#recorderDownloadLink");
+    if (__recDl) {
+      __recDl.addEventListener("click", () => {
+        try { pushRecorderParticipantsToServer(); } catch (e) { /* ignore */ }
+      });
+    }
 
     document.addEventListener("keydown", (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
@@ -3732,6 +3784,114 @@
     if (ind) ind.hidden = true;
     if (state.chronoRunning) chronoPause();
   }
+  /** Sanitize a free-form name for use inside a filename. Strips
+   *  diacritics, keeps letters/digits/spaces/dashes/underscores, and
+   *  caps the length so the resulting filename stays usable on every
+   *  filesystem. */
+  function slugForFilename(s, max) {
+    const cleaned = String(s || "")
+      .normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-zA-Z0-9 _-]+/g, "")
+      .trim()
+      .replace(/\s+/g, "-");
+    return cleaned.slice(0, max || 30);
+  }
+
+  /** Build the filename for the just-recorded video using whatever the
+   *  user has typed into the participants editor (falls back to the
+   *  active rosters / team-name inputs if the editor is empty). */
+  function computeRecordedVideoFilename(ext) {
+    const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    const segs = [];
+    if (state.mode === "match") {
+      const aName = ($("#recParticipantsTeamA") && $("#recParticipantsTeamA").value)
+                 || ($("#teamA") && $("#teamA").value) || "";
+      const bName = ($("#recParticipantsTeamB") && $("#recParticipantsTeamB").value)
+                 || ($("#teamB") && $("#teamB").value) || "";
+      const aSlug = slugForFilename(aName, 20);
+      const bSlug = slugForFilename(bName, 20);
+      if (aSlug || bSlug) segs.push((aSlug || "TeamA") + "-vs-" + (bSlug || "TeamB"));
+    } else {
+      const tName = ($("#recParticipantsTroupeName") && $("#recParticipantsTroupeName").value)
+                 || ($("#teamTroupe") && $("#teamTroupe").value) || "";
+      const tSlug = slugForFilename(tName, 25);
+      if (tSlug) segs.push(tSlug);
+      const actors = (($("#recParticipantsTroupeActors") && $("#recParticipantsTroupeActors").value) || "")
+        .split(/\n+/).map(s => s.trim()).filter(Boolean).slice(0, 3)
+        .map(n => slugForFilename(n, 12)).filter(Boolean).join("-");
+      if (actors) segs.push(actors);
+    }
+    segs.push(ts);
+    return "acto-" + segs.filter(Boolean).join("-") + "." + (ext || "webm");
+  }
+
+  /** Pre-fill the editor with the current rosters + team names. Show
+   *  the troupe row OR the two match rows depending on state.mode. */
+  function populateRecorderParticipants() {
+    const t = store.ui;
+    const hint = $("#recorderParticipantsHint");
+    if (hint) hint.textContent = t.recordParticipantsHint || "";
+
+    const troupeRow = document.querySelector('.recorder-participant-row[data-team="troupe"]');
+    const aRow      = document.querySelector('.recorder-participant-row[data-team="a"]');
+    const bRow      = document.querySelector('.recorder-participant-row[data-team="b"]');
+    if (state.mode === "match") {
+      if (troupeRow) troupeRow.hidden = true;
+      if (aRow) aRow.hidden = false;
+      if (bRow) bRow.hidden = false;
+      setText("recParticipantsLabelA", t.recordParticipantsTeamA || "Team A");
+      setText("recParticipantsLabelB", t.recordParticipantsTeamB || "Team B");
+      const ph = t.recordParticipantsActorsPlaceholder || "";
+      const tA = $("#recParticipantsTeamA");   if (tA) tA.value = ($("#teamA") && $("#teamA").value) || "";
+      const tB = $("#recParticipantsTeamB");   if (tB) tB.value = ($("#teamB") && $("#teamB").value) || "";
+      const aA = $("#recParticipantsActorsA"); if (aA) { aA.placeholder = ph; aA.value = (state.rosterA || []).map(p => p && p.nom_scene).filter(Boolean).join("\n"); }
+      const aB = $("#recParticipantsActorsB"); if (aB) { aB.placeholder = ph; aB.value = (state.rosterB || []).map(p => p && p.nom_scene).filter(Boolean).join("\n"); }
+    } else {
+      if (aRow) aRow.hidden = true;
+      if (bRow) bRow.hidden = true;
+      if (troupeRow) troupeRow.hidden = false;
+      setText("recParticipantsTroupeLabel", t.recordParticipantsTroupe || "Troupe");
+      const ph = t.recordParticipantsActorsPlaceholder || "";
+      const tT = $("#recParticipantsTroupeName"); if (tT) tT.value = ($("#teamTroupe") && $("#teamTroupe").value) || "";
+      const aT = $("#recParticipantsTroupeActors"); if (aT) { aT.placeholder = ph; aT.value = (state.roster || []).map(p => p && p.nom_scene).filter(Boolean).join("\n"); }
+    }
+  }
+
+  /** Push the (possibly-edited) participants list to the server so the
+   *  impro_event analytics reflect who actually performed. Idempotent:
+   *  add_impro_participants() does DELETE+INSERT under the hood. */
+  function pushRecorderParticipantsToServer() {
+    if (!improEvent.id || !window.actoSupabase
+        || !window.actoAuth || !window.actoAuth.state || !window.actoAuth.state.user) return;
+    const lines = (s) => (s || "").split(/\n+/).map(x => x.trim()).filter(Boolean);
+    let members = [];
+    if (state.mode === "match") {
+      const namesA = lines($("#recParticipantsActorsA") && $("#recParticipantsActorsA").value);
+      const namesB = lines($("#recParticipantsActorsB") && $("#recParticipantsActorsB").value);
+      // Try to recover user_ids from the launch-time rosters when the
+      // edited name still matches; otherwise treat as ad-hoc guests.
+      const matchUid = (name, src) => {
+        const lcn = String(name || "").trim().toLowerCase();
+        const hit = (src || []).find(p => (p.nom_scene || "").trim().toLowerCase() === lcn && p.user_id);
+        return hit ? hit.user_id : null;
+      };
+      members = namesA.map(n => ({ user_id: matchUid(n, state.rosterA), nom_scene_text: n }))
+        .concat(namesB.map(n => ({ user_id: matchUid(n, state.rosterB), nom_scene_text: n })));
+    } else {
+      const namesT = lines($("#recParticipantsTroupeActors") && $("#recParticipantsTroupeActors").value);
+      const matchUid = (name) => {
+        const lcn = String(name || "").trim().toLowerCase();
+        const hit = (state.roster || []).find(p => (p.nom_scene || "").trim().toLowerCase() === lcn && p.user_id);
+        return hit ? hit.user_id : null;
+      };
+      members = namesT.map(n => ({ user_id: matchUid(n), nom_scene_text: n }));
+    }
+    Promise.resolve(window.actoSupabase.rpc("add_impro_participants", {
+      p_event_id: improEvent.id,
+      p_members:  members
+    })).catch(err => console.warn("[acto] participants update failed", err));
+  }
+
   function recFinalize() {
     statsRecordFinalized();
     if (rec.blobUrl) { try { URL.revokeObjectURL(rec.blobUrl); } catch (e) {} rec.blobUrl = null; }
@@ -3739,8 +3899,13 @@
     const ext  = /mp4/i.test(mime) ? "mp4" : "webm";
     const blob = new Blob(rec.chunks, { type: mime });
     rec.blobUrl = URL.createObjectURL(blob);
-    const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-    const fname = "acto-impro-" + ts + "." + ext;
+    rec.videoExt = ext;
+
+    // Populate the participants editor with the active rosters so the
+    // user just confirms (or tweaks) before downloading. The filename
+    // is recomputed live whenever the inputs change.
+    populateRecorderParticipants();
+    const fname = computeRecordedVideoFilename(ext);
     const link = $("#recorderDownloadLink");
     if (link) {
       link.href = rec.blobUrl;
