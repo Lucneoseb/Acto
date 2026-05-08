@@ -479,6 +479,11 @@
     // login screen after sign-out.
     const dlg = $("settingsDialog"); if (dlg && dlg.open) dlg.close();
     try { await sb.auth.signOut(); } catch (e) { console.warn(e); }
+    // Wipe per-user localStorage so the next user on a shared device
+    // doesn't see the previous user's roster names / saved teams /
+    // "added by me" pool. (The audit flagged these keys as surviving
+    // logout previously.)
+    try { await clearStaleLocalSession(); } catch (e) { /* best-effort */ }
     window.actoAuth.state.user = null;
     window.actoAuth.state.profile = null;
     showAuthScreen();
@@ -816,14 +821,35 @@
    * Wipe all Supabase-related state from localStorage. Used when the SDK
    * gets into an inconsistent state (refresh-token failure, expired token
    * with no recovery, etc.) and a fresh login can't take over cleanly.
+   *
+   * Also clears Acto-specific keys that contain teammate names, last-impro
+   * picks, and the user's per-device additions/hides — these aren't
+   * sensitive PII (no emails / no DOB / no tokens) but on a shared device
+   * the next user shouldn't see the previous user's roster or
+   * "added by me" list. Without this wipe, those keys persisted
+   * indefinitely after logout (audit finding).
    */
   async function clearStaleLocalSession() {
     try { await sb.auth.signOut({ scope: "local" }); } catch (e) { /* SDK might throw if already signed out */ }
     try {
+      const ACTO_PREFIXES = [
+        "acto-",                     // acto-team-name-*, acto-last-impro:*, acto-user-added/hidden/filter:*
+        "impro-studio:roster",       // teammate UUIDs + stage names
+        "impro-studio:rosterA",
+        "impro-studio:rosterB"
+        // NOTE: impro-studio:locale and impro-studio:overrides are intentionally
+        // kept — they're per-device preferences (language, custom data overrides)
+        // that should survive logout.
+      ];
       const toRemove = [];
       for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i);
-        if (k && (k.startsWith("sb-") || k.toLowerCase().includes("supabase"))) {
+        if (!k) continue;
+        if (k.startsWith("sb-") || k.toLowerCase().includes("supabase")) {
+          toRemove.push(k);
+          continue;
+        }
+        if (ACTO_PREFIXES.some(p => k.startsWith(p))) {
           toRemove.push(k);
         }
       }

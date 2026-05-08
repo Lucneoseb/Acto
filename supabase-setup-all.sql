@@ -286,6 +286,35 @@ create index if not exists impro_events_launched_at_idx on public.impro_events (
 create index if not exists impro_events_mode_idx        on public.impro_events (mode);
 create index if not exists impro_events_level_idx       on public.impro_events (level);
 
+-- Whitelist enums so a tampered client (or buggy legacy event) can't
+-- pollute analytics with arbitrary mode/level strings. Idempotent: drops
+-- and recreates so re-running the script re-validates the rules.
+-- NOT VALID first so any pre-existing dirty rows don't block the migration;
+-- the immediate VALIDATE below catches them only if everything's clean.
+do $$
+begin
+  alter table public.impro_events drop constraint if exists impro_events_mode_chk;
+  alter table public.impro_events drop constraint if exists impro_events_level_chk;
+  alter table public.impro_events
+    add constraint impro_events_mode_chk
+      check (mode in ('troupe','match')) not valid;
+  alter table public.impro_events
+    add constraint impro_events_level_chk
+      check (level in ('debutant','confirme','expert')) not valid;
+  -- Try to validate; if existing rows violate, the constraint stays NOT VALID
+  -- (still enforced for new rows) and a NOTICE is raised for the operator.
+  begin
+    alter table public.impro_events validate constraint impro_events_mode_chk;
+  exception when check_violation then
+    raise notice 'impro_events_mode_chk: existing rows violate, constraint kept NOT VALID';
+  end;
+  begin
+    alter table public.impro_events validate constraint impro_events_level_chk;
+  exception when check_violation then
+    raise notice 'impro_events_level_chk: existing rows violate, constraint kept NOT VALID';
+  end;
+end$$;
+
 -- 3.2 ROW LEVEL SECURITY — owner-only + admin-read-all.
 alter table public.impro_events enable row level security;
 
@@ -471,24 +500,41 @@ grant  execute on function public.add_impro_participants(uuid, jsonb) to authent
 --     Authenticated-only. Returns at most 20 hits.
 create or replace function public.search_users_by_stage_name(p_query text)
 returns table(id uuid, nom_scene text, prenom text)
-language sql
+language plpgsql
 stable
 security definer
 set search_path = public
 as $$
-  select id, nom_scene, prenom
-  from public.profiles
-  where auth.uid() is not null
-    and nom_scene is not null
-    and nom_scene <> ''
-    and (
-         nom_scene ilike '%' || coalesce(p_query, '') || '%'
-      or nom       ilike '%' || coalesce(p_query, '') || '%'
-      or prenom    ilike '%' || coalesce(p_query, '') || '%'
-      or email     ilike '%' || coalesce(p_query, '') || '%'
-    )
-  order by nom_scene asc
-  limit 20;
+declare
+  q text;
+begin
+  -- Must be authenticated. Plus a 2-char minimum so an unprivileged user
+  -- can't dump the entire profile table by passing an empty string.
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+  q := nullif(trim(coalesce(p_query, '')), '');
+  if q is null or length(q) < 2 then
+    return;
+  end if;
+  -- Search ONLY on stage name + first name. We deliberately drop matching
+  -- on email + last name: those would let an authenticated attacker
+  -- enumerate the directory by domain (e.g. @gimbalcube.com → list every
+  -- employee) or surname, both of which are private signals. Stage names
+  -- are public-by-design (rosters surface them) and first names are
+  -- low-signal so this trade-off keeps team search workable.
+  return query
+    select p.id, p.nom_scene, p.prenom
+    from public.profiles p
+    where p.nom_scene is not null
+      and p.nom_scene <> ''
+      and (
+           p.nom_scene ilike '%' || q || '%'
+        or p.prenom    ilike '%' || q || '%'
+      )
+    order by p.nom_scene asc
+    limit 20;
+end;
 $$;
 
 revoke all on function public.search_users_by_stage_name(text) from public;
@@ -530,6 +576,31 @@ create index if not exists user_submissions_status_idx  on public.user_submissio
 create index if not exists user_submissions_kind_idx    on public.user_submissions (kind);
 create index if not exists user_submissions_user_idx    on public.user_submissions (user_id);
 create index if not exists user_submissions_created_idx on public.user_submissions (created_at desc);
+
+-- Whitelist enums for mode/level (NULL allowed because theme has no mode
+-- and category has neither mode nor level). Same NOT VALID + try-validate
+-- pattern as impro_events above.
+do $$
+begin
+  alter table public.user_submissions drop constraint if exists user_submissions_mode_chk;
+  alter table public.user_submissions drop constraint if exists user_submissions_level_chk;
+  alter table public.user_submissions
+    add constraint user_submissions_mode_chk
+      check (mode is null or mode in ('troupe','match')) not valid;
+  alter table public.user_submissions
+    add constraint user_submissions_level_chk
+      check (level is null or level in ('debutant','confirme','expert')) not valid;
+  begin
+    alter table public.user_submissions validate constraint user_submissions_mode_chk;
+  exception when check_violation then
+    raise notice 'user_submissions_mode_chk: existing rows violate, constraint kept NOT VALID';
+  end;
+  begin
+    alter table public.user_submissions validate constraint user_submissions_level_chk;
+  exception when check_violation then
+    raise notice 'user_submissions_level_chk: existing rows violate, constraint kept NOT VALID';
+  end;
+end$$;
 
 -- 5.2 RLS — submitter can read their own rows; admins read everything.
 alter table public.user_submissions enable row level security;
@@ -586,11 +657,28 @@ begin
   if p_kind not in ('theme','category','constraint','exercise') then
     raise exception 'invalid kind: %', p_kind;
   end if;
+  -- Whitelist enums so a tampered client can't pollute the analytics with
+  -- arbitrary mode/level strings. Empty/null are allowed (theme has no
+  -- mode, category has neither mode nor level).
+  if p_mode is not null and p_mode <> '' and p_mode not in ('troupe','match') then
+    raise exception 'invalid mode: %', p_mode;
+  end if;
+  if p_level is not null and p_level <> '' and p_level not in ('debutant','confirme','expert') then
+    raise exception 'invalid level: %', p_level;
+  end if;
   v_text := nullif(trim(p_text), '');
   if v_text is null then
     raise exception 'text is empty';
   end if;
+  -- Length caps: a malicious client could otherwise submit a 10 MB string
+  -- and bloat user_submissions / the admin notification email.
+  if length(v_text) > 500 then
+    raise exception 'text too long (max 500 chars)';
+  end if;
   v_desc := nullif(trim(coalesce(p_description, '')), '');
+  if v_desc is not null and length(v_desc) > 2000 then
+    raise exception 'description too long (max 2000 chars)';
+  end if;
   -- De-duplicate: don't insert if the same user already submitted the same
   -- (kind, mode, level, locale, lower(text)) tuple AND it's still pending.
   if exists (
@@ -860,7 +948,13 @@ begin
   if v_orig is null or v_new is null then
     raise exception 'text is empty';
   end if;
+  if length(v_new) > 500 then
+    raise exception 'new text too long (max 500 chars)';
+  end if;
   v_desc := nullif(trim(coalesce(p_new_desc, '')), '');
+  if v_desc is not null and length(v_desc) > 2000 then
+    raise exception 'description too long (max 2000 chars)';
+  end if;
 
   -- 1) Hide the original (idempotent — silently no-op if already hidden).
   insert into public.bundled_hidden_items (kind, mode, level, locale, text, hidden_by)
@@ -994,7 +1088,13 @@ begin
   if v_text is null then
     raise exception 'text is empty';
   end if;
+  if length(v_text) > 500 then
+    raise exception 'text too long (max 500 chars)';
+  end if;
   v_desc := nullif(trim(coalesce(p_description, '')), '');
+  if v_desc is not null and length(v_desc) > 2000 then
+    raise exception 'description too long (max 2000 chars)';
+  end if;
 
   -- If an approved submission with the same (kind, mode, level, locale,
   -- lower(text)) already exists → just update its description and return.
@@ -1182,6 +1282,25 @@ create policy "admins_delete_app_secrets"
 -- builds an HTML email referencing the new submission, and POSTs it to
 -- Resend. The pg_net call is fire-and-forget (returns a bigint request id
 -- but we don't await it — the trigger completes immediately).
+-- Tiny helper used by the email trigger below. Escapes the four characters
+-- that have meaning in HTML element content. We deliberately don't try to
+-- escape attribute-context characters here — the trigger inserts these
+-- values only inside element bodies (<td>, <blockquote>, …), never inside
+-- attributes.
+create or replace function public.html_escape(s text)
+returns text
+language sql
+immutable
+as $$
+  select replace(
+           replace(
+             replace(
+               replace(coalesce(s, ''), '&', '&amp;'),
+               '<', '&lt;'),
+             '>', '&gt;'),
+           '"', '&quot;')
+$$;
+
 create or replace function public.notify_admin_on_new_submission()
 returns trigger
 language plpgsql
@@ -1237,22 +1356,28 @@ begin
 
   v_subject := '[Acto] Nouvelle soumission — ' || v_kind_lbl;
 
+  -- Every user-controlled value is run through public.html_escape so a
+  -- malicious submitter can't inject markup into the admin's inbox.
+  -- v_kind_lbl is hard-coded above so it's safe; v_admin_url is from
+  -- app_secrets (admin-controlled) so it goes in unescaped — but we still
+  -- pass it through html_escape defensively in case the admin pastes a
+  -- URL with quotes.
   v_html :=
     '<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#1a0f2b;background:#f5f0ea;padding:24px;">' ||
       '<h2 style="color:#b91c4d;margin:0 0 12px;">Nouvelle soumission utilisateur</h2>' ||
       '<p>Un utilisateur a proposé un nouveau <strong>' || v_kind_lbl || '</strong> :</p>' ||
       '<blockquote style="background:#fff;border-left:4px solid #f5c451;padding:12px 16px;margin:16px 0;font-size:1.1rem;">' ||
-        replace(replace(coalesce(NEW.text, ''), '<', '&lt;'), '>', '&gt;') ||
+        public.html_escape(NEW.text) ||
       '</blockquote>' ||
       '<table style="border-collapse:collapse;font-size:0.9rem;">' ||
-        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Type</td><td>' || coalesce(NEW.kind, '') || '</td></tr>' ||
-        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Mode</td><td>' || coalesce(NEW.mode, '—') || '</td></tr>' ||
-        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Niveau</td><td>' || coalesce(NEW.level, '—') || '</td></tr>' ||
-        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Langue</td><td>' || coalesce(NEW.locale, '—') || '</td></tr>' ||
-        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Soumis par</td><td>' || coalesce(v_user_email, NEW.user_id::text, '—') || '</td></tr>' ||
+        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Type</td><td>'      || public.html_escape(coalesce(NEW.kind, ''))         || '</td></tr>' ||
+        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Mode</td><td>'      || public.html_escape(coalesce(NEW.mode, '—'))        || '</td></tr>' ||
+        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Niveau</td><td>'    || public.html_escape(coalesce(NEW.level, '—'))       || '</td></tr>' ||
+        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Langue</td><td>'    || public.html_escape(coalesce(NEW.locale, '—'))      || '</td></tr>' ||
+        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Soumis par</td><td>'|| public.html_escape(coalesce(v_user_email, NEW.user_id::text, '—')) || '</td></tr>' ||
       '</table>' ||
       '<p style="margin-top:24px;">' ||
-        '<a href="' || v_admin_url || '" style="background:#f5c451;color:#1a0f2b;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block;">' ||
+        '<a href="' || public.html_escape(v_admin_url) || '" style="background:#f5c451;color:#1a0f2b;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block;">' ||
           '→ Examiner sur le tableau d''admin' ||
         '</a>' ||
       '</p>' ||

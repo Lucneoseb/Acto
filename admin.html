@@ -844,13 +844,18 @@
   </form>
 </dialog>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./js/config.js?v=20260547"></script>
-<script src="./js/utils.js?v=20260547"></script>
+<!-- Pinned + SRI: protects against a jsDelivr compromise or typosquat that
+     would otherwise execute attacker code with the user's session JWT in
+     reach. Bump both `@VERSION` and the integrity hash together. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
+        integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
+        crossorigin="anonymous"></script>
+<script src="./js/config.js?v=20260548"></script>
+<script src="./js/utils.js?v=20260548"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=20260547"></script>
+<script src="./data/all.js?v=20260548"></script>
 <script>
 (function () {
   "use strict";
