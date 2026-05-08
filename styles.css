@@ -3891,8 +3891,13 @@ body.mode-troupe #card-theme      { order: 3; }
   .signup-dialog .form-row { grid-template-columns: 1fr; }
 }
 
-/* Account section (inside settings) */
+/* Account section (inside settings) — also has class .dlg-field which
+   imposes `display: flex; align-items: center` (great for the Langue
+   row, but it would lay out the section's h3 / p / actions div as a
+   single horizontal row). Force a vertical block flow here so the
+   account name, info and CTA buttons stack one below the other. */
 .auth-account-section {
+  display: block !important;
   margin-top: 0.8rem;
   padding-top: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -3906,16 +3911,55 @@ body.mode-troupe #card-theme      { order: 3; }
   color: var(--gold);
 }
 .auth-account-info {
-  margin: 0 0 0.7rem;
+  margin: 0 0 0.85rem;
   font-size: 0.85rem;
   color: var(--ink-muted);
+  /* Definition list: each .account-row holds dt (label) + dd (value).
+     Two-column layout — label aligned left muted, value aligned left
+     in the readable ink color. Empty rows hide themselves once the
+     value has been populated (see :empty rule below). */
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.auth-account-info .account-row {
+  display: grid;
+  grid-template-columns: minmax(8rem, 11rem) 1fr;
+  gap: 0.7rem;
+  align-items: baseline;
+}
+.auth-account-info dt {
+  margin: 0;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  font-weight: 600;
+}
+.auth-account-info dd {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 500;
+  word-break: break-word;
+}
+/* If the value is missing (e.g. legacy profile w/o nom_scene) hide
+   the whole row instead of showing a label with nothing next to it. */
+.auth-account-info .account-row:has(dd:empty) { display: none; }
+@media (max-width: 480px) {
+  .auth-account-info .account-row {
+    grid-template-columns: 1fr;
+    gap: 0.05rem;
+  }
 }
 .auth-account-actions {
   display: flex;
+  flex-direction: column;   /* stack buttons vertically — name, info, then one CTA per row */
   gap: 0.5rem;
-  flex-wrap: wrap;
 }
-.auth-account-actions .auth-btn { flex: 1 1 140px; }
+.auth-account-actions .auth-btn {
+  width: 100%;
+  flex: 0 0 auto;
+}
 
 /* Delete confirmation dialog */
 #deleteAccountDialog .auth-delete-warning {

@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="styles.css?v=20260528" />
 <style>
   /* Page-local layout: same backdrop + hero as index.html, with the
      content sitting in an .auth-card-style box (reuses existing card
@@ -46,22 +46,20 @@
     display: inline-flex; align-items: center; gap: 0.5rem;
     text-decoration: none;
   }
+  /* Back-to-app: secondary outlined button. Reuses .auth-btn
+     .auth-btn-secondary for full design consistency with the rest of
+     the app — no new color, no new shape. The wrapper just centers
+     and gives it breathing space below the donation card. */
   .support-back {
     text-align: center;
-    margin: 1rem 0 0;
+    margin: 1.2rem 0 0;
   }
-  .support-back a {
-    color: var(--ink-muted);
+  .support-back .auth-btn {
     text-decoration: none;
-    font-size: 0.85rem;
-    border-bottom: 1px solid transparent;
-    transition: color 0.15s, border-color 0.15s;
-  }
-  .support-back a:hover,
-  .support-back a:focus-visible {
-    color: var(--gold-soft);
-    border-bottom-color: var(--ink-faint);
-    outline: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 220px;
   }
 </style>
 </head>
@@ -89,9 +87,9 @@
       <p class="support-suggested" id="supportSuggested"></p>
       <div class="support-cta-wrap">
         <a class="auth-btn auth-btn-primary support-cta"
-           href="https://donate.stripe.com/28E6oA2921jp1WE20jdUY00"
+           href="https://www.buymeacoffee.com/actotheimprostudio"
            target="_blank" rel="noopener">
-          <span aria-hidden="true">♥</span>
+          <span aria-hidden="true">☕</span>
           <span id="supportButton"></span>
         </a>
       </div>
@@ -99,7 +97,7 @@
       <p class="support-thanks" id="supportThanks"></p>
     </div>
     <p class="support-back">
-      <a href="./index.html" id="supportBackLink"></a>
+      <a class="auth-btn auth-btn-secondary" href="./index.html" id="supportBackLink"></a>
     </p>
   </section>
 
@@ -110,7 +108,7 @@
 
   <!-- Reuse the bundled UI strings already shipped with the app — same
        i18n source as index.html / admin.html, no duplication. -->
-  <script src="./data/all.js?v=20260524"></script>
+  <script src="./data/all.js?v=20260528"></script>
   <script>
   (function () {
     "use strict";

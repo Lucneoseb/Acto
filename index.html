@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="styles.css?v=20260528" />
 </head>
 <body>
   <!-- Stage backdrop -->
@@ -505,10 +505,34 @@
         <select id="langSelect"></select>
       </div>
 
-      <!-- Account section -->
+      <!-- Account section: read-only view of the signed-in user's
+           profile. Modifications happen in the dedicated "Modifier mes
+           infos" dialog (#editAccountDialog) — the buttons below open
+           that dialog or sign-out / delete the account. -->
       <div class="dlg-field auth-account-section" id="authAccountSection" hidden>
         <h3 id="authAccountTitle"></h3>
-        <p class="auth-account-info" id="authAccountInfo"></p>
+        <dl class="auth-account-info" id="authAccountInfo">
+          <div class="account-row">
+            <dt id="accountLabelEmail"></dt>
+            <dd id="accountValEmail"></dd>
+          </div>
+          <div class="account-row">
+            <dt id="accountLabelPrenom"></dt>
+            <dd id="accountValPrenom"></dd>
+          </div>
+          <div class="account-row">
+            <dt id="accountLabelNom"></dt>
+            <dd id="accountValNom"></dd>
+          </div>
+          <div class="account-row">
+            <dt id="accountLabelDob"></dt>
+            <dd id="accountValDob"></dd>
+          </div>
+          <div class="account-row">
+            <dt id="accountLabelStage"></dt>
+            <dd id="accountValStage"></dd>
+          </div>
+        </dl>
         <div class="auth-account-actions">
           <button class="auth-btn auth-btn-secondary" id="authOpenEditBtn" type="button"></button>
           <button class="auth-btn auth-btn-secondary" id="authLogoutBtn" type="button"></button>
@@ -674,11 +698,11 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Bump v= on each deploy when you change one of these assets, so users
        fetch the fresh version without needing Ctrl+Shift+R. -->
-  <script src="./js/config.js?v=20260524"></script>
-  <script src="./js/utils.js?v=20260524"></script>
-  <script src="./js/rules.js?v=20260524"></script>
-  <script src="./data/all.js?v=20260524"></script>
-  <script src="./js/auth.js?v=20260524"></script>
-  <script src="./js/app.js?v=20260524"></script>
+  <script src="./js/config.js?v=20260528"></script>
+  <script src="./js/utils.js?v=20260528"></script>
+  <script src="./js/rules.js?v=20260528"></script>
+  <script src="./data/all.js?v=20260528"></script>
+  <script src="./js/auth.js?v=20260528"></script>
+  <script src="./js/app.js?v=20260528"></script>
 </body>
 </html>

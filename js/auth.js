@@ -102,6 +102,12 @@
     setText("authSignupConfirmLabel",  t.authConfirmPassword);
     setText("authSignupSubmitBtn",     t.authSignupSubmit);
     setText("authAccountTitle",        t.authAccountSection);
+    // Labels for the read-only account-info field list.
+    setText("accountLabelEmail",       t.authEmail);
+    setText("accountLabelPrenom",      t.authPrenom);
+    setText("accountLabelNom",         t.authNom);
+    setText("accountLabelDob",         t.authDob);
+    setText("accountLabelStage",       t.authStageName);
     setText("authLogoutBtn",           t.authLogout);
     setText("authOpenEditBtn",         t.authEditAccount);
     setText("authEditTitle",           t.authEditAccountTitle);
@@ -130,8 +136,40 @@
 
   function refreshAccountInfo() {
     const u = window.actoAuth.state.user;
-    const t = ui();
-    if (u) setText("authAccountInfo", fmt(t.authAccountInfo, { email: u.email }));
+    if (!u) return;
+    const p = window.actoAuth.state.profile || {};
+    setText("accountValEmail",  u.email || "");
+    setText("accountValPrenom", p.prenom || "");
+    setText("accountValNom",    p.nom    || "");
+    setText("accountValStage",  p.nom_scene || "");
+    setText("accountValDob",    formatDobForLocale(p.date_naissance));
+  }
+
+  /** Format an ISO date (YYYY-MM-DD) using the active app locale.
+   *  Falls back to the raw string if Intl can't parse it, and avoids
+   *  the timezone trap of `new Date('YYYY-MM-DD')` (UTC midnight) by
+   *  building the Date with explicit Y/M/D components. */
+  function formatDobForLocale(iso) {
+    if (!iso || typeof iso !== "string") return "";
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+    if (!m) return iso;
+    const y = parseInt(m[1], 10), mo = parseInt(m[2], 10), d = parseInt(m[3], 10);
+    const date = new Date(y, mo - 1, d);
+    if (isNaN(date)) return iso;
+    const locale = (window.IMPRO_BUNDLE && window.IMPRO_BUNDLE.locales && currentLocale())
+      ? currentLocale() : "fr";
+    try {
+      return new Intl.DateTimeFormat(locale, { dateStyle: "long" }).format(date);
+    } catch (e) {
+      return iso;
+    }
+  }
+  function currentLocale() {
+    try {
+      const stored = localStorage.getItem("impro-studio:locale:v1");
+      if (stored) return stored;
+    } catch (e) { /* ignore */ }
+    return (navigator.language || "fr").split(/[-_]/)[0];
   }
   function refreshPendingMsg() {
     const t = ui();
@@ -388,6 +426,9 @@
         6000, "profile-fetch"
       );
       window.actoAuth.state.profile = profile || null;
+      // Now that we have prenom/nom/dob/nom_scene, repaint the read-only
+      // account info block in case the settings dialog is already open.
+      try { refreshAccountInfo(); } catch (e) { /* ignore */ }
     } catch (e) {
       console.warn("[auth] ensureProfile failed (UI not blocked):", e && e.message ? e.message : e);
     }
@@ -479,6 +520,8 @@
       if (error) throw error;
       // Refresh local state so any UI reading from window.actoAuth.state.profile sees the new values.
       if (data) window.actoAuth.state.profile = data;
+      // Repaint the read-only account-info block in the settings dialog.
+      try { refreshAccountInfo(); } catch (e) { /* ignore */ }
       const dlg = $("editAccountDialog");
       if (dlg && dlg.open) dlg.close();
     } catch (e) {
