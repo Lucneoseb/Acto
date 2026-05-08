@@ -2,7 +2,7 @@
  * utils.js — Pure helpers shared across pages.
  *
  * Loaded as a classic script. Exposes window.actoUtils so non-module pages
- * (accounts1234.html) and scripts can reuse the same implementations
+ * (admin.html) and scripts can reuse the same implementations
  * instead of redefining them inline.
  *
  * No DOM-mutating helpers here — keep this file side-effect-free.

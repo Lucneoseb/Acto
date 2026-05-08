@@ -478,6 +478,24 @@
     } catch (e) { return []; }
   }
 
+  /* Team names (Match mode A / B) are persisted independently of the
+     roster lists: the user can rename the teams without touching the
+     player lineup. Stored as plain strings under TEAM_NAME_KEYS. */
+  const TEAM_NAME_KEYS = { a: "acto-team-name-a", b: "acto-team-name-b" };
+  function loadTeamNameFromStorage(side) {
+    try {
+      const raw = localStorage.getItem(TEAM_NAME_KEYS[side]);
+      return (raw == null) ? "" : String(raw);
+    } catch (e) { return ""; }
+  }
+  function persistTeamName(side, value) {
+    try {
+      const v = String(value == null ? "" : value);
+      if (v) localStorage.setItem(TEAM_NAME_KEYS[side], v);
+      else   localStorage.removeItem(TEAM_NAME_KEYS[side]);
+    } catch (e) { /* ignore */ }
+  }
+
   /* ----------------------------------------------------------------
      Persist the most-recently generated impro across reloads.
      The user expects the cards (Theme / Constraint / Exercise / etc.)
@@ -1011,7 +1029,8 @@
   }
   function refreshOneRosterStatus(target, statusId, btnLabelId) {
     const t = store.ui;
-    const n = getRosterFor(target).length;
+    const list = getRosterFor(target);
+    const n = list.length;
     const btnLabel = document.getElementById(btnLabelId);
     if (btnLabel) {
       btnLabel.textContent = (target === "troupe")
@@ -1023,11 +1042,21 @@
     if (n === 0) {
       status.textContent = t.rosterStatusEmpty || "";
       status.classList.remove("active");
-    } else {
-      const tpl = (n > 1 && t.rosterStatusN_plural) ? t.rosterStatusN_plural : (t.rosterStatusN || "");
-      status.textContent = tpl.replace("{n}", String(n));
-      status.classList.add("active");
+      return;
     }
+    // Render the actor names directly instead of a count. For Match teams,
+    // prefix with the editable team name → "Team A : Bowie, Lavalanche, …".
+    const names = list.map(p => (p && p.nom_scene) || "").filter(Boolean).join(", ");
+    let prefix = "";
+    if (target === "a") {
+      const v = ($("#teamA") && $("#teamA").value || "").trim();
+      prefix = (v || ($("#teamA") && $("#teamA").placeholder) || "Team A") + " : ";
+    } else if (target === "b") {
+      const v = ($("#teamB") && $("#teamB").value || "").trim();
+      prefix = (v || ($("#teamB") && $("#teamB").placeholder) || "Team B") + " : ";
+    }
+    status.textContent = prefix + names;
+    status.classList.add("active");
   }
 
   function renderRosterDraftList() {
@@ -1757,28 +1786,39 @@
     const target = bundle.data[locale];
     if (!target) return;
 
-    let rows;
+    const lc = (s) => String(s || "").trim().toLowerCase();
+
+    // Fetch approved submissions + hidden bundled items in parallel.
+    let approvedRows = [], hiddenRows = [];
     try {
-      const { data, error } = await window.actoSupabase
-        .from("user_submissions")
-        .select("kind,mode,level,locale,text")
-        .eq("status",  "approved")
-        .eq("locale",  locale)
-        .limit(2000);
-      if (error) { console.warn("[acto] loadApprovedSubmissions error", error); return; }
-      rows = data || [];
+      const [a, h] = await Promise.all([
+        window.actoSupabase
+          .from("user_submissions")
+          .select("kind,mode,level,locale,text,description")
+          .eq("status", "approved")
+          .eq("locale", locale)
+          .limit(2000),
+        window.actoSupabase
+          .from("bundled_hidden_items")
+          .select("kind,mode,level,locale,text")
+          .eq("locale", locale)
+          .limit(2000)
+      ]);
+      if (a.error) console.warn("[acto] approved submissions read error", a.error);
+      else approvedRows = a.data || [];
+      if (h.error) console.warn("[acto] hidden items read error", h.error);
+      else hiddenRows = h.data || [];
     } catch (e) {
       console.warn("[acto] loadApprovedSubmissions threw", e);
       return;
     }
-    if (!rows.length) return;
 
-    const lc = (s) => String(s || "").trim().toLowerCase();
+    // 1. Merge approved submissions into the bundled pool.
     let merged = 0;
-
-    for (const s of rows) {
+    for (const s of approvedRows) {
       const text = (s.text || "").trim();
       if (!text) continue;
+      const desc = (s.description || "").trim();
 
       if (s.kind === "theme") {
         if (!s.level) continue;
@@ -1790,7 +1830,7 @@
         target.categories = target.categories || [];
         const arr = target.categories;
         if (!arr.some(c => lc(c && c.name || c) === lc(text))) {
-          arr.push({ name: text });
+          arr.push({ name: text, desc });
           merged++;
         }
 
@@ -1807,13 +1847,48 @@
         target.exercises[s.mode] = target.exercises[s.mode] || {};
         const arr = (target.exercises[s.mode][s.level] = target.exercises[s.mode][s.level] || []);
         if (!arr.some(e => lc(e && e.name) === lc(text))) {
-          arr.push({ name: text, desc: "" });
+          arr.push({ name: text, desc });
           merged++;
         }
       }
     }
-    if (merged) {
-      console.log("[acto] merged " + merged + " approved submission(s) into pool (" + locale + ")");
+
+    // 2. Filter out admin-hidden bundled items.
+    let removed = 0;
+    for (const h of hiddenRows) {
+      const text = (h.text || "").trim();
+      if (!text) continue;
+
+      if (h.kind === "theme") {
+        if (!h.level || !target.themes || !target.themes[h.level]) continue;
+        const before = target.themes[h.level].length;
+        target.themes[h.level] = target.themes[h.level].filter(t => lc(t) !== lc(text));
+        removed += before - target.themes[h.level].length;
+
+      } else if (h.kind === "category") {
+        if (!target.categories) continue;
+        const before = target.categories.length;
+        target.categories = target.categories.filter(c => lc(c && c.name || c) !== lc(text));
+        removed += before - target.categories.length;
+
+      } else if (h.kind === "constraint") {
+        if (!h.mode || !h.level || !target.constraints || !target.constraints[h.mode] || !target.constraints[h.mode][h.level]) continue;
+        const arr = target.constraints[h.mode][h.level];
+        const before = arr.length;
+        target.constraints[h.mode][h.level] = arr.filter(c => lc(c) !== lc(text));
+        removed += before - target.constraints[h.mode][h.level].length;
+
+      } else if (h.kind === "exercise") {
+        if (!h.mode || !h.level || !target.exercises || !target.exercises[h.mode] || !target.exercises[h.mode][h.level]) continue;
+        const arr = target.exercises[h.mode][h.level];
+        const before = arr.length;
+        target.exercises[h.mode][h.level] = arr.filter(e => lc(e && e.name) !== lc(text));
+        removed += before - target.exercises[h.mode][h.level].length;
+      }
+    }
+
+    if (merged || removed) {
+      console.log(`[acto] pool reconciled (${locale}): +${merged} approved · -${removed} hidden`);
     }
   }
 
@@ -1905,6 +1980,27 @@
         if (e.key === "Enter") { e.preventDefault(); commitAdHoc(); }
       });
     }
+
+    /* Team-name persistence (Match mode A / B). Restore stored names on
+       boot and re-emit the rosterStatus line whenever the user edits the
+       name so the "Team A : Bowie, Lavalanche" display stays in sync. */
+    const __teamA = $("#teamA"), __teamB = $("#teamB");
+    if (__teamA) {
+      const saved = loadTeamNameFromStorage("a");
+      if (saved) __teamA.value = saved;
+      __teamA.addEventListener("input", () => {
+        persistTeamName("a", __teamA.value);
+        refreshRosterStatus();
+      });
+    }
+    if (__teamB) {
+      const saved = loadTeamNameFromStorage("b");
+      if (saved) __teamB.value = saved;
+      __teamB.addEventListener("input", () => {
+        persistTeamName("b", __teamB.value);
+        refreshRosterStatus();
+      });
+    }
     refreshRosterStatus();
 
     /* Match d'impro rules dialog — content is populated based on the
@@ -1947,6 +2043,10 @@
     const __evCancel  = $("#editValueCancel");
     const __evSave    = $("#editValueSave");
     const __evStatus  = $("#editValueStatus");
+    // Description support — only meaningful for exercise/category cards.
+    const __evDescWrap   = $("#editValueDescWrap");
+    const __evDescLabel  = $("#editValueDescLabel");
+    const __evDescInput  = $("#editValueDescInput");
 
     function openEditValueDialog(target) {
       if (!__evDlg) return;
@@ -1971,6 +2071,18 @@
       __evStatus.hidden = true;
       __evStatus.textContent = "";
       __evStatus.classList.remove("error");
+      // Description field: only show for exercise/category targets.
+      const showDesc = (target === "exercise" || target === "category");
+      if (__evDescWrap) __evDescWrap.hidden = !showDesc;
+      if (showDesc) {
+        if (__evDescLabel) __evDescLabel.textContent = t.editValueDescLabel || "Description";
+        if (__evDescInput) {
+          __evDescInput.placeholder = t.editValueDescPlaceholder || "";
+          __evDescInput.value = (state.currentExercise && state.currentExercise.desc) || "";
+        }
+      } else if (__evDescInput) {
+        __evDescInput.value = "";
+      }
       __evDlg.dataset.editTarget = target;
       if (typeof __evDlg.showModal === "function") __evDlg.showModal();
       else __evDlg.setAttribute("open", "");
@@ -1997,9 +2109,13 @@
     async function saveEditValue() {
       const target = __evDlg && __evDlg.dataset.editTarget;
       if (!target) return;
-      const t = store.ui;
       const value = (__evInput.value || "").trim();
       if (!value) return;
+      // Description is only collected for exercise/category. For other
+      // targets we keep the existing description (or empty) so the meta
+      // line under the card stays in sync.
+      const wantsDesc = (target === "exercise" || target === "category");
+      const desc = wantsDesc ? (__evDescInput && __evDescInput.value || "").trim() : "";
 
       // Apply the override locally so the impro proceeds with the typed value.
       if (target === "theme") {
@@ -2008,7 +2124,10 @@
         state.currentConstraint = value;
       } else {
         // category (Match) and exercise (Troupe) both live on currentExercise.
-        state.currentExercise = { name: value, desc: (state.currentExercise && state.currentExercise.desc) || "" };
+        state.currentExercise = {
+          name: value,
+          desc: desc || (state.currentExercise && state.currentExercise.desc) || ""
+        };
         if (target === "category") state.currentCategory = state.currentExercise;
       }
       // Update the visible reel without re-spinning.
@@ -2025,31 +2144,20 @@
       saveLastImpro();
 
       // If the typed value is new, log it to user_submissions so the admin
-      // can review and (later) promote it to the bundled data.
+      // can review and (later) promote it to the bundled data. Fire the RPC
+      // in the background — the UX is "save closes immediately"; we don't
+      // surface success/failure to the user (silently logged to console).
       const isNew = !isValueInPool(target, value);
       if (isNew && window.actoSupabase && window.actoAuth && window.actoAuth.state.user) {
-        try {
-          await window.actoSupabase.rpc("submit_user_text", {
-            p_kind:   target,
-            p_mode:   target === "exercise" || target === "constraint" ? state.mode : (target === "category" ? "match" : ""),
-            p_level:  (target === "exercise" || target === "constraint") ? state.level : "",
-            p_locale: store.locale || "fr",
-            p_text:   value
-          });
-          __evStatus.textContent = t.editValueSubmitted || "✓ Valeur soumise à l'admin pour validation.";
-          __evStatus.classList.remove("error");
-          __evStatus.hidden = false;
-          setTimeout(closeEditValueDialog, 1400);
-          return;
-        } catch (e) {
-          console.warn("submit_user_text failed", e);
-          __evStatus.textContent = (t.editValueSubmitFailed || "Échec de la soumission") + " (" + (e.message || e) + ")";
-          __evStatus.classList.add("error");
-          __evStatus.hidden = false;
-          return;
-        }
+        Promise.resolve(window.actoSupabase.rpc("submit_user_text", {
+          p_kind:        target,
+          p_mode:        target === "exercise" || target === "constraint" ? state.mode : (target === "category" ? "match" : ""),
+          p_level:       (target === "exercise" || target === "constraint") ? state.level : "",
+          p_locale:      store.locale || "fr",
+          p_text:        value,
+          p_description: wantsDesc ? (desc || null) : null
+        })).catch(err => console.warn("submit_user_text failed", err));
       }
-      // Existing value (or not authenticated) → just close.
       closeEditValueDialog();
     }
 

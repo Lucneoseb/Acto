@@ -311,6 +311,64 @@
     display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;
     margin-bottom: 0.7rem;
   }
+  /* Inline edit textarea inside the submissions table */
+  table.submissions td .submission-edit {
+    width: 100%;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(245,196,81,0.45);
+    color: var(--ink);
+    padding: 0.35rem 0.5rem;
+    border-radius: 6px;
+    font: inherit; font-size: 0.82rem;
+    outline: none;
+    resize: vertical;
+    min-height: 32px;
+  }
+  /* Bundled lists section */
+  table.bundled-list { min-width: 720px; }
+  table.bundled-list td.text { white-space: normal; max-width: 360px; }
+  table.bundled-list td.text .name { font-weight: 600; color: var(--gold-soft); }
+  table.bundled-list tr.is-hidden td.text .name { color: var(--ink-faint); text-decoration: line-through; }
+  table.bundled-list td.desc { white-space: normal; max-width: 360px; color: var(--ink-muted); font-size: 0.82rem; }
+  table.bundled-list td.state .pill {
+    display: inline-block; padding: 0.15rem 0.55rem;
+    border-radius: 999px; font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    border: 1px solid;
+  }
+  table.bundled-list td.state .pill-visible {
+    background: rgba(109,211,197,0.16);
+    border-color: rgba(109,211,197,0.45);
+    color: var(--teal);
+  }
+  table.bundled-list td.state .pill-hidden {
+    background: rgba(255,107,138,0.18);
+    border-color: rgba(255,107,138,0.45);
+    color: #ffb0bf;
+  }
+  .btn-hide {
+    background: linear-gradient(135deg, #ff6b8a, #b91c4d);
+    color: #fff;
+    border: 0;
+    padding: 0.35rem 0.65rem;
+    min-height: 30px;
+    font-size: 0.75rem;
+  }
+  .btn-unhide {
+    background: linear-gradient(135deg, #6dd3c5, #3aa597);
+    color: var(--bg-deep);
+    border: 0;
+    padding: 0.35rem 0.65rem;
+    min-height: 30px;
+    font-size: 0.75rem;
+  }
+  .bundle-show-hidden {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    color: var(--ink-muted); font-size: 0.82rem;
+    cursor: pointer;
+    user-select: none;
+  }
+  .bundle-show-hidden input { accent-color: var(--gold); }
 </style>
 </head>
 <body>
@@ -497,21 +555,76 @@
           <th>Niveau</th>
           <th>Langue</th>
           <th>Texte proposé</th>
+          <th>Description</th>
           <th>Email</th>
           <th>Statut</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody id="submissionsBody">
-        <tr><td colspan="9" class="empty">Chargement…</td></tr>
+        <tr><td colspan="10" class="empty">Chargement…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============================================================
+       Bundled lists (per-locale browse + hide/unhide)
+       Lets the admin moderate the static JSON pool without a redeploy:
+       picking a (locale, kind, [mode, level]) tuple lists every entry
+       with a "Cacher" toggle. Hidden items are stored server-side and
+       filtered out of every random pick on the client.
+       ============================================================ -->
+  <h2 class="section-title">📚 Listes bundled</h2>
+  <p style="color:var(--ink-muted);font-size:0.85rem;margin:0 0 0.6rem;">
+    Consulte les thèmes / catégories / contraintes / exercices fournis par défaut et masque ceux qui ne te plaisent pas. La sélection est par langue et s'applique immédiatement aux générations futures.
+  </p>
+  <div class="submission-filters">
+    <select id="bundleFilterLocale" class="btn"></select>
+    <select id="bundleFilterKind" class="btn">
+      <option value="theme" selected>Thèmes</option>
+      <option value="category">Catégories</option>
+      <option value="constraint">Contraintes</option>
+      <option value="exercise">Exercices</option>
+    </select>
+    <select id="bundleFilterMode" class="btn" hidden>
+      <option value="troupe" selected>Troupe</option>
+      <option value="match">Match</option>
+    </select>
+    <select id="bundleFilterLevel" class="btn">
+      <option value="debutant" selected>Débutant</option>
+      <option value="confirme">Confirmé</option>
+      <option value="expert">Expert</option>
+    </select>
+    <label class="bundle-show-hidden">
+      <input type="checkbox" id="bundleShowHidden" />
+      <span>Afficher les items cachés</span>
+    </label>
+    <span class="count" id="bundleCount"></span>
+  </div>
+  <div class="table-wrap">
+    <table class="profiles bundled-list" id="bundledTable">
+      <thead>
+        <tr>
+          <th style="width:40%;">Texte</th>
+          <th>Description</th>
+          <th>État</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="bundledBody">
+        <tr><td colspan="4" class="empty">Choisis une langue et un type pour commencer.</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./js/config.js?v=20260515"></script>
-<script src="./js/utils.js?v=20260515"></script>
+<script src="./js/config.js?v=20260518"></script>
+<script src="./js/utils.js?v=20260518"></script>
+<!-- Bundled data (themes / categories / constraints / exercises) — needed
+     by the new "📚 Listes bundled" admin section to render the per-locale
+     pool that the public app sees. Same payload index.html consumes. -->
+<script src="./data/all.js?v=20260518"></script>
 <script>
 (function () {
   "use strict";
@@ -682,7 +795,13 @@
     });
   });
   $("searchInput").addEventListener("input", applyFilter);
-  $("refreshBtn").addEventListener("click", async () => { await loadProfiles(); await loadEvents(); await loadSubmissions(); });
+  $("refreshBtn").addEventListener("click", async () => {
+    await loadProfiles();
+    await loadEvents();
+    await loadSubmissions();
+    await loadHiddenItems();
+    renderBundled();
+  });
   $("exportBtn").addEventListener("click", exportCSV);
   $("logoutBtn").addEventListener("click", logout);
 
@@ -962,15 +1081,15 @@
 
   async function loadSubmissions() {
     const body = $("submissionsBody");
-    body.innerHTML = '<tr><td colspan="9" class="empty">Chargement…</td></tr>';
+    body.innerHTML = '<tr><td colspan="10" class="empty">Chargement…</td></tr>';
     const { data, error } = await sb
       .from("user_submissions")
-      .select("id,user_id,kind,mode,level,locale,text,status,approved_at,created_at")
+      .select("id,user_id,kind,mode,level,locale,text,description,status,approved_at,created_at")
       .order("created_at", { ascending: false })
       .limit(2000);
     if (error) {
       console.warn("loadSubmissions", error);
-      body.innerHTML = '<tr><td colspan="9" class="empty">Erreur : ' + escapeHtml(error.message) + '</td></tr>';
+      body.innerHTML = '<tr><td colspan="10" class="empty">Erreur : ' + escapeHtml(error.message) + '</td></tr>';
       return;
     }
     allSubmissions = data || [];
@@ -989,22 +1108,27 @@
     $("submissionCount").textContent = rows.length + " / " + allSubmissions.length;
     const body = $("submissionsBody");
     if (!rows.length) {
-      body.innerHTML = '<tr><td colspan="9" class="empty">Aucune soumission.</td></tr>';
+      body.innerHTML = '<tr><td colspan="10" class="empty">Aucune soumission.</td></tr>';
       return;
     }
     body.innerHTML = rows.map(s => {
       const isPending = s.status === "pending";
-      const actions = isPending
+      // Pending → approve / reject. Any status (incl. approved/rejected) →
+      // edit + delete (admin can fix typos or nuke garbage submissions).
+      const actions = `${isPending
         ? `<button class="btn btn-approve" data-act="approve" data-id="${escapeHtml(s.id)}">✓ Approuver</button>
            <button class="btn btn-reject"  data-act="reject"  data-id="${escapeHtml(s.id)}">✗ Rejeter</button>`
-        : '<span style="color:var(--ink-faint);font-size:0.78rem;">—</span>';
-      return `<tr>
+        : ''}
+        <button class="btn" data-act="edit"   data-id="${escapeHtml(s.id)}">✎ Éditer</button>
+        <button class="btn btn-reject" data-act="delete" data-id="${escapeHtml(s.id)}">🗑 Supprimer</button>`;
+      return `<tr data-row-id="${escapeHtml(s.id)}">
         <td>${fmtDate(s.created_at)}</td>
         <td><span class="kind">${escapeHtml(s.kind)}</span></td>
         <td>${escapeHtml(s.mode || "—")}</td>
         <td>${escapeHtml(s.level || "—")}</td>
         <td>${escapeHtml(s.locale || "—")}</td>
         <td class="text">${escapeHtml(s.text)}</td>
+        <td class="text" style="font-weight:400;color:var(--ink-muted);font-size:0.82rem;">${escapeHtml(s.description || "—")}</td>
         <td class="email">${escapeHtml(emailFor(s.user_id))}</td>
         <td><span class="status-${escapeHtml(s.status)}">${escapeHtml(s.status)}</span></td>
         <td class="actions">${actions}</td>
@@ -1030,6 +1154,37 @@
     renderSubmissions();
   }
 
+  async function deleteSubmission(id) {
+    const { error } = await sb.rpc("delete_user_submission", { p_id: id });
+    if (error) { alert("Erreur : " + error.message); return; }
+    allSubmissions = allSubmissions.filter(s => s.id !== id);
+    renderSubmissions();
+  }
+
+  function startEditSubmission(id) {
+    const row = allSubmissions.find(s => s.id === id);
+    if (!row) return;
+    const newText = prompt("Nouveau texte :", row.text || "");
+    if (newText == null) return;
+    if (!newText.trim()) { alert("Le texte ne peut pas être vide."); return; }
+    let newDesc = row.description || "";
+    if (row.kind === "exercise" || row.kind === "category") {
+      const r = prompt("Nouvelle description (vide = aucune) :", newDesc);
+      if (r == null) return; // cancelled
+      newDesc = r;
+    }
+    sb.rpc("update_user_submission", {
+      p_id:          id,
+      p_text:        newText.trim(),
+      p_description: (newDesc || "").trim() || null
+    }).then(({ error }) => {
+      if (error) { alert("Erreur : " + error.message); return; }
+      row.text        = newText.trim();
+      row.description = (newDesc || "").trim() || null;
+      renderSubmissions();
+    });
+  }
+
   // Wire submission filters + delegated action buttons
   ["submissionFilterStatus","submissionFilterKind","submissionFilterMode"].forEach(id => {
     const el = $(id); if (el) el.addEventListener("change", renderSubmissions);
@@ -1040,8 +1195,15 @@
     const id  = btn.dataset.id;
     const act = btn.dataset.act;
     if (!id || !act) return;
-    if (act === "reject" && !confirm("Rejeter cette soumission ?")) return;
-    setSubmissionStatus(id, act === "approve" ? "approved" : "rejected");
+    if (act === "approve" || act === "reject") {
+      if (act === "reject" && !confirm("Rejeter cette soumission ?")) return;
+      setSubmissionStatus(id, act === "approve" ? "approved" : "rejected");
+    } else if (act === "delete") {
+      if (!confirm("Supprimer définitivement cette soumission ?")) return;
+      deleteSubmission(id);
+    } else if (act === "edit") {
+      startEditSubmission(id);
+    }
   });
   document.querySelectorAll("th[data-event-sort]").forEach(th => {
     th.addEventListener("click", () => {
@@ -1051,6 +1213,181 @@
       renderEvents();
     });
   });
+
+  /* ============================================================
+     Bundled lists — per-locale browse + hide/unhide
+
+     Data sources:
+       • window.IMPRO_BUNDLE.data[<locale>]    — themes / categories /
+         constraints / exercises shipped in data/all.js
+       • public.bundled_hidden_items            — admin-flagged hides
+     The client filters hidden items out before random picking.
+     ============================================================ */
+  let allHiddenItems = [];          // raw rows from bundled_hidden_items
+
+  async function loadHiddenItems() {
+    const { data, error } = await sb
+      .from("bundled_hidden_items")
+      .select("id,kind,mode,level,locale,text,hidden_at")
+      .limit(5000);
+    if (error) {
+      console.warn("[admin] loadHiddenItems", error);
+      allHiddenItems = [];
+      return;
+    }
+    allHiddenItems = data || [];
+  }
+
+  /** Build the list of locale options based on what's in IMPRO_BUNDLE. */
+  function populateLocaleOptions() {
+    const sel = $("bundleFilterLocale");
+    if (!sel) return;
+    const locales = (window.IMPRO_BUNDLE && window.IMPRO_BUNDLE.locales) || { fr: "Français" };
+    sel.innerHTML = Object.keys(locales)
+      .map(code => `<option value="${escapeHtml(code)}">${escapeHtml(locales[code] || code)}</option>`)
+      .join("");
+    // Default to French.
+    if (locales.fr) sel.value = "fr";
+  }
+
+  /** Pull the array of items for the current (kind, mode, level, locale). */
+  function bundledItemsFor(kind, mode, level, locale) {
+    const data = (window.IMPRO_BUNDLE && window.IMPRO_BUNDLE.data && window.IMPRO_BUNDLE.data[locale]) || null;
+    if (!data) return [];
+    if (kind === "theme")      return (data.themes && data.themes[level]) || [];
+    if (kind === "category")   return data.categories || [];
+    if (kind === "constraint") return (data.constraints && data.constraints[mode] && data.constraints[mode][level]) || [];
+    if (kind === "exercise")   return (data.exercises   && data.exercises[mode]   && data.exercises[mode][level])   || [];
+    return [];
+  }
+
+  /** Find the hidden_items row matching a (kind, mode, level, locale, text) tuple. */
+  function findHiddenRow(kind, mode, level, locale, text) {
+    const lc = (s) => String(s || "").trim().toLowerCase();
+    return allHiddenItems.find(h =>
+      h.kind === kind &&
+      (h.mode  || "") === (mode  || "") &&
+      (h.level || "") === (level || "") &&
+      h.locale === locale &&
+      lc(h.text) === lc(text)
+    );
+  }
+
+  function renderBundled() {
+    const locale = $("bundleFilterLocale").value;
+    const kind   = $("bundleFilterKind").value;
+    const showHidden = $("bundleShowHidden").checked;
+    const modeSel  = $("bundleFilterMode");
+    const levelSel = $("bundleFilterLevel");
+
+    // Theme has only level. Category has neither. Constraint/Exercise have both.
+    const needsMode  = (kind === "constraint" || kind === "exercise");
+    const needsLevel = (kind !== "category");
+    modeSel.hidden  = !needsMode;
+    levelSel.hidden = !needsLevel;
+    const mode  = needsMode  ? modeSel.value  : "";
+    const level = needsLevel ? levelSel.value : "";
+
+    const items = bundledItemsFor(kind, mode, level, locale);
+    const body  = $("bundledBody");
+
+    // Also include hidden items that match the current filter — so the admin
+    // can see what they've hidden + restore them. They show with strikethrough.
+    const lc = (s) => String(s || "").trim().toLowerCase();
+    const hiddenForFilter = allHiddenItems.filter(h =>
+      h.kind === kind &&
+      (h.mode  || "") === (mode  || "") &&
+      (h.level || "") === (level || "") &&
+      h.locale === locale
+    );
+    const seen = new Set(items.map(it => lc(typeof it === "object" ? (it && it.name) : it)));
+    const hiddenOnlyItems = hiddenForFilter
+      .filter(h => !seen.has(lc(h.text)))
+      .map(h => ({ name: h.text, desc: "", _onlyInHiddenList: true }));
+
+    let combined = items.concat(hiddenOnlyItems);
+    if (!showHidden) {
+      combined = combined.filter(it => {
+        const text = typeof it === "object" ? (it && it.name) : it;
+        return !findHiddenRow(kind, mode, level, locale, text);
+      });
+    }
+
+    $("bundleCount").textContent = combined.length + (showHidden ? "" : (" / " + (items.length + hiddenOnlyItems.length)));
+
+    if (!combined.length) {
+      body.innerHTML = '<tr><td colspan="4" class="empty">Aucun item.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = combined.map(it => {
+      const isObj = typeof it === "object";
+      const name  = isObj ? (it && it.name) : it;
+      const desc  = isObj ? ((it && it.desc) || "") : "";
+      const hiddenRow = findHiddenRow(kind, mode, level, locale, name);
+      const isHidden = !!hiddenRow;
+      const action = isHidden
+        ? `<button class="btn btn-unhide" data-bundle-act="unhide" data-id="${escapeHtml(hiddenRow.id)}">↩ Restaurer</button>`
+        : `<button class="btn btn-hide"
+                   data-bundle-act="hide"
+                   data-kind="${escapeHtml(kind)}"
+                   data-mode="${escapeHtml(mode)}"
+                   data-level="${escapeHtml(level)}"
+                   data-locale="${escapeHtml(locale)}"
+                   data-text="${escapeHtml(name)}">🚫 Cacher</button>`;
+      return `<tr class="${isHidden ? 'is-hidden' : ''}">
+        <td class="text"><span class="name">${escapeHtml(name)}</span></td>
+        <td class="desc">${escapeHtml(desc) || '<span style="color:var(--ink-faint);">—</span>'}</td>
+        <td class="state"><span class="pill ${isHidden ? 'pill-hidden' : 'pill-visible'}">${isHidden ? "caché" : "visible"}</span></td>
+        <td>${action}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  async function hideBundledItem(payload) {
+    const { error } = await sb.rpc("hide_bundled_item", {
+      p_kind:   payload.kind,
+      p_mode:   payload.mode   || null,
+      p_level:  payload.level  || null,
+      p_locale: payload.locale,
+      p_text:   payload.text
+    });
+    if (error) { alert("Erreur : " + error.message); return; }
+    await loadHiddenItems();
+    renderBundled();
+  }
+
+  async function unhideBundledItem(id) {
+    const { error } = await sb.rpc("unhide_bundled_item", { p_id: id });
+    if (error) { alert("Erreur : " + error.message); return; }
+    await loadHiddenItems();
+    renderBundled();
+  }
+
+  // Wire the bundled-list controls
+  function wireBundledControls() {
+    populateLocaleOptions();
+    ["bundleFilterLocale","bundleFilterKind","bundleFilterMode","bundleFilterLevel","bundleShowHidden"].forEach(id => {
+      const el = $(id); if (!el) return;
+      el.addEventListener("change", renderBundled);
+    });
+    $("bundledBody").addEventListener("click", (ev) => {
+      const btn = ev.target.closest("button[data-bundle-act]");
+      if (!btn) return;
+      const act = btn.dataset.bundleAct;
+      if (act === "hide") {
+        hideBundledItem({
+          kind:   btn.dataset.kind,
+          mode:   btn.dataset.mode,
+          level:  btn.dataset.level,
+          locale: btn.dataset.locale,
+          text:   btn.dataset.text
+        });
+      } else if (act === "unhide") {
+        unhideBundledItem(btn.dataset.id);
+      }
+    });
+  }
 
   // ----- Boot: check auth + admin gate -----
   (async function init() {
@@ -1091,6 +1428,7 @@
     try { await loadProfiles();    } catch (e) { console.error("[admin] loadProfiles error:", e); }
     try { await loadEvents();      } catch (e) { console.error("[admin] loadEvents error:", e); }
     try { await loadSubmissions(); } catch (e) { console.error("[admin] loadSubmissions error:", e); }
+    try { wireBundledControls(); await loadHiddenItems(); renderBundled(); } catch (e) { console.error("[admin] bundled init error:", e); }
   })();
 })();
 </script>

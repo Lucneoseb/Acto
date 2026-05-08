@@ -12,7 +12,7 @@ stats, impro event log, and an admin dashboard all run on **Supabase**
 ```
 .
 ├── index.html             — public app shell
-├── accounts1234.html      — admin dashboard (self-contained; loads config + utils)
+├── admin.html      — admin dashboard (self-contained; loads config + utils)
 ├── styles.css             — all visual styling for index.html
 ├── netlify.toml           — security headers + cache policy
 ├── .gitignore             — excludes .claude/, OS cruft, future .env
@@ -40,7 +40,7 @@ stats, impro event log, and an admin dashboard all run on **Supabase**
 @supabase/supabase-js@2  → js/config.js  → js/utils.js  → data/all.js  → js/auth.js  → js/app.js
 ```
 
-`accounts1234.html` is self-contained but follows the same prefix:
+`admin.html` is self-contained but follows the same prefix:
 ```
 @supabase/supabase-js@2  → js/config.js  → js/utils.js  → (inline admin script)
 ```
@@ -76,7 +76,7 @@ The `mcp__Claude_in_Chrome__*` tools are available. Standard loop:
    for local testing).
 3. `read_page { tabId, filter: "all" }` to confirm the rendered DOM.
 4. `read_console_messages { tabId, pattern: "admin|error|supabase" }` —
-   `accounts1234.html` logs `[admin] init starting…`, `[admin] session: …`,
+   `admin.html` logs `[admin] init starting…`, `[admin] session: …`,
    `[admin] profile: …` so you can pinpoint where the boot stalls.
 5. `read_network_requests { tabId, urlPattern: "supabase" }` — confirms
    `auth/v1/*` and `rest/v1/profiles|impro_events` calls and their statuses.
@@ -86,13 +86,13 @@ The `mcp__Claude_in_Chrome__*` tools are available. Standard loop:
 - **HTML `hidden` is not enough on flex containers.** Any element with an
   explicit `display:` rule needs `[hidden] { display: none !important; }` in
   CSS; otherwise the `hidden` attribute is silently ignored. This bit
-  `accounts1234.html` (all four gates rendered stacked).
+  `admin.html` (all four gates rendered stacked).
 - **Login can hang** if a browser extension or corporate firewall blocks
   `supabase.co`. `js/auth.js` now wraps `signInWithPassword` in a 10 s
   timeout via `actoUtils.withTimeout` and surfaces an explicit French
   message; check incognito mode if a real user reports the bug.
 - **Two Supabase clients.** `js/auth.js` exports `window.actoSupabase`;
-  `accounts1234.html` creates its own client. Each page owns its own
+  `admin.html` creates its own client. Each page owns its own
   session via `localStorage` — don't try to share state between them.
 - **Publishable key + SDK version.** Both pages load
   `@supabase/supabase-js@2` from jsDelivr — keep that pin in sync.

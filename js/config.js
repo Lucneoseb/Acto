@@ -3,7 +3,7 @@
  *
  * Loaded as a classic script BEFORE auth.js, app.js, and any inline page
  * script that talks to Supabase. Exposes its values on window.actoConfig
- * so non-module pages (accounts1234.html) and scripts share the same config.
+ * so non-module pages (admin.html) and scripts share the same config.
  *
  * The publishable key is public-by-design (it's served to every browser).
  * Row Level Security is what actually protects data — see supabase-setup-all.sql.

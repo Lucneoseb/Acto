@@ -183,6 +183,12 @@ input, textarea {
   text-align: center;
   padding: clamp(1.25rem, 3.5vw, 2.5rem) 1.5rem 0.75rem;
   position: relative;
+  /* Pull the subtitle visually closer to the logo by collapsing the
+     bottom of the logo's drop shadow space. */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
 }
 
 .hero-mask {
@@ -221,7 +227,9 @@ input, textarea {
 }
 
 .subtitle {
-  margin: 0 auto;
+  /* The default <p> top margin pushes this too far below the logo;
+     reset it so the subtitle sits tight under the wordmark. */
+  margin: 0.15rem auto 0;
   max-width: 36rem;
   color: var(--ink-muted);
   font-size: clamp(0.95rem, 1.5vw, 1.1rem);
@@ -589,6 +597,10 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
   font-size: 0.825rem;
   color: var(--ink-faint);
   font-style: italic;
+  /* Long lineups (5+ actors) need to wrap rather than overflow the row. */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
 }
 .roster-status.active {
   color: var(--gold-soft);
@@ -2074,9 +2086,24 @@ body.mode-troupe #card-theme      { order: 3; }
   font-size: 0.95rem;
   outline: none;
 }
-.edit-value-dialog input[type="text"]:focus {
+.edit-value-dialog input[type="text"]:focus,
+.edit-value-dialog textarea:focus {
   border-color: rgba(245, 196, 81, 0.55);
   background: rgba(0, 0, 0, 0.5);
+}
+.edit-value-dialog textarea {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--ink);
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: 0.95rem;
+  outline: none;
+  resize: vertical;
+  min-height: 4.4rem;
+  line-height: 1.4;
 }
 .edit-value-status {
   background: rgba(109, 211, 197, 0.12);
@@ -2302,7 +2329,10 @@ body.mode-troupe #card-theme      { order: 3; }
    ========================================================== */
 .hero-logo-link {
   display: inline-block;
-  margin: 0 auto;
+  /* Negative bottom margin compensates for the visual padding the logo
+     image carries inside its bounding box, so the subtitle ends up
+     visually adjacent to the wordmark rather than floating below it. */
+  margin: 0 auto -0.6rem;
   text-decoration: none;
   line-height: 0;
   transition: transform 0.25s ease;

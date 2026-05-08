@@ -491,7 +491,7 @@ grant  execute on function public.search_users_by_stage_name(text) to authentica
 -- ╚═══════════════════════════════════════════════════════════════════╝
 -- When a user types a custom value in a card (theme, category, etc.) and
 -- it doesn't match anything in the existing pool, the client logs it here.
--- The admin reviews pending rows on accounts1234.html and approves the
+-- The admin reviews pending rows on admin.html and approves the
 -- ones worth promoting to the bundled data.
 
 -- 5.1 SUBMISSIONS TABLE
@@ -509,6 +509,12 @@ create table if not exists public.user_submissions (
   approved_at     timestamptz,
   created_at      timestamptz   not null default now()
 );
+
+-- 5.1b DESCRIPTION COLUMN — added in Phase A: lets the user (and the admin)
+--      attach a free-form explanation to an exercise / category submission.
+--      Idempotent so existing submissions get the column without erroring.
+alter table public.user_submissions
+  add column if not exists description text;
 
 create index if not exists user_submissions_status_idx  on public.user_submissions (status);
 create index if not exists user_submissions_kind_idx    on public.user_submissions (kind);
@@ -540,12 +546,19 @@ create policy "authenticated_read_approved_submissions"
 
 -- 5.3 SUBMIT RPC — called by the client when a user types a value that
 --     doesn't already exist in the bundled pool. Caller must be authenticated.
+--     Phase A: optional `p_description` for exercise/category context.
+--     We drop the legacy 5-arg signature first so the new 6-arg version is
+--     the only one the client can resolve to.
+drop function if exists public.submit_user_text(text, text, text, text, text);
+drop function if exists public.submit_user_text(text, text, text, text, text, text);
+
 create or replace function public.submit_user_text(
-  p_kind   text,
-  p_mode   text,
-  p_level  text,
-  p_locale text,
-  p_text   text
+  p_kind        text,
+  p_mode        text,
+  p_level       text,
+  p_locale      text,
+  p_text        text,
+  p_description text default null
 )
 returns uuid
 language plpgsql
@@ -555,6 +568,7 @@ as $$
 declare
   new_id uuid;
   v_text text;
+  v_desc text;
 begin
   if auth.uid() is null then
     raise exception 'not authenticated';
@@ -566,6 +580,7 @@ begin
   if v_text is null then
     raise exception 'text is empty';
   end if;
+  v_desc := nullif(trim(coalesce(p_description, '')), '');
   -- De-duplicate: don't insert if the same user already submitted the same
   -- (kind, mode, level, locale, lower(text)) tuple AND it's still pending.
   if exists (
@@ -578,7 +593,19 @@ begin
       and lower(text) = lower(v_text)
       and status = 'pending'
   ) then
-    -- Return the existing id (idempotent).
+    -- Already pending: keep the row, but if the user typed a fresh
+    -- description and the existing row had none, attach it now.
+    update public.user_submissions
+       set description = coalesce(description, v_desc)
+     where user_id = auth.uid()
+       and kind = p_kind
+       and coalesce(mode, '')  = coalesce(p_mode, '')
+       and coalesce(level, '') = coalesce(p_level, '')
+       and locale = p_locale
+       and lower(text) = lower(v_text)
+       and status = 'pending'
+       and description is null
+       and v_desc is not null;
     select id into new_id from public.user_submissions
     where user_id = auth.uid()
       and kind = p_kind
@@ -590,15 +617,15 @@ begin
     limit 1;
     return new_id;
   end if;
-  insert into public.user_submissions (user_id, kind, mode, level, locale, text)
-  values (auth.uid(), p_kind, nullif(p_mode, ''), nullif(p_level, ''), p_locale, v_text)
+  insert into public.user_submissions (user_id, kind, mode, level, locale, text, description)
+  values (auth.uid(), p_kind, nullif(p_mode, ''), nullif(p_level, ''), p_locale, v_text, v_desc)
   returning id into new_id;
   return new_id;
 end;
 $$;
 
-revoke all on function public.submit_user_text(text, text, text, text, text) from public;
-grant  execute on function public.submit_user_text(text, text, text, text, text) to authenticated;
+revoke all on function public.submit_user_text(text, text, text, text, text, text) from public;
+grant  execute on function public.submit_user_text(text, text, text, text, text, text) to authenticated;
 
 -- 5.4 APPROVE / REJECT RPC — admin only.
 create or replace function public.set_submission_status(
@@ -628,6 +655,166 @@ $$;
 revoke all on function public.set_submission_status(uuid, text) from public;
 grant  execute on function public.set_submission_status(uuid, text) to authenticated;
 
+-- 5.5 ADMIN UPDATE / DELETE RPCs — let the admin clean up bad submissions.
+create or replace function public.update_user_submission(
+  p_id          uuid,
+  p_text        text,
+  p_description text default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_text text;
+  v_desc text;
+begin
+  if auth.uid() is null or not public.is_admin() then
+    raise exception 'admin only';
+  end if;
+  v_text := nullif(trim(coalesce(p_text, '')), '');
+  if v_text is null then
+    raise exception 'text is empty';
+  end if;
+  v_desc := nullif(trim(coalesce(p_description, '')), '');
+  update public.user_submissions
+     set text        = v_text,
+         description = v_desc
+   where id = p_id;
+end;
+$$;
+
+revoke all on function public.update_user_submission(uuid, text, text) from public;
+grant  execute on function public.update_user_submission(uuid, text, text) to authenticated;
+
+create or replace function public.delete_user_submission(p_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if auth.uid() is null or not public.is_admin() then
+    raise exception 'admin only';
+  end if;
+  delete from public.user_submissions where id = p_id;
+end;
+$$;
+
+revoke all on function public.delete_user_submission(uuid) from public;
+grant  execute on function public.delete_user_submission(uuid) to authenticated;
+
+
+-- ╔═══════════════════════════════════════════════════════════════════╗
+-- ║  PART 5b — BUNDLED-DATA HIDDEN ITEMS (Phase B admin moderation)    ║
+-- ╚═══════════════════════════════════════════════════════════════════╝
+-- The "bundled" themes / categories / constraints / exercises live in
+-- static JSON files (data/*.json) that the client loads at boot. The
+-- admin needs to be able to remove a specific entry per locale without
+-- a redeploy — so we keep the JSON pristine and stash a per-locale
+-- "hidden list" here. The client filters those items out of every pool
+-- before random picking.
+
+create table if not exists public.bundled_hidden_items (
+  id          uuid          primary key default gen_random_uuid(),
+  kind        text          not null check (kind in ('theme','category','constraint','exercise')),
+  mode        text,                          -- 'troupe' | 'match' | NULL
+  level       text,                          -- 'debutant' | 'confirme' | 'expert' | NULL
+  locale      text          not null,
+  text        text          not null,        -- canonical bundled name (case kept; lookup is case-insensitive)
+  hidden_by   uuid          references auth.users(id) on delete set null,
+  hidden_at   timestamptz   not null default now()
+);
+
+-- Composite uniqueness uses lower(text) so renaming case in the JSON
+-- doesn't accidentally re-show a hidden item.
+create unique index if not exists bundled_hidden_unique
+  on public.bundled_hidden_items (
+    kind,
+    coalesce(mode,  ''),
+    coalesce(level, ''),
+    locale,
+    lower(text)
+  );
+
+create index if not exists bundled_hidden_locale_idx on public.bundled_hidden_items (locale);
+create index if not exists bundled_hidden_kind_idx   on public.bundled_hidden_items (kind);
+
+alter table public.bundled_hidden_items enable row level security;
+
+drop policy if exists "everyone_reads_hidden_items" on public.bundled_hidden_items;
+drop policy if exists "admins_manage_hidden_items"  on public.bundled_hidden_items;
+
+-- Any authenticated user reads hidden_items so the client can filter the
+-- pool. Mutations go through the admin-only RPCs below.
+create policy "everyone_reads_hidden_items"
+  on public.bundled_hidden_items for select
+  using (auth.uid() is not null);
+
+create or replace function public.hide_bundled_item(
+  p_kind   text,
+  p_mode   text,
+  p_level  text,
+  p_locale text,
+  p_text   text
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  new_id uuid;
+  v_text text;
+begin
+  if auth.uid() is null or not public.is_admin() then
+    raise exception 'admin only';
+  end if;
+  if p_kind not in ('theme','category','constraint','exercise') then
+    raise exception 'invalid kind: %', p_kind;
+  end if;
+  v_text := nullif(trim(coalesce(p_text, '')), '');
+  if v_text is null then
+    raise exception 'text is empty';
+  end if;
+  -- Idempotent: same item already hidden → return its id.
+  select id into new_id
+    from public.bundled_hidden_items
+   where kind = p_kind
+     and coalesce(mode,  '') = coalesce(p_mode,  '')
+     and coalesce(level, '') = coalesce(p_level, '')
+     and locale = p_locale
+     and lower(text) = lower(v_text)
+   limit 1;
+  if new_id is not null then return new_id; end if;
+  insert into public.bundled_hidden_items (kind, mode, level, locale, text, hidden_by)
+  values (p_kind, nullif(p_mode, ''), nullif(p_level, ''), p_locale, v_text, auth.uid())
+  returning id into new_id;
+  return new_id;
+end;
+$$;
+
+revoke all on function public.hide_bundled_item(text, text, text, text, text) from public;
+grant  execute on function public.hide_bundled_item(text, text, text, text, text) to authenticated;
+
+create or replace function public.unhide_bundled_item(p_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if auth.uid() is null or not public.is_admin() then
+    raise exception 'admin only';
+  end if;
+  delete from public.bundled_hidden_items where id = p_id;
+end;
+$$;
+
+revoke all on function public.unhide_bundled_item(uuid) from public;
+grant  execute on function public.unhide_bundled_item(uuid) to authenticated;
+
 
 -- ╔═══════════════════════════════════════════════════════════════════╗
 -- ║  PART 6 — EMAIL NOTIFICATIONS ON NEW SUBMISSIONS (Phase 3)         ║
@@ -644,7 +831,7 @@ grant  execute on function public.set_submission_status(uuid, text) to authentic
 --        ('resend_api_key', 're_xxxxxxxxxxxxxxxxxxx'),
 --        ('admin_email',    'lucneoseb@gmail.com'),
 --        ('from_email',     'Acto <noreply@acto.yourdomain>'),
---        ('admin_url',      'https://thriving-trifle-e565e3.netlify.app/accounts1234.html')
+--        ('admin_url',      'https://thriving-trifle-e565e3.netlify.app/admin.html')
 --      on conflict (key) do update set value = excluded.value;
 --   The `from_email` domain MUST be verified on Resend.
 --   If app_secrets is missing any of these, the trigger silently no-ops.
@@ -719,7 +906,7 @@ begin
     return NEW;
   end if;
   if v_admin_url is null then
-    v_admin_url := 'https://thriving-trifle-e565e3.netlify.app/accounts1234.html';
+    v_admin_url := 'https://thriving-trifle-e565e3.netlify.app/admin.html';
   end if;
 
   v_kind_lbl := case NEW.kind
@@ -803,12 +990,15 @@ create trigger trg_notify_admin_on_new_submission
 --
 -- Verification checklist (Supabase dashboard):
 --   • Database → Tables → "profiles", "impro_events", "impro_participants",
---     "user_submissions", "app_secrets" all exist with the 🔒 RLS enabled badge.
---   • Database → Functions → all ten present:
+--     "user_submissions", "app_secrets", "bundled_hidden_items" all exist
+--     with the 🔒 RLS enabled badge.
+--   • Database → Functions → all fourteen present:
 --       delete_my_account, bump_stats, is_admin,
 --       log_impro_event, update_impro_event,
 --       add_impro_participants, search_users_by_stage_name,
 --       submit_user_text, set_submission_status,
+--       update_user_submission, delete_user_submission,
+--       hide_bundled_item, unhide_bundled_item,
 --       notify_admin_on_new_submission
 --   • Database → Extensions → pg_net is ENABLED (required by Phase 3).
 --
@@ -830,6 +1020,6 @@ create trigger trg_notify_admin_on_new_submission
 --            ('resend_api_key', 're_xxxxxxxxxxxxxxxxxxx'),
 --            ('admin_email',    'lucneoseb@gmail.com'),
 --            ('from_email',     'Acto <noreply@your-verified-domain>'),
---            ('admin_url',      'https://thriving-trifle-e565e3.netlify.app/accounts1234.html')
+--            ('admin_url',      'https://thriving-trifle-e565e3.netlify.app/admin.html')
 --          on conflict (key) do update set value = excluded.value;
 -- =====================================================================
