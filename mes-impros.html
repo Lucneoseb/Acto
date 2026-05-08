@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=20260533" />
+<link rel="stylesheet" href="styles.css?v=20260534" />
 <style>
   /* Page-local layout. Keeps the same visual identity as index.html
      (backdrop + hero + auth-card visuals) but uses a wider working
@@ -194,6 +194,37 @@
     transition: opacity 0.3s;
   }
   .personalize-saved.flash { color: var(--gold); opacity: 1; }
+  /* Sync state notice (auth-aware): muted info banner above the add
+     form. Shown only when the page knows whether the user is signed
+     in — colors stay subtle so it doesn't distract. */
+  .personalize-sync-notice {
+    margin: 0 0 0.7rem;
+    padding: 0.55rem 0.85rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.82rem;
+    line-height: 1.45;
+    border: 1px solid;
+  }
+  .personalize-sync-notice.is-ready {
+    color: var(--gold-soft);
+    background: rgba(245, 196, 81, 0.06);
+    border-color: rgba(245, 196, 81, 0.25);
+  }
+  .personalize-sync-notice.is-loggedout {
+    color: var(--ink-muted);
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  /* Per-item sync badge (only on user-added items): tiny pill below
+     the name showing whether the addition reached the admin queue. */
+  .personalize-list .item-sync {
+    margin-top: 0.2rem;
+    font-size: 0.7rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+  }
+  .personalize-list .item-sync.is-sent    { color: var(--troupe); }
+  .personalize-list .item-sync.is-pending { color: var(--gold); }
   @media (max-width: 600px) {
     .personalize-list li {
       grid-template-columns: 1fr auto;
@@ -247,6 +278,10 @@
         <span class="personalize-count" id="itemCount"></span>
       </div>
 
+      <!-- Sync notice: tells the user whether new additions will reach
+           the admin queue. Updated by JS once we know the auth state. -->
+      <p class="personalize-sync-notice" id="syncNotice" hidden></p>
+
       <!-- Add new item form. Description input is shown for exercise/
            category targets where it makes sense. -->
       <div class="personalize-add">
@@ -274,13 +309,13 @@
   </footer>
 
   <!-- Reuse the bundled UI strings shipped with the app. -->
-  <script src="./data/all.js?v=20260533"></script>
+  <script src="./data/all.js?v=20260534"></script>
   <!-- Supabase SDK + config: optional. When the user is authenticated,
        additions made on this page are also sent to the admin for review
        via the existing submit_user_text RPC (see Phase 1 / mes-impros
        admin queue). Logged-out users keep the local-only behavior. -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./js/config.js?v=20260533"></script>
+  <script src="./js/config.js?v=20260534"></script>
   <script>
   (function () {
     "use strict";
@@ -335,8 +370,14 @@
        When the user is authenticated, every new local addition is ALSO
        sent to public.user_submissions (status='pending') so the admin
        can review it on /admin.html#impro and approve it for everyone.
-       Failures are silent (logged-out / network error / RLS) — the
-       user's local copy still works either way. */
+
+       Items added while logged out stay marked `syncedToAdmin: false`
+       in localStorage; the page retries the submission on every page
+       load (and after every new addition) once a session exists.
+
+       Failures are silent — the user's local copy still works either
+       way. The visible-state badge tells the user whether the item
+       has reached the admin queue. */
     let _sbClient = null;
     function getSupabaseClient() {
       if (_sbClient) return _sbClient;
@@ -352,22 +393,69 @@
       }
       return _sbClient;
     }
-    function submitToAdminInBackground(filter, text, desc) {
+
+    /** True if the current Supabase session exposes a logged-in user.
+     *  Returns a Promise<boolean> — getSession is async. */
+    async function hasActiveSession() {
+      const sb = getSupabaseClient();
+      if (!sb) return false;
+      try {
+        const { data } = await sb.auth.getSession();
+        return !!(data && data.session && data.session.user);
+      } catch (e) { return false; }
+    }
+
+    /** Walks acto-user-added:v1 and submits every item missing a
+     *  `syncedToAdmin: true` flag, marking each one on success. Safe
+     *  to call repeatedly (the RPC dedupes on (user, kind, mode, level,
+     *  locale, lower(text))) and returns the existing pending id. */
+    async function attemptFullSync(opts) {
       const sb = getSupabaseClient();
       if (!sb) return;
-      sb.auth.getSession().then(({ data }) => {
-        if (!data || !data.session || !data.session.user) return;
-        // submit_user_text RPC is idempotent: same (user, kind, mode,
-        // level, locale, lower(text)) tuple while pending → reuses row.
-        Promise.resolve(sb.rpc("submit_user_text", {
-          p_kind:        filter.kind,
-          p_mode:        filter.mode  || null,
-          p_level:       filter.level || null,
-          p_locale:      filter.locale,
-          p_text:        text,
-          p_description: desc || null
-        })).catch(err => console.warn("[acto] mes-impros admin submit failed", err));
-      }).catch(() => { /* ignore */ });
+      const session = await sb.auth.getSession()
+        .then(r => r && r.data && r.data.session)
+        .catch(() => null);
+      if (!session || !session.user) return;
+
+      const list = readList(ADDED_KEY);
+      let changed = false;
+      for (const item of list) {
+        if (item.syncedToAdmin) continue;
+        try {
+          const { error } = await sb.rpc("submit_user_text", {
+            p_kind:        item.kind,
+            p_mode:        item.mode  || null,
+            p_level:       item.level || null,
+            p_locale:      item.locale,
+            p_text:        item.text,
+            p_description: item.desc || null
+          });
+          if (!error) { item.syncedToAdmin = true; changed = true; }
+          else console.warn("[acto] mes-impros sync failed", error);
+        } catch (e) {
+          console.warn("[acto] mes-impros sync threw", e);
+        }
+      }
+      if (changed) {
+        writeList(ADDED_KEY, list);
+        if (!opts || !opts.silent) renderList();
+      }
+    }
+
+    /** Update the auth-aware notice banner above the add form. */
+    async function refreshSyncNotice() {
+      const t = uiText();
+      const el = $("syncNotice");
+      if (!el) return;
+      const hasAuth = await hasActiveSession();
+      if (hasAuth) {
+        el.textContent = t.personalizeSyncReady || "";
+        el.className = "personalize-sync-notice is-ready";
+      } else {
+        el.textContent = t.personalizeSyncLoginNotice || "";
+        el.className = "personalize-sync-notice is-loggedout";
+      }
+      el.hidden = false;
     }
 
     /* ---------- Pool readers (from bundled data, untouched by hides
@@ -490,7 +578,12 @@
         (a.mode  || "") === (filter.mode  || "") &&
         (a.level || "") === (filter.level || "")
       );
-      const addedRows = added.map((a) => ({ name: a.text, desc: a.desc || "", source: "user" }));
+      const addedRows = added.map((a) => ({
+        name:   a.text,
+        desc:   a.desc || "",
+        source: "user",
+        synced: a.syncedToAdmin === true
+      }));
 
       // De-dupe (case-insensitive): bundled wins if a user add collides.
       const seen = new Set(bundledRows.map(r => lc(r.name)));
@@ -537,6 +630,16 @@
             descEl.className = "item-desc";
             descEl.textContent = row.desc;
             main.appendChild(descEl);
+          }
+          // Sync state badge: only on user-added items. Indicates
+          // whether the addition reached public.user_submissions yet.
+          if (row.source === "user") {
+            const syncEl = document.createElement("div");
+            syncEl.className = "item-sync " + (row.synced ? "is-sent" : "is-pending");
+            syncEl.textContent = row.synced
+              ? (t.personalizeSyncSent    || "Sent to admin")
+              : (t.personalizeSyncPending || "Not yet sent to admin");
+            main.appendChild(syncEl);
           }
           li.appendChild(main);
 
@@ -609,11 +712,13 @@
         $("addItemDesc").value = "";
         return;
       }
-      list.push({ ...ref, desc });
+      // Mark fresh additions as not-yet-synced so attemptFullSync can
+      // pick them up. The flag flips to true after a successful RPC.
+      list.push({ ...ref, desc, syncedToAdmin: false });
       writeList(ADDED_KEY, list);
-      // ALSO push to the admin's pending queue (no-op if the user is
-      // logged out — the local addition still works either way).
-      submitToAdminInBackground(filter, text, desc);
+      // Try to sync right now AND on every subsequent page load — items
+      // added while logged out will catch up on next sign-in.
+      attemptFullSync().catch(() => {});
       $("addItemText").value = "";
       $("addItemDesc").value = "";
       flashSaved();
@@ -625,6 +730,11 @@
     applyTranslations();
     syncFilterVisibility();
     renderList();
+    refreshSyncNotice();
+    // On every page load, retry submitting any local additions that
+    // never reached the admin queue (e.g. were added while logged out
+    // and the user just signed in elsewhere). Errors are silent.
+    setTimeout(() => { attemptFullSync().catch(() => {}); }, 400);
 
     $("filterLocale").addEventListener("change", (e) => {
       activeLocale = e.target.value;
@@ -632,6 +742,7 @@
       document.documentElement.lang = activeLocale;
       applyTranslations();
       renderList();
+      refreshSyncNotice();
     });
     ["filterKind","filterMode","filterLevel"].forEach(id => {
       $(id).addEventListener("change", () => {
