@@ -184,6 +184,102 @@
   .gate-card p { color: var(--ink-muted); margin: 0 0 1rem; }
   .gate-card a { color: var(--gold-soft); }
 
+  /* Inline login form on the admin login gate. */
+  .gate-login { max-width: 420px; }
+  .admin-login-form {
+    display: flex; flex-direction: column; gap: 0.85rem;
+    margin: 1rem 0 0;
+    text-align: left;
+  }
+  .admin-login-field { display: flex; flex-direction: column; gap: 0.3rem; }
+  .admin-login-field span {
+    font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .admin-login-field input {
+    padding: 0.65rem 0.8rem;
+    border-radius: 10px;
+    border: 1px solid var(--row-border);
+    background: rgba(0,0,0,0.35);
+    color: var(--ink);
+    font: inherit;
+  }
+  .admin-login-field input:focus {
+    outline: none;
+    border-color: var(--gold-soft);
+    box-shadow: 0 0 0 2px rgba(218,165,32,0.25);
+  }
+  .admin-login-submit { width: 100%; margin-top: 0.4rem; }
+  .admin-login-error {
+    color: #ff8484;
+    font-size: 0.85rem;
+    margin: 0;
+    text-align: center;
+  }
+
+  /* "Ajouter un item" dialog on the bundled-list admin section. */
+  .bundle-add-dialog {
+    background: var(--bg-deep, #1a1208);
+    color: var(--ink, #f5e9d0);
+    border: 1px solid var(--row-border);
+    border-radius: 14px;
+    padding: 0;
+    max-width: 540px;
+    width: calc(100vw - 2rem);
+    max-height: calc(100vh - 2rem);
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+  }
+  .bundle-add-dialog::backdrop { background: rgba(0,0,0,0.55); }
+  .bundle-add-dialog .dlg-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1rem 1.2rem; border-bottom: 1px solid var(--row-border);
+    margin: 0;
+  }
+  .bundle-add-dialog .dlg-head h2 {
+    margin: 0; color: var(--gold);
+    font-family: 'Bebas Neue', Inter, sans-serif;
+    font-weight: 400; letter-spacing: 0.04em;
+    font-size: 1.4rem;
+  }
+  .bundle-add-dialog .dlg-close {
+    background: transparent; border: 0; color: var(--ink-muted);
+    font-size: 1.3rem; cursor: pointer; padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+  }
+  .bundle-add-dialog .dlg-close:hover { color: var(--ink); background: rgba(255,255,255,0.05); }
+  .bundle-add-dialog .dlg-body { padding: 1.2rem; display: flex; flex-direction: column; gap: 0.9rem; }
+  .bundle-add-dialog .dlg-actions {
+    display: flex; gap: 0.6rem; justify-content: flex-end;
+    padding: 0.9rem 1.2rem; border-top: 1px solid var(--row-border);
+    background: rgba(0,0,0,0.2);
+  }
+  .bundle-add-row { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+  .bundle-add-row .bundle-add-field { flex: 1; min-width: 180px; }
+  .bundle-add-field { display: flex; flex-direction: column; gap: 0.3rem; }
+  .bundle-add-field span {
+    font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .bundle-add-field input,
+  .bundle-add-field select,
+  .bundle-add-field textarea {
+    padding: 0.55rem 0.7rem;
+    border-radius: 8px;
+    border: 1px solid var(--row-border);
+    background: rgba(0,0,0,0.35);
+    color: var(--ink);
+    font: inherit;
+  }
+  .bundle-add-field textarea { resize: vertical; min-height: 70px; font-family: inherit; }
+  .bundle-add-field input:focus,
+  .bundle-add-field select:focus,
+  .bundle-add-field textarea:focus {
+    outline: none;
+    border-color: var(--gold-soft);
+    box-shadow: 0 0 0 2px rgba(218,165,32,0.25);
+  }
+
   @media (max-width: 640px) {
     .stat-card .v { font-size: 1.25rem; }
     table.profiles th, table.profiles td { font-size: 0.78rem; padding: 0.45rem 0.55rem; }
@@ -418,10 +514,24 @@
 <div id="loadingGate" class="gate"><div class="gate-card"><h2>Chargement…</h2></div></div>
 
 <div id="loginGate" class="gate" hidden>
-  <div class="gate-card">
-    <h2>Connexion requise</h2>
-    <p>Tu dois être connecté en tant qu'administrateur pour accéder à cette page.</p>
-    <p><a href="./index.html">→ Aller à la page de connexion</a></p>
+  <div class="gate-card gate-login">
+    <h2>Connexion administrateur</h2>
+    <p>Connecte-toi pour accéder au tableau de bord.</p>
+    <form id="adminLoginForm" class="admin-login-form" novalidate autocomplete="on">
+      <label class="admin-login-field">
+        <span>Email</span>
+        <input type="email" id="adminLoginEmail" autocomplete="email" required />
+      </label>
+      <label class="admin-login-field">
+        <span>Mot de passe</span>
+        <input type="password" id="adminLoginPassword" autocomplete="current-password" required />
+      </label>
+      <p class="admin-login-error" id="adminLoginError" hidden></p>
+      <button type="submit" class="btn btn-primary admin-login-submit" id="adminLoginSubmit">Se connecter</button>
+    </form>
+    <p style="margin-top:1rem;font-size:0.85rem;">
+      <a href="./index.html">← Retour à l'app</a>
+    </p>
   </div>
 </div>
 
@@ -652,6 +762,7 @@
       <input type="checkbox" id="bundleShowHidden" />
       <span>Afficher les items cachés</span>
     </label>
+    <button class="btn btn-primary" id="bundleAddBtn" type="button" style="margin-left:auto;">+ Ajouter</button>
     <span class="count" id="bundleCount"></span>
   </div>
   <div class="table-wrap">
@@ -672,13 +783,74 @@
   </div><!-- /data-view="impro" -->
 </div><!-- /adminApp -->
 
+<!-- Admin add-item dialog: opens from the "+ Ajouter" button on the
+     "Listes bundled" section. Lets the admin insert a new theme /
+     category / constraint / exercise into the pool without a redeploy.
+     Backed by the add_bundled_item RPC which writes an approved
+     user_submission. -->
+<dialog id="bundleAddDialog" class="bundle-add-dialog">
+  <form method="dialog" class="dlg-head">
+    <h2>Ajouter un item</h2>
+    <button type="button" class="dlg-close" id="bundleAddCloseBtn" aria-label="Fermer">✕</button>
+  </form>
+  <form id="bundleAddForm" class="bundle-add-form" novalidate>
+    <div class="dlg-body">
+      <div class="bundle-add-row">
+        <label class="bundle-add-field">
+          <span>Type</span>
+          <select id="bundleAddKind" required>
+            <option value="theme">Thème</option>
+            <option value="category">Catégorie</option>
+            <option value="constraint">Contrainte</option>
+            <option value="exercise">Exercice</option>
+          </select>
+        </label>
+        <label class="bundle-add-field">
+          <span>Langue</span>
+          <select id="bundleAddLocale" required></select>
+        </label>
+      </div>
+      <div class="bundle-add-row">
+        <label class="bundle-add-field" id="bundleAddModeWrap" hidden>
+          <span>Mode</span>
+          <select id="bundleAddMode">
+            <option value="troupe">Troupe</option>
+            <option value="match">Match</option>
+          </select>
+        </label>
+        <label class="bundle-add-field" id="bundleAddLevelWrap">
+          <span>Niveau</span>
+          <select id="bundleAddLevel">
+            <option value="debutant">Débutant</option>
+            <option value="confirme">Confirmé</option>
+            <option value="expert">Expert</option>
+          </select>
+        </label>
+      </div>
+      <label class="bundle-add-field">
+        <span>Texte *</span>
+        <input type="text" id="bundleAddText" maxlength="200" required />
+      </label>
+      <label class="bundle-add-field" id="bundleAddDescWrap">
+        <span>Description (optionnel)</span>
+        <textarea id="bundleAddDesc" rows="3" maxlength="600"></textarea>
+      </label>
+      <p class="admin-login-error" id="bundleAddError" hidden></p>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="btn" id="bundleAddCancelBtn">Annuler</button>
+      <button type="submit" class="btn btn-primary" id="bundleAddSubmitBtn">Ajouter</button>
+    </div>
+  </form>
+</dialog>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./js/config.js?v=20260543"></script>
-<script src="./js/utils.js?v=20260543"></script>
+<script src="./js/config.js?v=20260545"></script>
+<script src="./js/utils.js?v=20260545"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=20260543"></script>
+<script src="./data/all.js?v=20260545"></script>
 <script>
 (function () {
   "use strict";
@@ -1325,6 +1497,13 @@
       subSel.innerHTML =
         '<option value="">Toutes langues</option>' + optionsHtml;
     }
+
+    // Add-item dialog: mirror the bundled filter (FR default).
+    const addLocaleSel = $("bundleAddLocale");
+    if (addLocaleSel) {
+      addLocaleSel.innerHTML = optionsHtml;
+      if (locales.fr) addLocaleSel.value = "fr";
+    }
   }
 
   /** Pull the items for (kind, mode, level, locale): static bundled
@@ -1521,6 +1700,74 @@
     renderBundled();
   }
 
+  /** Add: insert a new bundled-pool item via the add_bundled_item RPC.
+   *  The server stores it as an approved user_submission so the next
+   *  page load merges it into the live pool. */
+  async function addBundledItem({ kind, mode, level, locale, text, description }) {
+    const { error } = await sb.rpc("add_bundled_item", {
+      p_kind:        kind,
+      p_mode:        mode  || null,
+      p_level:       level || null,
+      p_locale:      locale,
+      p_text:        text,
+      p_description: description || null
+    });
+    if (error) throw error;
+    // Refresh: hides may have been auto-cleared, submissions list grew.
+    await loadHiddenItems();
+    await loadSubmissions();
+    renderBundled();
+  }
+
+  /** Open the "Ajouter un item" dialog, pre-filling fields from the
+   *  current bundled-list filter so the admin lands on the right
+   *  (kind, locale, mode, level) tuple. */
+  function openBundleAddDialog() {
+    const dlg = $("bundleAddDialog");
+    if (!dlg) return;
+    // Pre-fill from current filter
+    const kind   = $("bundleFilterKind").value;
+    const locale = $("bundleFilterLocale").value;
+    const mode   = $("bundleFilterMode").value;
+    const level  = $("bundleFilterLevel").value;
+    $("bundleAddKind").value   = kind;
+    $("bundleAddLocale").value = locale;
+    $("bundleAddMode").value   = mode;
+    $("bundleAddLevel").value  = level;
+    $("bundleAddText").value   = "";
+    $("bundleAddDesc").value   = "";
+    const errEl = $("bundleAddError");
+    if (errEl) { errEl.hidden = true; errEl.textContent = ""; }
+    syncBundleAddFieldsForKind();
+    if (typeof dlg.showModal === "function") dlg.showModal();
+    else dlg.setAttribute("open", "");
+    // Focus the text input after the dialog paints.
+    setTimeout(() => { const t = $("bundleAddText"); if (t) t.focus(); }, 0);
+  }
+
+  function closeBundleAddDialog() {
+    const dlg = $("bundleAddDialog");
+    if (!dlg) return;
+    if (typeof dlg.close === "function") dlg.close();
+    else dlg.removeAttribute("open");
+  }
+
+  /** Toggle mode/description visibility based on the selected kind:
+   *   - exercise: show mode + level + description
+   *   - constraint: show mode + level (no description)
+   *   - theme: show level only (no mode, no description)
+   *   - category: no mode, no level, show description
+   *  Mirrors the schema constraints in submit_user_text. */
+  function syncBundleAddFieldsForKind() {
+    const kind = $("bundleAddKind").value;
+    const showMode = (kind === "exercise" || kind === "constraint");
+    const showLevel = (kind !== "category");
+    const showDesc = (kind === "exercise" || kind === "category");
+    $("bundleAddModeWrap").hidden  = !showMode;
+    $("bundleAddLevelWrap").hidden = !showLevel;
+    $("bundleAddDescWrap").hidden  = !showDesc;
+  }
+
   // Wire the bundled-list controls
   function wireBundledControls() {
     populateLocaleOptions();
@@ -1545,10 +1792,74 @@
       else if (act === "edit")    editBundledItem(payload);
       else if (act === "delete")  deleteBundledItem(payload);
     });
+
+    // Add-item dialog
+    const addBtn = $("bundleAddBtn");
+    if (addBtn) addBtn.addEventListener("click", openBundleAddDialog);
+    const closeBtn = $("bundleAddCloseBtn");
+    if (closeBtn) closeBtn.addEventListener("click", closeBundleAddDialog);
+    const cancelBtn = $("bundleAddCancelBtn");
+    if (cancelBtn) cancelBtn.addEventListener("click", closeBundleAddDialog);
+    const kindSel = $("bundleAddKind");
+    if (kindSel) kindSel.addEventListener("change", syncBundleAddFieldsForKind);
+    const form = $("bundleAddForm");
+    if (form && !form.dataset.wired) {
+      form.dataset.wired = "1";
+      form.addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        const errEl = $("bundleAddError");
+        const submitBtn = $("bundleAddSubmitBtn");
+        const kind   = $("bundleAddKind").value;
+        const locale = $("bundleAddLocale").value;
+        // Mode/level are read only when their wrapper is visible —
+        // otherwise they'd be sent for kinds that don't support them.
+        const mode   = $("bundleAddModeWrap").hidden  ? "" : $("bundleAddMode").value;
+        const level  = $("bundleAddLevelWrap").hidden ? "" : $("bundleAddLevel").value;
+        const text   = ($("bundleAddText").value || "").trim();
+        const desc   = $("bundleAddDescWrap").hidden  ? "" : ($("bundleAddDesc").value || "").trim();
+        if (!text) {
+          errEl.textContent = "Le texte est obligatoire.";
+          errEl.hidden = false;
+          return;
+        }
+        errEl.hidden = true; errEl.textContent = "";
+        const originalLabel = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Ajout…";
+        try {
+          await addBundledItem({ kind, mode, level, locale, text, description: desc });
+          submitBtn.textContent = originalLabel;
+          submitBtn.disabled = false;
+          // Switch the bundled filter to match what we just added so the
+          // new entry is immediately visible — small UX win.
+          $("bundleFilterKind").value   = kind;
+          $("bundleFilterLocale").value = locale;
+          if (mode)  $("bundleFilterMode").value  = mode;
+          if (level) $("bundleFilterLevel").value = level;
+          renderBundled();
+          closeBundleAddDialog();
+        } catch (e) {
+          console.error("[admin] addBundledItem error:", e);
+          errEl.textContent = (e && e.message) || "Erreur réseau.";
+          errEl.hidden = false;
+          submitBtn.textContent = originalLabel;
+          submitBtn.disabled = false;
+        }
+      });
+    }
   }
 
   // ----- Boot: check auth + admin gate -----
-  (async function init() {
+  // Re-entrancy guards: an explicit bootAdmin() call from page load can race
+  // against the SIGNED_IN / INITIAL_SESSION events from onAuthStateChange.
+  // The flags collapse duplicate runs so we don't double-load the dashboard.
+  let __adminBooted  = false;
+  let __adminBooting = false;
+
+  async function bootAdmin() {
+    if (__adminBooting) return;
+    __adminBooting = true;
+    try {
     showGate("loadingGate");
     console.log("[admin] init starting…");
     let session = null;
@@ -1581,6 +1892,10 @@
       return;
     }
     if (!me || !me.is_admin) { showGate("forbiddenGate"); return; }
+    // Already booted once → don't reload everything (e.g. TOKEN_REFRESHED
+    // events would otherwise re-fetch the whole dashboard on each refresh).
+    if (__adminBooted) { showGate("adminApp"); return; }
+    __adminBooted = true;
     $("whoami").textContent = "Connecté : " + me.email;
     showGate("adminApp");
     // Wire view router BEFORE data loading so the right view is visible
@@ -1590,7 +1905,74 @@
     try { await loadEvents();      } catch (e) { console.error("[admin] loadEvents error:", e); }
     try { await loadSubmissions(); } catch (e) { console.error("[admin] loadSubmissions error:", e); }
     try { wireBundledControls(); await loadHiddenItems(); renderBundled(); } catch (e) { console.error("[admin] bundled init error:", e); }
-  })();
+    } finally {
+      __adminBooting = false;
+    }
+  }
+
+  // Wire the inline login form on the loginGate. Lets admins sign in
+  // directly from /admin instead of being bounced to /index.html — the
+  // user stays on the same URL and sees the dashboard as soon as the
+  // session is established (the SIGNED_IN event below kicks off bootAdmin).
+  function wireAdminLoginForm() {
+    const form = $("adminLoginForm");
+    if (!form || form.dataset.wired === "1") return;
+    form.dataset.wired = "1";
+    const submitBtn = $("adminLoginSubmit");
+    const errEl = $("adminLoginError");
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const email = ($("adminLoginEmail").value || "").trim();
+      const password = $("adminLoginPassword").value || "";
+      if (!email || !password) {
+        errEl.textContent = "Email et mot de passe requis.";
+        errEl.hidden = false;
+        return;
+      }
+      errEl.hidden = true; errEl.textContent = "";
+      submitBtn.disabled = true;
+      const originalLabel = submitBtn.textContent;
+      submitBtn.textContent = "Connexion…";
+      try {
+        const { error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) {
+          errEl.textContent = error.message || "Échec de la connexion.";
+          errEl.hidden = false;
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalLabel;
+          return;
+        }
+        // Don't manually call bootAdmin() — the SIGNED_IN event from
+        // onAuthStateChange will kick it off, and the re-entrancy guards
+        // collapse any duplicate runs.
+        $("adminLoginPassword").value = "";
+        submitBtn.textContent = originalLabel;
+        submitBtn.disabled = false;
+      } catch (e) {
+        console.error("[admin] login error:", e);
+        errEl.textContent = (e && e.message) || "Erreur réseau.";
+        errEl.hidden = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalLabel;
+      }
+    });
+  }
+
+  // React to auth-state changes (sign-in from this page, sign-in from another
+  // tab, token refresh, sign-out): re-run the boot so the visible gate
+  // matches the current session.
+  sb.auth.onAuthStateChange((event, session) => {
+    console.log("[admin] auth event:", event, session ? session.user.email : "(none)");
+    if (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") {
+      if (session && session.user) bootAdmin();
+    } else if (event === "SIGNED_OUT") {
+      __adminBooted = false;
+      showGate("loginGate");
+    }
+  });
+
+  wireAdminLoginForm();
+  bootAdmin();
 
   /* ============================================================
      View router — toggles "Tableau de bord" vs "Impro" using the URL

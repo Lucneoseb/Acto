@@ -962,6 +962,104 @@ $$;
 revoke all on function public.delete_bundled_item(text, text, text, text, text) from public;
 grant  execute on function public.delete_bundled_item(text, text, text, text, text) to authenticated;
 
+-- 5b.6 ADD — admin-only direct insert of a new bundled-pool entry. Modelled
+--      on the second half of replace_bundled_item: insert (or refresh) an
+--      already-approved user_submission so the item shows up in the pool
+--      on the next page load. Returns the submission id.
+create or replace function public.add_bundled_item(
+  p_kind        text,
+  p_mode        text,
+  p_level       text,
+  p_locale      text,
+  p_text        text,
+  p_description text default null
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_text text;
+  v_desc text;
+  new_id uuid;
+begin
+  if auth.uid() is null or not public.is_admin() then
+    raise exception 'admin only';
+  end if;
+  if p_kind not in ('theme','category','constraint','exercise') then
+    raise exception 'invalid kind: %', p_kind;
+  end if;
+  v_text := nullif(trim(coalesce(p_text, '')), '');
+  if v_text is null then
+    raise exception 'text is empty';
+  end if;
+  v_desc := nullif(trim(coalesce(p_description, '')), '');
+
+  -- If an approved submission with the same (kind, mode, level, locale,
+  -- lower(text)) already exists → just update its description and return.
+  if exists (
+    select 1 from public.user_submissions
+    where kind = p_kind
+      and coalesce(mode, '')  = coalesce(p_mode, '')
+      and coalesce(level, '') = coalesce(p_level, '')
+      and locale = p_locale
+      and lower(text) = lower(v_text)
+      and status = 'approved'
+  ) then
+    update public.user_submissions
+       set description = coalesce(v_desc, description)
+     where kind = p_kind
+       and coalesce(mode, '')  = coalesce(p_mode, '')
+       and coalesce(level, '') = coalesce(p_level, '')
+       and locale = p_locale
+       and lower(text) = lower(v_text)
+       and status = 'approved';
+    select id into new_id from public.user_submissions
+    where kind = p_kind
+      and coalesce(mode, '')  = coalesce(p_mode, '')
+      and coalesce(level, '') = coalesce(p_level, '')
+      and locale = p_locale
+      and lower(text) = lower(v_text)
+      and status = 'approved'
+    limit 1;
+    -- Also unhide any lingering hide row so the admin sees the item live.
+    delete from public.bundled_hidden_items
+     where kind = p_kind
+       and coalesce(mode, '')  = coalesce(p_mode, '')
+       and coalesce(level, '') = coalesce(p_level, '')
+       and locale = p_locale
+       and lower(text) = lower(v_text);
+    return new_id;
+  end if;
+
+  -- Fresh insert as approved (admin auto-approves their own additions).
+  insert into public.user_submissions (
+    user_id, kind, mode, level, locale, text, description,
+    status, approved_by, approved_at
+  )
+  values (
+    auth.uid(), p_kind, nullif(p_mode, ''), nullif(p_level, ''), p_locale, v_text, v_desc,
+    'approved', auth.uid(), now()
+  )
+  returning id into new_id;
+
+  -- Defensive: drop any matching hide row (admin re-adding something
+  -- they previously hid should bring it back).
+  delete from public.bundled_hidden_items
+   where kind = p_kind
+     and coalesce(mode, '')  = coalesce(p_mode, '')
+     and coalesce(level, '') = coalesce(p_level, '')
+     and locale = p_locale
+     and lower(text) = lower(v_text);
+
+  return new_id;
+end;
+$$;
+
+revoke all on function public.add_bundled_item(text, text, text, text, text, text) from public;
+grant  execute on function public.add_bundled_item(text, text, text, text, text, text) to authenticated;
+
 
 -- ╔═══════════════════════════════════════════════════════════════════╗
 -- ║  PART 5c — SAVED TEAMS (sharable rosters)                          ║
