@@ -14,7 +14,7 @@
 #   automatically; the SPA fallback only triggers for genuinely unknown
 #   paths, which is the safest behavior.
 
-name = "acto"
+name = "acto-theimprostudio"
 compatibility_date = "2024-12-01"
 
 [assets]
