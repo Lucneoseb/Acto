@@ -673,12 +673,12 @@
 </div><!-- /adminApp -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./js/config.js?v=20260534"></script>
-<script src="./js/utils.js?v=20260534"></script>
+<script src="./js/config.js?v=20260535"></script>
+<script src="./js/utils.js?v=20260535"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=20260534"></script>
+<script src="./data/all.js?v=20260535"></script>
 <script>
 (function () {
   "use strict";
@@ -1201,13 +1201,16 @@
       alert("Erreur : " + error.message);
       return;
     }
-    // Update locally then re-render (avoids a full reload).
+    // Update locally then re-render (avoids a full reload). We also
+    // repaint the Listes bundled section because approved submissions
+    // are now included in its bundledItemsFor() output.
     const row = allSubmissions.find(s => s.id === id);
     if (row) {
       row.status = status;
       row.approved_at = new Date().toISOString();
     }
     renderSubmissions();
+    if (typeof renderBundled === "function") renderBundled();
   }
 
   async function deleteSubmission(id) {
@@ -1215,6 +1218,7 @@
     if (error) { alert("Erreur : " + error.message); return; }
     allSubmissions = allSubmissions.filter(s => s.id !== id);
     renderSubmissions();
+    if (typeof renderBundled === "function") renderBundled();
   }
 
   function startEditSubmission(id) {
@@ -1323,15 +1327,40 @@
     }
   }
 
-  /** Pull the array of items for the current (kind, mode, level, locale). */
+  /** Pull the items for (kind, mode, level, locale): static bundled
+   *  pool from data/all.js + admin-approved submissions from the server.
+   *  Approved entries are appended (de-duped against bundled) so the
+   *  admin sees the same pool the public app sees. The hidden filter
+   *  is applied separately by renderBundled() via findHiddenRow(). */
   function bundledItemsFor(kind, mode, level, locale) {
     const data = (window.IMPRO_BUNDLE && window.IMPRO_BUNDLE.data && window.IMPRO_BUNDLE.data[locale]) || null;
-    if (!data) return [];
-    if (kind === "theme")      return (data.themes && data.themes[level]) || [];
-    if (kind === "category")   return data.categories || [];
-    if (kind === "constraint") return (data.constraints && data.constraints[mode] && data.constraints[mode][level]) || [];
-    if (kind === "exercise")   return (data.exercises   && data.exercises[mode]   && data.exercises[mode][level])   || [];
-    return [];
+    let result = [];
+    if (data) {
+      if      (kind === "theme")      result = ((data.themes && data.themes[level]) || []).slice();
+      else if (kind === "category")   result = (data.categories || []).slice();
+      else if (kind === "constraint") result = ((data.constraints && data.constraints[mode] && data.constraints[mode][level]) || []).slice();
+      else if (kind === "exercise")   result = ((data.exercises   && data.exercises[mode]   && data.exercises[mode][level])   || []).slice();
+    }
+    // Append approved user submissions matching the same filter.
+    const lc = (s) => String(s || "").trim().toLowerCase();
+    const seen = new Set(result.map(it => lc(typeof it === "object" ? (it && it.name) : it)));
+    const approved = (allSubmissions || []).filter(s =>
+      s && s.status === "approved" &&
+      s.kind === kind &&
+      (s.mode  || "") === (mode  || "") &&
+      (s.level || "") === (level || "") &&
+      s.locale === locale
+    );
+    for (const a of approved) {
+      if (!a.text || seen.has(lc(a.text))) continue;
+      seen.add(lc(a.text));
+      if (kind === "theme" || kind === "constraint") {
+        result.push(a.text);
+      } else {
+        result.push({ name: a.text, desc: a.description || "" });
+      }
+    }
+    return result;
   }
 
   /** Find the hidden_items row matching a (kind, mode, level, locale, text) tuple. */

@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=20260534" />
+<link rel="stylesheet" href="styles.css?v=20260535" />
 <style>
   /* Page-local layout. Keeps the same visual identity as index.html
      (backdrop + hero + auth-card visuals) but uses a wider working
@@ -309,13 +309,13 @@
   </footer>
 
   <!-- Reuse the bundled UI strings shipped with the app. -->
-  <script src="./data/all.js?v=20260534"></script>
+  <script src="./data/all.js?v=20260535"></script>
   <!-- Supabase SDK + config: optional. When the user is authenticated,
        additions made on this page are also sent to the admin for review
        via the existing submit_user_text RPC (see Phase 1 / mes-impros
        admin queue). Logged-out users keep the local-only behavior. -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./js/config.js?v=20260534"></script>
+  <script src="./js/config.js?v=20260535"></script>
   <script>
   (function () {
     "use strict";
@@ -324,6 +324,10 @@
     const LOCALE_KEY = "impro-studio:locale:v1";
     const ADDED_KEY  = "acto-user-added:v1";
     const HIDDEN_KEY = "acto-user-hidden:v1";
+    // Last-used filter (kind/mode/level) is remembered between visits
+    // so the user lands back on the tab where their items live, instead
+    // of the default theme/troupe/debutant after every refresh.
+    const FILTER_KEY = "acto-user-filter:v1";
 
     /* ---------- Locale detection ------------------------------------ */
     function detectLocale() {
@@ -458,17 +462,76 @@
       el.hidden = false;
     }
 
-    /* ---------- Pool readers (from bundled data, untouched by hides
-                  & adds — those layers are managed separately here) -- */
+    /* ---------- Server-side caches (refreshed on auth + locale change) -
+       approvedCache  — admin-approved submissions (visible to all users)
+       hiddenCache    — admin-flagged hides on bundled items
+       Both are filtered into bundledItemsFor() so the page sees the same
+       pool index.html sees: bundled JSON + approved - admin-hidden. */
+    let approvedCache = [];
+    let hiddenCache   = [];
+
+    async function refreshServerCaches() {
+      const sb = getSupabaseClient();
+      if (!sb) return;
+      const session = await sb.auth.getSession()
+        .then(r => r && r.data && r.data.session)
+        .catch(() => null);
+      if (!session) return;
+      try {
+        const [aRes, hRes] = await Promise.all([
+          sb.from("user_submissions")
+            .select("kind,mode,level,locale,text,description")
+            .eq("status", "approved")
+            .limit(2000),
+          sb.from("bundled_hidden_items")
+            .select("kind,mode,level,locale,text")
+            .limit(2000)
+        ]);
+        if (!aRes.error) approvedCache = aRes.data || [];
+        if (!hRes.error) hiddenCache   = hRes.data || [];
+        renderList();
+      } catch (e) { /* ignore */ }
+    }
+
+    /* ---------- Pool readers (bundled JSON + approved server items
+                  - admin-hidden — same view the public app sees) -- */
     function bundledItemsFor(kind, mode, level, locale) {
       const data = (bundle.data && bundle.data[locale]) || {};
-      if (kind === "theme")      return Array.isArray(data.themes && data.themes[level]) ? data.themes[level] : [];
-      if (kind === "category")   return Array.isArray(data.categories) ? data.categories : [];
-      if (kind === "constraint") return Array.isArray(data.constraints && data.constraints[mode] && data.constraints[mode][level])
-                                          ? data.constraints[mode][level] : [];
-      if (kind === "exercise")   return Array.isArray(data.exercises   && data.exercises[mode]   && data.exercises[mode][level])
-                                          ? data.exercises[mode][level]   : [];
-      return [];
+      let result = [];
+      if      (kind === "theme")      result = Array.isArray(data.themes && data.themes[level]) ? data.themes[level].slice() : [];
+      else if (kind === "category")   result = Array.isArray(data.categories) ? data.categories.slice() : [];
+      else if (kind === "constraint") result = Array.isArray(data.constraints && data.constraints[mode] && data.constraints[mode][level])
+                                                ? data.constraints[mode][level].slice() : [];
+      else if (kind === "exercise")   result = Array.isArray(data.exercises   && data.exercises[mode]   && data.exercises[mode][level])
+                                                ? data.exercises[mode][level].slice()   : [];
+
+      const matchesFilter = (rec) =>
+        rec && rec.kind === kind &&
+        (rec.mode  || "") === (mode  || "") &&
+        (rec.level || "") === (level || "") &&
+        rec.locale === locale;
+
+      // Filter out admin-hidden items.
+      const hiddenSet = new Set(
+        hiddenCache.filter(matchesFilter).map(h => lc(h.text))
+      );
+      result = result.filter(it => {
+        const n = (typeof it === "object") ? (it && it.name) : it;
+        return !hiddenSet.has(lc(n));
+      });
+
+      // Merge admin-approved submissions that aren't already present.
+      const seen = new Set(result.map(it => lc(typeof it === "object" ? (it && it.name) : it)));
+      for (const a of approvedCache.filter(matchesFilter)) {
+        if (!a.text || seen.has(lc(a.text))) continue;
+        seen.add(lc(a.text));
+        if (kind === "theme" || kind === "constraint") {
+          result.push(a.text);
+        } else {
+          result.push({ name: a.text, desc: a.description || "" });
+        }
+      }
+      return result;
     }
 
     /* ---------- Render ---------------------------------------------- */
@@ -532,6 +595,39 @@
       document.title = (t.personalizeTitle ? t.personalizeTitle + " · Acto" : "Acto — Mes impros");
     }
 
+    /* ---------- Filter persistence ---------------------------------- */
+    function readFilterState() {
+      try {
+        const raw = localStorage.getItem(FILTER_KEY);
+        const v = raw ? JSON.parse(raw) : null;
+        return (v && typeof v === "object") ? v : null;
+      } catch (e) { return null; }
+    }
+    function writeFilterState() {
+      try {
+        const sel = $("filterKind").value;
+        localStorage.setItem(FILTER_KEY, JSON.stringify({
+          kind:   sel,
+          mode:   $("filterMode").value,
+          level:  $("filterLevel").value
+        }));
+      } catch (e) { /* ignore */ }
+    }
+    function applyStoredFilter() {
+      const stored = readFilterState();
+      if (!stored) return;
+      const setIf = (id, v, allowed) => {
+        if (!v) return;
+        const el = $(id);
+        if (!el) return;
+        if (allowed && !allowed.includes(v)) return;
+        el.value = v;
+      };
+      setIf("filterKind",  stored.kind,  ["theme","category","constraint","exercise"]);
+      setIf("filterMode",  stored.mode,  ["troupe","match"]);
+      setIf("filterLevel", stored.level, ["debutant","confirme","expert"]);
+    }
+
     /* ---------- Filter state ---------------------------------------- */
     function currentFilter() {
       const kind = $("filterKind").value;
@@ -585,13 +681,14 @@
         synced: a.syncedToAdmin === true
       }));
 
-      // De-dupe (case-insensitive): bundled wins if a user add collides.
-      const seen = new Set(bundledRows.map(r => lc(r.name)));
-      const merged = bundledRows.concat(addedRows.filter(r => {
-        if (seen.has(lc(r.name))) return false;
-        seen.add(lc(r.name));
-        return true;
-      }));
+      // De-dupe (case-insensitive). When a user-added entry has the same
+      // text as a bundled/approved entry (e.g. the admin just approved
+      // their submission), we KEEP the user-added row so the
+      // "ADDED BY ME" + sync badge stay visible — drop the bundled copy
+      // instead. Order: bundled-only rows first, then user-added.
+      const lcAdded = new Set(addedRows.map(r => lc(r.name)));
+      const filteredBundled = bundledRows.filter(r => !lcAdded.has(lc(r.name)));
+      const merged = filteredBundled.concat(addedRows);
 
       // 3) Hidden state (from localStorage).
       const hiddenList = readList(HIDDEN_KEY);
@@ -728,12 +825,17 @@
     /* ---------- Wire up --------------------------------------------- */
     populateLocaleOptions();
     applyTranslations();
+    // Restore the user's last-used filter BEFORE the first render so
+    // they land on the tab where their items live, not the defaults.
+    applyStoredFilter();
     syncFilterVisibility();
     renderList();
     refreshSyncNotice();
-    // On every page load, retry submitting any local additions that
-    // never reached the admin queue (e.g. were added while logged out
-    // and the user just signed in elsewhere). Errors are silent.
+    // On every page load, also pull approved submissions + admin-hidden
+    // items from the server so the visible pool matches the public app.
+    setTimeout(() => { refreshServerCaches().catch(() => {}); }, 200);
+    // And retry submitting any local additions that never reached the
+    // admin queue (e.g. added while logged out). Errors are silent.
     setTimeout(() => { attemptFullSync().catch(() => {}); }, 400);
 
     $("filterLocale").addEventListener("change", (e) => {
@@ -741,12 +843,15 @@
       try { localStorage.setItem(LOCALE_KEY, activeLocale); } catch (_) {}
       document.documentElement.lang = activeLocale;
       applyTranslations();
+      // Re-fetch caches for the new locale's bundled view + re-render.
+      refreshServerCaches().catch(() => {});
       renderList();
       refreshSyncNotice();
     });
     ["filterKind","filterMode","filterLevel"].forEach(id => {
       $(id).addEventListener("change", () => {
         if (id === "filterKind") syncFilterVisibility();
+        writeFilterState();
         renderList();
       });
     });
