@@ -2854,6 +2854,20 @@
     const __tirageFlip = $("#tirageFlipBtn");
     if (__tirageFlip) __tirageFlip.addEventListener("click", flipFirstStarter);
 
+    // Match Comparée: team selector chips. Clicking either chip
+    // updates state.currentRecordingTeam (if recording isn't live yet)
+    // and refreshes both the selector AND the floating indicator chip
+    // inside the camera UI so the operator sees the change instantly.
+    [["recorderTeamChipA", "a"], ["recorderTeamChipB", "b"]].forEach(([id, side]) => {
+      const chip = $("#" + id);
+      if (!chip) return;
+      chip.addEventListener("click", () => {
+        if (rec.isRecording) return;
+        state.currentRecordingTeam = side;
+        refreshRecordingTeamIndicator();
+      });
+    });
+
     // Match Comparée: "Record the other team" button on the preview
     // popup. Switches the active recording team to the one not yet
     // finalized, hides the popup, and re-opens the recorder for a
@@ -2972,7 +2986,7 @@
       const img = new Image();
       img.onload  = () => { rec.logoLoaded = true; };
       img.onerror = () => { rec.logoLoaded = false; };
-      img.src = "./assets/logo.png";
+      img.src = "./assets/logo.png?v=20260541";
       rec.logoImg = img;
     } catch (e) { /* ignore */ }
   })();
@@ -3850,6 +3864,9 @@
     // for this fresh recording session.
     rec._tick3 = rec._tick2 = rec._tick1 = rec._goPlayed = false;
     statsRecordStartTracking();
+    // The team is locked once recording starts — hide the selector,
+    // keep only the indicator chip visible.
+    refreshRecorderTeamSelector();
     recShowActiveControls();
     recRefreshPauseLabel();
     const ind = $("#recorderRecIndicator");
@@ -3970,18 +3987,52 @@
    *  inside the camera UI. Visible only in Match Comparée. */
   function refreshRecordingTeamIndicator() {
     const el = $("#recorderTeamIndicator");
-    if (!el) return;
+    if (el) {
+      const t = store.ui;
+      const isCompareeMatch = state.mode === "match"
+        && /compar/i.test(state.currentNature || "");
+      if (!isCompareeMatch || !state.currentRecordingTeam) {
+        el.hidden = true;
+      } else {
+        const name = teamDisplayName(state.currentRecordingTeam);
+        const tpl = t.recordingTeamLabel || "🎬 Recording: {team}";
+        setText("recorderTeamLabel", tpl.replace("{team}", name));
+        el.hidden = false;
+      }
+    }
+    // The team selector mirrors the indicator's visibility condition
+    // BUT only while the recorder is idle — once recording is live,
+    // the team is locked.
+    refreshRecorderTeamSelector();
+  }
+
+  /** Show / update / hide the "Which team are you recording?" picker
+   *  shown above the big record button in the idle state. */
+  function refreshRecorderTeamSelector() {
+    const sel = $("#recorderTeamSelector");
+    if (!sel) return;
     const t = store.ui;
-    const isComparee = state.mode === "match"
+    const isCompareeMatch = state.mode === "match"
       && /compar/i.test(state.currentNature || "");
-    if (!isComparee || !state.currentRecordingTeam) {
-      el.hidden = true;
+    // Idle = the user hasn't pressed the big red button yet. Once
+    // rec.isRecording flips true, we lock the picker.
+    const isIdle = !rec.isRecording;
+    if (!isCompareeMatch || !isIdle) {
+      sel.hidden = true;
       return;
     }
-    const name = teamDisplayName(state.currentRecordingTeam);
-    const tpl = t.recordingTeamLabel || "🎬 Recording: {team}";
-    setText("recorderTeamLabel", tpl.replace("{team}", name));
-    el.hidden = false;
+    setText("recorderTeamSelectorLabel", t.recordingTeamSelectorLabel || "Which team?");
+    const chipA = $("#recorderTeamChipA");
+    const chipB = $("#recorderTeamChipB");
+    if (chipA) {
+      chipA.textContent = teamDisplayName("a");
+      chipA.classList.toggle("is-selected", state.currentRecordingTeam === "a");
+    }
+    if (chipB) {
+      chipB.textContent = teamDisplayName("b");
+      chipB.classList.toggle("is-selected", state.currentRecordingTeam === "b");
+    }
+    sel.hidden = false;
   }
 
   /** Show / hide the "Record the other team" button on the preview

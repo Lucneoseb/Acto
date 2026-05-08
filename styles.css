@@ -3435,6 +3435,70 @@ body.mode-troupe #card-theme      { order: 3; }
   }
 }
 
+/* Match Comparée team selector — sits above the big record button
+   when the recorder is idle. Two chips (Team A / Team B); the
+   selected one is gold-soft, the other is muted. Clicks change
+   state.currentRecordingTeam and refresh the recorder team indicator. */
+.recorder-team-selector {
+  position: absolute;
+  bottom: max(7rem, calc(env(safe-area-inset-bottom) + 6.8rem));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1rem;
+  background: rgba(10, 6, 18, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(245, 196, 81, 0.45);
+  border-radius: var(--radius-md);
+  max-width: calc(100vw - 2rem);
+}
+.recorder-team-selector[hidden] { display: none; }
+.recorder-team-selector-label {
+  margin: 0;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+  font-weight: 600;
+  text-align: center;
+}
+.recorder-team-selector-chips {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.recorder-team-chip {
+  appearance: none;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ink);
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  max-width: 12rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.recorder-team-chip:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.recorder-team-chip.is-selected {
+  background: rgba(245, 196, 81, 0.18);
+  border-color: rgba(245, 196, 81, 0.65);
+  color: var(--gold-soft);
+}
+
 /* Recording team indicator (Match Comparée only): floating chip
    showing whose video is being captured right now. Sits below the
    REC dot so the room knows whose turn it is. */
