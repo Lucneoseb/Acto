@@ -1355,6 +1355,14 @@ body.mode-troupe #card-theme      { order: 3; }
 /* ----------------------------------------
    Top-right floating actions (Rules + Settings)
    ---------------------------------------- */
+/* Settings button is gated behind the signed-in state: it offers account
+   management (logout / delete account / edit profile) which only makes
+   sense once authenticated. auth.js toggles body.is-signed-in on/off
+   after Supabase confirms the session. Rules stays visible regardless
+   since it's public match d'impro content. */
+.settings-trigger { display: none !important; }
+body.is-signed-in .settings-trigger { display: inline-flex !important; }
+
 .top-actions {
   position: fixed;
   top: 1.25rem;

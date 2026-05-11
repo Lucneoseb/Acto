@@ -224,6 +224,9 @@
     const form = $("authLoginForm"); if (form) form.parentElement.hidden = false;
     // Account actions (logout / delete account) only make sense when signed in.
     const accSec = $("authAccountSection"); if (accSec) accSec.hidden = true;
+    // Toggle body class so CSS hides the Settings button (account management
+    // is meaningless before sign-in). Rules stays visible regardless.
+    document.body.classList.remove("is-signed-in");
   }
   function showPendingScreen(email) {
     window.actoAuth.state.pendingEmail = email;
@@ -233,6 +236,8 @@
     if (loginCard) loginCard.hidden = true;
     const card = $("authPendingCard"); if (card) card.hidden = false;
     refreshPendingMsg();
+    // Confirm-email screen is still pre-signed-in territory.
+    document.body.classList.remove("is-signed-in");
   }
   function showApp(user) {
     window.actoAuth.state.user = user;
@@ -240,6 +245,8 @@
     const scr  = $("authScreen"); if (scr)  scr.hidden = true;
     const accSec = $("authAccountSection"); if (accSec) accSec.hidden = false;
     refreshAccountInfo();
+    // Reveal the Settings button now that there's a real account to manage.
+    document.body.classList.add("is-signed-in");
   }
 
   /* ------------------------------------------------------------------
