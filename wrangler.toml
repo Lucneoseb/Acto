@@ -17,6 +17,12 @@
 name = "acto-theimprostudio"
 compatibility_date = "2024-12-01"
 
+# Explicit defaults — silences the "will be enabled by default" warnings from
+# the first deploy. Both are wanted: workers_dev gives the *.workers.dev URL,
+# preview_urls gives a unique URL for each non-production branch deploy.
+workers_dev  = true
+preview_urls = true
+
 [assets]
 directory = "."
 not_found_handling = "single-page-application"

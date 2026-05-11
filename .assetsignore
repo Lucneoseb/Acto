@@ -1,0 +1,50 @@
+# Cloudflare Workers Static Assets — files NOT to upload/serve.
+# Same syntax as .gitignore. Critical: keeps .git/ out of the public bucket
+# (the first deploy uploaded the entire git history as static assets, which
+# would let anyone reconstruct the repo from /.git/HEAD).
+
+# Git internals — never serve.
+.git
+.git/**
+
+# Wrangler build artifacts.
+.wrangler
+.wrangler/**
+
+# Node tooling (defensive — none today, but future-proof).
+node_modules
+node_modules/**
+
+# Local dev / Claude Code worktree state.
+.claude
+.claude/**
+
+# Editor / OS cruft.
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea
+.idea/**
+.vscode
+.vscode/**
+
+# Logs.
+*.log
+
+# Repo-only files: docs, deploy configs, dev-time scripts. Not needed at
+# runtime and clutters the public surface.
+README.md
+CLAUDE.md
+build-data.js
+netlify.toml
+wrangler.toml
+.assetsignore
+.gitignore
+
+# DB schema — exposes table/RPC structure, no need to serve it publicly.
+supabase-setup-all.sql
+
+# Future-proof: any env files that ever land in the tree.
+.env
+.env.*

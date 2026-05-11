@@ -2575,28 +2575,29 @@
         category:   t.cardCategory   || "Catégorie",
         exercise:   t.cardExercise   || "Exercice"
       };
-      const currentValue = (
-        target === "theme"      ? state.currentTheme
-      : target === "constraint" ? state.currentConstraint
-      : (state.currentExercise && state.currentExercise.name)
-      ) || "";
-      $("#editValueTitle").textContent = (t.editValueTitle || "Modifier la valeur") + " — " + labelMap[target];
+      // The dialog is now a pure "suggest a new entry to the admin" flow —
+      // we no longer pre-fill the input with the rolled value. The user
+      // types a brand-new theme/constraint/category/exercise; on save it
+      // creates a pending user_submission, the admin reviews it, and once
+      // approved it joins the bundled pool for everyone.
+      $("#editValueTitle").textContent = (t.editValueTitle || "Ajouter") + " — " + labelMap[target];
       $("#editValueLabel").textContent = labelMap[target];
-      $("#editValueHelp").textContent  = t.editValueHelp || "Si la valeur est nouvelle, elle sera proposée à l'admin pour validation.";
+      $("#editValueHelp").textContent  = t.editValueHelp || "Ta proposition sera envoyée à l'admin pour validation.";
       $("#editValueCancel").textContent = t.rosterCancel || "Annuler";
-      $("#editValueSave").textContent   = t.editValueSave || "Enregistrer";
-      __evInput.value = currentValue;
+      $("#editValueSave").textContent   = t.editValueSave || "Soumettre";
+      __evInput.value = "";
       __evStatus.hidden = true;
       __evStatus.textContent = "";
       __evStatus.classList.remove("error");
-      // Description field: only show for exercise/category targets.
+      // Description field: only show for exercise/category targets so the
+      // user can explain how the new exercise/category works.
       const showDesc = (target === "exercise" || target === "category");
       if (__evDescWrap) __evDescWrap.hidden = !showDesc;
       if (showDesc) {
         if (__evDescLabel) __evDescLabel.textContent = t.editValueDescLabel || "Description";
         if (__evDescInput) {
           __evDescInput.placeholder = t.editValueDescPlaceholder || "";
-          __evDescInput.value = (state.currentExercise && state.currentExercise.desc) || "";
+          __evDescInput.value = "";
         }
       } else if (__evDescInput) {
         __evDescInput.value = "";
@@ -2624,24 +2625,75 @@
       });
     }
 
+    /** Persist a new entry to the user's local pool (visible only to them
+     *  on this device + on /mes-impros). De-dupes case-insensitively against
+     *  the existing list so a re-submit doesn't pile up duplicates. The
+     *  shape mirrors what applyUserLocalPool() reads back. */
+    function pushUserLocalAddition(entry) {
+      try {
+        const raw = localStorage.getItem("acto-user-added:v1");
+        const list = raw ? JSON.parse(raw) : [];
+        const arr = Array.isArray(list) ? list : [];
+        const lc = (s) => String(s || "").trim().toLowerCase();
+        const dupe = arr.some(a =>
+          a && a.kind === entry.kind
+          && (a.mode  || "") === (entry.mode  || "")
+          && (a.level || "") === (entry.level || "")
+          && a.locale === entry.locale
+          && lc(a.text) === lc(entry.text)
+        );
+        if (!dupe) arr.push(entry);
+        localStorage.setItem("acto-user-added:v1", JSON.stringify(arr));
+      } catch (e) { /* localStorage full / unavailable — silent */ }
+    }
+
     async function saveEditValue() {
       const target = __evDlg && __evDlg.dataset.editTarget;
       if (!target) return;
+      const t = store.ui;
       const value = (__evInput.value || "").trim();
-      if (!value) return;
-      // Description is only collected for exercise/category. For other
-      // targets we keep the existing description (or empty) so the meta
-      // line under the card stays in sync.
+      if (!value) {
+        __evStatus.textContent = t.editValueErrorEmpty || "Le texte est obligatoire.";
+        __evStatus.classList.add("error");
+        __evStatus.hidden = false;
+        return;
+      }
+      // Description is collected only for exercise/category targets where
+      // a "how does it work" explanation makes sense.
       const wantsDesc = (target === "exercise" || target === "category");
       const desc = wantsDesc ? (__evDescInput && __evDescInput.value || "").trim() : "";
 
-      // Apply the override locally so the impro proceeds with the typed value.
+      // Reject duplicates against the current pool so the user gets a clear
+      // message instead of a silent no-op.
+      if (isValueInPool(target, value)) {
+        __evStatus.textContent = t.editValueErrorDuplicate
+          || "Cette entrée existe déjà dans la liste.";
+        __evStatus.classList.add("error");
+        __evStatus.hidden = false;
+        return;
+      }
+
+      // (kind, mode, level) tuple used by both submit_user_text and the
+      // local pool. Theme: level only. Category: mode='match' only. Both
+      // constraint and exercise: mode + level from the current generation.
+      const meta = {
+        kind:   target,
+        mode:   (target === "exercise" || target === "constraint") ? state.mode
+              : (target === "category" ? "match" : ""),
+        level:  (target === "exercise" || target === "constraint" || target === "theme") ? state.level
+              : "",
+        locale: store.locale || "fr",
+        text:   value,
+        desc:   wantsDesc ? desc : ""
+      };
+
+      // 1) Apply locally: override the rolled value so the impro proceeds
+      //    with what the user typed. (Restores the pre-2026-05 behavior.)
       if (target === "theme") {
         state.currentTheme = value;
       } else if (target === "constraint") {
         state.currentConstraint = value;
       } else {
-        // category (Match) and exercise (Troupe) both live on currentExercise.
         state.currentExercise = {
           name: value,
           desc: desc || (state.currentExercise && state.currentExercise.desc) || ""
@@ -2661,22 +2713,62 @@
       }
       saveLastImpro();
 
-      // If the typed value is new, log it to user_submissions so the admin
-      // can review and (later) promote it to the bundled data. Fire the RPC
-      // in the background — the UX is "save closes immediately"; we don't
-      // surface success/failure to the user (silently logged to console).
-      const isNew = !isValueInPool(target, value);
-      if (isNew && window.actoSupabase && window.actoAuth && window.actoAuth.state.user) {
-        Promise.resolve(window.actoSupabase.rpc("submit_user_text", {
-          p_kind:        target,
-          p_mode:        target === "exercise" || target === "constraint" ? state.mode : (target === "category" ? "match" : ""),
-          p_level:       (target === "exercise" || target === "constraint") ? state.level : "",
-          p_locale:      store.locale || "fr",
-          p_text:        value,
-          p_description: wantsDesc ? (desc || null) : null
-        })).catch(err => console.warn("submit_user_text failed", err));
+      // 2) Persist in the user's per-device additions list. The next time
+      //    applyUserLocalPool() runs (locale change, page reload), this
+      //    entry shows up in /mes-impros and is eligible for future rolls.
+      pushUserLocalAddition(meta);
+
+      // 3) Submit to admin queue — this is the part that needs auth + RPC.
+      //    If the user is signed out, we still want (1) and (2) to take
+      //    effect, but skip the submit and tell them so. RPC errors here
+      //    don't roll back the local-pool addition: the local data is
+      //    durable, the admin propagation is best-effort.
+      if (!(window.actoSupabase && window.actoAuth && window.actoAuth.state.user)) {
+        __evStatus.textContent = t.editValueErrorNotSignedIn
+          || "Connecte-toi pour soumettre la proposition à l'admin (l'entrée a été ajoutée localement).";
+        __evStatus.classList.add("error");
+        __evStatus.hidden = false;
+        return;
       }
-      closeEditValueDialog();
+
+      // Disable buttons during RPC so a fast double-click can't create dupes.
+      const saveBtn   = $("#editValueSave");
+      const cancelBtn = $("#editValueCancel");
+      const originalSaveLabel = saveBtn ? saveBtn.textContent : "";
+      if (saveBtn)   { saveBtn.disabled = true; saveBtn.textContent = t.editValueSaving || "Envoi…"; }
+      if (cancelBtn) cancelBtn.disabled = true;
+      __evStatus.hidden = true; __evStatus.classList.remove("error"); __evStatus.textContent = "";
+
+      try {
+        const { error } = await Promise.resolve(window.actoSupabase.rpc("submit_user_text", {
+          p_kind:        meta.kind,
+          p_mode:        meta.mode,
+          p_level:       meta.level,
+          p_locale:      meta.locale,
+          p_text:        meta.text,
+          p_description: wantsDesc ? (desc || null) : null
+        }));
+        if (error) throw error;
+        __evStatus.textContent = t.editValueSubmitted
+          || "✓ Ajouté à ta liste et proposé à l'admin pour tous.";
+        __evStatus.classList.remove("error");
+        __evStatus.hidden = false;
+        if (saveBtn)   { saveBtn.disabled = false; saveBtn.textContent = originalSaveLabel; }
+        if (cancelBtn) cancelBtn.disabled = false;
+        setTimeout(closeEditValueDialog, 1200);
+      } catch (err) {
+        // Local override + local pool already happened — only the admin
+        // propagation failed. Tell the user that's a partial success.
+        console.warn("submit_user_text failed", err);
+        const failLbl = t.editValueSubmitFailed || "Échec de la soumission à l'admin";
+        __evStatus.textContent = (err && err.message)
+          ? failLbl + " : " + err.message
+          : failLbl + ".";
+        __evStatus.classList.add("error");
+        __evStatus.hidden = false;
+        if (saveBtn)   { saveBtn.disabled = false; saveBtn.textContent = originalSaveLabel; }
+        if (cancelBtn) cancelBtn.disabled = false;
+      }
     }
 
     if (__evClose)  __evClose.addEventListener("click",  closeEditValueDialog);
@@ -2825,30 +2917,120 @@
     if (__recCfmNo)    __recCfmNo.addEventListener("click", recCancelStop);
     if (__recExitBtn)  __recExitBtn.addEventListener("click", recClose);
 
-    // Participants editor inputs: live-update the filename whenever
-    // the user tweaks team / actor names so the download has the
-    // right name. The download <a> uses its `download` attribute, so
-    // we just have to keep that attribute fresh.
-    ["recParticipantsTeamA","recParticipantsTeamB","recParticipantsTroupeName",
-     "recParticipantsActorsA","recParticipantsActorsB","recParticipantsTroupeActors"
+    // Participants editor: keep the download filename in sync as the user
+    // tweaks team names + actor chips. The download <a> uses its
+    // `download` attribute so we just refresh that attribute.
+    const refreshRecDownloadName = () => {
+      const link = $("#recorderDownloadLink");
+      if (link) link.download = computeRecordedVideoFilename(rec.videoExt || "webm");
+    };
+    ["recParticipantsTeamA","recParticipantsTeamB","recParticipantsTroupeName"
     ].forEach(id => {
       const el = $("#" + id);
       if (!el) return;
-      el.addEventListener("input", () => {
-        const link = $("#recorderDownloadLink");
-        if (link) link.download = computeRecordedVideoFilename(rec.videoExt || "webm");
+      el.addEventListener("input", refreshRecDownloadName);
+    });
+
+    // Chip × removal: delegate clicks at the parent <ul> level so newly
+    // added chips work without re-binding. Each click strips the closest
+    // <li>; we then refresh the filename.
+    document.querySelectorAll(".recorder-actors-list").forEach(ul => {
+      ul.addEventListener("click", (ev) => {
+        const btn = ev.target.closest(".recorder-actor-remove");
+        if (!btn) return;
+        const li = btn.closest(".recorder-actor-chip");
+        if (li) li.remove();
+        refreshRecDownloadName();
       });
     });
 
-    // Push the (possibly-edited) participants to the server right
-    // before the file actually downloads. Fire-and-forget so the
-    // browser doesn't delay the download.
+    // "+ ajouter" mini-form: lets the user add an ad-hoc actor that wasn't
+    // in the launch-time roster (e.g. a guest who jumped in for this take).
+    // No user_id since the name is free-form — the server will store them
+    // as a guest entry in impro_participants.
+    document.querySelectorAll(".recorder-actors-add").forEach(form => {
+      form.addEventListener("submit", (ev) => {
+        ev.preventDefault();
+        const inp = form.querySelector(".recorder-actors-add-input");
+        const team = form.dataset.team;
+        const name = ((inp && inp.value) || "").trim();
+        if (!name || !team) return;
+        const ulId = team === "troupe" ? "recParticipantsActorsListTroupe"
+                  : team === "a"      ? "recParticipantsActorsListA"
+                                      : "recParticipantsActorsListB";
+        const ul = $("#" + ulId);
+        if (!ul) return;
+        // De-dupe case-insensitively against existing chips.
+        const lc = name.toLowerCase();
+        const existing = Array.from(ul.querySelectorAll(".recorder-actor-name"))
+          .some(n => (n.textContent || "").trim().toLowerCase() === lc);
+        if (!existing) {
+          const t = store.ui;
+          const removeLbl = t.recordParticipantsRemoveActor || "Retirer";
+          const li = document.createElement("li");
+          li.className = "recorder-actor-chip";
+          li.dataset.uid = "";
+          li.innerHTML = `<span class="recorder-actor-name">${escapeHtml(name)}</span>` +
+            `<button type="button" class="recorder-actor-remove" aria-label="${escapeHtml(removeLbl)}" title="${escapeHtml(removeLbl)}">×</button>`;
+          ul.appendChild(li);
+        }
+        if (inp) inp.value = "";
+        refreshRecDownloadName();
+      });
+    });
+
+    // Defense-in-depth: also fire-and-forget the participant push when
+    // the download <a> is clicked. Normally the user reaches Download
+    // only via the Valider button (which already pushed), but if Skip
+    // was clicked we want a last-chance attempt to capture the chip
+    // edits. Idempotent server-side: re-pushing the same list is a no-op.
     const __recDl = $("#recorderDownloadLink");
     if (__recDl) {
       __recDl.addEventListener("click", () => {
-        try { pushRecorderParticipantsToServer(); } catch (e) { /* ignore */ }
+        try { pushRecorderParticipantsToServer().catch(() => {}); } catch (e) { /* ignore */ }
       });
     }
+
+    // Validate/Skip gate buttons. "Valider" pushes the chip-list edits to
+    // impro_participants (so the actor's stats + admin analytics reflect
+    // who actually performed) and unlocks the Download / Record-other-team
+    // actions. "Skip" leaves the launch-time roster as-is and just unlocks.
+    const __recValidate = $("#recorderParticipantsValidateBtn");
+    if (__recValidate) {
+      __recValidate.addEventListener("click", async () => {
+        const skipBtn = $("#recorderParticipantsSkipBtn");
+        const orig = __recValidate.textContent;
+        __recValidate.disabled = true;
+        if (skipBtn) skipBtn.disabled = true;
+        __recValidate.textContent = (store.ui.recordValidating || "…");
+        try {
+          await pushRecorderParticipantsToServer();
+        } catch (e) {
+          // Don't trap the user — surface a console warning, restore the
+          // button label, but still let them click Skip to proceed if
+          // they don't want to retry. The UX for a hard failure is
+          // intentionally minimal at this stage of the flow.
+          console.warn("[acto] participants validate failed", e);
+          __recValidate.disabled = false;
+          if (skipBtn) skipBtn.disabled = false;
+          __recValidate.textContent = orig;
+          alert((store.ui.recordValidateFailed || "Échec de l'envoi") + " : " + (e && e.message || e));
+          return;
+        }
+        recSetParticipantsGate("unlocked");
+      });
+    }
+    const __recSkip = $("#recorderParticipantsSkipBtn");
+    if (__recSkip) {
+      __recSkip.addEventListener("click", () => {
+        recSetParticipantsGate("unlocked");
+      });
+    }
+    // Fallback exit button (visible only while the gate is open) — same
+    // handler as the main exit. Lets the user bail without choosing
+    // Valider/Skip.
+    const __recExitFallback = $("#recorderExitBtnFallback");
+    if (__recExitFallback) __recExitFallback.addEventListener("click", recClose);
 
     // Match Comparée: tirage banner flip button.
     const __tirageFlip = $("#tirageFlipBtn");
@@ -3994,9 +4176,11 @@
                  || ($("#teamTroupe") && $("#teamTroupe").value) || "";
       const tSlug = slugForFilename(tName, 25);
       if (tSlug) segs.push(tSlug);
-      const actors = (($("#recParticipantsTroupeActors") && $("#recParticipantsTroupeActors").value) || "")
-        .split(/\n+/).map(s => s.trim()).filter(Boolean).slice(0, 3)
-        .map(n => slugForFilename(n, 12)).filter(Boolean).join("-");
+      // Read the chip list (already filtered to the actors who actually
+      // performed — the user removes non-participants via the × buttons).
+      const actors = readRecorderActorsList("recParticipantsActorsListTroupe")
+        .slice(0, 3)
+        .map(p => slugForFilename(p.nom_scene, 12)).filter(Boolean).join("-");
       if (actors) segs.push(actors);
     }
     segs.push(ts);
@@ -4071,8 +4255,50 @@
     btn.hidden = false;
   }
 
-  /** Pre-fill the editor with the current rosters + team names. Show
-   *  the troupe row OR the two match rows depending on state.mode. */
+  /** Render the list of actors as removable chips in the given <ul>.
+   *  Each chip carries the actor's user_id (if any) on a data attr so
+   *  pushRecorderParticipantsToServer can pair the displayed name back
+   *  to a real account instead of treating it as an ad-hoc guest. */
+  function renderRecorderActorsList(ulId, roster) {
+    const ul = $("#" + ulId);
+    if (!ul) return;
+    const t = store.ui;
+    const removeLbl = t.recordParticipantsRemoveActor || "Retirer";
+    const items = (roster || [])
+      .map(p => ({
+        nom: (p && p.nom_scene || "").trim(),
+        uid: (p && p.user_id) || ""
+      }))
+      .filter(x => x.nom);
+    ul.innerHTML = items.map(x =>
+      `<li class="recorder-actor-chip" data-uid="${escapeHtml(x.uid)}">
+         <span class="recorder-actor-name">${escapeHtml(x.nom)}</span>
+         <button type="button" class="recorder-actor-remove" aria-label="${escapeHtml(removeLbl)}" title="${escapeHtml(removeLbl)}">×</button>
+       </li>`
+    ).join("");
+  }
+
+  /** Read the current chip list back into a [{ user_id, nom }] array.
+   *  Used by both filename computation and the server-side participant
+   *  push so the source of truth is what's actually visible. */
+  function readRecorderActorsList(ulId) {
+    const ul = $("#" + ulId);
+    if (!ul) return [];
+    const out = [];
+    ul.querySelectorAll(".recorder-actor-chip").forEach(li => {
+      const nom = (li.querySelector(".recorder-actor-name") || {}).textContent || "";
+      const uid = li.dataset.uid || "";
+      const trimmed = nom.trim();
+      if (trimmed) out.push({ user_id: uid || null, nom_scene: trimmed });
+    });
+    return out;
+  }
+
+  /** Pre-fill the editor with the current rosters + team names. In match
+   *  mode we now show ONLY the row for the team being recorded
+   *  (state.currentRecordingTeam). Troupe mode always shows the troupe
+   *  row. Each visible row renders an editable team-name input + a
+   *  chip list of actors with × buttons. */
   function populateRecorderParticipants() {
     const t = store.ui;
     const hint = $("#recorderParticipantsHint");
@@ -4081,61 +4307,132 @@
     const troupeRow = document.querySelector('.recorder-participant-row[data-team="troupe"]');
     const aRow      = document.querySelector('.recorder-participant-row[data-team="a"]');
     const bRow      = document.querySelector('.recorder-participant-row[data-team="b"]');
+    const addLbl    = t.recordParticipantsAddActorBtn || "+ Add";
+    const addPh     = t.recordParticipantsAddActorPlaceholder || "Stage name";
+
+    // Set label + placeholder on the three "+ ajouter" mini-forms.
+    document.querySelectorAll(".recorder-actors-add").forEach(form => {
+      const btn = form.querySelector(".recorder-actors-add-btn");
+      const inp = form.querySelector(".recorder-actors-add-input");
+      if (btn) btn.textContent = addLbl;
+      if (inp) inp.placeholder  = addPh;
+    });
+
+    // Localize the gate buttons + restore Valider's enabled state in case
+    // a previous take left them disabled mid-flight (network failure).
+    const validateBtn = $("#recorderParticipantsValidateBtn");
+    if (validateBtn) {
+      validateBtn.textContent = t.recordValidate || "✓ Valider les participants";
+      validateBtn.disabled = false;
+    }
+    const skipBtn = $("#recorderParticipantsSkipBtn");
+    if (skipBtn) {
+      skipBtn.textContent = t.recordSkipParticipants || "→ Passer";
+      skipBtn.disabled = false;
+    }
+    // Fallback exit button — same label as the main exit.
+    const exitFallback = $("#recorderExitBtnFallback");
+    if (exitFallback) exitFallback.textContent = t.recordCloseBtn || "✕ Fermer";
+
     if (state.mode === "match") {
+      // Match: show ONLY the team being recorded right now. Falls back to
+      // showing both if currentRecordingTeam isn't set (regression-safe
+      // for non-Comparée matches where the picker isn't surfaced).
+      const side = state.currentRecordingTeam;
       if (troupeRow) troupeRow.hidden = true;
-      if (aRow) aRow.hidden = false;
-      if (bRow) bRow.hidden = false;
+      if (aRow)      aRow.hidden = side ? (side !== "a") : false;
+      if (bRow)      bRow.hidden = side ? (side !== "b") : false;
       setText("recParticipantsLabelA", t.recordParticipantsTeamA || "Team A");
       setText("recParticipantsLabelB", t.recordParticipantsTeamB || "Team B");
-      const ph = t.recordParticipantsActorsPlaceholder || "";
-      const tA = $("#recParticipantsTeamA");   if (tA) tA.value = ($("#teamA") && $("#teamA").value) || "";
-      const tB = $("#recParticipantsTeamB");   if (tB) tB.value = ($("#teamB") && $("#teamB").value) || "";
-      const aA = $("#recParticipantsActorsA"); if (aA) { aA.placeholder = ph; aA.value = (state.rosterA || []).map(p => p && p.nom_scene).filter(Boolean).join("\n"); }
-      const aB = $("#recParticipantsActorsB"); if (aB) { aB.placeholder = ph; aB.value = (state.rosterB || []).map(p => p && p.nom_scene).filter(Boolean).join("\n"); }
+      const tA = $("#recParticipantsTeamA");
+      if (tA) tA.value = ($("#teamA") && $("#teamA").value) || (state.rosterATeamName || "") || "";
+      const tB = $("#recParticipantsTeamB");
+      if (tB) tB.value = ($("#teamB") && $("#teamB").value) || (state.rosterBTeamName || "") || "";
+      renderRecorderActorsList("recParticipantsActorsListA", state.rosterA);
+      renderRecorderActorsList("recParticipantsActorsListB", state.rosterB);
     } else {
+      // Troupe: hide both match rows, show the troupe row.
       if (aRow) aRow.hidden = true;
       if (bRow) bRow.hidden = true;
       if (troupeRow) troupeRow.hidden = false;
       setText("recParticipantsTroupeLabel", t.recordParticipantsTroupe || "Troupe");
-      const ph = t.recordParticipantsActorsPlaceholder || "";
-      const tT = $("#recParticipantsTroupeName"); if (tT) tT.value = ($("#teamTroupe") && $("#teamTroupe").value) || "";
-      const aT = $("#recParticipantsTroupeActors"); if (aT) { aT.placeholder = ph; aT.value = (state.roster || []).map(p => p && p.nom_scene).filter(Boolean).join("\n"); }
+      const tT = $("#recParticipantsTroupeName");
+      if (tT) tT.value = ($("#teamTroupe") && $("#teamTroupe").value) || (state.rosterTroupeTeamName || "") || "";
+      renderRecorderActorsList("recParticipantsActorsListTroupe", state.roster);
     }
   }
 
   /** Push the (possibly-edited) participants list to the server so the
-   *  impro_event analytics reflect who actually performed. Idempotent:
-   *  add_impro_participants() does DELETE+INSERT under the hood. */
+   *  impro_event analytics reflect who actually performed. Reads the
+   *  chip list (the source of truth — the user has ✕'d the actors who
+   *  didn't appear in this take). Idempotent: add_impro_participants()
+   *  does DELETE+INSERT under the hood, so a second call replaces the
+   *  list completely.
+   *
+   *  Returns a Promise so callers (the "Valider" button) can disable
+   *  the UI while the RPC is in flight and surface failures. Older
+   *  call sites that fire-and-forget can just ignore the result. */
   function pushRecorderParticipantsToServer() {
     if (!improEvent.id || !window.actoSupabase
-        || !window.actoAuth || !window.actoAuth.state || !window.actoAuth.state.user) return;
-    const lines = (s) => (s || "").split(/\n+/).map(x => x.trim()).filter(Boolean);
-    let members = [];
-    if (state.mode === "match") {
-      const namesA = lines($("#recParticipantsActorsA") && $("#recParticipantsActorsA").value);
-      const namesB = lines($("#recParticipantsActorsB") && $("#recParticipantsActorsB").value);
-      // Try to recover user_ids from the launch-time rosters when the
-      // edited name still matches; otherwise treat as ad-hoc guests.
-      const matchUid = (name, src) => {
-        const lcn = String(name || "").trim().toLowerCase();
-        const hit = (src || []).find(p => (p.nom_scene || "").trim().toLowerCase() === lcn && p.user_id);
-        return hit ? hit.user_id : null;
-      };
-      members = namesA.map(n => ({ user_id: matchUid(n, state.rosterA), nom_scene_text: n }))
-        .concat(namesB.map(n => ({ user_id: matchUid(n, state.rosterB), nom_scene_text: n })));
-    } else {
-      const namesT = lines($("#recParticipantsTroupeActors") && $("#recParticipantsTroupeActors").value);
-      const matchUid = (name) => {
-        const lcn = String(name || "").trim().toLowerCase();
-        const hit = (state.roster || []).find(p => (p.nom_scene || "").trim().toLowerCase() === lcn && p.user_id);
-        return hit ? hit.user_id : null;
-      };
-      members = namesT.map(n => ({ user_id: matchUid(n), nom_scene_text: n }));
+        || !window.actoAuth || !window.actoAuth.state || !window.actoAuth.state.user) {
+      return Promise.resolve({ skipped: true });
     }
-    Promise.resolve(window.actoSupabase.rpc("add_impro_participants", {
-      p_event_id: improEvent.id,
-      p_members:  members
-    })).catch(err => console.warn("[acto] participants update failed", err));
+    let participants = [];
+    if (state.mode === "match") {
+      // Push only the team being recorded (the other row is hidden and
+      // the user hasn't seen/curated it for THIS take). For non-Comparée
+      // matches without a team selector, fall back to both teams.
+      const side = state.currentRecordingTeam;
+      const fromA = readRecorderActorsList("recParticipantsActorsListA")
+        .map(p => ({ user_id: p.user_id || "", nom_scene: p.nom_scene }));
+      const fromB = readRecorderActorsList("recParticipantsActorsListB")
+        .map(p => ({ user_id: p.user_id || "", nom_scene: p.nom_scene }));
+      if (side === "a")      participants = fromA;
+      else if (side === "b") participants = fromB;
+      else                   participants = fromA.concat(fromB);
+    } else {
+      participants = readRecorderActorsList("recParticipantsActorsListTroupe")
+        .map(p => ({ user_id: p.user_id || "", nom_scene: p.nom_scene }));
+    }
+    // The SQL RPC signature is (p_event_id uuid, p_participants jsonb)
+    // and each entry needs `user_id` + `nom_scene` (not `nom_scene_text`
+    // — that's the COLUMN name, not the JSON key the function reads).
+    // Earlier versions of this code passed the wrong shape, so chip
+    // edits were silently dropped on the floor.
+    return Promise.resolve(window.actoSupabase.rpc("add_impro_participants", {
+      p_event_id:     improEvent.id,
+      p_participants: participants
+    })).then((res) => {
+      if (res && res.error) {
+        console.warn("[acto] participants update returned error", res.error);
+        throw res.error;
+      }
+      return res;
+    });
+  }
+
+  /** Toggle the post-recording gate state.
+   *   "edit"     → chip editor + Valider/Skip visible, Download/RecordOther hidden
+   *   "unlocked" → Valider/Skip hidden, Download/RecordOther visible
+   *  Called from recFinalize (initial state) and from the Valider/Skip
+   *  button handlers (transition to unlocked). */
+  function recSetParticipantsGate(stateName) {
+    const gate     = $("#recorderParticipantsGate");
+    const actions  = $("#recorderPreviewActions");
+    const fallback = $("#recorderPreviewActionsFallback");
+    if (stateName === "unlocked") {
+      if (gate)     gate.hidden = true;
+      if (actions)  actions.hidden = false;
+      if (fallback) fallback.hidden = true;
+      // Re-evaluate "Record other team" visibility now that the action
+      // bar is mounted (the button lives inside #recorderPreviewActions).
+      refreshRecordOtherTeamButton();
+    } else {
+      // "edit" — fresh post-recording state.
+      if (gate)     gate.hidden = false;
+      if (actions)  actions.hidden = true;
+      if (fallback) fallback.hidden = false;
+    }
   }
 
   function recFinalize() {
@@ -4151,6 +4448,9 @@
     // user just confirms (or tweaks) before downloading. The filename
     // is recomputed live whenever the inputs change.
     populateRecorderParticipants();
+    // Always start in "edit" state — the user must explicitly click
+    // Valider or Skip before the Download / RecordOther actions unlock.
+    recSetParticipantsGate("edit");
     const fname = computeRecordedVideoFilename(ext);
     const link = $("#recorderDownloadLink");
     if (link) {

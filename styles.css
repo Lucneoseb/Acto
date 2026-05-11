@@ -1355,6 +1355,14 @@ body.mode-troupe #card-theme      { order: 3; }
 /* ----------------------------------------
    Top-right floating actions (Rules + Settings)
    ---------------------------------------- */
+/* Settings button is gated behind the signed-in state: it offers account
+   management (logout / delete account / edit profile) which only makes
+   sense once authenticated. auth.js toggles body.is-signed-in on/off
+   after Supabase confirms the session. Rules stays visible regardless
+   since it's public match d'impro content. */
+.settings-trigger { display: none !important; }
+body.is-signed-in .settings-trigger { display: inline-flex !important; }
+
 .top-actions {
   position: fixed;
   top: 1.25rem;
@@ -3337,6 +3345,95 @@ body.mode-troupe #card-theme      { order: 3; }
 .recorder-participant-row input:focus,
 .recorder-participant-row textarea:focus { border-color: rgba(245, 196, 81, 0.55); }
 
+/* Actor chip list — replaces the old "names on separate lines" textarea.
+   Each chip is one actor with a ✕ button so the user can remove anyone
+   who didn't actually appear in this take. The chips live inside the
+   recorder-participant-row so they pick up that row's padding/bg. */
+.recorder-actors-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.recorder-actor-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.35rem 0.25rem 0.65rem;
+  background: rgba(245, 196, 81, 0.12);
+  border: 1px solid rgba(245, 196, 81, 0.35);
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 0.82rem;
+  line-height: 1.2;
+}
+.recorder-actor-name {
+  white-space: nowrap;
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.recorder-actor-remove {
+  appearance: none;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  color: var(--ink-muted);
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  transition: color 0.15s, background 0.15s;
+}
+.recorder-actor-remove:hover {
+  color: #fff;
+  background: rgba(255, 70, 70, 0.45);
+}
+.recorder-actor-remove:focus-visible {
+  outline: 2px solid var(--gold-soft);
+  outline-offset: 1px;
+}
+
+/* "+ Ajouter un acteur" mini-form below each chip list. Inline so it
+   doesn't grab a full row when the user just wants to remove someone. */
+.recorder-actors-add {
+  display: flex;
+  gap: 0.3rem;
+  margin-top: 0.15rem;
+}
+.recorder-actors-add-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--ink);
+  padding: 0.3rem 0.55rem;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: 0.8rem;
+  outline: none;
+}
+.recorder-actors-add-input:focus { border-color: rgba(245, 196, 81, 0.55); }
+.recorder-actors-add-btn {
+  appearance: none;
+  cursor: pointer;
+  border: 1px solid rgba(245, 196, 81, 0.4);
+  background: rgba(245, 196, 81, 0.1);
+  color: var(--gold-soft);
+  padding: 0.25rem 0.7rem;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.recorder-actors-add-btn:hover {
+  background: rgba(245, 196, 81, 0.18);
+  color: var(--gold);
+}
+
 .recorder-preview-card .recorder-preview {
   position: static;
   inset: auto;
@@ -3381,12 +3478,58 @@ body.mode-troupe #card-theme      { order: 3; }
 }
 .recorder-preview-actions .recorder-exit:hover { background: rgba(255, 255, 255, 0.12); }
 
+/* Validate / Skip gate that sits between the participant editor and the
+   download/record-other buttons. Forces the user to confirm their roster
+   (Valider) or explicitly skip before they can save the take — so the
+   impro_event analytics reliably reflect who actually performed. */
+.recorder-participants-gate {
+  width: 100%;
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.recorder-participants-gate[hidden] { display: none; }
+.recorder-participants-gate .recorder-action {
+  flex: 1 1 200px;
+  max-width: 240px;
+  min-height: 48px;
+  font-size: 0.95rem;
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+}
+.recorder-validate {
+  background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+  color: var(--bg-deep);
+  font-weight: 800;
+  border: 0;
+}
+.recorder-validate:hover { filter: brightness(1.05); transform: translateY(-1px); }
+.recorder-validate:disabled {
+  filter: grayscale(0.4) brightness(0.85);
+  cursor: progress;
+  transform: none;
+}
+.recorder-skip {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--ink-muted);
+}
+.recorder-skip:hover { background: rgba(255, 255, 255, 0.12); color: var(--ink); }
+.recorder-skip:disabled { opacity: 0.5; cursor: not-allowed; }
+/* Fallback exit row — only the Skip-style "✕ Fermer" while the gate is
+   open. Hidden once the user picks Valider / Skip. */
+.recorder-preview-actions-fallback { justify-content: center; }
+.recorder-preview-actions-fallback[hidden] { display: none; }
+
 @media (max-width: 480px) {
   .recorder-preview-card { padding: 1rem 1rem 0.9rem; gap: 0.7rem; }
   .recorder-preview-title { font-size: 1.35rem; }
   .recorder-preview-card .recorder-preview { max-height: 52vh; }
-  .recorder-preview-actions { gap: 0.5rem; }
-  .recorder-preview-actions .recorder-action { flex-basis: 100%; max-width: none; }
+  .recorder-preview-actions,
+  .recorder-participants-gate { gap: 0.5rem; }
+  .recorder-preview-actions .recorder-action,
+  .recorder-participants-gate .recorder-action { flex-basis: 100%; max-width: none; }
 }
 
 /* When recording finishes, no need to keep the camera vignette around */

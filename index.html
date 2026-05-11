@@ -6,11 +6,11 @@
 <meta name="description" content="Générateur d'exercices, contraintes et thèmes pour l'improvisation théâtrale" />
 <meta name="theme-color" content="#0c0814" />
 <title>Acto — The Impro Studio</title>
-<link rel="icon" type="image/png" href="./assets/logo.png?v=20260545" />
+<link rel="icon" type="image/png" href="./assets/logo.png?v=20260551" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=20260545" />
+<link rel="stylesheet" href="styles.css?v=20260551" />
 </head>
 <body>
   <!-- Stage backdrop -->
@@ -40,7 +40,7 @@
 
   <header class="hero">
     <a class="hero-logo-link" href="#" aria-label="Acto - The Impro Studio">
-      <img class="hero-logo" src="./assets/logo.png?v=20260545" alt="Acto - The Impro Studio" />
+      <img class="hero-logo" src="./assets/logo.png?v=20260551" alt="Acto - The Impro Studio" />
     </a>
     <p class="subtitle">
       <span id="subtitle"></span><br>
@@ -319,7 +319,7 @@
       </div>
 
       <article class="card card-theme" id="card-theme">
-        <header class="card-head"><span class="card-label" id="labelCardTheme"></span><button class="card-reroll" data-reroll="theme" type="button" aria-label="Re-tirer">🎲</button><button class="card-edit" data-edit="theme" type="button" aria-label="Modifier">✎</button><span class="card-icon" aria-hidden="true">💭</span></header>
+        <header class="card-head"><span class="card-label" id="labelCardTheme"></span><button class="card-reroll" data-reroll="theme" type="button" aria-label="Re-tirer">🎲</button><button class="card-edit" data-edit="theme" type="button" aria-label="Ajouter">➕</button><span class="card-icon" aria-hidden="true">💭</span></header>
         <div class="reel" data-target="theme"><div class="reel-window"><div class="reel-track" id="reel-theme"></div></div></div>
         <p class="card-meta" id="meta-theme"></p>
       </article>
@@ -331,19 +331,19 @@
       </article>
 
       <article class="card card-category match-only" id="card-category" hidden>
-        <header class="card-head"><span class="card-label" id="labelCardCategory"></span><button class="card-reroll" data-reroll="category" type="button" aria-label="Re-tirer">🎲</button><button class="card-edit" data-edit="category" type="button" aria-label="Modifier">✎</button><span class="card-icon" aria-hidden="true">🎯</span></header>
+        <header class="card-head"><span class="card-label" id="labelCardCategory"></span><button class="card-reroll" data-reroll="category" type="button" aria-label="Re-tirer">🎲</button><button class="card-edit" data-edit="category" type="button" aria-label="Ajouter">➕</button><span class="card-icon" aria-hidden="true">🎯</span></header>
         <div class="reel" data-target="category"><div class="reel-window"><div class="reel-track" id="reel-category"></div></div></div>
         <p class="card-meta" id="meta-category"></p>
       </article>
 
       <article class="card card-exercise troupe-only" id="card-exercise">
-        <header class="card-head"><span class="card-label" id="labelCardExercise"></span><button class="card-reroll" data-reroll="exercise" type="button" aria-label="Re-tirer">🎲</button><button class="card-edit" data-edit="exercise" type="button" aria-label="Modifier">✎</button><span class="card-icon" aria-hidden="true">🎬</span></header>
+        <header class="card-head"><span class="card-label" id="labelCardExercise"></span><button class="card-reroll" data-reroll="exercise" type="button" aria-label="Re-tirer">🎲</button><button class="card-edit" data-edit="exercise" type="button" aria-label="Ajouter">➕</button><span class="card-icon" aria-hidden="true">🎬</span></header>
         <div class="reel" data-target="exercise"><div class="reel-window"><div class="reel-track" id="reel-exercise"></div></div></div>
         <p class="card-meta" id="meta-exercise"></p>
       </article>
 
       <article class="card card-constraint troupe-only" id="card-constraint">
-        <header class="card-head"><span class="card-label" id="labelCardConstraint"></span><button class="card-reroll" data-reroll="constraint" type="button" aria-label="Re-tirer">🎲</button><button class="card-edit" data-edit="constraint" type="button" aria-label="Modifier">✎</button><span class="card-icon" aria-hidden="true">🔒</span></header>
+        <header class="card-head"><span class="card-label" id="labelCardConstraint"></span><button class="card-reroll" data-reroll="constraint" type="button" aria-label="Re-tirer">🎲</button><button class="card-edit" data-edit="constraint" type="button" aria-label="Ajouter">➕</button><span class="card-icon" aria-hidden="true">🔒</span></header>
         <div class="reel" data-target="constraint"><div class="reel-window"><div class="reel-track" id="reel-constraint"></div></div></div>
         <p class="card-meta" id="meta-constraint"></p>
       </article>
@@ -476,23 +476,52 @@
           <video class="recorder-preview" id="recorderPreview" controls playsinline></video>
           <div class="recorder-participants" id="recorderParticipants">
             <p class="recorder-participants-hint" id="recorderParticipantsHint"></p>
+            <!-- Three rows: troupe / team A / team B. populateRecorderParticipants
+                 picks which one to show based on state.mode + state.currentRecordingTeam.
+                 Each row renders the team name as an editable input, plus a chip
+                 list of actors with × buttons so the user can remove anyone who
+                 didn't actually perform in this take. The "+ ajouter" mini-form
+                 lets them add an ad-hoc actor without going back to the main UI. -->
             <div class="recorder-participant-row" data-team="troupe" hidden>
               <label for="recParticipantsTroupeName" id="recParticipantsTroupeLabel"></label>
               <input type="text" id="recParticipantsTroupeName" maxlength="40" autocomplete="off" />
-              <textarea id="recParticipantsTroupeActors" rows="2" maxlength="500" autocomplete="off"></textarea>
+              <ul class="recorder-actors-list" id="recParticipantsActorsListTroupe" data-team="troupe"></ul>
+              <form class="recorder-actors-add" id="recParticipantsAddFormTroupe" data-team="troupe">
+                <input type="text" class="recorder-actors-add-input" maxlength="40" autocomplete="off" />
+                <button type="submit" class="recorder-actors-add-btn"></button>
+              </form>
             </div>
             <div class="recorder-participant-row" data-team="a" hidden>
               <label for="recParticipantsTeamA" id="recParticipantsLabelA"></label>
               <input type="text" id="recParticipantsTeamA" maxlength="40" autocomplete="off" />
-              <textarea id="recParticipantsActorsA" rows="2" maxlength="500" autocomplete="off"></textarea>
+              <ul class="recorder-actors-list" id="recParticipantsActorsListA" data-team="a"></ul>
+              <form class="recorder-actors-add" id="recParticipantsAddFormA" data-team="a">
+                <input type="text" class="recorder-actors-add-input" maxlength="40" autocomplete="off" />
+                <button type="submit" class="recorder-actors-add-btn"></button>
+              </form>
             </div>
             <div class="recorder-participant-row" data-team="b" hidden>
               <label for="recParticipantsTeamB" id="recParticipantsLabelB"></label>
               <input type="text" id="recParticipantsTeamB" maxlength="40" autocomplete="off" />
-              <textarea id="recParticipantsActorsB" rows="2" maxlength="500" autocomplete="off"></textarea>
+              <ul class="recorder-actors-list" id="recParticipantsActorsListB" data-team="b"></ul>
+              <form class="recorder-actors-add" id="recParticipantsAddFormB" data-team="b">
+                <input type="text" class="recorder-actors-add-input" maxlength="40" autocomplete="off" />
+                <button type="submit" class="recorder-actors-add-btn"></button>
+              </form>
             </div>
           </div>
-          <div class="recorder-preview-actions">
+          <!-- Validate / Skip gate: shown right after recording stops. The
+               user must either confirm the participant list (which pushes
+               it to the impro_event analytics) OR explicitly skip before
+               the download / "record other team" buttons unlock. Skipping
+               keeps the launch-time roster on the server untouched. -->
+          <div class="recorder-participants-gate" id="recorderParticipantsGate">
+            <button class="recorder-action recorder-validate"
+                    id="recorderParticipantsValidateBtn" type="button"></button>
+            <button class="recorder-action recorder-skip"
+                    id="recorderParticipantsSkipBtn" type="button"></button>
+          </div>
+          <div class="recorder-preview-actions" id="recorderPreviewActions" hidden>
             <a class="recorder-action recorder-download" id="recorderDownloadLink" download></a>
             <!-- Match Comparée: 2nd-team record button. Only visible
                  after the first team's video is finalized AND the
@@ -503,6 +532,14 @@
             <button class="recorder-action recorder-record-other"
                     id="recorderRecordOtherBtn" type="button" hidden></button>
             <button class="recorder-action recorder-exit" id="recorderExitBtn" type="button"></button>
+          </div>
+          <!-- Always-visible exit button as a safety net in case the user
+               wants to bail without choosing Valider/Skip (the modal X
+               at the top is also wired to recClose). Clones the same
+               handler. Hidden once the gate clears (the main exit button
+               in .recorder-preview-actions takes over). -->
+          <div class="recorder-preview-actions recorder-preview-actions-fallback" id="recorderPreviewActionsFallback">
+            <button class="recorder-action recorder-exit" id="recorderExitBtnFallback" type="button"></button>
           </div>
         </div>
       </div>
@@ -813,14 +850,19 @@
     </div>
   </dialog>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Pinned + SRI: protects against a jsDelivr compromise or typosquat that
+       would otherwise execute attacker code with the user's session JWT in
+       reach. Bump both `@VERSION` and the integrity hash together. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
+          integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
+          crossorigin="anonymous"></script>
   <!-- Bump v= on each deploy when you change one of these assets, so users
        fetch the fresh version without needing Ctrl+Shift+R. -->
-  <script src="./js/config.js?v=20260545"></script>
-  <script src="./js/utils.js?v=20260545"></script>
-  <script src="./js/rules.js?v=20260545"></script>
-  <script src="./data/all.js?v=20260545"></script>
-  <script src="./js/auth.js?v=20260545"></script>
-  <script src="./js/app.js?v=20260545"></script>
+  <script src="./js/config.js?v=20260551"></script>
+  <script src="./js/utils.js?v=20260551"></script>
+  <script src="./js/rules.js?v=20260551"></script>
+  <script src="./data/all.js?v=20260551"></script>
+  <script src="./js/auth.js?v=20260551"></script>
+  <script src="./js/app.js?v=20260551"></script>
 </body>
 </html>
