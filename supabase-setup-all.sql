@@ -1670,6 +1670,87 @@ $$;
 revoke all on function public.update_inspiration_video(uuid, text, text, text, text, text, text, text, text, text, text) from public;
 grant  execute on function public.update_inspiration_video(uuid, text, text, text, text, text, text, text, text, text, text) to authenticated;
 
+-- 7.5b ADMIN ADD — admin-only direct insert with status='approved'. Lets
+--      curators add vetted videos straight to the public list without
+--      the pending queue intermediate step. Mirror of submit_inspiration_video
+--      but with admin gate + auto-approval.
+create or replace function public.admin_add_inspiration_video(
+  p_title         text,
+  p_channel       text,
+  p_content_type  text,
+  p_nature        text,
+  p_category      text,
+  p_theme         text,
+  p_duration_text text,
+  p_notes         text,
+  p_video_url     text,
+  p_locale        text
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_title text;
+  new_id  uuid;
+begin
+  if auth.uid() is null or not public.is_admin() then
+    raise exception 'admin only';
+  end if;
+  v_title := nullif(trim(coalesce(p_title, '')), '');
+  if v_title is null then
+    raise exception 'title is empty';
+  end if;
+  if length(v_title) > 200 then
+    raise exception 'title too long (max 200 chars)';
+  end if;
+  if p_notes is not null and length(p_notes) > 2000 then
+    raise exception 'notes too long (max 2000 chars)';
+  end if;
+  if p_content_type not in (
+    'chaine','match_impro','spectacle','tutoriel','documentaire','cabaret','format_court'
+  ) then
+    raise exception 'invalid content_type: %', p_content_type;
+  end if;
+  if p_nature is not null and p_nature <> '' and p_nature not in ('mixte','comparee','na') then
+    raise exception 'invalid nature: %', p_nature;
+  end if;
+  if p_category is not null and p_category <> '' and p_category not in (
+    'libre','a_la_maniere_de','chantee','rimee','sans_paroles','costumee',
+    'doublee','silencieuse','sportive','sans_contact','a_2','a_3'
+  ) then
+    raise exception 'invalid category: %', p_category;
+  end if;
+
+  insert into public.inspiration_videos (
+    title, channel, content_type, nature, category, theme,
+    duration_text, notes, video_url, locale,
+    submitted_by, status, approved_by, approved_at
+  ) values (
+    v_title,
+    nullif(trim(coalesce(p_channel, '')), ''),
+    p_content_type,
+    nullif(p_nature, ''),
+    nullif(p_category, ''),
+    nullif(trim(coalesce(p_theme, '')), ''),
+    nullif(trim(coalesce(p_duration_text, '')), ''),
+    nullif(trim(coalesce(p_notes, '')), ''),
+    nullif(trim(coalesce(p_video_url, '')), ''),
+    coalesce(nullif(p_locale, ''), 'fr'),
+    auth.uid(),
+    'approved',
+    auth.uid(),
+    now()
+  )
+  returning id into new_id;
+  return new_id;
+end;
+$$;
+
+revoke all on function public.admin_add_inspiration_video(text, text, text, text, text, text, text, text, text, text) from public;
+grant  execute on function public.admin_add_inspiration_video(text, text, text, text, text, text, text, text, text, text) to authenticated;
+
 -- 7.6 DELETE — admin only.
 create or replace function public.delete_inspiration_video(p_id uuid)
 returns void

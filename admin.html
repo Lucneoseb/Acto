@@ -295,6 +295,26 @@
     font-weight: 400;
     border-bottom: 1px solid var(--row-border);
     padding-bottom: 0.4rem;
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  /* "N en attente" pulsing badge — surfaces the moderation backlog
+     count next to the section title so the admin sees it at a glance. */
+  .pending-badge {
+    background: linear-gradient(135deg, #ff3b3b, #b91c4d);
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 12px rgba(185,28,77,0.35);
+    animation: pending-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pending-pulse {
+    0%, 100% { box-shadow: 0 4px 12px rgba(185,28,77,0.35); }
+    50%      { box-shadow: 0 4px 18px rgba(255,59,59,0.55); }
   }
   .grid-2 {
     display: grid;
@@ -556,7 +576,12 @@
         <button class="btn nav-on-tableau" id="goImproBtn" type="button">🎭 Impro →</button>
         <!-- Impro view-only nav: come back to the analytics view. -->
         <button class="btn nav-on-impro" id="backToTableauBtn" type="button">← Tableau de bord</button>
-        <a class="btn" href="./inspirations.html" style="display:inline-flex;align-items:center;text-decoration:none;">🎭 Inspirations</a>
+        <!-- Inspirations admin: switches to the impro view + scrolls to the
+             inspirations moderation queue. The public catalogue page is
+             still reachable via the "↗ Page publique" link (opens in a
+             new tab) — that button is intentionally the curation surface. -->
+        <button class="btn" id="goInspireBtn" type="button">🎭 Inspirations →</button>
+        <a class="btn" href="./inspirations.html" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;text-decoration:none;" title="Voir la page publique dans un nouvel onglet">↗ Page publique</a>
         <a class="btn" href="./index.html" style="display:inline-flex;align-items:center;text-decoration:none;">← App</a>
       </div>
     </div>
@@ -787,10 +812,13 @@
        Lives under the "Impro" view so it sits next to the other
        community-content moderation panels.
        ============================================================ -->
-  <h2 class="section-title">🎭 Inspirations vidéo</h2>
+  <h2 class="section-title">
+    🎭 Inspirations vidéo
+    <span id="inspirePendingBadge" class="pending-badge" hidden></span>
+  </h2>
   <p style="color:var(--ink-muted);font-size:0.85rem;margin:0 0 0.6rem;">
-    Modère les vidéos d'inspiration soumises par la communauté. Approuver = devient
-    public sur <code>/inspirations.html</code>.
+    Modère les vidéos d'inspiration soumises par la communauté + ajoute des vidéos
+    directement. Approuver = devient public sur <code>/inspirations.html</code>.
   </p>
   <div class="submission-filters">
     <select id="inspireFilterStatus" class="btn">
@@ -810,6 +838,7 @@
       <option value="format_court">Format court</option>
     </select>
     <input type="search" id="inspireFilterText" placeholder="Recherche titre / troupe…" />
+    <button class="btn btn-primary" id="inspireAddAdminBtn" type="button" style="margin-left:auto;">+ Ajouter une inspiration</button>
     <span class="count" id="inspireCount"></span>
   </div>
   <div class="table-wrap">
@@ -836,6 +865,108 @@
   </div>
   </div><!-- /data-view="impro" -->
 </div><!-- /adminApp -->
+
+<!-- Admin-only "Ajouter une inspiration" dialog. Opens from the
+     + Ajouter button next to the inspirations filters. Submitting calls
+     admin_add_inspiration_video — the row lands with status='approved'
+     so it appears immediately on the public page. -->
+<dialog id="inspireAddDialog" class="bundle-add-dialog">
+  <form method="dialog" class="dlg-head">
+    <h2>Ajouter une inspiration</h2>
+    <button type="button" class="dlg-close" id="inspireAddCloseBtn" aria-label="Fermer">✕</button>
+  </form>
+  <form id="inspireAddForm" class="bundle-add-form" novalidate>
+    <div class="dlg-body">
+      <div class="bundle-add-field">
+        <span>Lien vidéo (YouTube, Vimeo, lien chaîne…)</span>
+        <input type="url" id="inspireAddUrl" placeholder="https://www.youtube.com/watch?v=…" />
+      </div>
+      <div class="bundle-add-field">
+        <span>Titre *</span>
+        <input type="text" id="inspireAddTitle" maxlength="200" required />
+      </div>
+      <div class="bundle-add-row">
+        <div class="bundle-add-field">
+          <span>Chaîne / Troupe</span>
+          <input type="text" id="inspireAddChannel" maxlength="120" />
+        </div>
+        <div class="bundle-add-field">
+          <span>Type *</span>
+          <select id="inspireAddContentType" required>
+            <option value="match_impro" selected>Match d'impro</option>
+            <option value="spectacle">Spectacle longue forme</option>
+            <option value="chaine">Chaîne</option>
+            <option value="tutoriel">Tutoriel</option>
+            <option value="documentaire">Documentaire</option>
+            <option value="cabaret">Cabaret</option>
+            <option value="format_court">Format court</option>
+          </select>
+        </div>
+      </div>
+      <div class="bundle-add-row" id="inspireAddMatchFields">
+        <div class="bundle-add-field">
+          <span>Nature</span>
+          <select id="inspireAddNature">
+            <option value="">—</option>
+            <option value="mixte">Mixte</option>
+            <option value="comparee">Comparée</option>
+            <option value="na">N/A</option>
+          </select>
+        </div>
+        <div class="bundle-add-field">
+          <span>Catégorie</span>
+          <select id="inspireAddCategory">
+            <option value="">—</option>
+            <option value="libre">Libre</option>
+            <option value="a_la_maniere_de">À la manière de</option>
+            <option value="chantee">Chantée</option>
+            <option value="rimee">Rimée</option>
+            <option value="sans_paroles">Sans paroles</option>
+            <option value="costumee">Costumée</option>
+            <option value="doublee">Doublée</option>
+            <option value="silencieuse">Silencieuse</option>
+            <option value="sportive">Sportive</option>
+            <option value="sans_contact">Sans contact</option>
+            <option value="a_2">À 2</option>
+            <option value="a_3">À 3</option>
+          </select>
+        </div>
+      </div>
+      <div class="bundle-add-row">
+        <div class="bundle-add-field">
+          <span>Thème</span>
+          <input type="text" id="inspireAddTheme" maxlength="200" />
+        </div>
+        <div class="bundle-add-field">
+          <span>Durée</span>
+          <input type="text" id="inspireAddDuration" maxlength="40" placeholder="7 min, 12:34, 1h25…" />
+        </div>
+      </div>
+      <div class="bundle-add-row">
+        <div class="bundle-add-field">
+          <span>Langue</span>
+          <select id="inspireAddLocale">
+            <option value="fr" selected>fr · Français</option>
+            <option value="en">en · English</option>
+            <option value="de">de · Deutsch</option>
+            <option value="es">es · Español</option>
+            <option value="pt">pt · Português</option>
+            <option value="nl">nl · Nederlands</option>
+          </select>
+        </div>
+      </div>
+      <div class="bundle-add-field">
+        <span>Notes / Description</span>
+        <textarea id="inspireAddNotes" rows="3" maxlength="2000"></textarea>
+      </div>
+      <p class="admin-login-error" id="inspireAddError" hidden></p>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="btn" id="inspireAddCancelBtn">Annuler</button>
+      <button type="submit" class="btn btn-primary" id="inspireAddSubmitBtn">Ajouter (publié immédiatement)</button>
+    </div>
+  </form>
+</dialog>
 
 <!-- Admin add-item dialog: opens from the "+ Ajouter" button on the
      "Listes bundled" section. Lets the admin insert a new theme /
@@ -904,12 +1035,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
         integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
         crossorigin="anonymous"></script>
-<script src="./js/config.js?v=20260556"></script>
-<script src="./js/utils.js?v=20260556"></script>
+<script src="./js/config.js?v=20260557"></script>
+<script src="./js/utils.js?v=20260557"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=20260556"></script>
+<script src="./data/all.js?v=20260557"></script>
 <script>
 (function () {
   "use strict";
@@ -1571,7 +1702,20 @@
     return row.submitted_by;
   }
 
+  function refreshInspirePendingBadge() {
+    const badge = $("inspirePendingBadge");
+    if (!badge) return;
+    const pending = allInspirations.filter(v => v.status === "pending").length;
+    if (pending > 0) {
+      badge.textContent = pending + " en attente";
+      badge.hidden = false;
+    } else {
+      badge.hidden = true;
+    }
+  }
+
   function renderInspirations() {
+    refreshInspirePendingBadge();
     const status = $("inspireFilterStatus").value;
     const type   = $("inspireFilterType").value;
     const text   = ($("inspireFilterText").value || "").trim().toLowerCase();
@@ -1687,6 +1831,84 @@
     });
   }
 
+  function openInspireAddDialog() {
+    const dlg = $("inspireAddDialog");
+    if (!dlg) return;
+    // Reset all fields
+    ["inspireAddUrl","inspireAddTitle","inspireAddChannel","inspireAddTheme",
+     "inspireAddDuration","inspireAddNotes"].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = "";
+    });
+    document.getElementById("inspireAddContentType").value = "match_impro";
+    document.getElementById("inspireAddNature").value = "";
+    document.getElementById("inspireAddCategory").value = "";
+    document.getElementById("inspireAddLocale").value = "fr";
+    const err = $("inspireAddError"); if (err) { err.hidden = true; err.textContent = ""; }
+    syncInspireAddMatchFieldsVisibility();
+    if (typeof dlg.showModal === "function") dlg.showModal();
+    else dlg.setAttribute("open", "");
+    setTimeout(() => {
+      const t = document.getElementById("inspireAddTitle"); if (t) t.focus();
+    }, 0);
+  }
+  function closeInspireAddDialog() {
+    const dlg = $("inspireAddDialog");
+    if (!dlg) return;
+    if (typeof dlg.close === "function") dlg.close();
+    else dlg.removeAttribute("open");
+  }
+  /** Show/hide Nature + Catégorie based on content_type — they only make
+   *  sense for match-style content. Same pattern as the public submit
+   *  dialog on inspirations.html. */
+  function syncInspireAddMatchFieldsVisibility() {
+    const t = document.getElementById("inspireAddContentType").value;
+    const wrap = document.getElementById("inspireAddMatchFields");
+    const hideFor = new Set(["chaine","tutoriel","documentaire","cabaret"]);
+    if (wrap) wrap.style.display = hideFor.has(t) ? "none" : "";
+  }
+  async function submitInspireAdd(ev) {
+    ev.preventDefault();
+    const err = $("inspireAddError");
+    if (err) { err.hidden = true; err.textContent = ""; }
+    const title = (document.getElementById("inspireAddTitle").value || "").trim();
+    if (!title) {
+      if (err) { err.textContent = "Le titre est obligatoire."; err.hidden = false; }
+      return;
+    }
+    const submitBtn = $("inspireAddSubmitBtn");
+    const cancelBtn = $("inspireAddCancelBtn");
+    const originalLabel = submitBtn ? submitBtn.textContent : "";
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = "Ajout…"; }
+    if (cancelBtn) cancelBtn.disabled = true;
+    try {
+      const { data, error } = await sb.rpc("admin_add_inspiration_video", {
+        p_title:         title,
+        p_channel:       document.getElementById("inspireAddChannel").value || "",
+        p_content_type:  document.getElementById("inspireAddContentType").value,
+        p_nature:        document.getElementById("inspireAddNature").value || "",
+        p_category:      document.getElementById("inspireAddCategory").value || "",
+        p_theme:         document.getElementById("inspireAddTheme").value || "",
+        p_duration_text: document.getElementById("inspireAddDuration").value || "",
+        p_notes:         document.getElementById("inspireAddNotes").value || "",
+        p_video_url:     document.getElementById("inspireAddUrl").value || "",
+        p_locale:        document.getElementById("inspireAddLocale").value || "fr"
+      });
+      if (error) throw error;
+      // Reload the list so the new row appears.
+      await loadInspirations();
+      closeInspireAddDialog();
+    } catch (e) {
+      console.error("[admin] admin_add_inspiration_video failed", e);
+      if (err) {
+        err.textContent = "Erreur : " + ((e && e.message) || e);
+        err.hidden = false;
+      }
+    } finally {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalLabel; }
+      if (cancelBtn) cancelBtn.disabled = false;
+    }
+  }
+
   function wireInspirationsControls() {
     ["inspireFilterStatus","inspireFilterType","inspireFilterText"].forEach(id => {
       const el = $(id); if (!el) return;
@@ -1694,17 +1916,32 @@
       el.addEventListener("change", renderInspirations);
     });
     const body = $("inspireBodyAdmin");
-    if (!body) return;
-    body.addEventListener("click", (ev) => {
-      const btn = ev.target.closest("button[data-inspire-act]");
-      if (!btn) return;
-      const id = btn.dataset.id;
-      const act = btn.dataset.inspireAct;
-      if      (act === "approve") setInspirationStatus(id, "approved");
-      else if (act === "reject")  setInspirationStatus(id, "rejected");
-      else if (act === "delete")  deleteInspiration(id);
-      else if (act === "edit")    editInspiration(id);
-    });
+    if (body) {
+      body.addEventListener("click", (ev) => {
+        const btn = ev.target.closest("button[data-inspire-act]");
+        if (!btn) return;
+        const id = btn.dataset.id;
+        const act = btn.dataset.inspireAct;
+        if      (act === "approve") setInspirationStatus(id, "approved");
+        else if (act === "reject")  setInspirationStatus(id, "rejected");
+        else if (act === "delete")  deleteInspiration(id);
+        else if (act === "edit")    editInspiration(id);
+      });
+    }
+    // Wire the "+ Ajouter une inspiration" button + the dialog.
+    const addBtn = $("inspireAddAdminBtn");
+    if (addBtn) addBtn.addEventListener("click", openInspireAddDialog);
+    const closeBtn = $("inspireAddCloseBtn");
+    if (closeBtn) closeBtn.addEventListener("click", closeInspireAddDialog);
+    const cancelBtn = $("inspireAddCancelBtn");
+    if (cancelBtn) cancelBtn.addEventListener("click", closeInspireAddDialog);
+    const typeSel = document.getElementById("inspireAddContentType");
+    if (typeSel) typeSel.addEventListener("change", syncInspireAddMatchFieldsVisibility);
+    const form = $("inspireAddForm");
+    if (form && !form.dataset.wired) {
+      form.dataset.wired = "1";
+      form.addEventListener("submit", submitInspireAdd);
+    }
   }
 
   /** Build the list of locale options based on what's in IMPRO_BUNDLE.
@@ -2219,26 +2456,47 @@
      selectors above use to show/hide the right sections.
      ============================================================ */
   function setView(name) {
-    const v = (name === "impro") ? "impro" : "tableau";
+    // Both "impro" and "inspirations" land on the impro view (same body
+    // class), since the inspirations moderation queue is a section inside
+    // that view. The hash just remembers which deep-link the admin used.
+    const v = (name === "impro" || name === "inspirations") ? "impro" : "tableau";
     document.body.classList.remove("view-tableau", "view-impro");
     document.body.classList.add("view-" + v);
-    // Reflect in the page title so browser tabs / history make sense.
     document.title = (v === "impro") ? "Acto — Admin · Impro" : "Acto — Admin";
+    // Smooth-scroll to the inspirations section when that's the deep-link.
+    // setTimeout deferred so the layout settles after the body class flip.
+    if (name === "inspirations") {
+      setTimeout(() => {
+        const target = document.querySelector('h2.section-title + p + .submission-filters #inspireFilterStatus')
+          || document.getElementById("inspireBodyAdmin")
+          || null;
+        const anchor = target ? target.closest("h2, .section-title, .submission-filters") || target : null;
+        if (anchor) anchor.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+    }
   }
   function viewFromHash() {
     const h = (window.location.hash || "").replace(/^#/, "").toLowerCase();
-    return (h === "impro") ? "impro" : "tableau";
+    if (h === "impro" || h === "inspirations") return h;
+    return "tableau";
   }
   function wireViewRouter() {
     setView(viewFromHash());
     window.addEventListener("hashchange", () => setView(viewFromHash()));
-    const goImpro = $("goImproBtn");
-    const back    = $("backToTableauBtn");
-    if (goImpro) goImpro.addEventListener("click", () => { window.location.hash = "impro"; });
-    if (back)    back.addEventListener("click",    () => {
-      // Use replaceState to nuke the #impro fragment without leaving a
-      // stranded history entry. Then trigger setView manually since
-      // replaceState doesn't fire hashchange.
+    const goImpro   = $("goImproBtn");
+    const goInspire = $("goInspireBtn");
+    const back      = $("backToTableauBtn");
+    if (goImpro)   goImpro.addEventListener("click",   () => { window.location.hash = "impro"; });
+    if (goInspire) goInspire.addEventListener("click", () => {
+      // Even from inside the impro view, force a re-fire so the scroll
+      // jumps to the inspirations section.
+      if (window.location.hash === "#inspirations") {
+        setView("inspirations");
+      } else {
+        window.location.hash = "inspirations";
+      }
+    });
+    if (back) back.addEventListener("click",  () => {
       history.replaceState(null, "", window.location.pathname + window.location.search);
       setView("tableau");
     });
