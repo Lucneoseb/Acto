@@ -1068,12 +1068,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
         integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
         crossorigin="anonymous"></script>
-<script src="./js/config.js?v=20260561"></script>
-<script src="./js/utils.js?v=20260561"></script>
+<script src="./js/config.js?v=20260562"></script>
+<script src="./js/utils.js?v=20260562"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=20260561"></script>
+<script src="./data/all.js?v=20260562"></script>
 <script>
 (function () {
   "use strict";
@@ -1844,60 +1844,50 @@
     renderInspirations();
   }
 
+  /** Edit an existing inspiration via the SAME modal as "+ Ajouter".
+   *  No more chained prompts — the admin gets the dropdowns, validation,
+   *  and visual feedback of the full form. Mode is stored on the
+   *  dialog's dataset so the submit handler knows whether to call
+   *  admin_add_inspiration_video (create) or update_inspiration_video. */
   function editInspiration(id) {
     const row = allInspirations.find(v => v.id === id);
     if (!row) return;
-    // Cheap inline edit: a series of prompts for each field. The user
-    // hits Cancel on any field they want to skip-change.
-    const newTitle    = prompt("Titre :",        row.title || "");        if (newTitle == null) return;
-    const newChannel  = prompt("Chaîne/troupe :", row.channel || "");      if (newChannel == null) return;
-    const newType     = prompt("Type (chaine/match_impro/spectacle/tutoriel/documentaire/cabaret/format_court) :", row.content_type || "");
-    if (newType == null) return;
-    const newNature   = prompt("Nature (mixte/comparee/na ou vide) :", row.nature || ""); if (newNature == null) return;
-    const newCategory = prompt("Catégorie (libre/a_la_maniere_de/chantee/rimee/sans_paroles/costumee/doublee/silencieuse/sportive/sans_contact/a_2/a_3 ou vide) :", row.category || "");
-    if (newCategory == null) return;
-    const newTheme    = prompt("Thème :",         row.theme || "");        if (newTheme == null) return;
-    const newDuration = prompt("Durée (libre) :", row.duration_text || ""); if (newDuration == null) return;
-    const newNotes    = prompt("Notes :",         row.notes || "");        if (newNotes == null) return;
-    const newUrl      = prompt("URL :",           row.video_url || "");    if (newUrl == null) return;
-    const newLocale   = prompt("Locale :",        row.locale || "fr");     if (newLocale == null) return;
-    sb.rpc("update_inspiration_video", {
-      p_id:            id,
-      p_title:         newTitle.trim(),
-      p_channel:       newChannel.trim(),
-      p_content_type:  newType.trim(),
-      p_nature:        newNature.trim(),
-      p_category:      newCategory.trim(),
-      p_theme:         newTheme.trim(),
-      p_duration_text: newDuration.trim(),
-      p_notes:         newNotes.trim(),
-      p_video_url:     newUrl.trim(),
-      p_locale:        newLocale.trim() || "fr"
-    }).then(({ error }) => {
-      if (error) { alert("Erreur : " + error.message); return; }
-      Object.assign(row, {
-        title: newTitle.trim(), channel: newChannel.trim() || null,
-        content_type: newType.trim(), nature: newNature.trim() || null,
-        category: newCategory.trim() || null, theme: newTheme.trim() || null,
-        duration_text: newDuration.trim() || null, notes: newNotes.trim() || null,
-        video_url: newUrl.trim() || null, locale: newLocale.trim() || "fr"
-      });
-      renderInspirations();
-    });
+    openInspireAddDialog(row);
   }
 
-  function openInspireAddDialog() {
+  function openInspireAddDialog(editRow) {
     const dlg = $("inspireAddDialog");
     if (!dlg) return;
-    // Reset all fields
-    ["inspireAddUrl","inspireAddTitle","inspireAddChannel","inspireAddTheme",
-     "inspireAddDuration","inspireAddNotes"].forEach(id => {
-      const el = document.getElementById(id); if (el) el.value = "";
-    });
-    document.getElementById("inspireAddContentType").value = "match_impro";
-    document.getElementById("inspireAddNature").value = "";
-    document.getElementById("inspireAddCategory").value = "";
-    document.getElementById("inspireAddLocale").value = "fr";
+    const isEdit = !!editRow;
+    // Tag the dialog so the submit handler picks the right RPC.
+    dlg.dataset.mode = isEdit ? "edit" : "add";
+    dlg.dataset.editId = isEdit ? editRow.id : "";
+    // Title + submit button label adapt to the mode.
+    const head = dlg.querySelector(".dlg-head h2");
+    if (head) head.textContent = isEdit ? "Éditer l'inspiration" : "Ajouter une inspiration";
+    const submitBtn = $("inspireAddSubmitBtn");
+    if (submitBtn) submitBtn.textContent = isEdit ? "Enregistrer les changements" : "Ajouter (publié immédiatement)";
+    // Populate fields from the existing row when editing, else clear.
+    const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = (v == null ? "" : v); };
+    if (isEdit) {
+      setVal("inspireAddUrl",         editRow.video_url);
+      setVal("inspireAddTitle",       editRow.title);
+      setVal("inspireAddChannel",     editRow.channel);
+      setVal("inspireAddContentType", editRow.content_type || "match_impro");
+      setVal("inspireAddNature",      editRow.nature || "");
+      setVal("inspireAddCategory",    editRow.category || "");
+      setVal("inspireAddTheme",       editRow.theme);
+      setVal("inspireAddDuration",    editRow.duration_text);
+      setVal("inspireAddNotes",       editRow.notes);
+      setVal("inspireAddLocale",      editRow.locale || "fr");
+    } else {
+      ["inspireAddUrl","inspireAddTitle","inspireAddChannel","inspireAddTheme",
+       "inspireAddDuration","inspireAddNotes"].forEach(id => setVal(id, ""));
+      setVal("inspireAddContentType", "match_impro");
+      setVal("inspireAddNature",      "");
+      setVal("inspireAddCategory",    "");
+      setVal("inspireAddLocale",      "fr");
+    }
     const err = $("inspireAddError"); if (err) { err.hidden = true; err.textContent = ""; }
     syncInspireAddMatchFieldsVisibility();
     if (typeof dlg.showModal === "function") dlg.showModal();
@@ -1923,6 +1913,9 @@
   }
   async function submitInspireAdd(ev) {
     ev.preventDefault();
+    const dlg = $("inspireAddDialog");
+    const mode = (dlg && dlg.dataset.mode) || "add";
+    const editId = (dlg && dlg.dataset.editId) || "";
     const err = $("inspireAddError");
     if (err) { err.hidden = true; err.textContent = ""; }
     const title = (document.getElementById("inspireAddTitle").value || "").trim();
@@ -1933,27 +1926,35 @@
     const submitBtn = $("inspireAddSubmitBtn");
     const cancelBtn = $("inspireAddCancelBtn");
     const originalLabel = submitBtn ? submitBtn.textContent : "";
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = "Ajout…"; }
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = mode === "edit" ? "Enregistrement…" : "Ajout…"; }
     if (cancelBtn) cancelBtn.disabled = true;
+    // Build the payload once — same shape for both RPCs except the extra
+    // p_id field on update.
+    const payload = {
+      p_title:         title,
+      p_channel:       document.getElementById("inspireAddChannel").value || "",
+      p_content_type:  document.getElementById("inspireAddContentType").value,
+      p_nature:        document.getElementById("inspireAddNature").value || "",
+      p_category:      document.getElementById("inspireAddCategory").value || "",
+      p_theme:         document.getElementById("inspireAddTheme").value || "",
+      p_duration_text: document.getElementById("inspireAddDuration").value || "",
+      p_notes:         document.getElementById("inspireAddNotes").value || "",
+      p_video_url:     document.getElementById("inspireAddUrl").value || "",
+      p_locale:        document.getElementById("inspireAddLocale").value || "fr"
+    };
     try {
-      const { data, error } = await sb.rpc("admin_add_inspiration_video", {
-        p_title:         title,
-        p_channel:       document.getElementById("inspireAddChannel").value || "",
-        p_content_type:  document.getElementById("inspireAddContentType").value,
-        p_nature:        document.getElementById("inspireAddNature").value || "",
-        p_category:      document.getElementById("inspireAddCategory").value || "",
-        p_theme:         document.getElementById("inspireAddTheme").value || "",
-        p_duration_text: document.getElementById("inspireAddDuration").value || "",
-        p_notes:         document.getElementById("inspireAddNotes").value || "",
-        p_video_url:     document.getElementById("inspireAddUrl").value || "",
-        p_locale:        document.getElementById("inspireAddLocale").value || "fr"
-      });
-      if (error) throw error;
-      // Reload the list so the new row appears.
+      if (mode === "edit" && editId) {
+        const { error } = await sb.rpc("update_inspiration_video", { p_id: editId, ...payload });
+        if (error) throw error;
+      } else {
+        const { error } = await sb.rpc("admin_add_inspiration_video", payload);
+        if (error) throw error;
+      }
+      // Reload the list so the new/edited row shows fresh data.
       await loadInspirations();
       closeInspireAddDialog();
     } catch (e) {
-      console.error("[admin] admin_add_inspiration_video failed", e);
+      console.error("[admin] inspiration save failed (" + mode + ")", e);
       if (err) {
         err.textContent = "Erreur : " + ((e && e.message) || e);
         err.hidden = false;
