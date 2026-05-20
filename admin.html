@@ -845,10 +845,14 @@
     </p>
     <div class="submission-filters">
       <select id="inspireFilterStatus" class="btn">
-        <option value="pending" selected>En attente</option>
+        <!-- Default: show ALL entries (incl. approved seed + pending submissions).
+             The pulsing "N en attente" badge next to the title still surfaces
+             user submissions waiting for review, but the table doesn't hide
+             the 100+ curated approved videos on page load. -->
+        <option value="" selected>Toutes</option>
+        <option value="pending">En attente</option>
         <option value="approved">Approuvées (publiques)</option>
         <option value="rejected">Cachées</option>
-        <option value="">Toutes</option>
       </select>
       <select id="inspireFilterType" class="btn">
         <option value="">Tous types</option>
@@ -1068,12 +1072,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
         integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
         crossorigin="anonymous"></script>
-<script src="./js/config.js?v=20260562"></script>
-<script src="./js/utils.js?v=20260562"></script>
+<script src="./js/config.js?v=20260563"></script>
+<script src="./js/utils.js?v=20260563"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=20260562"></script>
+<script src="./data/all.js?v=20260563"></script>
 <script>
 (function () {
   "use strict";
@@ -1767,7 +1771,14 @@
     });
     $("inspireCount").textContent = filtered.length + " / " + allInspirations.length;
     if (filtered.length === 0) {
-      body.innerHTML = '<tr><td colspan="12" class="empty">Aucune entrée pour ces filtres.</td></tr>';
+      // Distinguish "no inspirations at all in DB" from "filter hides everything".
+      const hasAny = allInspirations.length > 0;
+      body.innerHTML = '<tr><td colspan="12" class="empty">' +
+        (hasAny
+          ? 'Aucune entrée pour ces filtres — change le statut / type / langue ci-dessus, ou clic "+ Ajouter".'
+          : 'Aucune inspiration en base. Clic "+ Ajouter une inspiration" pour commencer.'
+        ) +
+      '</td></tr>';
       return;
     }
     body.innerHTML = filtered.map(v => {
