@@ -285,6 +285,92 @@
     table.profiles th, table.profiles td { font-size: 0.78rem; padding: 0.45rem 0.55rem; }
   }
 
+  /* ─── Inspirations admin: responsive card layout on mobile ───
+     Below 900px the 12-column horizontal table is unreadable (and the
+     action buttons get clipped off-screen at column 12). Switch to a
+     vertical card layout: each row becomes a card with the cells
+     stacked, the URL link surfaced under the title, and the action
+     buttons row pinned at the bottom of the card so they're always
+     visible without horizontal scrolling. */
+  @media (max-width: 900px) {
+    #inspireTableAdmin { min-width: 0 !important; border-collapse: separate; border-spacing: 0; }
+    #inspireTableAdmin thead { display: none; }
+    #inspireTableAdmin,
+    #inspireTableAdmin tbody { display: block; }
+    #inspireTableAdmin tr {
+      display: block;
+      background: linear-gradient(160deg, rgba(245,196,81,0.05), rgba(255,255,255,0.02));
+      border: 1px solid rgba(245,196,81,0.3);
+      border-radius: 14px;
+      padding: 0.9rem 1rem;
+      margin-bottom: 0.75rem;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    }
+    #inspireTableAdmin tr:hover { background: linear-gradient(160deg, rgba(245,196,81,0.08), rgba(255,255,255,0.03)); }
+    #inspireTableAdmin td {
+      display: block;
+      width: 100%;
+      padding: 0.18rem 0;
+      border: 0;
+      white-space: normal;
+      font-size: 0.86rem;
+    }
+    /* Inject a small uppercase label before each cell using nth-of-type
+       so we don't need to edit the JS to add data-label attributes. */
+    #inspireTableAdmin tbody td:nth-of-type(1) { font-size: 1rem; font-weight: 700; line-height: 1.3; margin-bottom: 0.2rem; }
+    #inspireTableAdmin tbody td:nth-of-type(1):before { content: ""; }
+    #inspireTableAdmin tbody td:nth-of-type(n+2):before {
+      display: inline-block;
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gold-soft);
+      margin-right: 0.45rem;
+      min-width: 5.5rem;
+      vertical-align: top;
+    }
+    #inspireTableAdmin tbody td:nth-of-type(2):before  { content: "Chaîne · "; }
+    #inspireTableAdmin tbody td:nth-of-type(3):before  { content: "Type · "; }
+    #inspireTableAdmin tbody td:nth-of-type(4):before  { content: "Nature · "; }
+    #inspireTableAdmin tbody td:nth-of-type(5):before  { content: "Catégorie · "; }
+    #inspireTableAdmin tbody td:nth-of-type(6):before  { content: "Thème · "; }
+    #inspireTableAdmin tbody td:nth-of-type(7):before  { content: "Durée · "; }
+    #inspireTableAdmin tbody td:nth-of-type(8):before  { content: "Langue · "; }
+    #inspireTableAdmin tbody td:nth-of-type(9):before  { content: "URL · "; }
+    #inspireTableAdmin tbody td:nth-of-type(10):before { content: "Soumis par · "; }
+    #inspireTableAdmin tbody td:nth-of-type(11):before { content: "État · "; }
+    /* Actions row: the LAST column. Pull it out of the inline flow with
+       a top border + flex-wrap of full-width buttons so the admin can
+       reach Cacher / Éditer / Supprimer without scrolling. */
+    #inspireTableAdmin tbody td.actions {
+      margin-top: 0.55rem;
+      padding-top: 0.55rem;
+      border-top: 1px dashed rgba(255,255,255,0.12);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    #inspireTableAdmin tbody td.actions:before { content: ""; }
+    #inspireTableAdmin tbody td.actions .btn {
+      flex: 1 1 auto;
+      min-width: 6rem;
+      font-size: 0.8rem;
+      padding: 0.5rem 0.7rem;
+      min-height: 38px;
+    }
+    /* Hide the empty-state colspan row's pseudo-labels — they look weird
+       around a colspan="12" td. */
+    #inspireTableAdmin tbody td.empty:before { content: ""; }
+    #inspireTableAdmin tbody td.empty { text-align: center; padding: 1.5rem 0.5rem; font-style: italic; color: var(--ink-muted); }
+  }
+  /* Extra-narrow phones */
+  @media (max-width: 380px) {
+    #inspireTableAdmin tr { padding: 0.75rem 0.85rem; border-radius: 12px; }
+    #inspireTableAdmin tbody td:nth-of-type(1) { font-size: 0.95rem; }
+    #inspireTableAdmin tbody td:nth-of-type(n+2):before { min-width: 4.5rem; font-size: 0.62rem; }
+    #inspireTableAdmin tbody td.actions .btn { min-width: 5rem; font-size: 0.75rem; padding: 0.45rem 0.55rem; }
+  }
+
   /* ----- Event analytics sections ----- */
   .section-title {
     margin: 1.6rem 0 0.7rem;
@@ -1072,12 +1158,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
         integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
         crossorigin="anonymous"></script>
-<script src="./js/config.js?v=20260563"></script>
-<script src="./js/utils.js?v=20260563"></script>
+<script src="./js/config.js?v=20260564"></script>
+<script src="./js/utils.js?v=20260564"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=20260563"></script>
+<script src="./data/all.js?v=20260564"></script>
 <script>
 (function () {
   "use strict";
