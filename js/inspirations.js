@@ -98,6 +98,8 @@
     $("#hdrCategory").textContent = t("inspireColCategory", "Catégorie");
     $("#hdrTheme").textContent    = t("inspireColTheme",    "Thème");
     $("#hdrDuration").textContent = t("inspireColDuration", "Durée");
+    const hdrLocale = $("#hdrLocale");
+    if (hdrLocale) hdrLocale.textContent = t("inspireColLocale", "Langue");
     $("#hdrNotes").textContent    = t("inspireColNotes",    "Notes");
     // Top-action labels (Rules / Inspirations / Settings). Target ONLY the
     // text span (not the emoji span which carries aria-hidden) — earlier
@@ -224,7 +226,9 @@
      must match somewhere in title/channel/theme/notes OR the label of
      content_type/nature/category. ALL tokens must hit.
      ------------------------------------------------------------------ */
-  function videoMatches(v, tokens) {
+  function videoMatches(v, tokens, locale) {
+    // Locale filter is an exact match on the row's locale (when set).
+    if (locale && v.locale !== locale) return false;
     if (tokens.length === 0) return true;
     const haystack = [
       v.title, v.channel, v.theme, v.notes,
@@ -232,15 +236,16 @@
       L(v.nature,       LABEL_NATURE_FR, LABEL_NATURE_EN),
       L(v.category,     LABEL_CAT_FR,    LABEL_CAT_EN),
       // Also try the raw enum keys so power users can type "match_impro".
-      v.content_type, v.nature, v.category, v.duration_text
+      v.content_type, v.nature, v.category, v.duration_text, v.locale
     ].filter(Boolean).join(" ").toLowerCase();
     return tokens.every(tok => haystack.includes(tok));
   }
 
   function applyFilter() {
     const q = (($("#inspireQuery") && $("#inspireQuery").value) || "").trim();
+    const locale = ($("#inspireFilterLocale") && $("#inspireFilterLocale").value) || "";
     const tokens = q.toLowerCase().split(/\s+/).filter(Boolean);
-    const list = allVideos.filter(v => videoMatches(v, tokens));
+    const list = allVideos.filter(v => videoMatches(v, tokens, locale));
     renderRows(list, q);
     const status = $("#inspireStatus");
     if (status) {
@@ -269,25 +274,36 @@
     body.innerHTML = list.map(v => renderRow(v)).join("");
   }
 
+  // Flag emojis for quick visual scan in the language column.
+  const LOC_FLAG = { fr: "🇫🇷", en: "🇬🇧", de: "🇩🇪", es: "🇪🇸", pt: "🇵🇹", nl: "🇳🇱" };
+
   function renderRow(v) {
     const typeLbl = v.content_type ? L(v.content_type, LABEL_TYPE_FR, LABEL_TYPE_EN) : "";
     const natLbl  = v.nature       ? L(v.nature,       LABEL_NATURE_FR, LABEL_NATURE_EN) : "";
     const catLbl  = v.category     ? L(v.category,     LABEL_CAT_FR, LABEL_CAT_EN) : "";
+    // Helper: mark a cell `.is-empty` when there's no real content. CSS hides
+    // these on mobile so the card metadata row stays clean instead of being
+    // padded with placeholder dashes.
+    const emptyCls = (val) => val ? "" : " is-empty";
     const titleCell = v.video_url
       ? '<a href="' + escapeHtml(v.video_url) + '" target="_blank" rel="noopener noreferrer">' +
           escapeHtml(v.title || "(sans titre)") +
         '</a>'
       : '<span class="no-link">' + escapeHtml(v.title || "(sans titre)") + '</span>';
+    const localeCellInner = v.locale
+      ? (LOC_FLAG[v.locale] || "") + " " + escapeHtml(v.locale.toUpperCase())
+      : "—";
     return (
       '<div class="inspire-row">' +
-        '<div class="col-title">'    + titleCell                                              + '</div>' +
-        '<div class="col-channel">'  + escapeHtml(v.channel || "—")                           + '</div>' +
-        '<div class="col-type">'     + (typeLbl ? '<span class="tag">' + escapeHtml(typeLbl) + '</span>' : "—") + '</div>' +
-        '<div class="col-nature">'   + (natLbl  ? '<span class="tag">' + escapeHtml(natLbl)  + '</span>' : "—") + '</div>' +
-        '<div class="col-category">' + (catLbl  ? '<span class="tag">' + escapeHtml(catLbl)  + '</span>' : "—") + '</div>' +
-        '<div class="col-theme">'    + escapeHtml(v.theme || "—")                             + '</div>' +
-        '<div class="col-duration">' + escapeHtml(v.duration_text || "—")                     + '</div>' +
-        '<div class="col-notes">'    + escapeHtml(v.notes || "")                              + '</div>' +
+        '<div class="col-title">'    + titleCell                                                                    + '</div>' +
+        '<div class="col-channel'    + emptyCls(v.channel)       + '">' + escapeHtml(v.channel || "—")              + '</div>' +
+        '<div class="col-type'       + emptyCls(typeLbl)         + '">' + (typeLbl ? '<span class="tag">' + escapeHtml(typeLbl) + '</span>' : "—") + '</div>' +
+        '<div class="col-nature'     + emptyCls(natLbl)          + '">' + (natLbl  ? '<span class="tag">' + escapeHtml(natLbl)  + '</span>' : "—") + '</div>' +
+        '<div class="col-category'   + emptyCls(catLbl)          + '">' + (catLbl  ? '<span class="tag">' + escapeHtml(catLbl)  + '</span>' : "—") + '</div>' +
+        '<div class="col-theme'      + emptyCls(v.theme)         + '">' + escapeHtml(v.theme || "—")                + '</div>' +
+        '<div class="col-duration'   + emptyCls(v.duration_text) + '">' + escapeHtml(v.duration_text || "—")        + '</div>' +
+        '<div class="col-locale'     + emptyCls(v.locale)        + '">' + localeCellInner                            + '</div>' +
+        '<div class="col-notes'      + emptyCls(v.notes)         + '">' + escapeHtml(v.notes || "")                 + '</div>' +
       '</div>'
     );
   }
@@ -396,6 +412,9 @@
         if (e.key === "Escape") { q.value = ""; applyFilter(); }
       });
     }
+    // Locale select — applies the filter on every change.
+    const loc = $("#inspireFilterLocale");
+    if (loc) loc.addEventListener("change", applyFilter);
     const addBtn = $("#inspireAddBtn");
     if (addBtn) addBtn.addEventListener("click", openSubmitDialog);
     const closeBtn = $("#inspireSubmitCloseBtn");

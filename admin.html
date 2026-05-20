@@ -518,15 +518,29 @@
      "Impro" (submissions + bundled lists). The body class drives which
      sections are visible; the URL hash (#impro vs nothing) is the
      source of truth so refreshes & bookmarks land on the same view. */
-  body.view-tableau [data-view="impro"]     { display: none !important; }
-  body.view-impro   [data-view="tableau"]   { display: none !important; }
-  body.view-tableau .nav-on-impro           { display: none !important; }
-  body.view-impro   .nav-on-tableau         { display: none !important; }
-  /* In the Impro view, replace the H1 "Tableau de bord" text with "Impro"
-     using a sibling span we'll toggle from JS — visibility:hidden on the
-     dashboard label and a positioned overlay span keeps the markup simple. */
-  body.view-impro header.bar h1 .h1-tableau { display: none; }
-  body.view-tableau header.bar h1 .h1-impro { display: none; }
+  /* 3 sibling views: Tableau (analytics) / Impro (submissions + bundled) /
+     Inspirations (its own page). Each section in the page is wrapped in
+     <div data-view="..."> and shown/hidden via these body class rules. */
+  body.view-tableau [data-view="impro"],
+  body.view-tableau [data-view="inspirations"]      { display: none !important; }
+  body.view-impro   [data-view="tableau"],
+  body.view-impro   [data-view="inspirations"]      { display: none !important; }
+  body.view-inspirations [data-view="tableau"],
+  body.view-inspirations [data-view="impro"]        { display: none !important; }
+  /* Nav-button visibility per view */
+  body.view-tableau      .nav-on-impro,
+  body.view-tableau      .nav-on-inspirations       { display: none !important; }
+  body.view-impro        .nav-on-tableau,
+  body.view-impro        .nav-on-inspirations       { display: none !important; }
+  body.view-inspirations .nav-on-tableau,
+  body.view-inspirations .nav-on-impro              { display: none !important; }
+  /* H1 label switching */
+  body.view-impro          header.bar h1 .h1-tableau,
+  body.view-impro          header.bar h1 .h1-inspirations,
+  body.view-inspirations   header.bar h1 .h1-tableau,
+  body.view-inspirations   header.bar h1 .h1-impro            { display: none; }
+  body.view-tableau        header.bar h1 .h1-impro,
+  body.view-tableau        header.bar h1 .h1-inspirations     { display: none; }
 </style>
 </head>
 <body>
@@ -565,23 +579,20 @@
 
 <div id="adminApp" class="wrap" hidden>
   <header class="bar">
-    <h1>Acto · <span class="h1-tableau">Tableau de bord</span><span class="h1-impro">Impro</span></h1>
+    <h1>Acto · <span class="h1-tableau">Tableau de bord</span><span class="h1-impro">Impro</span><span class="h1-inspirations">Inspirations</span></h1>
     <div>
       <span class="who" id="whoami"></span>
       <div class="actions" style="margin-top:0.4rem;">
         <button class="btn" id="refreshBtn">↻ Rafraîchir</button>
         <button class="btn btn-primary nav-on-tableau" id="exportBtn">⬇ Export CSV</button>
         <button class="btn" id="logoutBtn">Se déconnecter</button>
-        <!-- Tableau de bord-only nav: jump to the Impro view (submissions + bundled). -->
-        <button class="btn nav-on-tableau" id="goImproBtn" type="button">🎭 Impro →</button>
-        <!-- Impro view-only nav: come back to the analytics view. -->
-        <button class="btn nav-on-impro" id="backToTableauBtn" type="button">← Tableau de bord</button>
-        <!-- Inspirations admin: switches to the impro view + scrolls to the
-             inspirations moderation queue. The public catalogue page is
-             still reachable via the "↗ Page publique" link (opens in a
-             new tab) — that button is intentionally the curation surface. -->
-        <button class="btn" id="goInspireBtn" type="button">🎭 Inspirations →</button>
-        <a class="btn" href="./inspirations.html" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;text-decoration:none;" title="Voir la page publique dans un nouvel onglet">↗ Page publique</a>
+        <!-- View switchers. Three sibling views — Tableau / Impro /
+             Inspirations — each with its own button shown only from
+             OUTSIDE that view (via .nav-on-* visibility classes). -->
+        <button class="btn nav-on-impro nav-on-inspirations" id="backToTableauBtn" type="button">← Tableau de bord</button>
+        <button class="btn nav-on-tableau nav-on-inspirations" id="goImproBtn" type="button">🎭 Impro →</button>
+        <button class="btn nav-on-tableau nav-on-impro" id="goInspireBtn" type="button">🎭 Inspirations →</button>
+        <a class="btn nav-on-inspirations" href="./inspirations.html" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;text-decoration:none;" title="Voir la page publique dans un nouvel onglet">↗ Page publique</a>
         <a class="btn" href="./index.html" style="display:inline-flex;align-items:center;text-decoration:none;">← App</a>
       </div>
     </div>
@@ -806,64 +817,78 @@
       </tbody>
     </table>
   </div>
+  </div><!-- /data-view="impro" -->
 
   <!-- ============================================================
-       🎭 INSPIRATION VIDEOS — pending moderation + approved list.
-       Lives under the "Impro" view so it sits next to the other
-       community-content moderation panels.
+       💡 INSPIRATIONS view — sibling of "Tableau de bord" and "Impro".
+       Surfaced via the "🎭 Inspirations →" button in the header; routed
+       through #inspirations in the URL hash so deep-links work.
        ============================================================ -->
-  <h2 class="section-title">
-    🎭 Inspirations vidéo
-    <span id="inspirePendingBadge" class="pending-badge" hidden></span>
-  </h2>
-  <p style="color:var(--ink-muted);font-size:0.85rem;margin:0 0 0.6rem;">
-    Modère les vidéos d'inspiration soumises par la communauté + ajoute des vidéos
-    directement. Approuver = devient public sur <code>/inspirations.html</code>.
-  </p>
-  <div class="submission-filters">
-    <select id="inspireFilterStatus" class="btn">
-      <option value="pending" selected>En attente</option>
-      <option value="approved">Approuvées</option>
-      <option value="rejected">Rejetées</option>
-      <option value="">Toutes</option>
-    </select>
-    <select id="inspireFilterType" class="btn">
-      <option value="">Tous types</option>
-      <option value="chaine">Chaîne</option>
-      <option value="match_impro">Match d'impro</option>
-      <option value="spectacle">Spectacle longue forme</option>
-      <option value="tutoriel">Tutoriel</option>
-      <option value="documentaire">Documentaire</option>
-      <option value="cabaret">Cabaret</option>
-      <option value="format_court">Format court</option>
-    </select>
-    <input type="search" id="inspireFilterText" placeholder="Recherche titre / troupe…" />
-    <button class="btn btn-primary" id="inspireAddAdminBtn" type="button" style="margin-left:auto;">+ Ajouter une inspiration</button>
-    <span class="count" id="inspireCount"></span>
-  </div>
-  <div class="table-wrap">
-    <table class="profiles" id="inspireTableAdmin">
-      <thead>
-        <tr>
-          <th>Titre</th>
-          <th>Chaîne / Troupe</th>
-          <th>Type</th>
-          <th>Nat.</th>
-          <th>Catégorie</th>
-          <th>Thème</th>
-          <th>Durée</th>
-          <th>URL</th>
-          <th>Soumis par</th>
-          <th>État</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="inspireBodyAdmin">
-        <tr><td colspan="11" class="empty">Chargement…</td></tr>
-      </tbody>
-    </table>
-  </div>
-  </div><!-- /data-view="impro" -->
+  <div data-view="inspirations">
+    <h2 class="section-title">
+      🎭 Inspirations vidéo
+      <span id="inspirePendingBadge" class="pending-badge" hidden></span>
+    </h2>
+    <p style="color:var(--ink-muted);font-size:0.85rem;margin:0 0 0.6rem;">
+      Catalogue d'inspirations. Approuver = devient public sur
+      <code>/inspirations.html</code> · Cacher = retire de la liste publique
+      (mais garde la row pour pouvoir la ré-afficher plus tard) · Supprimer
+      = effacement définitif.
+    </p>
+    <div class="submission-filters">
+      <select id="inspireFilterStatus" class="btn">
+        <option value="pending" selected>En attente</option>
+        <option value="approved">Approuvées (publiques)</option>
+        <option value="rejected">Cachées</option>
+        <option value="">Toutes</option>
+      </select>
+      <select id="inspireFilterType" class="btn">
+        <option value="">Tous types</option>
+        <option value="chaine">Chaîne</option>
+        <option value="match_impro">Match d'impro</option>
+        <option value="spectacle">Spectacle longue forme</option>
+        <option value="tutoriel">Tutoriel</option>
+        <option value="documentaire">Documentaire</option>
+        <option value="cabaret">Cabaret</option>
+        <option value="format_court">Format court</option>
+      </select>
+      <select id="inspireFilterLocale" class="btn">
+        <option value="">Toutes langues</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="en">🇬🇧 English</option>
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="pt">🇵🇹 Português</option>
+        <option value="nl">🇳🇱 Nederlands</option>
+      </select>
+      <input type="search" id="inspireFilterText" placeholder="Recherche titre / troupe…" />
+      <button class="btn btn-primary" id="inspireAddAdminBtn" type="button" style="margin-left:auto;">+ Ajouter une inspiration</button>
+      <span class="count" id="inspireCount"></span>
+    </div>
+    <div class="table-wrap">
+      <table class="profiles" id="inspireTableAdmin">
+        <thead>
+          <tr>
+            <th>Titre</th>
+            <th>Chaîne / Troupe</th>
+            <th>Type</th>
+            <th>Nat.</th>
+            <th>Catégorie</th>
+            <th>Thème</th>
+            <th>Durée</th>
+            <th>Langue</th>
+            <th>URL</th>
+            <th>Soumis par</th>
+            <th>État</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="inspireBodyAdmin">
+          <tr><td colspan="12" class="empty">Chargement…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div><!-- /data-view="inspirations" -->
 </div><!-- /adminApp -->
 
 <!-- Admin-only "Ajouter une inspiration" dialog. Opens from the
@@ -1035,12 +1060,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
         integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
         crossorigin="anonymous"></script>
-<script src="./js/config.js?v=20260557"></script>
-<script src="./js/utils.js?v=20260557"></script>
+<script src="./js/config.js?v=20260560"></script>
+<script src="./js/utils.js?v=20260560"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=20260557"></script>
+<script src="./data/all.js?v=20260560"></script>
 <script>
 (function () {
   "use strict";
@@ -1718,12 +1743,14 @@
     refreshInspirePendingBadge();
     const status = $("inspireFilterStatus").value;
     const type   = $("inspireFilterType").value;
+    const locale = ($("inspireFilterLocale") && $("inspireFilterLocale").value) || "";
     const text   = ($("inspireFilterText").value || "").trim().toLowerCase();
     const body   = $("inspireBodyAdmin");
     if (!body) return;
     const filtered = allInspirations.filter(v => {
       if (status && v.status !== status) return false;
       if (type   && v.content_type !== type) return false;
+      if (locale && v.locale !== locale) return false;
       if (text) {
         const hay = [v.title, v.channel, v.theme, v.notes, v.video_url].filter(Boolean).join(" ").toLowerCase();
         if (!hay.includes(text)) return false;
@@ -1732,20 +1759,30 @@
     });
     $("inspireCount").textContent = filtered.length + " / " + allInspirations.length;
     if (filtered.length === 0) {
-      body.innerHTML = '<tr><td colspan="11" class="empty">Aucune entrée pour ces filtres.</td></tr>';
+      body.innerHTML = '<tr><td colspan="12" class="empty">Aucune entrée pour ces filtres.</td></tr>';
       return;
     }
     body.innerHTML = filtered.map(v => {
       const isPending  = v.status === "pending";
       const isApproved = v.status === "approved";
-      // Inline actions: approve / reject pending; edit + delete always.
+      const isHidden   = v.status === "rejected";
+      // Action set mirrors the bundled-lists pattern (Cacher / Afficher
+      // / Éditer / Supprimer) rather than approve-reject — clearer admin
+      // mental model for "this entry is or isn't on the public page".
       let actions = "";
       if (isPending) {
+        // Pending = user submission waiting for review.
         actions +=
-          '<button class="btn btn-approve" data-inspire-act="approve" data-id="' + escapeHtml(v.id) + '">✓ Approuver</button>' +
-          '<button class="btn btn-reject"  data-inspire-act="reject"  data-id="' + escapeHtml(v.id) + '">✗ Rejeter</button>';
+          '<button class="btn btn-approve" data-inspire-act="approve" data-id="' + escapeHtml(v.id) + '">✓ Approuver (publier)</button>' +
+          '<button class="btn btn-reject"  data-inspire-act="reject"  data-id="' + escapeHtml(v.id) + '">🙈 Cacher</button>';
       } else if (isApproved) {
-        actions += '<button class="btn" data-inspire-act="reject" data-id="' + escapeHtml(v.id) + '">↩ Re-pending</button>';
+        // Approved = public. The "Cacher" action sets status='rejected'
+        // so it's filtered out of the public page (and from this admin
+        // list under the default "En attente" filter).
+        actions += '<button class="btn btn-reject" data-inspire-act="reject" data-id="' + escapeHtml(v.id) + '">🙈 Cacher</button>';
+      } else if (isHidden) {
+        // Re-show: bring back to public visibility.
+        actions += '<button class="btn btn-approve" data-inspire-act="approve" data-id="' + escapeHtml(v.id) + '">👁 Afficher</button>';
       }
       actions +=
         '<button class="btn" data-inspire-act="edit"   data-id="' + escapeHtml(v.id) + '">✎ Éditer</button>' +
@@ -1753,6 +1790,11 @@
       const urlCell = v.video_url
         ? '<a href="' + escapeHtml(v.video_url) + '" target="_blank" rel="noopener noreferrer">lien</a>'
         : '<span style="color:var(--ink-faint);">—</span>';
+      // Flag emoji for the language column (visual scan-ability).
+      const LOC_FLAG = { fr: "🇫🇷", en: "🇬🇧", de: "🇩🇪", es: "🇪🇸", pt: "🇵🇹", nl: "🇳🇱" };
+      const localeCell = v.locale
+        ? (LOC_FLAG[v.locale] || "") + " " + escapeHtml(v.locale.toUpperCase())
+        : "—";
       return '<tr data-row-id="' + escapeHtml(v.id) + '">' +
         '<td class="wrap">'      + escapeHtml(v.title)                                + '</td>' +
         '<td>'                   + escapeHtml(v.channel || "—")                        + '</td>' +
@@ -1761,9 +1803,14 @@
         '<td>'                   + escapeHtml(INSPIRE_CAT_LBL[v.category] || v.category || "—")          + '</td>' +
         '<td class="wrap">'      + escapeHtml(v.theme || "—")                          + '</td>' +
         '<td>'                   + escapeHtml(v.duration_text || "—")                  + '</td>' +
+        '<td>'                   + localeCell                                          + '</td>' +
         '<td>'                   + urlCell                                              + '</td>' +
         '<td class="email">'     + escapeHtml(emailForInspireRow(v))                   + '</td>' +
-        '<td><span class="status-' + escapeHtml(v.status) + '">' + escapeHtml(v.status) + '</span></td>' +
+        '<td><span class="status-' + escapeHtml(v.status) + '">' + escapeHtml(
+          v.status === "pending"  ? "En attente" :
+          v.status === "approved" ? "Public" :
+          v.status === "rejected" ? "Caché"     : v.status
+        ) + '</span></td>' +
         '<td class="actions">'   + actions                                              + '</td>' +
       '</tr>';
     }).join("");
@@ -1910,7 +1957,7 @@
   }
 
   function wireInspirationsControls() {
-    ["inspireFilterStatus","inspireFilterType","inspireFilterText"].forEach(id => {
+    ["inspireFilterStatus","inspireFilterType","inspireFilterLocale","inspireFilterText"].forEach(id => {
       const el = $(id); if (!el) return;
       el.addEventListener("input",  renderInspirations);
       el.addEventListener("change", renderInspirations);
@@ -2456,24 +2503,19 @@
      selectors above use to show/hide the right sections.
      ============================================================ */
   function setView(name) {
-    // Both "impro" and "inspirations" land on the impro view (same body
-    // class), since the inspirations moderation queue is a section inside
-    // that view. The hash just remembers which deep-link the admin used.
-    const v = (name === "impro" || name === "inspirations") ? "impro" : "tableau";
-    document.body.classList.remove("view-tableau", "view-impro");
+    // Three true sibling views, each with its own body class.
+    const v = (name === "impro") ? "impro"
+            : (name === "inspirations") ? "inspirations"
+            : "tableau";
+    document.body.classList.remove("view-tableau", "view-impro", "view-inspirations");
     document.body.classList.add("view-" + v);
-    document.title = (v === "impro") ? "Acto — Admin · Impro" : "Acto — Admin";
-    // Smooth-scroll to the inspirations section when that's the deep-link.
-    // setTimeout deferred so the layout settles after the body class flip.
-    if (name === "inspirations") {
-      setTimeout(() => {
-        const target = document.querySelector('h2.section-title + p + .submission-filters #inspireFilterStatus')
-          || document.getElementById("inspireBodyAdmin")
-          || null;
-        const anchor = target ? target.closest("h2, .section-title, .submission-filters") || target : null;
-        if (anchor) anchor.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 80);
-    }
+    document.title =
+      v === "impro"        ? "Acto — Admin · Impro" :
+      v === "inspirations" ? "Acto — Admin · Inspirations" :
+                             "Acto — Admin";
+    // Reset scroll on view switch so the user lands at the top of the
+    // freshly-shown section, not a stale scrollTop from the previous view.
+    window.scrollTo(0, 0);
   }
   function viewFromHash() {
     const h = (window.location.hash || "").replace(/^#/, "").toLowerCase();
@@ -2487,15 +2529,7 @@
     const goInspire = $("goInspireBtn");
     const back      = $("backToTableauBtn");
     if (goImpro)   goImpro.addEventListener("click",   () => { window.location.hash = "impro"; });
-    if (goInspire) goInspire.addEventListener("click", () => {
-      // Even from inside the impro view, force a re-fire so the scroll
-      // jumps to the inspirations section.
-      if (window.location.hash === "#inspirations") {
-        setView("inspirations");
-      } else {
-        window.location.hash = "inspirations";
-      }
-    });
+    if (goInspire) goInspire.addEventListener("click", () => { window.location.hash = "inspirations"; });
     if (back) back.addEventListener("click",  () => {
       history.replaceState(null, "", window.location.pathname + window.location.search);
       setView("tableau");

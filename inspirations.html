@@ -6,11 +6,11 @@
 <meta name="description" content="Inspirations vidéo · Acto The Impro Studio" />
 <meta name="theme-color" content="#0c0814" />
 <title>Acto — Inspirations</title>
-<link rel="icon" type="image/png" href="./assets/logo.png?v=20260557" />
+<link rel="icon" type="image/png" href="./assets/logo.png?v=20260560" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=20260557" />
+<link rel="stylesheet" href="styles.css?v=20260560" />
 <style>
   /* Page wrapper — wider than support.html since this is a data table. */
   .inspire-screen {
@@ -79,6 +79,28 @@
     color: var(--ink-faint);
     font-style: italic;
   }
+  /* Locale select tucked into the right of the search pill — same dark
+     glass background, no separate border, just enough chrome to look
+     like a dropdown. */
+  .inspire-locale-select {
+    flex: 0 0 auto;
+    appearance: none;
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--ink);
+    font: inherit;
+    font-size: 0.85rem;
+    padding: 0.35rem 1.6rem 0.35rem 0.7rem;
+    border-radius: 10px;
+    cursor: pointer;
+    background-image: linear-gradient(45deg, transparent 50%, var(--ink-muted) 50%),
+                      linear-gradient(135deg, var(--ink-muted) 50%, transparent 50%);
+    background-position: calc(100% - 12px) center, calc(100% - 7px) center;
+    background-size: 5px 5px;
+    background-repeat: no-repeat;
+  }
+  .inspire-locale-select:focus { outline: none; border-color: rgba(245,196,81,0.55); }
+  .inspire-locale-select option { color: #000; background: #fff; }
   .inspire-add-btn {
     flex: 0 0 auto;
     appearance: none; cursor: pointer;
@@ -146,14 +168,15 @@
   .inspire-row {
     display: grid;
     grid-template-columns:
-      minmax(280px, 2.2fr)        /* title + link */
-      minmax(140px, 1fr)          /* channel */
-      minmax(110px, 0.9fr)        /* type */
-      minmax(90px,  0.7fr)        /* nature */
-      minmax(130px, 1fr)          /* category */
-      minmax(140px, 1fr)          /* theme */
-      minmax(70px,  0.5fr)        /* duration */
-      minmax(180px, 1.4fr);       /* notes */
+      minmax(260px, 2.1fr)        /* title + link */
+      minmax(130px, 1fr)          /* channel */
+      minmax(100px, 0.85fr)       /* type */
+      minmax(85px,  0.65fr)       /* nature */
+      minmax(120px, 0.95fr)       /* category */
+      minmax(130px, 1fr)          /* theme */
+      minmax(65px,  0.45fr)       /* duration */
+      minmax(55px,  0.35fr)       /* language flag */
+      minmax(170px, 1.3fr);       /* notes */
     gap: 0.6rem;
     padding: 0.7rem 0.9rem;
     border-bottom: 1px solid rgba(255,255,255,0.06);
@@ -224,23 +247,106 @@
   }
   .inspire-empty strong { color: var(--ink); display: block; margin-bottom: 0.3rem; font-size: 1.05rem; }
 
-  /* Mobile collapse — fall back to stacked card per row */
+  /* ─── Mobile / narrow viewports ───
+     Below 900px the line layout becomes unreadable. Switch to a
+     stacked card per row: rounded gold-outlined card, with the chip
+     metadata wrapping inline below the title/channel, and empty (—)
+     cells hidden so the chip row stays clean. */
   @media (max-width: 900px) {
+    .inspire-table {
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      overflow: visible;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
     .inspire-row {
-      grid-template-columns: 1fr;
-      gap: 0.25rem;
-      padding: 0.9rem 0.9rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem 0.45rem;
+      padding: 0.85rem 0.95rem;
+      background: linear-gradient(160deg, rgba(245,196,81,0.05), rgba(255,255,255,0.025));
+      border: 1px solid rgba(245,196,81,0.32);
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.32);
+      transition: border-color 0.18s, transform 0.12s;
+    }
+    .inspire-row:hover {
+      border-color: rgba(245,196,81,0.55);
+      transform: translateY(-1px);
     }
     .inspire-row.is-header { display: none; }
-    .inspire-row .col-title { order: 1; font-size: 0.95rem; }
-    .inspire-row .col-channel { order: 2; }
-    .inspire-row .col-meta-row {
-      order: 3;
-      display: flex; flex-wrap: wrap; gap: 0.3rem;
-      margin-top: 0.2rem;
+    /* Full-width blocks */
+    .inspire-row .col-title,
+    .inspire-row .col-channel,
+    .inspire-row .col-theme,
+    .inspire-row .col-notes { flex: 1 1 100%; min-width: 0; }
+    /* Chips wrap inline */
+    .inspire-row .col-type,
+    .inspire-row .col-nature,
+    .inspire-row .col-category,
+    .inspire-row .col-duration,
+    .inspire-row .col-locale {
+      flex: 0 0 auto;
+      font-size: 0.74rem;
     }
-    .inspire-row .col-theme { order: 4; margin-top: 0.2rem; }
-    .inspire-row .col-notes { order: 5; margin-top: 0.3rem; }
+    /* Visual ordering */
+    .inspire-row .col-title    { order: 1; font-size: 1rem; font-weight: 700; line-height: 1.3; }
+    .inspire-row .col-title a  { border-bottom-style: solid; }
+    .inspire-row .col-channel  { order: 2; color: var(--ink-muted); font-size: 0.83rem; margin-top: -0.1rem; }
+    .inspire-row .col-type     { order: 3; }
+    .inspire-row .col-nature   { order: 4; }
+    .inspire-row .col-category { order: 5; }
+    .inspire-row .col-duration { order: 6; }
+    .inspire-row .col-locale   { order: 7; }
+    .inspire-row .col-theme {
+      order: 8;
+      font-style: italic;
+      color: var(--ink);
+      font-size: 0.85rem;
+      padding-top: 0.2rem;
+      border-top: 1px dashed rgba(255,255,255,0.08);
+      width: 100%;
+    }
+    .inspire-row .col-notes {
+      order: 9;
+      font-size: 0.78rem;
+      color: var(--ink-muted);
+      line-height: 1.45;
+    }
+    /* Make the chip cells look like real chips on mobile (matching the
+       .tag style for type/nature/category — duration/locale also get a
+       chip frame so the metadata row reads as one coherent group). */
+    .inspire-row .col-duration,
+    .inspire-row .col-locale {
+      display: inline-block;
+      padding: 0.08rem 0.5rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 999px;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+    /* Hide empty placeholder cells so the chip row stays clean. The
+       JS adds .is-empty when the cell content is just "—". */
+    .inspire-row .col-type.is-empty,
+    .inspire-row .col-nature.is-empty,
+    .inspire-row .col-category.is-empty,
+    .inspire-row .col-duration.is-empty,
+    .inspire-row .col-locale.is-empty,
+    .inspire-row .col-channel.is-empty,
+    .inspire-row .col-theme.is-empty,
+    .inspire-row .col-notes.is-empty { display: none; }
+  }
+  /* Extra-narrow phones (≤380px) — tighten paddings and font sizes. */
+  @media (max-width: 380px) {
+    .inspire-screen { padding: 0 0.7rem; }
+    .inspire-row { padding: 0.75rem 0.8rem; border-radius: 12px; gap: 0.35rem 0.4rem; }
+    .inspire-row .col-title { font-size: 0.95rem; }
+    .inspire-search input[type="search"] { font-size: 0.95rem; }
+    .inspire-add-btn { font-size: 0.82rem; padding: 0.5rem 0.85rem; }
   }
 
   /* ─── Submit dialog ─── */
@@ -397,7 +503,7 @@
 
   <header class="hero">
     <a class="hero-logo-link" href="./index.html" aria-label="Acto - The Impro Studio">
-      <img class="hero-logo" src="./assets/logo.png?v=20260557" alt="Acto - The Impro Studio" />
+      <img class="hero-logo" src="./assets/logo.png?v=20260560" alt="Acto - The Impro Studio" />
     </a>
   </header>
 
@@ -419,6 +525,17 @@
       </svg>
       <input type="search" id="inspireQuery" autocomplete="off"
              placeholder="Tape une catégorie, un thème, un nom de troupe, une nature…" />
+      <!-- Locale dropdown sits inside the search bar (right side) so it
+           feels like a unified filter widget rather than a separate panel. -->
+      <select id="inspireFilterLocale" class="inspire-locale-select" title="Filtrer par langue">
+        <option value="">🌍 Toutes</option>
+        <option value="fr">🇫🇷 FR</option>
+        <option value="en">🇬🇧 EN</option>
+        <option value="de">🇩🇪 DE</option>
+        <option value="es">🇪🇸 ES</option>
+        <option value="pt">🇵🇹 PT</option>
+        <option value="nl">🇳🇱 NL</option>
+      </select>
     </div>
     <div class="inspire-suggestions" id="inspireSuggestions"></div>
 
@@ -433,6 +550,7 @@
         <div class="col-category"   id="hdrCategory">Catégorie</div>
         <div class="col-theme"      id="hdrTheme">Thème</div>
         <div class="col-duration"   id="hdrDuration">Durée</div>
+        <div class="col-locale"     id="hdrLocale">Langue</div>
         <div class="col-notes"      id="hdrNotes">Notes</div>
       </div>
       <div id="inspireBody"></div>
@@ -537,9 +655,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
           integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
           crossorigin="anonymous"></script>
-  <script src="./js/config.js?v=20260557"></script>
-  <script src="./js/utils.js?v=20260557"></script>
-  <script src="./data/all.js?v=20260557"></script>
-  <script src="./js/inspirations.js?v=20260557"></script>
+  <script src="./js/config.js?v=20260560"></script>
+  <script src="./js/utils.js?v=20260560"></script>
+  <script src="./data/all.js?v=20260560"></script>
+  <script src="./js/inspirations.js?v=20260560"></script>
 </body>
 </html>

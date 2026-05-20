@@ -1579,8 +1579,13 @@ body.is-signed-in .settings-trigger { display: inline-flex !important; }
 
 @media (max-width: 640px) {
   .top-actions { top: 0.6rem; right: 0.6rem; gap: 0.35rem; }
-  .top-trigger { padding: 0.45rem 0.75rem; }
-  .top-trigger span { display: none; }
+  .top-trigger { padding: 0.45rem 0.6rem; }
+  /* On mobile we only hide the TEXT spans (the labels), not the emoji
+     span which carries aria-hidden="true". Without this carve-out the
+     🎭 / ⚙ / 📖 icons disappeared too and the buttons turned into
+     empty pills. */
+  .top-trigger span:not([aria-hidden]) { display: none; }
+  .top-trigger > span[aria-hidden] { font-size: 1.2rem !important; }
   .settings-dialog { width: 96vw; max-height: 92vh; }
 }
 
@@ -2130,8 +2135,9 @@ body.is-signed-in .settings-trigger { display: inline-flex !important; }
 
   /* Top actions compact */
   .top-actions { top: 0.5rem; right: 0.5rem; gap: 0.3rem; }
-  .top-trigger { padding: 0.4rem 0.55rem; }
-  .top-trigger span { display: none; }
+  .top-trigger { padding: 0.4rem 0.5rem; }
+  /* Preserve the emoji (aria-hidden) span; hide only the text label. */
+  .top-trigger span:not([aria-hidden]) { display: none; }
 
   /* Footer compact */
   .footer { padding: 1.5rem 1rem 2rem; font-size: 0.78rem; }
