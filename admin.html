@@ -286,30 +286,64 @@
   }
 
   /* ─── Inspirations admin table — DESKTOP fix for clipped action buttons ───
-     12 columns squeeze the Actions cell down to ~90px, so the 3 buttons
-     (Cacher / Éditer / Supprimer) overflow horizontally and get cropped.
-     Stack them vertically inside the cell so each gets full column width
-     and the labels stay readable. */
+     The default table.profiles has `min-width: 1100px` which forces
+     horizontal scroll and squeezes the rightmost Actions column off
+     screen. We drop that min-width for inspirations and pin explicit
+     widths on the short columns so the Actions column gets a guaranteed
+     8rem (~128px), enough for stacked Cacher/Éditer/Supprimer labels. */
+  #inspireTableAdmin { min-width: 0 !important; table-layout: auto; }
+  /* Stack the 3 action buttons vertically inside the cell, each
+     taking the full cell width, so labels stay readable. */
   #inspireTableAdmin td.actions {
     white-space: normal;
     vertical-align: top;
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    min-width: 7.5rem;
+    width: 8rem;
+    min-width: 8rem;
+    padding-right: 0.5rem;
   }
+  #inspireTableAdmin td.actions > .btn { margin-bottom: 0.3rem; }
   #inspireTableAdmin td.actions .btn {
+    display: block;
     width: 100%;
     min-width: 0;
-    font-size: 0.76rem;
-    padding: 0.4rem 0.55rem;
-    text-align: left;
+    font-size: 0.74rem;
+    padding: 0.36rem 0.5rem;
+    text-align: center;
     line-height: 1.15;
-    min-height: 32px;
+    min-height: 30px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  /* Widen the Actions column header to match the cell so the column
-     doesn't get auto-shrunk below the buttons' min-width. */
-  #inspireTableAdmin thead th:last-child { min-width: 7.5rem; width: 7.5rem; }
+  /* Pin explicit widths on short columns so the layout balances
+     out and the long-content columns (Titre / Chaîne / Thème) get
+     the leftover space. */
+  #inspireTableAdmin thead th:nth-child(3),   /* Type */
+  #inspireTableAdmin tbody td:nth-child(3)  { width: 7rem; }
+  #inspireTableAdmin thead th:nth-child(4),   /* Nat. */
+  #inspireTableAdmin tbody td:nth-child(4)  { width: 4rem; }
+  #inspireTableAdmin thead th:nth-child(5),   /* Catégorie */
+  #inspireTableAdmin tbody td:nth-child(5)  { width: 7rem; }
+  #inspireTableAdmin thead th:nth-child(7),   /* Durée */
+  #inspireTableAdmin tbody td:nth-child(7)  { width: 4rem; }
+  #inspireTableAdmin thead th:nth-child(8),   /* Langue */
+  #inspireTableAdmin tbody td:nth-child(8)  { width: 4.5rem; }
+  #inspireTableAdmin thead th:nth-child(9),   /* URL */
+  #inspireTableAdmin tbody td:nth-child(9)  { width: 3rem; }
+  #inspireTableAdmin thead th:nth-child(11),  /* État */
+  #inspireTableAdmin tbody td:nth-child(11) { width: 4.5rem; }
+  #inspireTableAdmin thead th:last-child,     /* Actions */
+  #inspireTableAdmin tbody td.actions       { width: 8rem; min-width: 8rem; }
+  /* Long-content columns get word-wrap so they don't force the table
+     to overflow horizontally. */
+  #inspireTableAdmin tbody td:nth-child(1),
+  #inspireTableAdmin tbody td:nth-child(2),
+  #inspireTableAdmin tbody td:nth-child(6),   /* Thème */
+  #inspireTableAdmin tbody td:nth-child(10)  /* Soumis par */ {
+    white-space: normal;
+    word-break: break-word;
+  }
+  #inspireTableAdmin tbody td:nth-child(10) { max-width: 12rem; font-size: 0.76rem; }
 
   /* ─── Inspirations admin: responsive card layout on mobile ───
      Below 900px the 12-column horizontal table is unreadable (and the
@@ -1184,12 +1218,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
         integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
         crossorigin="anonymous"></script>
-<script src="./js/config.js?v=20260565"></script>
-<script src="./js/utils.js?v=20260565"></script>
+<script src="./js/config.js?v=20260566"></script>
+<script src="./js/utils.js?v=20260566"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=20260565"></script>
+<script src="./data/all.js?v=20260566"></script>
 <script>
 (function () {
   "use strict";
