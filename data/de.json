@@ -33,6 +33,72 @@
         {
           "name": "Fragenkreis",
           "desc": "Ein Spieler in der Mitte. Andere bombardieren ihn mit schnellen Fragen, präzise zu beantworten."
+        },
+        {
+          "name": "Gemischt",
+          "desc": "Die ganze Truppe spielt das Thema gemeinsam, ohne Mannschaftsaufteilung. (Aus Match-Kategorie adaptiert)"
+        },
+        {
+          "name": "Vergleich",
+          "desc": "Zwei Untergruppen der Truppe spielen dieselbe Vorlage nacheinander. Die 2. Version muss sich von der 1. unterscheiden. (Aus Match-Kategorie adaptiert)"
+        },
+        {
+          "name": "Mit Requisit",
+          "desc": "Ein vorgegebenes Objekt muss zentral für die kollektive Improvisation sein. Die ganze Truppe lässt es auf der Bühne wirken. (Aus Match-Kategorie adaptiert)"
+        },
+        {
+          "name": "Frei",
+          "desc": "Zwei Untergruppen spielen dasselbe Thema nacheinander ohne Formvorgabe. Vollkommene Freiheit. (Aus Match-Kategorie adaptiert)"
+        },
+        {
+          "name": "Die Stühle",
+          "desc": "Ein Team hat 30 Sek., um aus Stühlen eine Struktur zu bauen. Ein anderes Team hat 40 Sek., um darauf eine Improvisation vorzubereiten. (Tadam Impro)"
+        },
+        {
+          "name": "Die Grabrede",
+          "desc": "Jeder improvisiert eine Trauerrede für sein Haustier. Feierlich, komisch, oder beides. (Tadam Impro)"
+        },
+        {
+          "name": "Thema verkörpern",
+          "desc": "Die Gruppe ist in Bewegung, ein Leiter ruft ein Thema (Museum, Pyramiden...). Die Gruppe stellt es sofort dar. (Tadam Impro)"
+        },
+        {
+          "name": "Schräges Gespräch",
+          "desc": "Zwei Spieler improvisieren eine schräge Situation: ein Vogel erklärt einem anderen Vogel den Baum, ein Floh streitet mit einem Hund. (Tadam Impro)"
+        },
+        {
+          "name": "Der Betrunkene",
+          "desc": "Ein Zuschauer (oder Schauspieler) spielt den « Betrunkenen », der die Szene mit absurden Vorschlägen unterbricht, die die Improvisierenden in die Geschichte einarbeiten müssen.",
+          "needsAudience": true
+        },
+        {
+          "name": "Die menschliche Maschine",
+          "desc": "Einer nach dem anderen treten die Spieler ein und fügen eine sich wiederholende Geste oder einen Klang hinzu. Die Maschine baut sich organisch auf."
+        },
+        {
+          "name": "ABC",
+          "desc": "Eine Szene, in der jede Replik mit dem nächsten Buchstaben des Alphabets beginnt. A, B, C... bis Z."
+        },
+        {
+          "name": "Der Bus",
+          "desc": "Eine Bushaltestelle. Bei jeder Ankunft steigt eine neue Figur mit ihrer eigenen Welt ein. Die Szene wandelt sich jedes Mal."
+        },
+        {
+          "name": "Pantomime",
+          "desc": "Eine vollständig pantomimisch gespielte Szene zu einem vorgegebenen Thema. (Dramaction)"
+        },
+        {
+          "name": "Wandernde Emotion",
+          "desc": "Ein Spieler überträgt schweigend eine Emotion durch eine Geste an seinen Nachbarn, der sie weitergibt. (Dramaction)"
+        },
+        {
+          "name": "Anfang-Mitte-Ende in 30 Sek.",
+          "desc": "Eine Impro beginnen, den Konflikt verschieben und abschließen — alles in 30 Sekunden. (Impro-Exo)"
+        },
+        {
+          "name": "Gespräch mit wechselnder Emotion",
+          "desc": "Ein Dialog zu zweit. Alle 1-2 Minuten ruft ein Leiter eine Emotion. Die Spieler kippen sofort um. (MentorShow)",
+          "needsAudience": true
         }
       ],
       "confirme": [
@@ -67,6 +133,70 @@
         {
           "name": "Genremix",
           "desc": "Spielleiter wechselt das Genre alle 30 Sekunden (Western, Krimi, Romanze, Horror...)."
+        },
+        {
+          "name": "In der Art von",
+          "desc": "Alle spielen das Thema in einem vorgegebenen Autoren- oder Genrestil: Goethe, Film noir, Tarantino... (Aus Match-Kategorie adaptiert)"
+        },
+        {
+          "name": "Stumm",
+          "desc": "Kein gesprochenes Wort — nur die kollektive Inszenierung erzählt. Höchste Konzentration. (Aus Match-Kategorie adaptiert)"
+        },
+        {
+          "name": "Stumm mit Musik",
+          "desc": "Stumme Improvisation, aber das Schreiben wird streng durch die vorgegebene Musikstimmung geprägt. (Dramaction)"
+        },
+        {
+          "name": "Mit Pflicht-Vorgabe",
+          "desc": "Zwei Untergruppen spielen dasselbe Thema nacheinander, jede mit einer anderen zufällig gezogenen Vorgabe. (Aus Match-Kategorie adaptiert)"
+        },
+        {
+          "name": "Ohne Thema, ohne Caucus",
+          "desc": "Kein Thema angekündigt, keine Vorbereitungszeit. Reine Spontaninvention. (Dramaction)"
+        },
+        {
+          "name": "Bockspringen",
+          "desc": "Vier verschiedene Improvisationen, ein Thema pro Impro. Die 1. mit einem Spieler, bei jeder folgenden Impro kommt einer dazu. (Dramaction)"
+        },
+        {
+          "name": "Sensorisch",
+          "desc": "Einer der fünf Sinne eines Improvisators wird während der Szene gereizt. Diese Empfindung muss das ganze Schreiben prägen. (Dramaction)"
+        },
+        {
+          "name": "Vergleich in der Art von",
+          "desc": "Zwei Untergruppen der Truppe spielen dasselbe Thema nacheinander im vorgegebenen Stil, jede auf ihre eigene Weise. (Aus Match-Kategorie adaptiert)"
+        },
+        {
+          "name": "Dreifachstatus",
+          "desc": "Jede Figur hat ein Geheimnis, ein Ziel und ein Hindernis. Alle drei werden im Lauf der Szene enthüllt."
+        },
+        {
+          "name": "Umgekehrte Szene",
+          "desc": "Man beginnt mit dem Höhepunkt und arbeitet sich bis zur ersten Begegnung der Figuren zurück."
+        },
+        {
+          "name": "Der verstimmte Chor",
+          "desc": "Ein Chor auf der Bühne — ein Mitglied ist verstimmt oder aus dem Takt. Das ganze Drama entsteht durch ihn. (Wikiversité)"
+        },
+        {
+          "name": "Schauspieler hinter den Kulissen",
+          "desc": "Eine Szene spielt hinter den Kulissen, während die « Aufführung » auf der Bühne läuft. Spiel im Spiel. (Wikiversité)"
+        },
+        {
+          "name": "Der defekte Aufzug",
+          "desc": "Engster Raum, mehrere Figuren, Kammerspiel erzwungen. Ein Klassiker. (Wikiversité)"
+        },
+        {
+          "name": "Die Lehrerkonferenz",
+          "desc": "Eine Lehrersitzung, in der jeder Lehrer eine versteckte Agenda und einen Lieblingsschüler hat."
+        },
+        {
+          "name": "Rückkehr in die Vergangenheit",
+          "desc": "In einem entscheidenden Moment klatscht ein Spieler. Die Szene springt eine Minute zurück und wird anders gespielt."
+        },
+        {
+          "name": "Gezogene Figur",
+          "desc": "Jeder Spieler zieht einen Figurentyp (Clown, Verführer, Paranoiker), den er spielen muss, ohne ihn zu benennen."
         }
       ],
       "expert": [
@@ -101,6 +231,54 @@
         {
           "name": "Beckettsch",
           "desc": "Lange absurde Form: gehaltene Stille, Warten, sich entleerende Sprache. Im Stil von Godot."
+        },
+        {
+          "name": "Gesungen",
+          "desc": "Improvisation ganz oder teilweise gesungen von der ganzen Truppe, improvisierte Melodien und Texte im Kollektiv. (Aus Match-Kategorie adaptiert)"
+        },
+        {
+          "name": "Gereimt",
+          "desc": "Alle Repliken reimen sich. Achtsilbler oder Alexandriner je nach Niveau. Die ganze Truppe hält das Metrum. (Aus Match-Kategorie adaptiert)"
+        },
+        {
+          "name": "Videoway",
+          "desc": "Gemischt mit vier TV-Kanälen (F1-F4), unterschiedlicher Inhalt pro Kanal. Der Schiedsrichter springt ohne vordefinierte Reihenfolge zwischen den Kanälen. (Dramaction)"
+        },
+        {
+          "name": "Thesen",
+          "desc": "Die kollektive Improvisation muss eine vorab angekündigte philosophische These verteidigen."
+        },
+        {
+          "name": "Vergleich gesungen",
+          "desc": "Zwei Untergruppen der Truppe bieten nacheinander ihre gesungene Version desselben Themas. (Aus Match-Kategorie adaptiert)"
+        },
+        {
+          "name": "Vergleich gereimt",
+          "desc": "Zwei Untergruppen der Truppe liefern nacheinander ihre gereimte Version des Themas. (Aus Match-Kategorie adaptiert)"
+        },
+        {
+          "name": "Der Feuerball",
+          "desc": "Alle Spieler auf der Bühne. Bei jedem Höhepunkt löst sich ein Duo für eine Mini-Szene und kehrt dann zur Gruppe zurück."
+        },
+        {
+          "name": "Geteiltes Monolog",
+          "desc": "Ein langer Monolog wird von jedem Spieler übernommen, der ihn verformt und bereichert, während er dieselbe Figur verkörpert."
+        },
+        {
+          "name": "Impro-Oper",
+          "desc": "Rezitative und Arien im Wechsel gesungen, vollständig improvisiertes Libretto, Opernstimmen."
+        },
+        {
+          "name": "Das Haus (Del Close)",
+          "desc": "Lange Form, in der jede Szene Themen eröffnet, die die folgenden aufgreifen und vertiefen."
+        },
+        {
+          "name": "Das Dekonstruierte",
+          "desc": "Eine einzelne Szene wird gespielt, dann auseinandergenommen und aus mehreren erzählerischen Blickwinkeln neu begonnen."
+        },
+        {
+          "name": "Tschechowsch",
+          "desc": "Lange Form à la Tschechow: kein Höhepunkt, Figuren, die einander verfehlen, Untätigkeit als Motor."
         }
       ]
     },
@@ -362,8 +540,16 @@
       "desc": "Stil oder Genre vorgegeben (Goethe, Noir, Tarantino...)."
     },
     {
+      "name": "Vergleich in der Art von",
+      "desc": "Jede Mannschaft spielt das Thema im vorgegebenen Stil, auf ihre eigene Weise."
+    },
+    {
       "name": "Gesungen",
       "desc": "Improvisation ganz oder teilweise gesungen."
+    },
+    {
+      "name": "Vergleich gesungen",
+      "desc": "Jede Mannschaft bietet ihre eigene gesungene Version desselben Themas."
     },
     {
       "name": "Stumm",
@@ -376,6 +562,10 @@
     {
       "name": "Gereimt",
       "desc": "Alle Repliken müssen sich reimen."
+    },
+    {
+      "name": "Vergleich gereimt",
+      "desc": "Jede Mannschaft liefert ihre eigene gereimte Version des Themas."
     },
     {
       "name": "Mit Requisit",

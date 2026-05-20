@@ -6,11 +6,11 @@
 <meta name="description" content="Générateur d'exercices, contraintes et thèmes pour l'improvisation théâtrale" />
 <meta name="theme-color" content="#0c0814" />
 <title>Acto — The Impro Studio</title>
-<link rel="icon" type="image/png" href="./assets/logo.png?v=20260551" />
+<link rel="icon" type="image/png" href="./assets/logo.png?v=20260556" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=20260551" />
+<link rel="stylesheet" href="styles.css?v=20260556" />
 </head>
 <body>
   <!-- Stage backdrop -->
@@ -30,6 +30,12 @@
       </svg>
       <span id="rulesLabelText">Règles</span>
     </button>
+    <!-- 🎭 Inspirations — always visible (logged-in or not). Links to the
+         standalone inspirations.html page. -->
+    <a class="top-trigger inspire-trigger" href="./inspirations.html" aria-label="Inspirations">
+      <span aria-hidden="true" style="font-size:1.1rem;">🎭</span>
+      <span id="inspireLabelText">Inspirations</span>
+    </a>
     <button class="top-trigger settings-trigger" id="settingsBtn" type="button" aria-label="Settings">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
         <path fill="currentColor" d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm9.4 4-2 1.2.5 2.3-2.3.4-1 2-2.1-1L12 18l-2.5-1.1-2 1-1.2-2.1L4 15.4l.5-2.3-2-1.1V12l2-1.2-.5-2.3 2.3-.4 1-2 2.1 1L12 6l2.5 1.1 2-1 1.2 2.1L20 8.6l-.5 2.3 2 1.1Z"/>
@@ -40,7 +46,7 @@
 
   <header class="hero">
     <a class="hero-logo-link" href="#" aria-label="Acto - The Impro Studio">
-      <img class="hero-logo" src="./assets/logo.png?v=20260551" alt="Acto - The Impro Studio" />
+      <img class="hero-logo" src="./assets/logo.png?v=20260556" alt="Acto - The Impro Studio" />
     </a>
     <p class="subtitle">
       <span id="subtitle"></span><br>
@@ -858,11 +864,11 @@
           crossorigin="anonymous"></script>
   <!-- Bump v= on each deploy when you change one of these assets, so users
        fetch the fresh version without needing Ctrl+Shift+R. -->
-  <script src="./js/config.js?v=20260551"></script>
-  <script src="./js/utils.js?v=20260551"></script>
-  <script src="./js/rules.js?v=20260551"></script>
-  <script src="./data/all.js?v=20260551"></script>
-  <script src="./js/auth.js?v=20260551"></script>
-  <script src="./js/app.js?v=20260551"></script>
+  <script src="./js/config.js?v=20260556"></script>
+  <script src="./js/utils.js?v=20260556"></script>
+  <script src="./js/rules.js?v=20260556"></script>
+  <script src="./data/all.js?v=20260556"></script>
+  <script src="./js/auth.js?v=20260556"></script>
+  <script src="./js/app.js?v=20260556"></script>
 </body>
 </html>

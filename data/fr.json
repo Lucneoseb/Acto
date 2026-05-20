@@ -21,7 +21,11 @@
         { "name": "Émotion qui passe",      "desc": "Un joueur transmet une émotion en silence à son voisin par un geste, qui la transmet à son tour. (Dramaction)" },
         { "name": "Le Freeze",              "desc": "Deux joueurs improvisent depuis une posture. À tout moment, un autre tape dans ses mains pour figer la scène et remplacer un joueur. (Impro-Exo)" },
         { "name": "Début-milieu-fin en 30s","desc": "Commencer une impro, faire bouger l'enjeu, et conclure — le tout en 30 secondes chrono. (Impro-Exo)" },
-        { "name": "Conversation à émotion changeante", "desc": "Une conversation en duo. Toutes les 1-2 minutes, un meneur crie une émotion. Les joueurs basculent. (MentorShow)", "needsAudience": true }
+        { "name": "Conversation à émotion changeante", "desc": "Une conversation en duo. Toutes les 1-2 minutes, un meneur crie une émotion. Les joueurs basculent. (MentorShow)", "needsAudience": true },
+        { "name": "Mixte",                  "desc": "Tous les joueurs de la troupe entrent ensemble et jouent le thème sans découpage en équipes. (Catégorie match adaptée)" },
+        { "name": "Comparée",               "desc": "Deux sous-groupes de la troupe jouent successivement la même proposition. La 2e version doit se distinguer de la 1ʳᵉ. (Catégorie match adaptée)" },
+        { "name": "Comparée libre",         "desc": "Deux sous-groupes jouent successivement le même thème, aucune contrainte de forme. Liberté totale. (Catégorie match adaptée)" },
+        { "name": "Mixte avec accessoire",  "desc": "Un objet imposé doit être central à l'improvisation collective. La troupe entière l'apprivoise en scène. (Catégorie match adaptée)" }
       ],
       "confirme": [
         { "name": "Pause-Reprise",          "desc": "Le meneur arrête la scène, change un élément (lieu, époque, statut), et la fait reprendre." },
@@ -39,7 +43,15 @@
         { "name": "L'ascenseur en panne",   "desc": "Espace ultra-restreint, plusieurs personnages, le huis-clos est forcé. Classique. (Wikiversité)" },
         { "name": "La réunion de profs",    "desc": "Une réunion d'enseignants où chaque prof a un agenda caché et un élève fétiche." },
         { "name": "Le retour au passé",     "desc": "À un moment-clé, un joueur tape dans ses mains. La scène revient 1 minute en arrière et se rejoue différemment." },
-        { "name": "Le personnage tiré",     "desc": "Chaque joueur tire un type de personnage (clown, séducteur, paranoïaque) qu'il doit jouer sans le nommer." }
+        { "name": "Le personnage tiré",     "desc": "Chaque joueur tire un type de personnage (clown, séducteur, paranoïaque) qu'il doit jouer sans le nommer." },
+        { "name": "Mixte à la manière de",  "desc": "Tout le monde joue le thème dans un style d'auteur ou de genre imposé : Molière, Audiard, film noir... (Catégorie match adaptée)" },
+        { "name": "Comparée à la manière de","desc": "Deux sous-groupes jouent successivement le même thème dans le style imposé, chacun à leur façon. (Catégorie match adaptée)" },
+        { "name": "Mixte sans paroles",     "desc": "Aucun mot prononcé : seule la mise en scène collective raconte. Concentration extrême. (Catégorie match adaptée)" },
+        { "name": "Sans paroles avec soutien musical", "desc": "Improvisation muette, mais l'écriture est rigoureusement influencée par l'ambiance musicale imposée. (Dramaction)" },
+        { "name": "Comparée à contrainte",  "desc": "Deux sous-groupes jouent successivement le même thème, chacun avec une contrainte tirée au sort différente. (Catégorie match adaptée)" },
+        { "name": "Sans thème ni caucus",   "desc": "Aucun thème annoncé, aucun temps de concertation. Pure inventivité immédiate. (Dramaction)" },
+        { "name": "Saute-mouton",           "desc": "Quatre impros différentes, un thème par impro. La 1ʳᵉ avec un joueur, on en ajoute un à chaque impro suivante. (Dramaction)" },
+        { "name": "Sensorielle",            "desc": "Un des cinq sens d'un improvisateur est stimulé pendant la scène. Cette sensation doit nourrir toute l'écriture. (Dramaction)" }
       ],
       "expert": [
         { "name": "Le Harold",              "desc": "Forme longue : trois scènes en parallèle s'entrelacent, se répondent et se nourrissent. Format Del Close." },
@@ -55,7 +67,13 @@
         { "name": "La Maison (Del Close)",  "desc": "Forme longue où chaque scène ouvre des thèmes que les suivantes reprennent et approfondissent." },
         { "name": "Le Deconstructed",       "desc": "Une seule scène est jouée, puis dépiautée et recommencée selon plusieurs angles narratifs." },
         { "name": "Tchekhovienne",          "desc": "Long format à la Tchekhov : pas de climax, des personnages qui se ratent, l'inaction comme moteur." },
-        { "name": "Beckettienne",           "desc": "Long format absurde : silences habités, attente, langage qui se vide. À l'image d'En attendant Godot." }
+        { "name": "Beckettienne",           "desc": "Long format absurde : silences habités, attente, langage qui se vide. À l'image d'En attendant Godot." },
+        { "name": "Mixte chantée",          "desc": "Improvisation entièrement ou partiellement chantée par toute la troupe, mélodies et paroles improvisées en collectif. (Catégorie match adaptée)" },
+        { "name": "Comparée chantée",       "desc": "Deux sous-groupes proposent successivement leur version chantée du même thème. (Catégorie match adaptée)" },
+        { "name": "Mixte rimée",            "desc": "Toutes les répliques riment. Octosyllabes ou alexandrins selon niveau. La troupe entière tient le mètre. (Catégorie match adaptée)" },
+        { "name": "Comparée rimée",         "desc": "Deux sous-groupes livrent successivement leur version rimée du thème. (Catégorie match adaptée)" },
+        { "name": "Videoway",               "desc": "Mixte avec quatre canaux TV (F1-F4), contenu différent par canal. Le meneur saute d'un canal à l'autre sans ordre prédéfini. (Dramaction)" },
+        { "name": "Mixte à thèse",          "desc": "L'improvisation collective doit défendre une thèse philosophique annoncée à l'avance." }
       ]
     },
     "match": {

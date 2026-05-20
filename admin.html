@@ -556,6 +556,7 @@
         <button class="btn nav-on-tableau" id="goImproBtn" type="button">🎭 Impro →</button>
         <!-- Impro view-only nav: come back to the analytics view. -->
         <button class="btn nav-on-impro" id="backToTableauBtn" type="button">← Tableau de bord</button>
+        <a class="btn" href="./inspirations.html" style="display:inline-flex;align-items:center;text-decoration:none;">🎭 Inspirations</a>
         <a class="btn" href="./index.html" style="display:inline-flex;align-items:center;text-decoration:none;">← App</a>
       </div>
     </div>
@@ -780,6 +781,59 @@
       </tbody>
     </table>
   </div>
+
+  <!-- ============================================================
+       🎭 INSPIRATION VIDEOS — pending moderation + approved list.
+       Lives under the "Impro" view so it sits next to the other
+       community-content moderation panels.
+       ============================================================ -->
+  <h2 class="section-title">🎭 Inspirations vidéo</h2>
+  <p style="color:var(--ink-muted);font-size:0.85rem;margin:0 0 0.6rem;">
+    Modère les vidéos d'inspiration soumises par la communauté. Approuver = devient
+    public sur <code>/inspirations.html</code>.
+  </p>
+  <div class="submission-filters">
+    <select id="inspireFilterStatus" class="btn">
+      <option value="pending" selected>En attente</option>
+      <option value="approved">Approuvées</option>
+      <option value="rejected">Rejetées</option>
+      <option value="">Toutes</option>
+    </select>
+    <select id="inspireFilterType" class="btn">
+      <option value="">Tous types</option>
+      <option value="chaine">Chaîne</option>
+      <option value="match_impro">Match d'impro</option>
+      <option value="spectacle">Spectacle longue forme</option>
+      <option value="tutoriel">Tutoriel</option>
+      <option value="documentaire">Documentaire</option>
+      <option value="cabaret">Cabaret</option>
+      <option value="format_court">Format court</option>
+    </select>
+    <input type="search" id="inspireFilterText" placeholder="Recherche titre / troupe…" />
+    <span class="count" id="inspireCount"></span>
+  </div>
+  <div class="table-wrap">
+    <table class="profiles" id="inspireTableAdmin">
+      <thead>
+        <tr>
+          <th>Titre</th>
+          <th>Chaîne / Troupe</th>
+          <th>Type</th>
+          <th>Nat.</th>
+          <th>Catégorie</th>
+          <th>Thème</th>
+          <th>Durée</th>
+          <th>URL</th>
+          <th>Soumis par</th>
+          <th>État</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="inspireBodyAdmin">
+        <tr><td colspan="11" class="empty">Chargement…</td></tr>
+      </tbody>
+    </table>
+  </div>
   </div><!-- /data-view="impro" -->
 </div><!-- /adminApp -->
 
@@ -850,12 +904,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
         integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
         crossorigin="anonymous"></script>
-<script src="./js/config.js?v=20260551"></script>
-<script src="./js/utils.js?v=20260551"></script>
+<script src="./js/config.js?v=20260556"></script>
+<script src="./js/utils.js?v=20260556"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=20260551"></script>
+<script src="./data/all.js?v=20260556"></script>
 <script>
 (function () {
   "use strict";
@@ -1475,6 +1529,184 @@
     allHiddenItems = data || [];
   }
 
+  /* ============================================================
+     🎭 INSPIRATION VIDEOS — moderation queue
+     ============================================================ */
+  let allInspirations = [];
+  const INSPIRE_TYPE_LBL = {
+    chaine: "Chaîne", match_impro: "Match d'impro", spectacle: "Spectacle longue forme",
+    tutoriel: "Tutoriel", documentaire: "Documentaire", cabaret: "Cabaret",
+    format_court: "Format court"
+  };
+  const INSPIRE_NATURE_LBL = { mixte: "Mixte", comparee: "Comparée", na: "N/A" };
+  const INSPIRE_CAT_LBL = {
+    libre: "Libre", a_la_maniere_de: "À la manière de", chantee: "Chantée",
+    rimee: "Rimée", sans_paroles: "Sans paroles", costumee: "Costumée",
+    doublee: "Doublée", silencieuse: "Silencieuse", sportive: "Sportive",
+    sans_contact: "Sans contact", a_2: "À 2", a_3: "À 3"
+  };
+
+  async function loadInspirations() {
+    const body = $("inspireBodyAdmin");
+    if (body) body.innerHTML = '<tr><td colspan="11" class="empty">Chargement…</td></tr>';
+    // Admins read all rows regardless of status (admins_read_all_inspirations policy).
+    const { data, error } = await sb
+      .from("inspiration_videos")
+      .select("id,title,channel,content_type,nature,category,theme,duration_text,notes,video_url,locale,status,submitted_by,approved_by,approved_at,created_at")
+      .order("created_at", { ascending: false })
+      .limit(2000);
+    if (error) {
+      console.warn("[admin] loadInspirations", error);
+      if (body) body.innerHTML = '<tr><td colspan="11" class="empty">Erreur : ' + escapeHtml(error.message) + '</td></tr>';
+      return;
+    }
+    allInspirations = data || [];
+    renderInspirations();
+  }
+
+  function emailForInspireRow(row) {
+    // Reuse the email lookup already built for events / submissions.
+    if (!row || !row.submitted_by) return "—";
+    if (typeof emailFor === "function") return emailFor(row.submitted_by);
+    return row.submitted_by;
+  }
+
+  function renderInspirations() {
+    const status = $("inspireFilterStatus").value;
+    const type   = $("inspireFilterType").value;
+    const text   = ($("inspireFilterText").value || "").trim().toLowerCase();
+    const body   = $("inspireBodyAdmin");
+    if (!body) return;
+    const filtered = allInspirations.filter(v => {
+      if (status && v.status !== status) return false;
+      if (type   && v.content_type !== type) return false;
+      if (text) {
+        const hay = [v.title, v.channel, v.theme, v.notes, v.video_url].filter(Boolean).join(" ").toLowerCase();
+        if (!hay.includes(text)) return false;
+      }
+      return true;
+    });
+    $("inspireCount").textContent = filtered.length + " / " + allInspirations.length;
+    if (filtered.length === 0) {
+      body.innerHTML = '<tr><td colspan="11" class="empty">Aucune entrée pour ces filtres.</td></tr>';
+      return;
+    }
+    body.innerHTML = filtered.map(v => {
+      const isPending  = v.status === "pending";
+      const isApproved = v.status === "approved";
+      // Inline actions: approve / reject pending; edit + delete always.
+      let actions = "";
+      if (isPending) {
+        actions +=
+          '<button class="btn btn-approve" data-inspire-act="approve" data-id="' + escapeHtml(v.id) + '">✓ Approuver</button>' +
+          '<button class="btn btn-reject"  data-inspire-act="reject"  data-id="' + escapeHtml(v.id) + '">✗ Rejeter</button>';
+      } else if (isApproved) {
+        actions += '<button class="btn" data-inspire-act="reject" data-id="' + escapeHtml(v.id) + '">↩ Re-pending</button>';
+      }
+      actions +=
+        '<button class="btn" data-inspire-act="edit"   data-id="' + escapeHtml(v.id) + '">✎ Éditer</button>' +
+        '<button class="btn btn-reject" data-inspire-act="delete" data-id="' + escapeHtml(v.id) + '">🗑 Supprimer</button>';
+      const urlCell = v.video_url
+        ? '<a href="' + escapeHtml(v.video_url) + '" target="_blank" rel="noopener noreferrer">lien</a>'
+        : '<span style="color:var(--ink-faint);">—</span>';
+      return '<tr data-row-id="' + escapeHtml(v.id) + '">' +
+        '<td class="wrap">'      + escapeHtml(v.title)                                + '</td>' +
+        '<td>'                   + escapeHtml(v.channel || "—")                        + '</td>' +
+        '<td>'                   + escapeHtml(INSPIRE_TYPE_LBL[v.content_type] || v.content_type || "—") + '</td>' +
+        '<td>'                   + escapeHtml(INSPIRE_NATURE_LBL[v.nature] || v.nature || "—")           + '</td>' +
+        '<td>'                   + escapeHtml(INSPIRE_CAT_LBL[v.category] || v.category || "—")          + '</td>' +
+        '<td class="wrap">'      + escapeHtml(v.theme || "—")                          + '</td>' +
+        '<td>'                   + escapeHtml(v.duration_text || "—")                  + '</td>' +
+        '<td>'                   + urlCell                                              + '</td>' +
+        '<td class="email">'     + escapeHtml(emailForInspireRow(v))                   + '</td>' +
+        '<td><span class="status-' + escapeHtml(v.status) + '">' + escapeHtml(v.status) + '</span></td>' +
+        '<td class="actions">'   + actions                                              + '</td>' +
+      '</tr>';
+    }).join("");
+  }
+
+  async function setInspirationStatus(id, status) {
+    const { error } = await sb.rpc("set_inspiration_video_status", { p_id: id, p_status: status });
+    if (error) { alert("Erreur : " + error.message); return; }
+    // Mutate locally so the table re-renders without a full reload.
+    const row = allInspirations.find(v => v.id === id);
+    if (row) {
+      row.status = status;
+      if (status === "approved") row.approved_at = new Date().toISOString();
+    }
+    renderInspirations();
+  }
+
+  async function deleteInspiration(id) {
+    if (!confirm("Supprimer définitivement cette inspiration ?")) return;
+    const { error } = await sb.rpc("delete_inspiration_video", { p_id: id });
+    if (error) { alert("Erreur : " + error.message); return; }
+    allInspirations = allInspirations.filter(v => v.id !== id);
+    renderInspirations();
+  }
+
+  function editInspiration(id) {
+    const row = allInspirations.find(v => v.id === id);
+    if (!row) return;
+    // Cheap inline edit: a series of prompts for each field. The user
+    // hits Cancel on any field they want to skip-change.
+    const newTitle    = prompt("Titre :",        row.title || "");        if (newTitle == null) return;
+    const newChannel  = prompt("Chaîne/troupe :", row.channel || "");      if (newChannel == null) return;
+    const newType     = prompt("Type (chaine/match_impro/spectacle/tutoriel/documentaire/cabaret/format_court) :", row.content_type || "");
+    if (newType == null) return;
+    const newNature   = prompt("Nature (mixte/comparee/na ou vide) :", row.nature || ""); if (newNature == null) return;
+    const newCategory = prompt("Catégorie (libre/a_la_maniere_de/chantee/rimee/sans_paroles/costumee/doublee/silencieuse/sportive/sans_contact/a_2/a_3 ou vide) :", row.category || "");
+    if (newCategory == null) return;
+    const newTheme    = prompt("Thème :",         row.theme || "");        if (newTheme == null) return;
+    const newDuration = prompt("Durée (libre) :", row.duration_text || ""); if (newDuration == null) return;
+    const newNotes    = prompt("Notes :",         row.notes || "");        if (newNotes == null) return;
+    const newUrl      = prompt("URL :",           row.video_url || "");    if (newUrl == null) return;
+    const newLocale   = prompt("Locale :",        row.locale || "fr");     if (newLocale == null) return;
+    sb.rpc("update_inspiration_video", {
+      p_id:            id,
+      p_title:         newTitle.trim(),
+      p_channel:       newChannel.trim(),
+      p_content_type:  newType.trim(),
+      p_nature:        newNature.trim(),
+      p_category:      newCategory.trim(),
+      p_theme:         newTheme.trim(),
+      p_duration_text: newDuration.trim(),
+      p_notes:         newNotes.trim(),
+      p_video_url:     newUrl.trim(),
+      p_locale:        newLocale.trim() || "fr"
+    }).then(({ error }) => {
+      if (error) { alert("Erreur : " + error.message); return; }
+      Object.assign(row, {
+        title: newTitle.trim(), channel: newChannel.trim() || null,
+        content_type: newType.trim(), nature: newNature.trim() || null,
+        category: newCategory.trim() || null, theme: newTheme.trim() || null,
+        duration_text: newDuration.trim() || null, notes: newNotes.trim() || null,
+        video_url: newUrl.trim() || null, locale: newLocale.trim() || "fr"
+      });
+      renderInspirations();
+    });
+  }
+
+  function wireInspirationsControls() {
+    ["inspireFilterStatus","inspireFilterType","inspireFilterText"].forEach(id => {
+      const el = $(id); if (!el) return;
+      el.addEventListener("input",  renderInspirations);
+      el.addEventListener("change", renderInspirations);
+    });
+    const body = $("inspireBodyAdmin");
+    if (!body) return;
+    body.addEventListener("click", (ev) => {
+      const btn = ev.target.closest("button[data-inspire-act]");
+      if (!btn) return;
+      const id = btn.dataset.id;
+      const act = btn.dataset.inspireAct;
+      if      (act === "approve") setInspirationStatus(id, "approved");
+      else if (act === "reject")  setInspirationStatus(id, "rejected");
+      else if (act === "delete")  deleteInspiration(id);
+      else if (act === "edit")    editInspiration(id);
+    });
+  }
+
   /** Build the list of locale options based on what's in IMPRO_BUNDLE.
    *  `IMPRO_BUNDLE.locales` is shaped `{ fr: { name, flag }, en: {…}, … }`.
    *  Used by both the bundled-list filter (mandatory choice) and the
@@ -1910,6 +2142,7 @@
     try { await loadEvents();      } catch (e) { console.error("[admin] loadEvents error:", e); }
     try { await loadSubmissions(); } catch (e) { console.error("[admin] loadSubmissions error:", e); }
     try { wireBundledControls(); await loadHiddenItems(); renderBundled(); } catch (e) { console.error("[admin] bundled init error:", e); }
+    try { wireInspirationsControls(); await loadInspirations(); } catch (e) { console.error("[admin] inspirations init error:", e); }
     } finally {
       __adminBooting = false;
     }

@@ -33,6 +33,72 @@
         {
           "name": "Círculo de perguntas",
           "desc": "Um jogador no centro. Os outros bombardeiam-no com perguntas rápidas, a responder com precisão."
+        },
+        {
+          "name": "Mista",
+          "desc": "Toda a troupe joga o tema em conjunto, sem divisão por equipas. (Adaptado da categoria de match)"
+        },
+        {
+          "name": "Comparada",
+          "desc": "Dois subgrupos da troupe jogam a mesma proposta por sua vez. A 2ª versão deve diferir da 1ª. (Adaptado da categoria de match)"
+        },
+        {
+          "name": "Com adereço",
+          "desc": "Um objeto imposto deve ser central na improvisação coletiva. Toda a troupe fá-lo funcionar em cena. (Adaptado da categoria de match)"
+        },
+        {
+          "name": "Livre",
+          "desc": "Dois subgrupos jogam o mesmo tema por sua vez, sem restrição de forma. Liberdade total. (Adaptado da categoria de match)"
+        },
+        {
+          "name": "As cadeiras",
+          "desc": "Uma equipa tem 30 s para construir uma estrutura com cadeiras. Outra equipa tem 40 s para preparar uma improvisação a partir dessa estrutura. (Tadam Impro)"
+        },
+        {
+          "name": "O discurso fúnebre",
+          "desc": "Cada um improvisa um discurso de homenagem ao seu animal de estimação. Tom solene, divertido, ou ambos. (Tadam Impro)"
+        },
+        {
+          "name": "Encarnar o tema",
+          "desc": "O grupo está em movimento, um líder lança um tema (museu, pirâmides...). O grupo recria-o de imediato. (Tadam Impro)"
+        },
+        {
+          "name": "Conversa estranha",
+          "desc": "Dois jogadores improvisam uma situação delirante: um pássaro a explicar a árvore a outro pássaro, uma pulga a discutir com um cão. (Tadam Impro)"
+        },
+        {
+          "name": "O bêbado",
+          "desc": "Um membro do público (ou um ator) faz de « bêbado » que interrompe a cena com sugestões absurdas que os improvisadores devem integrar para fazer avançar a história.",
+          "needsAudience": true
+        },
+        {
+          "name": "A máquina humana",
+          "desc": "Um a um, os jogadores entram e acrescentam um gesto ou som repetitivo. A máquina constrói-se organicamente."
+        },
+        {
+          "name": "ABC",
+          "desc": "Uma cena em que cada réplica começa pela letra seguinte do alfabeto. A, B, C... até Z."
+        },
+        {
+          "name": "O autocarro",
+          "desc": "Uma paragem de autocarro. A cada chegada, uma nova personagem sobe com o seu próprio universo. A cena muda de cada vez."
+        },
+        {
+          "name": "Pantomima",
+          "desc": "Uma cena inteiramente mimada a partir de um tema. (Dramaction)"
+        },
+        {
+          "name": "Emoção que passa",
+          "desc": "Um jogador transmite em silêncio uma emoção ao vizinho por um gesto, que a transmite por sua vez. (Dramaction)"
+        },
+        {
+          "name": "Início-meio-fim em 30 s",
+          "desc": "Começar uma improvisação, deslocar a aposta e concluir — tudo em 30 segundos cronometrados. (Impro-Exo)"
+        },
+        {
+          "name": "Conversa com emoção mutável",
+          "desc": "Uma conversa a dois. A cada 1-2 minutos, um líder grita uma emoção. Os jogadores mudam de imediato. (MentorShow)",
+          "needsAudience": true
         }
       ],
       "confirme": [
@@ -67,6 +133,70 @@
         {
           "name": "Géneros misturados",
           "desc": "O orientador muda de género a cada 30 segundos (western, policial, romance, terror...)."
+        },
+        {
+          "name": "À maneira de",
+          "desc": "Todos jogam o tema num estilo de autor ou género imposto: Camões, cinema negro, Tarantino... (Adaptado da categoria de match)"
+        },
+        {
+          "name": "Muda",
+          "desc": "Nenhuma palavra dita — só a encenação coletiva conta a história. Concentração extrema. (Adaptado da categoria de match)"
+        },
+        {
+          "name": "Muda com música",
+          "desc": "Improvisação muda, mas a escrita é rigorosamente moldada pelo ambiente musical imposto. (Dramaction)"
+        },
+        {
+          "name": "Com restrição",
+          "desc": "Dois subgrupos jogam o mesmo tema por sua vez, cada um com uma restrição diferente sorteada ao acaso. (Adaptado da categoria de match)"
+        },
+        {
+          "name": "Sem tema nem caucus",
+          "desc": "Nenhum tema anunciado, nenhum tempo de preparação. Pura invenção imediata. (Dramaction)"
+        },
+        {
+          "name": "Salto-mouton",
+          "desc": "Quatro improvisações diferentes, um tema cada. A 1ª com um jogador, junta-se mais um em cada impro seguinte. (Dramaction)"
+        },
+        {
+          "name": "Sensorial",
+          "desc": "Um dos cinco sentidos de um improvisador é estimulado durante a cena. Essa sensação deve moldar toda a escrita. (Dramaction)"
+        },
+        {
+          "name": "Comparada à maneira de",
+          "desc": "Dois subgrupos da troupe jogam por sua vez o mesmo tema no estilo imposto, cada um à sua maneira. (Adaptado da categoria de match)"
+        },
+        {
+          "name": "Triplo estatuto",
+          "desc": "Cada personagem tem um segredo, um objetivo e um obstáculo. Os três revelam-se ao longo da cena."
+        },
+        {
+          "name": "Cena invertida",
+          "desc": "Começa-se pelo clímax e recua-se até ao encontro das personagens."
+        },
+        {
+          "name": "O coro desafinado",
+          "desc": "Um coro em cena — um membro está desafinado ou fora do ritmo. Todo o drama nasce dele. (Wikiversité)"
+        },
+        {
+          "name": "Atores nos bastidores",
+          "desc": "Uma cena passa-se nos bastidores enquanto o « espetáculo » decorre em palco. Mise en abyme. (Wikiversité)"
+        },
+        {
+          "name": "O elevador avariado",
+          "desc": "Espaço ultra restrito, várias personagens, isolamento forçado. Um clássico. (Wikiversité)"
+        },
+        {
+          "name": "A reunião de professores",
+          "desc": "Uma reunião de docentes em que cada professor tem uma agenda escondida e um aluno preferido."
+        },
+        {
+          "name": "Regresso ao passado",
+          "desc": "Num momento-chave, um jogador bate palmas. A cena recua um minuto e é rejogada de outra forma."
+        },
+        {
+          "name": "Personagem sorteada",
+          "desc": "Cada jogador sorteia um tipo de personagem (palhaço, sedutor, paranoico) que deve interpretar sem o nomear."
         }
       ],
       "expert": [
@@ -101,6 +231,54 @@
         {
           "name": "Beckettiana",
           "desc": "Forma longa absurda: silêncios habitados, espera, linguagem que se esvazia. Estilo Godot."
+        },
+        {
+          "name": "Cantada",
+          "desc": "Improvisação inteira ou parcialmente cantada por toda a troupe, melodias e letras improvisadas em coletivo. (Adaptado da categoria de match)"
+        },
+        {
+          "name": "Rimada",
+          "desc": "Todas as réplicas rimam. Octossílabos ou alexandrinos consoante o nível. Toda a troupe sustenta a métrica. (Adaptado da categoria de match)"
+        },
+        {
+          "name": "Videoway",
+          "desc": "Mista com quatro canais TV (F1-F4), conteúdo diferente por canal. O árbitro salta entre canais sem ordem predefinida. (Dramaction)"
+        },
+        {
+          "name": "De tese",
+          "desc": "A improvisação coletiva deve defender uma tese filosófica anunciada de antemão."
+        },
+        {
+          "name": "Comparada cantada",
+          "desc": "Dois subgrupos da troupe propõem sucessivamente a sua versão cantada do mesmo tema. (Adaptado da categoria de match)"
+        },
+        {
+          "name": "Comparada rimada",
+          "desc": "Dois subgrupos da troupe entregam sucessivamente a sua versão rimada do tema. (Adaptado da categoria de match)"
+        },
+        {
+          "name": "A bola de fogo",
+          "desc": "Todos os jogadores em cena. Em cada momento alto, um par destaca-se para uma minicena e depois volta ao grupo."
+        },
+        {
+          "name": "Monólogo partilhado",
+          "desc": "Um longo monólogo é retomado por cada jogador, que o deforma e enriquece mantendo a mesma personagem."
+        },
+        {
+          "name": "Ópera improvisada",
+          "desc": "Recitativos e árias cantados em alternância, libreto inteiramente improvisado, vozes líricas."
+        },
+        {
+          "name": "A Casa (Del Close)",
+          "desc": "Forma longa em que cada cena abre temas que as seguintes retomam e aprofundam."
+        },
+        {
+          "name": "O Deconstructed",
+          "desc": "Uma única cena é jogada e depois desmontada e recomeçada segundo vários ângulos narrativos."
+        },
+        {
+          "name": "Tchekhoviana",
+          "desc": "Forma longa à Tchekhov: sem clímax, personagens que se desencontram, a inação como motor."
         }
       ]
     },
@@ -362,8 +540,16 @@
       "desc": "Estilo ou género imposto (Camões, cinema negro, Tarantino...)."
     },
     {
+      "name": "Comparada à maneira de",
+      "desc": "Cada equipa joga o tema no estilo imposto, à sua maneira."
+    },
+    {
       "name": "Cantada",
       "desc": "Improvisação inteira ou parcialmente cantada."
+    },
+    {
+      "name": "Comparada cantada",
+      "desc": "Cada equipa propõe a sua própria versão cantada do mesmo tema."
     },
     {
       "name": "Muda",
@@ -376,6 +562,10 @@
     {
       "name": "Rimada",
       "desc": "Todas as réplicas devem rimar."
+    },
+    {
+      "name": "Comparada rimada",
+      "desc": "Cada equipa entrega a sua própria versão rimada do tema."
     },
     {
       "name": "Com adereço",

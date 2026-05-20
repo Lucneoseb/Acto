@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Inspirations vidéo · Acto The Impro Studio" />
+<meta name="theme-color" content="#0c0814" />
+<title>Acto — Inspirations</title>
+<link rel="icon" type="image/png" href="./assets/logo.png?v=20260556" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css?v=20260556" />
+<style>
+  /* Page wrapper — wider than support.html since this is a data table. */
+  .inspire-screen {
+    position: relative;
+    z-index: 5;
+    margin: clamp(1rem, 3vw, 1.8rem) auto clamp(2rem, 5vw, 3rem);
+    max-width: 1280px;
+    padding: 0 1rem;
+  }
+  .inspire-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0.6rem; flex-wrap: wrap;
+    margin: 0 0 1.2rem;
+  }
+  .inspire-head h1 {
+    font-family: 'Bebas Neue', Inter, sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    color: var(--gold);
+    margin: 0;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+  }
+  .inspire-blurb {
+    color: var(--ink-muted);
+    margin: 0 0 1.2rem;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    max-width: 720px;
+  }
+
+  /* "Sexy" filter bar — single search input with a glow + chip-like
+     suggestions for content_type / nature / category. */
+  .inspire-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: linear-gradient(135deg, rgba(245,196,81,0.06), rgba(245,196,81,0.02));
+    border: 1px solid rgba(245,196,81,0.25);
+    border-radius: 16px;
+    padding: 0.6rem 0.8rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .inspire-search:focus-within {
+    border-color: rgba(245,196,81,0.6);
+    box-shadow: 0 8px 32px rgba(245,196,81,0.12), 0 0 0 2px rgba(245,196,81,0.18);
+  }
+  .inspire-search-icon {
+    width: 22px; height: 22px;
+    color: var(--gold-soft);
+    flex: 0 0 22px;
+  }
+  .inspire-search input[type="search"] {
+    flex: 1 1 auto;
+    background: transparent;
+    border: 0;
+    outline: none;
+    color: var(--ink);
+    font: inherit;
+    font-size: 1rem;
+    padding: 0.45rem 0.2rem;
+    min-width: 100px;
+  }
+  .inspire-search input[type="search"]::placeholder {
+    color: var(--ink-faint);
+    font-style: italic;
+  }
+  .inspire-add-btn {
+    flex: 0 0 auto;
+    appearance: none; cursor: pointer;
+    background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+    color: var(--bg-deep);
+    border: 0;
+    border-radius: 12px;
+    padding: 0.55rem 1rem;
+    font: inherit; font-size: 0.9rem;
+    font-weight: 800; letter-spacing: 0.02em;
+    box-shadow: 0 4px 16px rgba(245,196,81,0.3);
+    transition: transform 0.1s, filter 0.2s;
+  }
+  .inspire-add-btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
+  .inspire-add-btn:active { transform: scale(0.98); }
+  .inspire-add-btn:disabled {
+    filter: grayscale(0.5) brightness(0.85);
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Suggestion chips — clicking one injects that token into the search */
+  .inspire-suggestions {
+    display: flex; flex-wrap: wrap; gap: 0.35rem;
+    margin: 0.6rem 0 1rem;
+  }
+  .inspire-chip {
+    appearance: none; cursor: pointer;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--ink-muted);
+    border-radius: 999px;
+    padding: 0.25rem 0.7rem;
+    font: inherit;
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .inspire-chip:hover {
+    background: rgba(245,196,81,0.1);
+    border-color: rgba(245,196,81,0.35);
+    color: var(--gold-soft);
+  }
+  .inspire-chip.is-active {
+    background: rgba(245,196,81,0.18);
+    border-color: rgba(245,196,81,0.55);
+    color: var(--gold);
+  }
+
+  /* Result count + status line */
+  .inspire-status {
+    color: var(--ink-faint);
+    font-size: 0.82rem;
+    margin: 0 0 0.5rem;
+    min-height: 1.1em;
+  }
+
+  /* Line list — each row is ONE entry, columns side-by-side. */
+  .inspire-table {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .inspire-row {
+    display: grid;
+    grid-template-columns:
+      minmax(280px, 2.2fr)        /* title + link */
+      minmax(140px, 1fr)          /* channel */
+      minmax(110px, 0.9fr)        /* type */
+      minmax(90px,  0.7fr)        /* nature */
+      minmax(130px, 1fr)          /* category */
+      minmax(140px, 1fr)          /* theme */
+      minmax(70px,  0.5fr)        /* duration */
+      minmax(180px, 1.4fr);       /* notes */
+    gap: 0.6rem;
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    align-items: center;
+    font-size: 0.86rem;
+  }
+  .inspire-row.is-header {
+    background: rgba(245,196,81,0.04);
+    color: var(--gold-soft);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.7rem;
+    border-bottom: 1px solid rgba(245,196,81,0.2);
+    position: sticky; top: 0; z-index: 1;
+  }
+  .inspire-row:not(.is-header):hover { background: rgba(255,255,255,0.02); }
+  .inspire-row > div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+  }
+  .inspire-row .col-title a {
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 1px dotted rgba(245,196,81,0.4);
+    transition: color 0.15s;
+  }
+  .inspire-row .col-title a:hover {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+  }
+  .inspire-row .col-title .no-link {
+    color: var(--ink-muted);
+    font-weight: 600;
+  }
+  .inspire-row .col-channel { color: var(--ink-muted); font-size: 0.82rem; }
+  .inspire-row .col-type, .inspire-row .col-nature, .inspire-row .col-category {
+    color: var(--ink-muted);
+    font-size: 0.78rem;
+  }
+  .inspire-row .col-type .tag,
+  .inspire-row .col-nature .tag,
+  .inspire-row .col-category .tag {
+    display: inline-block;
+    padding: 0.08rem 0.45rem;
+    background: rgba(245,196,81,0.1);
+    border: 1px solid rgba(245,196,81,0.25);
+    border-radius: 999px;
+    color: var(--gold-soft);
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .inspire-row .col-theme { color: var(--ink); font-style: italic; }
+  .inspire-row .col-duration { color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+  .inspire-row .col-notes {
+    color: var(--ink-muted);
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+
+  /* Empty state */
+  .inspire-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--ink-muted);
+  }
+  .inspire-empty strong { color: var(--ink); display: block; margin-bottom: 0.3rem; font-size: 1.05rem; }
+
+  /* Mobile collapse — fall back to stacked card per row */
+  @media (max-width: 900px) {
+    .inspire-row {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+      padding: 0.9rem 0.9rem;
+    }
+    .inspire-row.is-header { display: none; }
+    .inspire-row .col-title { order: 1; font-size: 0.95rem; }
+    .inspire-row .col-channel { order: 2; }
+    .inspire-row .col-meta-row {
+      order: 3;
+      display: flex; flex-wrap: wrap; gap: 0.3rem;
+      margin-top: 0.2rem;
+    }
+    .inspire-row .col-theme { order: 4; margin-top: 0.2rem; }
+    .inspire-row .col-notes { order: 5; margin-top: 0.3rem; }
+  }
+
+  /* ─── Submit dialog ─── */
+  .submit-dialog {
+    background: var(--bg-deep, #0c0814);
+    color: var(--ink);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 0;
+    max-width: 640px;
+    width: calc(100vw - 2rem);
+    max-height: calc(100vh - 2rem);
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+  }
+  .submit-dialog::backdrop { background: rgba(0,0,0,0.6); }
+  .submit-dialog .dlg-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin: 0;
+  }
+  .submit-dialog .dlg-head h2 {
+    margin: 0;
+    font-family: 'Bebas Neue', Inter, sans-serif;
+    font-weight: 400; letter-spacing: 0.04em;
+    color: var(--gold); font-size: 1.4rem;
+  }
+  .submit-dialog .dlg-close {
+    background: transparent; border: 0;
+    color: var(--ink-muted);
+    font-size: 1.3rem; cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+  }
+  .submit-dialog .dlg-close:hover { color: var(--ink); background: rgba(255,255,255,0.05); }
+  .submit-dialog .dlg-body {
+    padding: 1.2rem;
+    display: flex; flex-direction: column; gap: 0.9rem;
+    overflow-y: auto;
+    max-height: calc(100vh - 12rem);
+  }
+  .submit-dialog .dlg-actions {
+    display: flex; gap: 0.6rem; justify-content: flex-end;
+    padding: 0.9rem 1.2rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.2);
+  }
+  .submit-row { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+  .submit-row .submit-field { flex: 1 1 180px; min-width: 0; }
+  .submit-field { display: flex; flex-direction: column; gap: 0.3rem; }
+  .submit-field span {
+    font-size: 0.72rem; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--ink-muted);
+  }
+  .submit-field input,
+  .submit-field select,
+  .submit-field textarea {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    color: var(--ink);
+    padding: 0.5rem 0.7rem;
+    font: inherit; font-size: 0.9rem;
+    outline: none;
+  }
+  .submit-field select option {
+    color: #000;
+    background: #fff;
+  }
+  .submit-field textarea { resize: vertical; min-height: 64px; }
+  .submit-field input:focus,
+  .submit-field select:focus,
+  .submit-field textarea:focus {
+    border-color: rgba(245,196,81,0.55);
+    box-shadow: 0 0 0 2px rgba(245,196,81,0.18);
+  }
+  .submit-error {
+    color: #ff8484;
+    font-size: 0.85rem;
+    margin: 0;
+    text-align: center;
+  }
+  .submit-success {
+    color: #6dd3c5;
+    font-size: 0.85rem;
+    margin: 0;
+    text-align: center;
+  }
+  .submit-help {
+    color: var(--ink-faint);
+    font-size: 0.78rem;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  /* Back-to-app footer */
+  .inspire-back { text-align: center; margin: 1.6rem 0 0; }
+  .inspire-back .auth-btn {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 220px;
+  }
+
+  /* Loading skeleton (3 rows of pulsing bars) */
+  .inspire-loading .inspire-row > div {
+    background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+    background-size: 200% 100%;
+    animation: inspire-shimmer 1.4s linear infinite;
+    color: transparent;
+    border-radius: 4px;
+    min-height: 0.9rem;
+  }
+  @keyframes inspire-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+</style>
+</head>
+<body>
+  <div class="stage-backdrop" aria-hidden="true">
+    <div class="spotlight spotlight-1"></div>
+    <div class="spotlight spotlight-2"></div>
+    <div class="spotlight spotlight-3"></div>
+    <div class="curtain curtain-left"></div>
+    <div class="curtain curtain-right"></div>
+  </div>
+
+  <!-- Top-right floating actions: Rules + Inspiration + Settings (visibility
+       gated by body.is-signed-in for Settings). Inspiration is the current
+       page so we mark it active. -->
+  <div class="top-actions">
+    <button class="top-trigger rules-trigger" id="rulesBtn" type="button" aria-label="Rules"
+            onclick="window.location.href='./index.html#rules'">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <path fill="currentColor" d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
+      </svg>
+      <span>Règles</span>
+    </button>
+    <button class="top-trigger inspire-trigger is-active" type="button" aria-label="Inspirations" aria-current="page">
+      <span aria-hidden="true" style="font-size:1.1rem;">🎭</span>
+      <span>Inspirations</span>
+    </button>
+    <button class="top-trigger settings-trigger" type="button" aria-label="Settings"
+            onclick="window.location.href='./index.html#settings'">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <path fill="currentColor" d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm9.4 4-2 1.2.5 2.3-2.3.4-1 2-2.1-1L12 18l-2.5-1.1-2 1-1.2-2.1L4 15.4l.5-2.3-2-1.1V12l2-1.2-.5-2.3 2.3-.4 1-2 2.1 1L12 6l2.5 1.1 2-1 1.2 2.1L20 8.6l-.5 2.3 2 1.1Z"/>
+      </svg>
+      <span>Réglages</span>
+    </button>
+  </div>
+
+  <header class="hero">
+    <a class="hero-logo-link" href="./index.html" aria-label="Acto - The Impro Studio">
+      <img class="hero-logo" src="./assets/logo.png?v=20260556" alt="Acto - The Impro Studio" />
+    </a>
+  </header>
+
+  <main class="inspire-screen">
+    <div class="inspire-head">
+      <h1 id="inspirePageTitle">🎭 Inspirations</h1>
+      <button type="button" class="inspire-add-btn" id="inspireAddBtn">+ Proposer une vidéo</button>
+    </div>
+    <p class="inspire-blurb" id="inspireBlurb">
+      Une sélection vidéo de la communauté impro : matchs, longue forme, tutoriels, chaînes…
+      Tape ci-dessous pour filtrer par catégorie, thème, troupe ou nature.
+    </p>
+
+    <!-- Sexy live filter -->
+    <div class="inspire-search">
+      <svg class="inspire-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="search" id="inspireQuery" autocomplete="off"
+             placeholder="Tape une catégorie, un thème, un nom de troupe, une nature…" />
+    </div>
+    <div class="inspire-suggestions" id="inspireSuggestions"></div>
+
+    <p class="inspire-status" id="inspireStatus"></p>
+
+    <div class="inspire-table" id="inspireTable">
+      <div class="inspire-row is-header">
+        <div class="col-title"      id="hdrTitle">Titre / Lien</div>
+        <div class="col-channel"    id="hdrChannel">Chaîne / Troupe</div>
+        <div class="col-type"       id="hdrType">Type</div>
+        <div class="col-nature"     id="hdrNature">Nature</div>
+        <div class="col-category"   id="hdrCategory">Catégorie</div>
+        <div class="col-theme"      id="hdrTheme">Thème</div>
+        <div class="col-duration"   id="hdrDuration">Durée</div>
+        <div class="col-notes"      id="hdrNotes">Notes</div>
+      </div>
+      <div id="inspireBody"></div>
+    </div>
+
+    <p class="inspire-back">
+      <a class="auth-btn auth-btn-secondary" href="./index.html">← Retour à l'app</a>
+    </p>
+  </main>
+
+  <!-- ─── Submit dialog ─── -->
+  <dialog id="inspireSubmitDialog" class="submit-dialog">
+    <form method="dialog" class="dlg-head">
+      <h2 id="inspireSubmitTitle">Proposer une inspiration</h2>
+      <button type="button" class="dlg-close" id="inspireSubmitCloseBtn" aria-label="Fermer">✕</button>
+    </form>
+    <form id="inspireSubmitForm" class="submit-form" novalidate>
+      <div class="dlg-body">
+        <p class="submit-help" id="inspireSubmitHelp">
+          La proposition sera envoyée à l'admin pour validation avant publication.
+        </p>
+        <div class="submit-field">
+          <span id="lblSubmitVideoUrl">Lien vidéo (YouTube, Vimeo, …)</span>
+          <input type="url" id="submitVideoUrl" placeholder="https://www.youtube.com/watch?v=…" />
+        </div>
+        <div class="submit-field">
+          <span id="lblSubmitTitle">Titre *</span>
+          <input type="text" id="submitTitle" maxlength="200" required />
+        </div>
+        <div class="submit-row">
+          <div class="submit-field">
+            <span id="lblSubmitChannel">Chaîne / Troupe</span>
+            <input type="text" id="submitChannel" maxlength="120" />
+          </div>
+          <div class="submit-field">
+            <span id="lblSubmitContentType">Type *</span>
+            <select id="submitContentType" required>
+              <option value="chaine">Chaîne</option>
+              <option value="match_impro" selected>Match d'impro</option>
+              <option value="spectacle">Spectacle longue forme</option>
+              <option value="tutoriel">Tutoriel</option>
+              <option value="documentaire">Documentaire</option>
+              <option value="cabaret">Cabaret</option>
+              <option value="format_court">Format court</option>
+            </select>
+          </div>
+        </div>
+        <div class="submit-row" id="submitMatchFields">
+          <div class="submit-field">
+            <span id="lblSubmitNature">Nature</span>
+            <select id="submitNature">
+              <option value="">—</option>
+              <option value="mixte">Mixte</option>
+              <option value="comparee">Comparée</option>
+              <option value="na">N/A</option>
+            </select>
+          </div>
+          <div class="submit-field">
+            <span id="lblSubmitCategory">Catégorie</span>
+            <select id="submitCategory">
+              <option value="">—</option>
+              <option value="libre">Libre</option>
+              <option value="a_la_maniere_de">À la manière de</option>
+              <option value="chantee">Chantée</option>
+              <option value="rimee">Rimée</option>
+              <option value="sans_paroles">Sans paroles</option>
+              <option value="costumee">Costumée</option>
+              <option value="doublee">Doublée</option>
+              <option value="silencieuse">Silencieuse</option>
+              <option value="sportive">Sportive</option>
+              <option value="sans_contact">Sans contact</option>
+              <option value="a_2">À 2</option>
+              <option value="a_3">À 3</option>
+            </select>
+          </div>
+        </div>
+        <div class="submit-row">
+          <div class="submit-field">
+            <span id="lblSubmitTheme">Thème</span>
+            <input type="text" id="submitTheme" maxlength="200" />
+          </div>
+          <div class="submit-field">
+            <span id="lblSubmitDuration">Durée</span>
+            <input type="text" id="submitDuration" maxlength="40" placeholder="7 min, 12:34, 1h25…" />
+          </div>
+        </div>
+        <div class="submit-field">
+          <span id="lblSubmitNotes">Notes / Description</span>
+          <textarea id="submitNotes" maxlength="2000" rows="3"></textarea>
+        </div>
+        <p class="submit-error" id="submitError" hidden></p>
+        <p class="submit-success" id="submitSuccess" hidden></p>
+      </div>
+      <div class="dlg-actions">
+        <button type="button" class="btn" id="inspireSubmitCancelBtn">Annuler</button>
+        <button type="submit" class="inspire-add-btn" id="inspireSubmitConfirmBtn">Envoyer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Pinned + SRI for Supabase JS — matches the other pages. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
+          integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
+          crossorigin="anonymous"></script>
+  <script src="./js/config.js?v=20260556"></script>
+  <script src="./js/utils.js?v=20260556"></script>
+  <script src="./data/all.js?v=20260556"></script>
+  <script src="./js/inspirations.js?v=20260556"></script>
+</body>
+</html>

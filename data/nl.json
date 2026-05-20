@@ -33,6 +33,72 @@
         {
           "name": "Vragenkring",
           "desc": "Eén speler in het midden. Anderen bestoken hem met snelle vragen, nauwkeurig te beantwoorden."
+        },
+        {
+          "name": "Gemengd",
+          "desc": "De hele troupe speelt het thema samen, zonder ploegopdeling. (Aangepast van match-categorie)"
+        },
+        {
+          "name": "Vergelijkend",
+          "desc": "Twee subgroepen van de troupe spelen om beurten dezelfde opdracht. De 2ª versie moet verschillen van de 1ª. (Aangepast van match-categorie)"
+        },
+        {
+          "name": "Met rekwisiet",
+          "desc": "Een opgelegd voorwerp moet centraal staan in de collectieve improvisatie. De hele troupe laat het werken op de scène. (Aangepast van match-categorie)"
+        },
+        {
+          "name": "Vrij",
+          "desc": "Twee subgroepen spelen om beurten hetzelfde thema zonder vormbeperking. Volledige vrijheid. (Aangepast van match-categorie)"
+        },
+        {
+          "name": "De stoelen",
+          "desc": "Een team heeft 30 s om een structuur met stoelen te bouwen. Een ander team heeft 40 s om vanuit die structuur een improvisatie voor te bereiden. (Tadam Impro)"
+        },
+        {
+          "name": "De grafrede",
+          "desc": "Ieder improviseert een eerbetoon aan zijn huisdier. Plechtig, grappig, of beide. (Tadam Impro)"
+        },
+        {
+          "name": "Thema belichamen",
+          "desc": "De groep is in beweging, een leider roept een thema (museum, piramiden...). De groep maakt het meteen uit. (Tadam Impro)"
+        },
+        {
+          "name": "Vreemd gesprek",
+          "desc": "Twee spelers improviseren een schuine situatie: een vogel legt de boom uit aan een andere vogel, een vlo maakt ruzie met een hond. (Tadam Impro)"
+        },
+        {
+          "name": "De dronkaard",
+          "desc": "Een publiekslid (of acteur) speelt de « dronkaard » die de scène onderbreekt met absurde voorstellen die de improvisators moeten verwerken om het verhaal vooruit te helpen.",
+          "needsAudience": true
+        },
+        {
+          "name": "De menselijke machine",
+          "desc": "Eén voor één komen de spelers op en voegen een herhaald gebaar of geluid toe. De machine bouwt zich organisch op."
+        },
+        {
+          "name": "ABC",
+          "desc": "Een scène waarin elke replica begint met de volgende letter van het alfabet. A, B, C... tot Z."
+        },
+        {
+          "name": "De bus",
+          "desc": "Een bushalte. Bij elke aankomst stapt een nieuw personage op met zijn eigen universum. De scène muteert telkens."
+        },
+        {
+          "name": "Pantomime",
+          "desc": "Een volledig gemimede scène vanuit een gegeven thema. (Dramaction)"
+        },
+        {
+          "name": "Doorgegeven emotie",
+          "desc": "Een speler geeft zwijgend een emotie door aan zijn buur via een gebaar, die haar op zijn beurt doorgeeft. (Dramaction)"
+        },
+        {
+          "name": "Begin-midden-einde in 30 s",
+          "desc": "Een impro beginnen, de inzet verschuiven en afronden — alles in 30 seconden chrono. (Impro-Exo)"
+        },
+        {
+          "name": "Gesprek met wisselende emotie",
+          "desc": "Een gesprek met twee. Om de 1-2 minuten roept een leider een emotie. De spelers schakelen onmiddellijk om. (MentorShow)",
+          "needsAudience": true
         }
       ],
       "confirme": [
@@ -67,6 +133,70 @@
         {
           "name": "Genres door elkaar",
           "desc": "De spelleider wisselt elke 30 seconden van genre (western, krimi, romance, horror...)."
+        },
+        {
+          "name": "In de stijl van",
+          "desc": "Iedereen speelt het thema in een opgelegde auteurs- of genrestijl: Claus, film noir, Tarantino... (Aangepast van match-categorie)"
+        },
+        {
+          "name": "Stom",
+          "desc": "Geen woord gesproken — alleen de collectieve enscenering vertelt het verhaal. Extreme concentratie. (Aangepast van match-categorie)"
+        },
+        {
+          "name": "Stom met muziek",
+          "desc": "Stomme improvisatie, maar het schrijven wordt streng gevormd door de opgelegde muzikale sfeer. (Dramaction)"
+        },
+        {
+          "name": "Met dwangopgave",
+          "desc": "Twee subgroepen spelen om beurten hetzelfde thema, elk met een andere willekeurig getrokken opgave. (Aangepast van match-categorie)"
+        },
+        {
+          "name": "Zonder thema, zonder caucus",
+          "desc": "Geen thema aangekondigd, geen voorbereidingstijd. Pure spontane invention. (Dramaction)"
+        },
+        {
+          "name": "Bokspringen",
+          "desc": "Vier verschillende impro's, telkens een ander thema. De 1ª met één speler, bij elke volgende impro komt er één bij. (Dramaction)"
+        },
+        {
+          "name": "Zintuiglijk",
+          "desc": "Eén van de vijf zintuigen van een speler wordt tijdens de scène geprikkeld. Die gewaarwording moet het hele schrijven dragen. (Dramaction)"
+        },
+        {
+          "name": "Vergelijkend in de stijl van",
+          "desc": "Twee subgroepen van de troupe spelen om beurten hetzelfde thema in de opgelegde stijl, elk op hun eigen manier. (Aangepast van match-categorie)"
+        },
+        {
+          "name": "Drievoudige status",
+          "desc": "Elk personage heeft een geheim, een doel en een obstakel. Alle drie worden in de loop van de scène onthuld."
+        },
+        {
+          "name": "Omgekeerde scène",
+          "desc": "Men begint bij de climax en werkt terug tot de eerste ontmoeting van de personages."
+        },
+        {
+          "name": "Het ontstemde koor",
+          "desc": "Een koor op het podium — één lid is vals of uit het ritme. Het hele drama komt van hem. (Wikiversité)"
+        },
+        {
+          "name": "Acteurs in de coulissen",
+          "desc": "Een scène speelt zich af in de coulissen terwijl de « voorstelling » op het podium doorgaat. Spel in spel. (Wikiversité)"
+        },
+        {
+          "name": "De vastgelopen lift",
+          "desc": "Ultra krappe ruimte, meerdere personages, gedwongen afsluiting. Een klassieker. (Wikiversité)"
+        },
+        {
+          "name": "De lerarenvergadering",
+          "desc": "Een lerarenvergadering waar elke leerkracht een verborgen agenda en een lievelingsleerling heeft."
+        },
+        {
+          "name": "Terug naar het verleden",
+          "desc": "Op een sleutelmoment klapt een speler in de handen. De scène spoelt één minuut terug en wordt anders gespeeld."
+        },
+        {
+          "name": "Getrokken personage",
+          "desc": "Elke speler trekt een personagetype (clown, verleider, paranoïde) dat hij moet spelen zonder het te noemen."
         }
       ],
       "expert": [
@@ -101,6 +231,54 @@
         {
           "name": "Beckett-stijl",
           "desc": "Lange absurde vorm: bewoonde stiltes, wachten, taal die zich leegt. Godot-stijl."
+        },
+        {
+          "name": "Gezongen",
+          "desc": "Improvisatie geheel of gedeeltelijk gezongen door de hele troupe, geïmproviseerde melodieën en teksten in collectief. (Aangepast van match-categorie)"
+        },
+        {
+          "name": "Rijmend",
+          "desc": "Alle replica's rijmen. Achtsilbig of alexandrijn naargelang het niveau. De hele troupe houdt het metrum. (Aangepast van match-categorie)"
+        },
+        {
+          "name": "Videoway",
+          "desc": "Gemengd met vier TV-kanalen (F1-F4), verschillende inhoud per kanaal. De scheidsrechter springt zonder vooraf bepaalde volgorde tussen de kanalen. (Dramaction)"
+        },
+        {
+          "name": "Stelling",
+          "desc": "De collectieve improvisatie moet een vooraf aangekondigde filosofische stelling verdedigen."
+        },
+        {
+          "name": "Vergelijkend gezongen",
+          "desc": "Twee subgroepen van de troupe bieden achtereenvolgens hun gezongen versie van hetzelfde thema. (Aangepast van match-categorie)"
+        },
+        {
+          "name": "Vergelijkend rijmend",
+          "desc": "Twee subgroepen van de troupe leveren achtereenvolgens hun rijmende versie van het thema. (Aangepast van match-categorie)"
+        },
+        {
+          "name": "De vuurbal",
+          "desc": "Alle spelers op het podium. Op elk hoogtepunt maakt een duo zich los voor een miniscène en keert dan terug naar de groep."
+        },
+        {
+          "name": "Gedeelde monoloog",
+          "desc": "Een lange monoloog wordt door elke speler hernomen, die hem vervormt en verrijkt terwijl hij hetzelfde personage blijft."
+        },
+        {
+          "name": "Impro-opera",
+          "desc": "Recitatieven en aria's afwisselend gezongen, volledig geïmproviseerd libretto, lyrische stemmen."
+        },
+        {
+          "name": "Het Huis (Del Close)",
+          "desc": "Lange vorm waarin elke scène thema's opent die de volgende scènes hernemen en verdiepen."
+        },
+        {
+          "name": "Het Deconstructed",
+          "desc": "Eén enkele scène wordt gespeeld, daarna ontleed en hernomen vanuit meerdere verhaalhoeken."
+        },
+        {
+          "name": "Tsjechoviaans",
+          "desc": "Lange vorm à la Tsjechov: geen climax, personages die elkaar mislopen, niets-doen als motor."
         }
       ]
     },
@@ -362,8 +540,16 @@
       "desc": "Stijl of genre opgelegd (Claus, film noir, Tarantino...)."
     },
     {
+      "name": "Vergelijkend in de stijl van",
+      "desc": "Elke ploeg speelt het thema in de opgelegde stijl, op haar eigen manier."
+    },
+    {
       "name": "Gezongen",
       "desc": "Improvisatie geheel of gedeeltelijk gezongen."
+    },
+    {
+      "name": "Vergelijkend gezongen",
+      "desc": "Elke ploeg biedt haar eigen gezongen versie van hetzelfde thema."
     },
     {
       "name": "Stom",
@@ -376,6 +562,10 @@
     {
       "name": "Rijmend",
       "desc": "Alle replica's moeten rijmen."
+    },
+    {
+      "name": "Vergelijkend rijmend",
+      "desc": "Elke ploeg levert haar eigen rijmende versie van het thema."
     },
     {
       "name": "Met rekwisiet",

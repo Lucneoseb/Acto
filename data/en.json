@@ -33,6 +33,72 @@
         {
           "name": "Question circle",
           "desc": "One player in the middle. Others bombard them with rapid-fire questions to be answered precisely."
+        },
+        {
+          "name": "Mixed",
+          "desc": "All troupe members play the theme together, no team split. (Adapted match category)"
+        },
+        {
+          "name": "Compared",
+          "desc": "Two subgroups of the troupe play the same proposition in succession. The 2nd version must differ from the 1st. (Adapted match category)"
+        },
+        {
+          "name": "With prop",
+          "desc": "An imposed object must be central to the collective improvisation. The whole troupe makes it work on stage. (Adapted match category)"
+        },
+        {
+          "name": "Free",
+          "desc": "Two subgroups play the same theme in succession with no form constraint. Total freedom. (Adapted match category)"
+        },
+        {
+          "name": "The chairs",
+          "desc": "One team has 30s to build a structure out of chairs. Another team has 40s to prepare an improv based on that structure. (Tadam Impro)"
+        },
+        {
+          "name": "The eulogy",
+          "desc": "Each player improvises a tribute speech for their pet. Solemn tone, funny, or both. (Tadam Impro)"
+        },
+        {
+          "name": "Embody the theme",
+          "desc": "The group is in motion; a leader calls out a theme (museum, pyramids...). The group instantly recreates it. (Tadam Impro)"
+        },
+        {
+          "name": "Weird conversation",
+          "desc": "Two players improvise an offbeat situation: a bird explaining a tree to another bird, a flea arguing with a dog. (Tadam Impro)"
+        },
+        {
+          "name": "The drunk guy",
+          "desc": "An audience member (or actor) plays the « drunk guy » who interrupts the scene with absurd suggestions the improvisers must work in to push the story forward.",
+          "needsAudience": true
+        },
+        {
+          "name": "The human machine",
+          "desc": "One by one, players enter and add a repetitive gesture/sound. The machine builds itself organically."
+        },
+        {
+          "name": "ABC",
+          "desc": "A scene where each line begins with the next letter of the alphabet. A, B, C... up to Z."
+        },
+        {
+          "name": "The bus",
+          "desc": "A bus stop. With each arrival a new character boards with their own universe. The scene mutates every time."
+        },
+        {
+          "name": "Pantomime",
+          "desc": "A scene played entirely in mime from a given theme. (Dramaction)"
+        },
+        {
+          "name": "Passing emotion",
+          "desc": "A player silently transmits an emotion to their neighbour through a gesture, who passes it on in turn. (Dramaction)"
+        },
+        {
+          "name": "Beginning-middle-end in 30s",
+          "desc": "Start an impro, shift the stakes, and wrap it up — all in 30 seconds flat. (Impro-Exo)"
+        },
+        {
+          "name": "Shifting-emotion conversation",
+          "desc": "A two-person conversation. Every 1-2 minutes a leader shouts an emotion. The players shift instantly. (MentorShow)",
+          "needsAudience": true
         }
       ],
       "confirme": [
@@ -67,6 +133,70 @@
         {
           "name": "Mixed genres",
           "desc": "Moderator switches genre every 30 seconds (western, noir, romance, horror...)."
+        },
+        {
+          "name": "In the manner of",
+          "desc": "Everyone plays the theme in an imposed author or genre style: Shakespeare, film noir, Audiard... (Adapted match category)"
+        },
+        {
+          "name": "Silent",
+          "desc": "No word spoken — only the collective staging tells the story. Extreme focus. (Adapted match category)"
+        },
+        {
+          "name": "Silent with music",
+          "desc": "Silent improv, but the writing is rigorously influenced by the imposed musical ambience. (Dramaction)"
+        },
+        {
+          "name": "Forced constraint",
+          "desc": "Two subgroups play the same theme in succession, each with a different constraint drawn at random. (Adapted match category)"
+        },
+        {
+          "name": "No theme, no caucus",
+          "desc": "No theme announced, no preparation time. Pure immediate invention. (Dramaction)"
+        },
+        {
+          "name": "Leapfrog",
+          "desc": "Four different impros, one theme each. The 1st with one player, one is added at each subsequent impro. (Dramaction)"
+        },
+        {
+          "name": "Sensory",
+          "desc": "One of the five senses of an improviser is stimulated during the scene. That sensation must drive the whole writing. (Dramaction)"
+        },
+        {
+          "name": "Compared in the manner of",
+          "desc": "Two subgroups of the troupe play the same theme in succession in the imposed style, each in their own way. (Adapted match category)"
+        },
+        {
+          "name": "Triple status",
+          "desc": "Each character has a secret, a goal, and an obstacle. All three are revealed during the scene."
+        },
+        {
+          "name": "Reversed scene",
+          "desc": "Start at the climax and work back to the moment the characters first meet."
+        },
+        {
+          "name": "The off-key choir",
+          "desc": "A choir onstage — one member is off-key or out of rhythm. The whole drama comes from them. (Wikiversité)"
+        },
+        {
+          "name": "Actors backstage",
+          "desc": "A scene plays out backstage while the « show » is happening onstage. Mise en abyme. (Wikiversité)"
+        },
+        {
+          "name": "The broken elevator",
+          "desc": "Ultra-cramped space, several characters, forced confinement. A classic. (Wikiversité)"
+        },
+        {
+          "name": "The teachers' meeting",
+          "desc": "A staff meeting where each teacher has a hidden agenda and a favourite pupil."
+        },
+        {
+          "name": "Back to the past",
+          "desc": "At a key moment, a player claps. The scene rewinds one minute and replays differently."
+        },
+        {
+          "name": "Drawn character",
+          "desc": "Each player draws a character type (clown, seducer, paranoiac) and must play it without naming it."
         }
       ],
       "expert": [
@@ -101,6 +231,54 @@
         {
           "name": "Beckettian",
           "desc": "Long-form absurd: lived silences, waiting, language emptying out. Godot-style."
+        },
+        {
+          "name": "Sung",
+          "desc": "Improvisation entirely or partially sung by the whole troupe, improvised melodies and lyrics in collective. (Adapted match category)"
+        },
+        {
+          "name": "Rhymed",
+          "desc": "All lines rhyme. Octosyllables or alexandrines per level. The whole troupe holds the meter. (Adapted match category)"
+        },
+        {
+          "name": "Videoway",
+          "desc": "Mixed with four TV channels (F1-F4), different content per channel. The host jumps between channels with no pre-defined order. (Dramaction)"
+        },
+        {
+          "name": "Thesis",
+          "desc": "The collective improvisation must defend a philosophical thesis announced in advance."
+        },
+        {
+          "name": "Compared sung",
+          "desc": "Two subgroups of the troupe successively offer their sung version of the same theme. (Adapted match category)"
+        },
+        {
+          "name": "Compared rhymed",
+          "desc": "Two subgroups of the troupe successively deliver their rhymed version of the theme. (Adapted match category)"
+        },
+        {
+          "name": "The Fireball",
+          "desc": "All players onstage. At each high beat, a duo breaks out for a mini-scene, then returns to the group."
+        },
+        {
+          "name": "Shared monologue",
+          "desc": "A long monologue is picked up by each player, who distorts and enriches it while staying the same character."
+        },
+        {
+          "name": "Improvised opera",
+          "desc": "Sung recitatives and arias in alternation, fully improvised libretto, operatic voices."
+        },
+        {
+          "name": "The House (Del Close)",
+          "desc": "Long form where each scene opens themes that following scenes pick up and deepen."
+        },
+        {
+          "name": "The Deconstructed",
+          "desc": "A single scene is played, then taken apart and restarted from several narrative angles."
+        },
+        {
+          "name": "Chekhovian",
+          "desc": "Long-form Chekhov style: no climax, characters who miss each other, inaction as the engine."
         }
       ]
     },
@@ -362,8 +540,16 @@
       "desc": "Style or genre imposed (Shakespeare, noir, Tarantino...)."
     },
     {
+      "name": "Compared in the manner of",
+      "desc": "Each team plays the theme in the imposed style, in its own way."
+    },
+    {
       "name": "Sung",
       "desc": "Improvisation entirely or partially sung."
+    },
+    {
+      "name": "Compared sung",
+      "desc": "Each team offers its own sung version of the same theme."
     },
     {
       "name": "Silent",
@@ -376,6 +562,10 @@
     {
       "name": "Rhymed",
       "desc": "All lines must rhyme. Couplets or alexandrines depending on level."
+    },
+    {
+      "name": "Compared rhymed",
+      "desc": "Each team delivers its own rhymed version of the theme."
     },
     {
       "name": "With prop",

@@ -270,6 +270,43 @@ window.IMPRO_BUNDLE = {
       "authDeleteWord": "SUPPRIMER",
       "authDeleteConfirmBtn": "Supprimer définitivement",
       "authDeleteCancel": "Annuler",
+      "inspireLabelText": "Inspirations",
+      "inspirePageTitleShort": "Inspirations",
+      "inspireBlurb": "Une sélection vidéo de la communauté impro : matchs, longue forme, tutoriels, chaînes… Tape ci-dessous pour filtrer par catégorie, thème, troupe ou nature.",
+      "inspireSearchPlaceholder": "Tape une catégorie, un thème, un nom de troupe, une nature…",
+      "inspireAddBtn": "+ Proposer une vidéo",
+      "inspireBackToApp": "← Retour à l'app",
+      "inspireLoading": "Chargement…",
+      "inspireLoadError": "Erreur de chargement",
+      "inspireResultCount": "{n} résultat·s · {total} au total",
+      "inspireNoResults": "Aucun résultat pour cette recherche.",
+      "inspireEmptyTitle": "Pas encore d'inspiration ici",
+      "inspireEmptyBlurb": "Sois la première personne à proposer une vidéo via le bouton « + Proposer ».",
+      "inspireColTitle": "Titre / Lien",
+      "inspireColChannel": "Chaîne / Troupe",
+      "inspireColType": "Type",
+      "inspireColNature": "Nature",
+      "inspireColCategory": "Catégorie",
+      "inspireColTheme": "Thème",
+      "inspireColDuration": "Durée",
+      "inspireColNotes": "Notes",
+      "inspireSubmitTitle": "Proposer une inspiration",
+      "inspireSubmitHelp": "La proposition sera envoyée à l'admin pour validation avant publication.",
+      "inspireSubmitFieldUrl": "Lien vidéo (YouTube, Vimeo, …)",
+      "inspireSubmitFieldTitle": "Titre *",
+      "inspireSubmitFieldChannel": "Chaîne / Troupe",
+      "inspireSubmitFieldType": "Type *",
+      "inspireSubmitFieldNature": "Nature",
+      "inspireSubmitFieldCategory": "Catégorie",
+      "inspireSubmitFieldTheme": "Thème",
+      "inspireSubmitFieldDuration": "Durée",
+      "inspireSubmitFieldNotes": "Notes / Description",
+      "inspireSubmitConfirmBtn": "Envoyer",
+      "inspireSubmitSending": "Envoi…",
+      "inspireSubmitOk": "✓ Proposition envoyée à l'admin pour validation.",
+      "inspireSubmitErr": "Échec de l'envoi",
+      "inspireSubmitErrTitle": "Le titre est obligatoire.",
+      "inspireSubmitNeedsAuth": "Connecte-toi sur l'app pour proposer une vidéo. Le lien : ",
       "authWelcomeBack": "Bon retour, {prenom} !"
     },
     "en": {
@@ -515,6 +552,43 @@ window.IMPRO_BUNDLE = {
       "authDeleteWord": "DELETE",
       "authDeleteConfirmBtn": "Delete permanently",
       "authDeleteCancel": "Cancel",
+      "inspireLabelText": "Inspiration",
+      "inspirePageTitleShort": "Inspiration",
+      "inspireBlurb": "A video selection from the improv community: matches, long form, tutorials, channels… Type below to filter by category, theme, troupe or type.",
+      "inspireSearchPlaceholder": "Type a category, a theme, a troupe name, a kind…",
+      "inspireAddBtn": "+ Suggest a video",
+      "inspireBackToApp": "← Back to app",
+      "inspireLoading": "Loading…",
+      "inspireLoadError": "Loading error",
+      "inspireResultCount": "{n} result(s) · {total} total",
+      "inspireNoResults": "No results for this search.",
+      "inspireEmptyTitle": "No inspiration here yet",
+      "inspireEmptyBlurb": "Be the first to suggest a video via the “+ Suggest” button.",
+      "inspireColTitle": "Title / Link",
+      "inspireColChannel": "Channel / Troupe",
+      "inspireColType": "Type",
+      "inspireColNature": "Kind",
+      "inspireColCategory": "Category",
+      "inspireColTheme": "Theme",
+      "inspireColDuration": "Duration",
+      "inspireColNotes": "Notes",
+      "inspireSubmitTitle": "Suggest an inspiration",
+      "inspireSubmitHelp": "Your suggestion will be sent to the admin for review before publication.",
+      "inspireSubmitFieldUrl": "Video link (YouTube, Vimeo, …)",
+      "inspireSubmitFieldTitle": "Title *",
+      "inspireSubmitFieldChannel": "Channel / Troupe",
+      "inspireSubmitFieldType": "Type *",
+      "inspireSubmitFieldNature": "Kind",
+      "inspireSubmitFieldCategory": "Category",
+      "inspireSubmitFieldTheme": "Theme",
+      "inspireSubmitFieldDuration": "Duration",
+      "inspireSubmitFieldNotes": "Notes / Description",
+      "inspireSubmitConfirmBtn": "Send",
+      "inspireSubmitSending": "Sending…",
+      "inspireSubmitOk": "✓ Suggestion sent to the admin for review.",
+      "inspireSubmitErr": "Failed to send",
+      "inspireSubmitErrTitle": "Title is required.",
+      "inspireSubmitNeedsAuth": "Log in to the app to suggest a video. Link: ",
       "authWelcomeBack": "Welcome back, {prenom}!"
     },
     "de": {
@@ -760,6 +834,43 @@ window.IMPRO_BUNDLE = {
       "authDeleteWord": "LÖSCHEN",
       "authDeleteConfirmBtn": "Endgültig löschen",
       "authDeleteCancel": "Abbrechen",
+      "inspireLabelText": "Inspirationen",
+      "inspirePageTitleShort": "Inspirationen",
+      "inspireBlurb": "Eine Videoauswahl aus der Impro-Community: Matches, Langform, Tutorials, Kanäle… Tippe unten, um nach Kategorie, Thema, Truppe oder Art zu filtern.",
+      "inspireSearchPlaceholder": "Tippe eine Kategorie, ein Thema, einen Truppennamen, eine Art…",
+      "inspireAddBtn": "+ Video vorschlagen",
+      "inspireBackToApp": "← Zurück zur App",
+      "inspireLoading": "Lädt…",
+      "inspireLoadError": "Ladefehler",
+      "inspireResultCount": "{n} Ergebnis(se) · {total} insgesamt",
+      "inspireNoResults": "Keine Ergebnisse für diese Suche.",
+      "inspireEmptyTitle": "Noch keine Inspiration hier",
+      "inspireEmptyBlurb": "Sei die erste Person, die über den Button „+ Vorschlagen“ ein Video vorschlägt.",
+      "inspireColTitle": "Titel / Link",
+      "inspireColChannel": "Kanal / Truppe",
+      "inspireColType": "Typ",
+      "inspireColNature": "Art",
+      "inspireColCategory": "Kategorie",
+      "inspireColTheme": "Thema",
+      "inspireColDuration": "Dauer",
+      "inspireColNotes": "Notizen",
+      "inspireSubmitTitle": "Eine Inspiration vorschlagen",
+      "inspireSubmitHelp": "Der Vorschlag wird vor der Veröffentlichung zur Prüfung an den Admin geschickt.",
+      "inspireSubmitFieldUrl": "Videolink (YouTube, Vimeo, …)",
+      "inspireSubmitFieldTitle": "Titel *",
+      "inspireSubmitFieldChannel": "Kanal / Truppe",
+      "inspireSubmitFieldType": "Typ *",
+      "inspireSubmitFieldNature": "Art",
+      "inspireSubmitFieldCategory": "Kategorie",
+      "inspireSubmitFieldTheme": "Thema",
+      "inspireSubmitFieldDuration": "Dauer",
+      "inspireSubmitFieldNotes": "Notizen / Beschreibung",
+      "inspireSubmitConfirmBtn": "Senden",
+      "inspireSubmitSending": "Senden…",
+      "inspireSubmitOk": "✓ Vorschlag wurde zur Prüfung an den Admin gesendet.",
+      "inspireSubmitErr": "Senden fehlgeschlagen",
+      "inspireSubmitErrTitle": "Der Titel ist erforderlich.",
+      "inspireSubmitNeedsAuth": "Melde dich in der App an, um ein Video vorzuschlagen. Link: ",
       "authWelcomeBack": "Willkommen zurück, {prenom}!"
     },
     "es": {
@@ -1005,6 +1116,43 @@ window.IMPRO_BUNDLE = {
       "authDeleteWord": "ELIMINAR",
       "authDeleteConfirmBtn": "Eliminar definitivamente",
       "authDeleteCancel": "Cancelar",
+      "inspireLabelText": "Inspiraciones",
+      "inspirePageTitleShort": "Inspiraciones",
+      "inspireBlurb": "Una selección de vídeos de la comunidad de impro: matches, formato largo, tutoriales, canales… Escribe abajo para filtrar por categoría, tema, grupo o tipo.",
+      "inspireSearchPlaceholder": "Escribe una categoría, un tema, el nombre de un grupo, un tipo…",
+      "inspireAddBtn": "+ Proponer un vídeo",
+      "inspireBackToApp": "← Volver a la app",
+      "inspireLoading": "Cargando…",
+      "inspireLoadError": "Error de carga",
+      "inspireResultCount": "{n} resultado(s) · {total} en total",
+      "inspireNoResults": "No hay resultados para esta búsqueda.",
+      "inspireEmptyTitle": "Aún no hay inspiración aquí",
+      "inspireEmptyBlurb": "Sé la primera persona en proponer un vídeo mediante el botón «+ Proponer».",
+      "inspireColTitle": "Título / Enlace",
+      "inspireColChannel": "Canal / Grupo",
+      "inspireColType": "Tipo",
+      "inspireColNature": "Naturaleza",
+      "inspireColCategory": "Categoría",
+      "inspireColTheme": "Tema",
+      "inspireColDuration": "Duración",
+      "inspireColNotes": "Notas",
+      "inspireSubmitTitle": "Proponer una inspiración",
+      "inspireSubmitHelp": "La propuesta se enviará al administrador para su validación antes de publicarse.",
+      "inspireSubmitFieldUrl": "Enlace del vídeo (YouTube, Vimeo, …)",
+      "inspireSubmitFieldTitle": "Título *",
+      "inspireSubmitFieldChannel": "Canal / Grupo",
+      "inspireSubmitFieldType": "Tipo *",
+      "inspireSubmitFieldNature": "Naturaleza",
+      "inspireSubmitFieldCategory": "Categoría",
+      "inspireSubmitFieldTheme": "Tema",
+      "inspireSubmitFieldDuration": "Duración",
+      "inspireSubmitFieldNotes": "Notas / Descripción",
+      "inspireSubmitConfirmBtn": "Enviar",
+      "inspireSubmitSending": "Enviando…",
+      "inspireSubmitOk": "✓ Propuesta enviada al administrador para su validación.",
+      "inspireSubmitErr": "Error al enviar",
+      "inspireSubmitErrTitle": "El título es obligatorio.",
+      "inspireSubmitNeedsAuth": "Inicia sesión en la app para proponer un vídeo. Enlace: ",
       "authWelcomeBack": "¡Bienvenido de nuevo, {prenom}!"
     },
     "pt": {
@@ -1250,6 +1398,43 @@ window.IMPRO_BUNDLE = {
       "authDeleteWord": "ELIMINAR",
       "authDeleteConfirmBtn": "Eliminar definitivamente",
       "authDeleteCancel": "Cancelar",
+      "inspireLabelText": "Inspirações",
+      "inspirePageTitleShort": "Inspirações",
+      "inspireBlurb": "Uma seleção de vídeos da comunidade de impro: matches, formato longo, tutoriais, canais… Digite abaixo para filtrar por categoria, tema, grupo ou tipo.",
+      "inspireSearchPlaceholder": "Digite uma categoria, um tema, o nome de um grupo, um tipo…",
+      "inspireAddBtn": "+ Sugerir um vídeo",
+      "inspireBackToApp": "← Voltar à app",
+      "inspireLoading": "A carregar…",
+      "inspireLoadError": "Erro ao carregar",
+      "inspireResultCount": "{n} resultado(s) · {total} no total",
+      "inspireNoResults": "Sem resultados para esta pesquisa.",
+      "inspireEmptyTitle": "Ainda não há inspiração aqui",
+      "inspireEmptyBlurb": "Sê a primeira pessoa a sugerir um vídeo através do botão «+ Sugerir».",
+      "inspireColTitle": "Título / Link",
+      "inspireColChannel": "Canal / Grupo",
+      "inspireColType": "Tipo",
+      "inspireColNature": "Natureza",
+      "inspireColCategory": "Categoria",
+      "inspireColTheme": "Tema",
+      "inspireColDuration": "Duração",
+      "inspireColNotes": "Notas",
+      "inspireSubmitTitle": "Sugerir uma inspiração",
+      "inspireSubmitHelp": "A sugestão será enviada ao administrador para validação antes da publicação.",
+      "inspireSubmitFieldUrl": "Link do vídeo (YouTube, Vimeo, …)",
+      "inspireSubmitFieldTitle": "Título *",
+      "inspireSubmitFieldChannel": "Canal / Grupo",
+      "inspireSubmitFieldType": "Tipo *",
+      "inspireSubmitFieldNature": "Natureza",
+      "inspireSubmitFieldCategory": "Categoria",
+      "inspireSubmitFieldTheme": "Tema",
+      "inspireSubmitFieldDuration": "Duração",
+      "inspireSubmitFieldNotes": "Notas / Descrição",
+      "inspireSubmitConfirmBtn": "Enviar",
+      "inspireSubmitSending": "A enviar…",
+      "inspireSubmitOk": "✓ Sugestão enviada ao administrador para validação.",
+      "inspireSubmitErr": "Falha no envio",
+      "inspireSubmitErrTitle": "O título é obrigatório.",
+      "inspireSubmitNeedsAuth": "Inicia sessão na app para sugerir um vídeo. Link: ",
       "authWelcomeBack": "Bem-vindo de volta, {prenom}!"
     },
     "nl": {
@@ -1495,6 +1680,43 @@ window.IMPRO_BUNDLE = {
       "authDeleteWord": "VERWIJDEREN",
       "authDeleteConfirmBtn": "Definitief verwijderen",
       "authDeleteCancel": "Annuleren",
+      "inspireLabelText": "Inspiratie",
+      "inspirePageTitleShort": "Inspiratie",
+      "inspireBlurb": "Een videoselectie uit de impro-gemeenschap: matches, lange vorm, tutorials, kanalen… Typ hieronder om te filteren op categorie, thema, groep of soort.",
+      "inspireSearchPlaceholder": "Typ een categorie, een thema, een groepsnaam, een soort…",
+      "inspireAddBtn": "+ Video voorstellen",
+      "inspireBackToApp": "← Terug naar de app",
+      "inspireLoading": "Laden…",
+      "inspireLoadError": "Laadfout",
+      "inspireResultCount": "{n} resulta(a)t(en) · {total} in totaal",
+      "inspireNoResults": "Geen resultaten voor deze zoekopdracht.",
+      "inspireEmptyTitle": "Nog geen inspiratie hier",
+      "inspireEmptyBlurb": "Wees de eerste die een video voorstelt via de knop „+ Voorstellen“.",
+      "inspireColTitle": "Titel / Link",
+      "inspireColChannel": "Kanaal / Groep",
+      "inspireColType": "Type",
+      "inspireColNature": "Soort",
+      "inspireColCategory": "Categorie",
+      "inspireColTheme": "Thema",
+      "inspireColDuration": "Duur",
+      "inspireColNotes": "Notities",
+      "inspireSubmitTitle": "Een inspiratie voorstellen",
+      "inspireSubmitHelp": "Het voorstel wordt ter validatie naar de beheerder gestuurd vóór publicatie.",
+      "inspireSubmitFieldUrl": "Videolink (YouTube, Vimeo, …)",
+      "inspireSubmitFieldTitle": "Titel *",
+      "inspireSubmitFieldChannel": "Kanaal / Groep",
+      "inspireSubmitFieldType": "Type *",
+      "inspireSubmitFieldNature": "Soort",
+      "inspireSubmitFieldCategory": "Categorie",
+      "inspireSubmitFieldTheme": "Thema",
+      "inspireSubmitFieldDuration": "Duur",
+      "inspireSubmitFieldNotes": "Notities / Beschrijving",
+      "inspireSubmitConfirmBtn": "Verzenden",
+      "inspireSubmitSending": "Verzenden…",
+      "inspireSubmitOk": "✓ Voorstel naar de beheerder verzonden ter validatie.",
+      "inspireSubmitErr": "Verzenden mislukt",
+      "inspireSubmitErrTitle": "De titel is verplicht.",
+      "inspireSubmitNeedsAuth": "Meld je aan in de app om een video voor te stellen. Link: ",
       "authWelcomeBack": "Welkom terug, {prenom}!"
     }
   },
@@ -1585,6 +1807,22 @@ window.IMPRO_BUNDLE = {
               "name": "Conversation à émotion changeante",
               "desc": "Une conversation en duo. Toutes les 1-2 minutes, un meneur crie une émotion. Les joueurs basculent. (MentorShow)",
               "needsAudience": true
+            },
+            {
+              "name": "Mixte",
+              "desc": "Tous les joueurs de la troupe entrent ensemble et jouent le thème sans découpage en équipes. (Catégorie match adaptée)"
+            },
+            {
+              "name": "Comparée",
+              "desc": "Deux sous-groupes de la troupe jouent successivement la même proposition. La 2e version doit se distinguer de la 1ʳᵉ. (Catégorie match adaptée)"
+            },
+            {
+              "name": "Comparée libre",
+              "desc": "Deux sous-groupes jouent successivement le même thème, aucune contrainte de forme. Liberté totale. (Catégorie match adaptée)"
+            },
+            {
+              "name": "Mixte avec accessoire",
+              "desc": "Un objet imposé doit être central à l'improvisation collective. La troupe entière l'apprivoise en scène. (Catégorie match adaptée)"
             }
           ],
           "confirme": [
@@ -1653,6 +1891,38 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Le personnage tiré",
               "desc": "Chaque joueur tire un type de personnage (clown, séducteur, paranoïaque) qu'il doit jouer sans le nommer."
+            },
+            {
+              "name": "Mixte à la manière de",
+              "desc": "Tout le monde joue le thème dans un style d'auteur ou de genre imposé : Molière, Audiard, film noir... (Catégorie match adaptée)"
+            },
+            {
+              "name": "Comparée à la manière de",
+              "desc": "Deux sous-groupes jouent successivement le même thème dans le style imposé, chacun à leur façon. (Catégorie match adaptée)"
+            },
+            {
+              "name": "Mixte sans paroles",
+              "desc": "Aucun mot prononcé : seule la mise en scène collective raconte. Concentration extrême. (Catégorie match adaptée)"
+            },
+            {
+              "name": "Sans paroles avec soutien musical",
+              "desc": "Improvisation muette, mais l'écriture est rigoureusement influencée par l'ambiance musicale imposée. (Dramaction)"
+            },
+            {
+              "name": "Comparée à contrainte",
+              "desc": "Deux sous-groupes jouent successivement le même thème, chacun avec une contrainte tirée au sort différente. (Catégorie match adaptée)"
+            },
+            {
+              "name": "Sans thème ni caucus",
+              "desc": "Aucun thème annoncé, aucun temps de concertation. Pure inventivité immédiate. (Dramaction)"
+            },
+            {
+              "name": "Saute-mouton",
+              "desc": "Quatre impros différentes, un thème par impro. La 1ʳᵉ avec un joueur, on en ajoute un à chaque impro suivante. (Dramaction)"
+            },
+            {
+              "name": "Sensorielle",
+              "desc": "Un des cinq sens d'un improvisateur est stimulé pendant la scène. Cette sensation doit nourrir toute l'écriture. (Dramaction)"
             }
           ],
           "expert": [
@@ -1712,6 +1982,30 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Beckettienne",
               "desc": "Long format absurde : silences habités, attente, langage qui se vide. À l'image d'En attendant Godot."
+            },
+            {
+              "name": "Mixte chantée",
+              "desc": "Improvisation entièrement ou partiellement chantée par toute la troupe, mélodies et paroles improvisées en collectif. (Catégorie match adaptée)"
+            },
+            {
+              "name": "Comparée chantée",
+              "desc": "Deux sous-groupes proposent successivement leur version chantée du même thème. (Catégorie match adaptée)"
+            },
+            {
+              "name": "Mixte rimée",
+              "desc": "Toutes les répliques riment. Octosyllabes ou alexandrins selon niveau. La troupe entière tient le mètre. (Catégorie match adaptée)"
+            },
+            {
+              "name": "Comparée rimée",
+              "desc": "Deux sous-groupes livrent successivement leur version rimée du thème. (Catégorie match adaptée)"
+            },
+            {
+              "name": "Videoway",
+              "desc": "Mixte avec quatre canaux TV (F1-F4), contenu différent par canal. Le meneur saute d'un canal à l'autre sans ordre prédéfini. (Dramaction)"
+            },
+            {
+              "name": "Mixte à thèse",
+              "desc": "L'improvisation collective doit défendre une thèse philosophique annoncée à l'avance."
             }
           ]
         },
@@ -2172,6 +2466,72 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Question circle",
               "desc": "One player in the middle. Others bombard them with rapid-fire questions to be answered precisely."
+            },
+            {
+              "name": "Mixed",
+              "desc": "All troupe members play the theme together, no team split. (Adapted match category)"
+            },
+            {
+              "name": "Compared",
+              "desc": "Two subgroups of the troupe play the same proposition in succession. The 2nd version must differ from the 1st. (Adapted match category)"
+            },
+            {
+              "name": "With prop",
+              "desc": "An imposed object must be central to the collective improvisation. The whole troupe makes it work on stage. (Adapted match category)"
+            },
+            {
+              "name": "Free",
+              "desc": "Two subgroups play the same theme in succession with no form constraint. Total freedom. (Adapted match category)"
+            },
+            {
+              "name": "The chairs",
+              "desc": "One team has 30s to build a structure out of chairs. Another team has 40s to prepare an improv based on that structure. (Tadam Impro)"
+            },
+            {
+              "name": "The eulogy",
+              "desc": "Each player improvises a tribute speech for their pet. Solemn tone, funny, or both. (Tadam Impro)"
+            },
+            {
+              "name": "Embody the theme",
+              "desc": "The group is in motion; a leader calls out a theme (museum, pyramids...). The group instantly recreates it. (Tadam Impro)"
+            },
+            {
+              "name": "Weird conversation",
+              "desc": "Two players improvise an offbeat situation: a bird explaining a tree to another bird, a flea arguing with a dog. (Tadam Impro)"
+            },
+            {
+              "name": "The drunk guy",
+              "desc": "An audience member (or actor) plays the « drunk guy » who interrupts the scene with absurd suggestions the improvisers must work in to push the story forward.",
+              "needsAudience": true
+            },
+            {
+              "name": "The human machine",
+              "desc": "One by one, players enter and add a repetitive gesture/sound. The machine builds itself organically."
+            },
+            {
+              "name": "ABC",
+              "desc": "A scene where each line begins with the next letter of the alphabet. A, B, C... up to Z."
+            },
+            {
+              "name": "The bus",
+              "desc": "A bus stop. With each arrival a new character boards with their own universe. The scene mutates every time."
+            },
+            {
+              "name": "Pantomime",
+              "desc": "A scene played entirely in mime from a given theme. (Dramaction)"
+            },
+            {
+              "name": "Passing emotion",
+              "desc": "A player silently transmits an emotion to their neighbour through a gesture, who passes it on in turn. (Dramaction)"
+            },
+            {
+              "name": "Beginning-middle-end in 30s",
+              "desc": "Start an impro, shift the stakes, and wrap it up — all in 30 seconds flat. (Impro-Exo)"
+            },
+            {
+              "name": "Shifting-emotion conversation",
+              "desc": "A two-person conversation. Every 1-2 minutes a leader shouts an emotion. The players shift instantly. (MentorShow)",
+              "needsAudience": true
             }
           ],
           "confirme": [
@@ -2206,6 +2566,70 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Mixed genres",
               "desc": "Moderator switches genre every 30 seconds (western, noir, romance, horror...)."
+            },
+            {
+              "name": "In the manner of",
+              "desc": "Everyone plays the theme in an imposed author or genre style: Shakespeare, film noir, Audiard... (Adapted match category)"
+            },
+            {
+              "name": "Silent",
+              "desc": "No word spoken — only the collective staging tells the story. Extreme focus. (Adapted match category)"
+            },
+            {
+              "name": "Silent with music",
+              "desc": "Silent improv, but the writing is rigorously influenced by the imposed musical ambience. (Dramaction)"
+            },
+            {
+              "name": "Forced constraint",
+              "desc": "Two subgroups play the same theme in succession, each with a different constraint drawn at random. (Adapted match category)"
+            },
+            {
+              "name": "No theme, no caucus",
+              "desc": "No theme announced, no preparation time. Pure immediate invention. (Dramaction)"
+            },
+            {
+              "name": "Leapfrog",
+              "desc": "Four different impros, one theme each. The 1st with one player, one is added at each subsequent impro. (Dramaction)"
+            },
+            {
+              "name": "Sensory",
+              "desc": "One of the five senses of an improviser is stimulated during the scene. That sensation must drive the whole writing. (Dramaction)"
+            },
+            {
+              "name": "Compared in the manner of",
+              "desc": "Two subgroups of the troupe play the same theme in succession in the imposed style, each in their own way. (Adapted match category)"
+            },
+            {
+              "name": "Triple status",
+              "desc": "Each character has a secret, a goal, and an obstacle. All three are revealed during the scene."
+            },
+            {
+              "name": "Reversed scene",
+              "desc": "Start at the climax and work back to the moment the characters first meet."
+            },
+            {
+              "name": "The off-key choir",
+              "desc": "A choir onstage — one member is off-key or out of rhythm. The whole drama comes from them. (Wikiversité)"
+            },
+            {
+              "name": "Actors backstage",
+              "desc": "A scene plays out backstage while the « show » is happening onstage. Mise en abyme. (Wikiversité)"
+            },
+            {
+              "name": "The broken elevator",
+              "desc": "Ultra-cramped space, several characters, forced confinement. A classic. (Wikiversité)"
+            },
+            {
+              "name": "The teachers' meeting",
+              "desc": "A staff meeting where each teacher has a hidden agenda and a favourite pupil."
+            },
+            {
+              "name": "Back to the past",
+              "desc": "At a key moment, a player claps. The scene rewinds one minute and replays differently."
+            },
+            {
+              "name": "Drawn character",
+              "desc": "Each player draws a character type (clown, seducer, paranoiac) and must play it without naming it."
             }
           ],
           "expert": [
@@ -2240,6 +2664,54 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Beckettian",
               "desc": "Long-form absurd: lived silences, waiting, language emptying out. Godot-style."
+            },
+            {
+              "name": "Sung",
+              "desc": "Improvisation entirely or partially sung by the whole troupe, improvised melodies and lyrics in collective. (Adapted match category)"
+            },
+            {
+              "name": "Rhymed",
+              "desc": "All lines rhyme. Octosyllables or alexandrines per level. The whole troupe holds the meter. (Adapted match category)"
+            },
+            {
+              "name": "Videoway",
+              "desc": "Mixed with four TV channels (F1-F4), different content per channel. The host jumps between channels with no pre-defined order. (Dramaction)"
+            },
+            {
+              "name": "Thesis",
+              "desc": "The collective improvisation must defend a philosophical thesis announced in advance."
+            },
+            {
+              "name": "Compared sung",
+              "desc": "Two subgroups of the troupe successively offer their sung version of the same theme. (Adapted match category)"
+            },
+            {
+              "name": "Compared rhymed",
+              "desc": "Two subgroups of the troupe successively deliver their rhymed version of the theme. (Adapted match category)"
+            },
+            {
+              "name": "The Fireball",
+              "desc": "All players onstage. At each high beat, a duo breaks out for a mini-scene, then returns to the group."
+            },
+            {
+              "name": "Shared monologue",
+              "desc": "A long monologue is picked up by each player, who distorts and enriches it while staying the same character."
+            },
+            {
+              "name": "Improvised opera",
+              "desc": "Sung recitatives and arias in alternation, fully improvised libretto, operatic voices."
+            },
+            {
+              "name": "The House (Del Close)",
+              "desc": "Long form where each scene opens themes that following scenes pick up and deepen."
+            },
+            {
+              "name": "The Deconstructed",
+              "desc": "A single scene is played, then taken apart and restarted from several narrative angles."
+            },
+            {
+              "name": "Chekhovian",
+              "desc": "Long-form Chekhov style: no climax, characters who miss each other, inaction as the engine."
             }
           ]
         },
@@ -2501,8 +2973,16 @@ window.IMPRO_BUNDLE = {
           "desc": "Style or genre imposed (Shakespeare, noir, Tarantino...)."
         },
         {
+          "name": "Compared in the manner of",
+          "desc": "Each team plays the theme in the imposed style, in its own way."
+        },
+        {
           "name": "Sung",
           "desc": "Improvisation entirely or partially sung."
+        },
+        {
+          "name": "Compared sung",
+          "desc": "Each team offers its own sung version of the same theme."
         },
         {
           "name": "Silent",
@@ -2515,6 +2995,10 @@ window.IMPRO_BUNDLE = {
         {
           "name": "Rhymed",
           "desc": "All lines must rhyme. Couplets or alexandrines depending on level."
+        },
+        {
+          "name": "Compared rhymed",
+          "desc": "Each team delivers its own rhymed version of the theme."
         },
         {
           "name": "With prop",
@@ -2633,6 +3117,72 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Fragenkreis",
               "desc": "Ein Spieler in der Mitte. Andere bombardieren ihn mit schnellen Fragen, präzise zu beantworten."
+            },
+            {
+              "name": "Gemischt",
+              "desc": "Die ganze Truppe spielt das Thema gemeinsam, ohne Mannschaftsaufteilung. (Aus Match-Kategorie adaptiert)"
+            },
+            {
+              "name": "Vergleich",
+              "desc": "Zwei Untergruppen der Truppe spielen dieselbe Vorlage nacheinander. Die 2. Version muss sich von der 1. unterscheiden. (Aus Match-Kategorie adaptiert)"
+            },
+            {
+              "name": "Mit Requisit",
+              "desc": "Ein vorgegebenes Objekt muss zentral für die kollektive Improvisation sein. Die ganze Truppe lässt es auf der Bühne wirken. (Aus Match-Kategorie adaptiert)"
+            },
+            {
+              "name": "Frei",
+              "desc": "Zwei Untergruppen spielen dasselbe Thema nacheinander ohne Formvorgabe. Vollkommene Freiheit. (Aus Match-Kategorie adaptiert)"
+            },
+            {
+              "name": "Die Stühle",
+              "desc": "Ein Team hat 30 Sek., um aus Stühlen eine Struktur zu bauen. Ein anderes Team hat 40 Sek., um darauf eine Improvisation vorzubereiten. (Tadam Impro)"
+            },
+            {
+              "name": "Die Grabrede",
+              "desc": "Jeder improvisiert eine Trauerrede für sein Haustier. Feierlich, komisch, oder beides. (Tadam Impro)"
+            },
+            {
+              "name": "Thema verkörpern",
+              "desc": "Die Gruppe ist in Bewegung, ein Leiter ruft ein Thema (Museum, Pyramiden...). Die Gruppe stellt es sofort dar. (Tadam Impro)"
+            },
+            {
+              "name": "Schräges Gespräch",
+              "desc": "Zwei Spieler improvisieren eine schräge Situation: ein Vogel erklärt einem anderen Vogel den Baum, ein Floh streitet mit einem Hund. (Tadam Impro)"
+            },
+            {
+              "name": "Der Betrunkene",
+              "desc": "Ein Zuschauer (oder Schauspieler) spielt den « Betrunkenen », der die Szene mit absurden Vorschlägen unterbricht, die die Improvisierenden in die Geschichte einarbeiten müssen.",
+              "needsAudience": true
+            },
+            {
+              "name": "Die menschliche Maschine",
+              "desc": "Einer nach dem anderen treten die Spieler ein und fügen eine sich wiederholende Geste oder einen Klang hinzu. Die Maschine baut sich organisch auf."
+            },
+            {
+              "name": "ABC",
+              "desc": "Eine Szene, in der jede Replik mit dem nächsten Buchstaben des Alphabets beginnt. A, B, C... bis Z."
+            },
+            {
+              "name": "Der Bus",
+              "desc": "Eine Bushaltestelle. Bei jeder Ankunft steigt eine neue Figur mit ihrer eigenen Welt ein. Die Szene wandelt sich jedes Mal."
+            },
+            {
+              "name": "Pantomime",
+              "desc": "Eine vollständig pantomimisch gespielte Szene zu einem vorgegebenen Thema. (Dramaction)"
+            },
+            {
+              "name": "Wandernde Emotion",
+              "desc": "Ein Spieler überträgt schweigend eine Emotion durch eine Geste an seinen Nachbarn, der sie weitergibt. (Dramaction)"
+            },
+            {
+              "name": "Anfang-Mitte-Ende in 30 Sek.",
+              "desc": "Eine Impro beginnen, den Konflikt verschieben und abschließen — alles in 30 Sekunden. (Impro-Exo)"
+            },
+            {
+              "name": "Gespräch mit wechselnder Emotion",
+              "desc": "Ein Dialog zu zweit. Alle 1-2 Minuten ruft ein Leiter eine Emotion. Die Spieler kippen sofort um. (MentorShow)",
+              "needsAudience": true
             }
           ],
           "confirme": [
@@ -2667,6 +3217,70 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Genremix",
               "desc": "Spielleiter wechselt das Genre alle 30 Sekunden (Western, Krimi, Romanze, Horror...)."
+            },
+            {
+              "name": "In der Art von",
+              "desc": "Alle spielen das Thema in einem vorgegebenen Autoren- oder Genrestil: Goethe, Film noir, Tarantino... (Aus Match-Kategorie adaptiert)"
+            },
+            {
+              "name": "Stumm",
+              "desc": "Kein gesprochenes Wort — nur die kollektive Inszenierung erzählt. Höchste Konzentration. (Aus Match-Kategorie adaptiert)"
+            },
+            {
+              "name": "Stumm mit Musik",
+              "desc": "Stumme Improvisation, aber das Schreiben wird streng durch die vorgegebene Musikstimmung geprägt. (Dramaction)"
+            },
+            {
+              "name": "Mit Pflicht-Vorgabe",
+              "desc": "Zwei Untergruppen spielen dasselbe Thema nacheinander, jede mit einer anderen zufällig gezogenen Vorgabe. (Aus Match-Kategorie adaptiert)"
+            },
+            {
+              "name": "Ohne Thema, ohne Caucus",
+              "desc": "Kein Thema angekündigt, keine Vorbereitungszeit. Reine Spontaninvention. (Dramaction)"
+            },
+            {
+              "name": "Bockspringen",
+              "desc": "Vier verschiedene Improvisationen, ein Thema pro Impro. Die 1. mit einem Spieler, bei jeder folgenden Impro kommt einer dazu. (Dramaction)"
+            },
+            {
+              "name": "Sensorisch",
+              "desc": "Einer der fünf Sinne eines Improvisators wird während der Szene gereizt. Diese Empfindung muss das ganze Schreiben prägen. (Dramaction)"
+            },
+            {
+              "name": "Vergleich in der Art von",
+              "desc": "Zwei Untergruppen der Truppe spielen dasselbe Thema nacheinander im vorgegebenen Stil, jede auf ihre eigene Weise. (Aus Match-Kategorie adaptiert)"
+            },
+            {
+              "name": "Dreifachstatus",
+              "desc": "Jede Figur hat ein Geheimnis, ein Ziel und ein Hindernis. Alle drei werden im Lauf der Szene enthüllt."
+            },
+            {
+              "name": "Umgekehrte Szene",
+              "desc": "Man beginnt mit dem Höhepunkt und arbeitet sich bis zur ersten Begegnung der Figuren zurück."
+            },
+            {
+              "name": "Der verstimmte Chor",
+              "desc": "Ein Chor auf der Bühne — ein Mitglied ist verstimmt oder aus dem Takt. Das ganze Drama entsteht durch ihn. (Wikiversité)"
+            },
+            {
+              "name": "Schauspieler hinter den Kulissen",
+              "desc": "Eine Szene spielt hinter den Kulissen, während die « Aufführung » auf der Bühne läuft. Spiel im Spiel. (Wikiversité)"
+            },
+            {
+              "name": "Der defekte Aufzug",
+              "desc": "Engster Raum, mehrere Figuren, Kammerspiel erzwungen. Ein Klassiker. (Wikiversité)"
+            },
+            {
+              "name": "Die Lehrerkonferenz",
+              "desc": "Eine Lehrersitzung, in der jeder Lehrer eine versteckte Agenda und einen Lieblingsschüler hat."
+            },
+            {
+              "name": "Rückkehr in die Vergangenheit",
+              "desc": "In einem entscheidenden Moment klatscht ein Spieler. Die Szene springt eine Minute zurück und wird anders gespielt."
+            },
+            {
+              "name": "Gezogene Figur",
+              "desc": "Jeder Spieler zieht einen Figurentyp (Clown, Verführer, Paranoiker), den er spielen muss, ohne ihn zu benennen."
             }
           ],
           "expert": [
@@ -2701,6 +3315,54 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Beckettsch",
               "desc": "Lange absurde Form: gehaltene Stille, Warten, sich entleerende Sprache. Im Stil von Godot."
+            },
+            {
+              "name": "Gesungen",
+              "desc": "Improvisation ganz oder teilweise gesungen von der ganzen Truppe, improvisierte Melodien und Texte im Kollektiv. (Aus Match-Kategorie adaptiert)"
+            },
+            {
+              "name": "Gereimt",
+              "desc": "Alle Repliken reimen sich. Achtsilbler oder Alexandriner je nach Niveau. Die ganze Truppe hält das Metrum. (Aus Match-Kategorie adaptiert)"
+            },
+            {
+              "name": "Videoway",
+              "desc": "Gemischt mit vier TV-Kanälen (F1-F4), unterschiedlicher Inhalt pro Kanal. Der Schiedsrichter springt ohne vordefinierte Reihenfolge zwischen den Kanälen. (Dramaction)"
+            },
+            {
+              "name": "Thesen",
+              "desc": "Die kollektive Improvisation muss eine vorab angekündigte philosophische These verteidigen."
+            },
+            {
+              "name": "Vergleich gesungen",
+              "desc": "Zwei Untergruppen der Truppe bieten nacheinander ihre gesungene Version desselben Themas. (Aus Match-Kategorie adaptiert)"
+            },
+            {
+              "name": "Vergleich gereimt",
+              "desc": "Zwei Untergruppen der Truppe liefern nacheinander ihre gereimte Version des Themas. (Aus Match-Kategorie adaptiert)"
+            },
+            {
+              "name": "Der Feuerball",
+              "desc": "Alle Spieler auf der Bühne. Bei jedem Höhepunkt löst sich ein Duo für eine Mini-Szene und kehrt dann zur Gruppe zurück."
+            },
+            {
+              "name": "Geteiltes Monolog",
+              "desc": "Ein langer Monolog wird von jedem Spieler übernommen, der ihn verformt und bereichert, während er dieselbe Figur verkörpert."
+            },
+            {
+              "name": "Impro-Oper",
+              "desc": "Rezitative und Arien im Wechsel gesungen, vollständig improvisiertes Libretto, Opernstimmen."
+            },
+            {
+              "name": "Das Haus (Del Close)",
+              "desc": "Lange Form, in der jede Szene Themen eröffnet, die die folgenden aufgreifen und vertiefen."
+            },
+            {
+              "name": "Das Dekonstruierte",
+              "desc": "Eine einzelne Szene wird gespielt, dann auseinandergenommen und aus mehreren erzählerischen Blickwinkeln neu begonnen."
+            },
+            {
+              "name": "Tschechowsch",
+              "desc": "Lange Form à la Tschechow: kein Höhepunkt, Figuren, die einander verfehlen, Untätigkeit als Motor."
             }
           ]
         },
@@ -2962,8 +3624,16 @@ window.IMPRO_BUNDLE = {
           "desc": "Stil oder Genre vorgegeben (Goethe, Noir, Tarantino...)."
         },
         {
+          "name": "Vergleich in der Art von",
+          "desc": "Jede Mannschaft spielt das Thema im vorgegebenen Stil, auf ihre eigene Weise."
+        },
+        {
           "name": "Gesungen",
           "desc": "Improvisation ganz oder teilweise gesungen."
+        },
+        {
+          "name": "Vergleich gesungen",
+          "desc": "Jede Mannschaft bietet ihre eigene gesungene Version desselben Themas."
         },
         {
           "name": "Stumm",
@@ -2976,6 +3646,10 @@ window.IMPRO_BUNDLE = {
         {
           "name": "Gereimt",
           "desc": "Alle Repliken müssen sich reimen."
+        },
+        {
+          "name": "Vergleich gereimt",
+          "desc": "Jede Mannschaft liefert ihre eigene gereimte Version des Themas."
         },
         {
           "name": "Mit Requisit",
@@ -3094,6 +3768,72 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Círculo de preguntas",
               "desc": "Un jugador en el centro. Los demás le bombardean con preguntas rápidas a contestar con precisión."
+            },
+            {
+              "name": "Mixta",
+              "desc": "Toda la troupe juega el tema en conjunto, sin división por equipos. (Adaptado de categoría de match)"
+            },
+            {
+              "name": "Comparada",
+              "desc": "Dos subgrupos de la troupe juegan la misma propuesta por turno. La 2ª versión debe diferenciarse de la 1ª. (Adaptado de categoría de match)"
+            },
+            {
+              "name": "Con utilería",
+              "desc": "Un objeto impuesto debe ser central en la improvisación colectiva. Toda la troupe lo hace funcionar en escena. (Adaptado de categoría de match)"
+            },
+            {
+              "name": "Libre",
+              "desc": "Dos subgrupos juegan el mismo tema por turno sin restricción de forma. Libertad total. (Adaptado de categoría de match)"
+            },
+            {
+              "name": "Las sillas",
+              "desc": "Un equipo dispone de 30 s para construir una estructura con sillas. Otro equipo dispone de 40 s para preparar una improvisación a partir de esa estructura. (Tadam Impro)"
+            },
+            {
+              "name": "El discurso fúnebre",
+              "desc": "Cada uno improvisa un discurso de homenaje a su mascota. Tono solemne, divertido, o ambos. (Tadam Impro)"
+            },
+            {
+              "name": "Encarnar el tema",
+              "desc": "El grupo está en movimiento, un líder lanza un tema (museo, pirámides...). El grupo lo recrea de inmediato. (Tadam Impro)"
+            },
+            {
+              "name": "Conversación rara",
+              "desc": "Dos jugadores improvisan una situación delirante: un pájaro que le explica el árbol a otro pájaro, una pulga que discute con un perro. (Tadam Impro)"
+            },
+            {
+              "name": "El borracho",
+              "desc": "Un miembro del público (o un actor) interpreta al « borracho » que interrumpe la escena con sugerencias absurdas que los improvisadores deben integrar para hacer avanzar la historia.",
+              "needsAudience": true
+            },
+            {
+              "name": "La máquina humana",
+              "desc": "Uno a uno, los jugadores entran y añaden un gesto o sonido repetitivo. La máquina se construye de manera orgánica."
+            },
+            {
+              "name": "ABC",
+              "desc": "Una escena en la que cada réplica empieza con la siguiente letra del abecedario. A, B, C... hasta la Z."
+            },
+            {
+              "name": "El autobús",
+              "desc": "Una parada de autobús. A cada llegada, un nuevo personaje sube con su propio universo. La escena muta cada vez."
+            },
+            {
+              "name": "Pantomima",
+              "desc": "Una escena enteramente mimada a partir de un tema. (Dramaction)"
+            },
+            {
+              "name": "Emoción que pasa",
+              "desc": "Un jugador transmite una emoción en silencio a su vecino mediante un gesto, que la transmite a su vez. (Dramaction)"
+            },
+            {
+              "name": "Principio-medio-final en 30 s",
+              "desc": "Comenzar una improvisación, mover la apuesta y concluir — todo en 30 segundos cronometrados. (Impro-Exo)"
+            },
+            {
+              "name": "Conversación con emoción cambiante",
+              "desc": "Una conversación a dúo. Cada 1-2 minutos, un líder grita una emoción. Los jugadores cambian al instante. (MentorShow)",
+              "needsAudience": true
             }
           ],
           "confirme": [
@@ -3128,6 +3868,70 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Géneros mezclados",
               "desc": "El director cambia de género cada 30 segundos (western, negra, romance, horror...)."
+            },
+            {
+              "name": "A la manera de",
+              "desc": "Todos juegan el tema en un estilo de autor o género impuesto: Lorca, cine negro, Tarantino... (Adaptado de categoría de match)"
+            },
+            {
+              "name": "Muda",
+              "desc": "Ninguna palabra hablada — solo la puesta en escena colectiva cuenta la historia. Concentración extrema. (Adaptado de categoría de match)"
+            },
+            {
+              "name": "Muda con música",
+              "desc": "Improvisación muda, pero la escritura está rigurosamente moldeada por la atmósfera musical impuesta. (Dramaction)"
+            },
+            {
+              "name": "Con restricción",
+              "desc": "Dos subgrupos juegan el mismo tema por turno, cada uno con una restricción distinta sacada al azar. (Adaptado de categoría de match)"
+            },
+            {
+              "name": "Sin tema ni caucus",
+              "desc": "Ningún tema anunciado, ningún tiempo de preparación. Pura invención inmediata. (Dramaction)"
+            },
+            {
+              "name": "Saltacabras",
+              "desc": "Cuatro improvisaciones distintas, un tema cada una. La 1ª con un jugador, se añade uno en cada impro siguiente. (Dramaction)"
+            },
+            {
+              "name": "Sensorial",
+              "desc": "Uno de los cinco sentidos de un improvisador es estimulado durante la escena. Esa sensación debe moldear toda la escritura. (Dramaction)"
+            },
+            {
+              "name": "Comparada a la manera de",
+              "desc": "Dos subgrupos de la troupe juegan por turno el mismo tema en el estilo impuesto, cada uno a su manera. (Adaptado de categoría de match)"
+            },
+            {
+              "name": "Triple estatus",
+              "desc": "Cada personaje tiene un secreto, un objetivo y un obstáculo. Los tres se revelan durante la escena."
+            },
+            {
+              "name": "Escena invertida",
+              "desc": "Se empieza por el clímax y se retrocede hasta el encuentro de los personajes."
+            },
+            {
+              "name": "El coro desafinado",
+              "desc": "Un coro en escena — un miembro está desafinado o fuera de ritmo. Todo el drama nace de él. (Wikiversité)"
+            },
+            {
+              "name": "Actores entre bambalinas",
+              "desc": "Una escena se desarrolla entre bambalinas mientras el « espectáculo » sucede en escena. Mise en abyme. (Wikiversité)"
+            },
+            {
+              "name": "El ascensor averiado",
+              "desc": "Espacio ultra reducido, varios personajes, encierro forzoso. Un clásico. (Wikiversité)"
+            },
+            {
+              "name": "La reunión de profes",
+              "desc": "Una reunión de docentes donde cada profe tiene una agenda oculta y un alumno favorito."
+            },
+            {
+              "name": "Vuelta al pasado",
+              "desc": "En un momento clave, un jugador da una palmada. La escena retrocede un minuto y se rejuega de otra manera."
+            },
+            {
+              "name": "Personaje al azar",
+              "desc": "Cada jugador saca un tipo de personaje (payaso, seductor, paranoico) que debe interpretar sin nombrarlo."
             }
           ],
           "expert": [
@@ -3162,6 +3966,54 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Beckettiana",
               "desc": "Forma larga absurda: silencios habitados, espera, lenguaje que se vacía. Estilo Godot."
+            },
+            {
+              "name": "Cantada",
+              "desc": "Improvisación entera o parcialmente cantada por toda la troupe, melodías y letras improvisadas en colectivo. (Adaptado de categoría de match)"
+            },
+            {
+              "name": "Rimada",
+              "desc": "Todas las réplicas riman. Octosílabos o alejandrinos según el nivel. Toda la troupe sostiene la métrica. (Adaptado de categoría de match)"
+            },
+            {
+              "name": "Videoway",
+              "desc": "Mixta con cuatro canales TV (F1-F4), contenido distinto por canal. El árbitro salta entre canales sin orden predefinido. (Dramaction)"
+            },
+            {
+              "name": "De tesis",
+              "desc": "La improvisación colectiva debe defender una tesis filosófica anunciada de antemano."
+            },
+            {
+              "name": "Comparada cantada",
+              "desc": "Dos subgrupos de la troupe proponen sucesivamente su versión cantada del mismo tema. (Adaptado de categoría de match)"
+            },
+            {
+              "name": "Comparada rimada",
+              "desc": "Dos subgrupos de la troupe entregan sucesivamente su versión rimada del tema. (Adaptado de categoría de match)"
+            },
+            {
+              "name": "La bola de fuego",
+              "desc": "Todos los jugadores en escena. En cada momento álgido, un dúo se separa para una miniescena y luego vuelve al grupo."
+            },
+            {
+              "name": "Monólogo compartido",
+              "desc": "Un largo monólogo es retomado por cada jugador, que lo deforma y enriquece manteniendo el mismo personaje."
+            },
+            {
+              "name": "Ópera improvisada",
+              "desc": "Recitativos y arias cantados alternadamente, libreto enteramente improvisado, voces líricas."
+            },
+            {
+              "name": "La Casa (Del Close)",
+              "desc": "Forma larga en la que cada escena abre temas que las siguientes retoman y profundizan."
+            },
+            {
+              "name": "El Deconstructed",
+              "desc": "Una sola escena se juega y luego se desmonta y se vuelve a empezar desde varios ángulos narrativos."
+            },
+            {
+              "name": "Chejoviana",
+              "desc": "Forma larga a la Chéjov: sin clímax, personajes que se desencuentran, la inacción como motor."
             }
           ]
         },
@@ -3423,8 +4275,16 @@ window.IMPRO_BUNDLE = {
           "desc": "Estilo o género impuesto (Lorca, cine negro, Tarantino...)."
         },
         {
+          "name": "Comparada a la manera de",
+          "desc": "Cada equipo juega el tema en el estilo impuesto, a su manera."
+        },
+        {
           "name": "Cantada",
           "desc": "Improvisación entera o parcialmente cantada."
+        },
+        {
+          "name": "Comparada cantada",
+          "desc": "Cada equipo propone su propia versión cantada del mismo tema."
         },
         {
           "name": "Muda",
@@ -3437,6 +4297,10 @@ window.IMPRO_BUNDLE = {
         {
           "name": "Rimada",
           "desc": "Todas las réplicas deben rimar."
+        },
+        {
+          "name": "Comparada rimada",
+          "desc": "Cada equipo entrega su propia versión rimada del tema."
         },
         {
           "name": "Con utilería",
@@ -3555,6 +4419,72 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Círculo de perguntas",
               "desc": "Um jogador no centro. Os outros bombardeiam-no com perguntas rápidas, a responder com precisão."
+            },
+            {
+              "name": "Mista",
+              "desc": "Toda a troupe joga o tema em conjunto, sem divisão por equipas. (Adaptado da categoria de match)"
+            },
+            {
+              "name": "Comparada",
+              "desc": "Dois subgrupos da troupe jogam a mesma proposta por sua vez. A 2ª versão deve diferir da 1ª. (Adaptado da categoria de match)"
+            },
+            {
+              "name": "Com adereço",
+              "desc": "Um objeto imposto deve ser central na improvisação coletiva. Toda a troupe fá-lo funcionar em cena. (Adaptado da categoria de match)"
+            },
+            {
+              "name": "Livre",
+              "desc": "Dois subgrupos jogam o mesmo tema por sua vez, sem restrição de forma. Liberdade total. (Adaptado da categoria de match)"
+            },
+            {
+              "name": "As cadeiras",
+              "desc": "Uma equipa tem 30 s para construir uma estrutura com cadeiras. Outra equipa tem 40 s para preparar uma improvisação a partir dessa estrutura. (Tadam Impro)"
+            },
+            {
+              "name": "O discurso fúnebre",
+              "desc": "Cada um improvisa um discurso de homenagem ao seu animal de estimação. Tom solene, divertido, ou ambos. (Tadam Impro)"
+            },
+            {
+              "name": "Encarnar o tema",
+              "desc": "O grupo está em movimento, um líder lança um tema (museu, pirâmides...). O grupo recria-o de imediato. (Tadam Impro)"
+            },
+            {
+              "name": "Conversa estranha",
+              "desc": "Dois jogadores improvisam uma situação delirante: um pássaro a explicar a árvore a outro pássaro, uma pulga a discutir com um cão. (Tadam Impro)"
+            },
+            {
+              "name": "O bêbado",
+              "desc": "Um membro do público (ou um ator) faz de « bêbado » que interrompe a cena com sugestões absurdas que os improvisadores devem integrar para fazer avançar a história.",
+              "needsAudience": true
+            },
+            {
+              "name": "A máquina humana",
+              "desc": "Um a um, os jogadores entram e acrescentam um gesto ou som repetitivo. A máquina constrói-se organicamente."
+            },
+            {
+              "name": "ABC",
+              "desc": "Uma cena em que cada réplica começa pela letra seguinte do alfabeto. A, B, C... até Z."
+            },
+            {
+              "name": "O autocarro",
+              "desc": "Uma paragem de autocarro. A cada chegada, uma nova personagem sobe com o seu próprio universo. A cena muda de cada vez."
+            },
+            {
+              "name": "Pantomima",
+              "desc": "Uma cena inteiramente mimada a partir de um tema. (Dramaction)"
+            },
+            {
+              "name": "Emoção que passa",
+              "desc": "Um jogador transmite em silêncio uma emoção ao vizinho por um gesto, que a transmite por sua vez. (Dramaction)"
+            },
+            {
+              "name": "Início-meio-fim em 30 s",
+              "desc": "Começar uma improvisação, deslocar a aposta e concluir — tudo em 30 segundos cronometrados. (Impro-Exo)"
+            },
+            {
+              "name": "Conversa com emoção mutável",
+              "desc": "Uma conversa a dois. A cada 1-2 minutos, um líder grita uma emoção. Os jogadores mudam de imediato. (MentorShow)",
+              "needsAudience": true
             }
           ],
           "confirme": [
@@ -3589,6 +4519,70 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Géneros misturados",
               "desc": "O orientador muda de género a cada 30 segundos (western, policial, romance, terror...)."
+            },
+            {
+              "name": "À maneira de",
+              "desc": "Todos jogam o tema num estilo de autor ou género imposto: Camões, cinema negro, Tarantino... (Adaptado da categoria de match)"
+            },
+            {
+              "name": "Muda",
+              "desc": "Nenhuma palavra dita — só a encenação coletiva conta a história. Concentração extrema. (Adaptado da categoria de match)"
+            },
+            {
+              "name": "Muda com música",
+              "desc": "Improvisação muda, mas a escrita é rigorosamente moldada pelo ambiente musical imposto. (Dramaction)"
+            },
+            {
+              "name": "Com restrição",
+              "desc": "Dois subgrupos jogam o mesmo tema por sua vez, cada um com uma restrição diferente sorteada ao acaso. (Adaptado da categoria de match)"
+            },
+            {
+              "name": "Sem tema nem caucus",
+              "desc": "Nenhum tema anunciado, nenhum tempo de preparação. Pura invenção imediata. (Dramaction)"
+            },
+            {
+              "name": "Salto-mouton",
+              "desc": "Quatro improvisações diferentes, um tema cada. A 1ª com um jogador, junta-se mais um em cada impro seguinte. (Dramaction)"
+            },
+            {
+              "name": "Sensorial",
+              "desc": "Um dos cinco sentidos de um improvisador é estimulado durante a cena. Essa sensação deve moldar toda a escrita. (Dramaction)"
+            },
+            {
+              "name": "Comparada à maneira de",
+              "desc": "Dois subgrupos da troupe jogam por sua vez o mesmo tema no estilo imposto, cada um à sua maneira. (Adaptado da categoria de match)"
+            },
+            {
+              "name": "Triplo estatuto",
+              "desc": "Cada personagem tem um segredo, um objetivo e um obstáculo. Os três revelam-se ao longo da cena."
+            },
+            {
+              "name": "Cena invertida",
+              "desc": "Começa-se pelo clímax e recua-se até ao encontro das personagens."
+            },
+            {
+              "name": "O coro desafinado",
+              "desc": "Um coro em cena — um membro está desafinado ou fora do ritmo. Todo o drama nasce dele. (Wikiversité)"
+            },
+            {
+              "name": "Atores nos bastidores",
+              "desc": "Uma cena passa-se nos bastidores enquanto o « espetáculo » decorre em palco. Mise en abyme. (Wikiversité)"
+            },
+            {
+              "name": "O elevador avariado",
+              "desc": "Espaço ultra restrito, várias personagens, isolamento forçado. Um clássico. (Wikiversité)"
+            },
+            {
+              "name": "A reunião de professores",
+              "desc": "Uma reunião de docentes em que cada professor tem uma agenda escondida e um aluno preferido."
+            },
+            {
+              "name": "Regresso ao passado",
+              "desc": "Num momento-chave, um jogador bate palmas. A cena recua um minuto e é rejogada de outra forma."
+            },
+            {
+              "name": "Personagem sorteada",
+              "desc": "Cada jogador sorteia um tipo de personagem (palhaço, sedutor, paranoico) que deve interpretar sem o nomear."
             }
           ],
           "expert": [
@@ -3623,6 +4617,54 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Beckettiana",
               "desc": "Forma longa absurda: silêncios habitados, espera, linguagem que se esvazia. Estilo Godot."
+            },
+            {
+              "name": "Cantada",
+              "desc": "Improvisação inteira ou parcialmente cantada por toda a troupe, melodias e letras improvisadas em coletivo. (Adaptado da categoria de match)"
+            },
+            {
+              "name": "Rimada",
+              "desc": "Todas as réplicas rimam. Octossílabos ou alexandrinos consoante o nível. Toda a troupe sustenta a métrica. (Adaptado da categoria de match)"
+            },
+            {
+              "name": "Videoway",
+              "desc": "Mista com quatro canais TV (F1-F4), conteúdo diferente por canal. O árbitro salta entre canais sem ordem predefinida. (Dramaction)"
+            },
+            {
+              "name": "De tese",
+              "desc": "A improvisação coletiva deve defender uma tese filosófica anunciada de antemão."
+            },
+            {
+              "name": "Comparada cantada",
+              "desc": "Dois subgrupos da troupe propõem sucessivamente a sua versão cantada do mesmo tema. (Adaptado da categoria de match)"
+            },
+            {
+              "name": "Comparada rimada",
+              "desc": "Dois subgrupos da troupe entregam sucessivamente a sua versão rimada do tema. (Adaptado da categoria de match)"
+            },
+            {
+              "name": "A bola de fogo",
+              "desc": "Todos os jogadores em cena. Em cada momento alto, um par destaca-se para uma minicena e depois volta ao grupo."
+            },
+            {
+              "name": "Monólogo partilhado",
+              "desc": "Um longo monólogo é retomado por cada jogador, que o deforma e enriquece mantendo a mesma personagem."
+            },
+            {
+              "name": "Ópera improvisada",
+              "desc": "Recitativos e árias cantados em alternância, libreto inteiramente improvisado, vozes líricas."
+            },
+            {
+              "name": "A Casa (Del Close)",
+              "desc": "Forma longa em que cada cena abre temas que as seguintes retomam e aprofundam."
+            },
+            {
+              "name": "O Deconstructed",
+              "desc": "Uma única cena é jogada e depois desmontada e recomeçada segundo vários ângulos narrativos."
+            },
+            {
+              "name": "Tchekhoviana",
+              "desc": "Forma longa à Tchekhov: sem clímax, personagens que se desencontram, a inação como motor."
             }
           ]
         },
@@ -3884,8 +4926,16 @@ window.IMPRO_BUNDLE = {
           "desc": "Estilo ou género imposto (Camões, cinema negro, Tarantino...)."
         },
         {
+          "name": "Comparada à maneira de",
+          "desc": "Cada equipa joga o tema no estilo imposto, à sua maneira."
+        },
+        {
           "name": "Cantada",
           "desc": "Improvisação inteira ou parcialmente cantada."
+        },
+        {
+          "name": "Comparada cantada",
+          "desc": "Cada equipa propõe a sua própria versão cantada do mesmo tema."
         },
         {
           "name": "Muda",
@@ -3898,6 +4948,10 @@ window.IMPRO_BUNDLE = {
         {
           "name": "Rimada",
           "desc": "Todas as réplicas devem rimar."
+        },
+        {
+          "name": "Comparada rimada",
+          "desc": "Cada equipa entrega a sua própria versão rimada do tema."
         },
         {
           "name": "Com adereço",
@@ -4016,6 +5070,72 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Vragenkring",
               "desc": "Eén speler in het midden. Anderen bestoken hem met snelle vragen, nauwkeurig te beantwoorden."
+            },
+            {
+              "name": "Gemengd",
+              "desc": "De hele troupe speelt het thema samen, zonder ploegopdeling. (Aangepast van match-categorie)"
+            },
+            {
+              "name": "Vergelijkend",
+              "desc": "Twee subgroepen van de troupe spelen om beurten dezelfde opdracht. De 2ª versie moet verschillen van de 1ª. (Aangepast van match-categorie)"
+            },
+            {
+              "name": "Met rekwisiet",
+              "desc": "Een opgelegd voorwerp moet centraal staan in de collectieve improvisatie. De hele troupe laat het werken op de scène. (Aangepast van match-categorie)"
+            },
+            {
+              "name": "Vrij",
+              "desc": "Twee subgroepen spelen om beurten hetzelfde thema zonder vormbeperking. Volledige vrijheid. (Aangepast van match-categorie)"
+            },
+            {
+              "name": "De stoelen",
+              "desc": "Een team heeft 30 s om een structuur met stoelen te bouwen. Een ander team heeft 40 s om vanuit die structuur een improvisatie voor te bereiden. (Tadam Impro)"
+            },
+            {
+              "name": "De grafrede",
+              "desc": "Ieder improviseert een eerbetoon aan zijn huisdier. Plechtig, grappig, of beide. (Tadam Impro)"
+            },
+            {
+              "name": "Thema belichamen",
+              "desc": "De groep is in beweging, een leider roept een thema (museum, piramiden...). De groep maakt het meteen uit. (Tadam Impro)"
+            },
+            {
+              "name": "Vreemd gesprek",
+              "desc": "Twee spelers improviseren een schuine situatie: een vogel legt de boom uit aan een andere vogel, een vlo maakt ruzie met een hond. (Tadam Impro)"
+            },
+            {
+              "name": "De dronkaard",
+              "desc": "Een publiekslid (of acteur) speelt de « dronkaard » die de scène onderbreekt met absurde voorstellen die de improvisators moeten verwerken om het verhaal vooruit te helpen.",
+              "needsAudience": true
+            },
+            {
+              "name": "De menselijke machine",
+              "desc": "Eén voor één komen de spelers op en voegen een herhaald gebaar of geluid toe. De machine bouwt zich organisch op."
+            },
+            {
+              "name": "ABC",
+              "desc": "Een scène waarin elke replica begint met de volgende letter van het alfabet. A, B, C... tot Z."
+            },
+            {
+              "name": "De bus",
+              "desc": "Een bushalte. Bij elke aankomst stapt een nieuw personage op met zijn eigen universum. De scène muteert telkens."
+            },
+            {
+              "name": "Pantomime",
+              "desc": "Een volledig gemimede scène vanuit een gegeven thema. (Dramaction)"
+            },
+            {
+              "name": "Doorgegeven emotie",
+              "desc": "Een speler geeft zwijgend een emotie door aan zijn buur via een gebaar, die haar op zijn beurt doorgeeft. (Dramaction)"
+            },
+            {
+              "name": "Begin-midden-einde in 30 s",
+              "desc": "Een impro beginnen, de inzet verschuiven en afronden — alles in 30 seconden chrono. (Impro-Exo)"
+            },
+            {
+              "name": "Gesprek met wisselende emotie",
+              "desc": "Een gesprek met twee. Om de 1-2 minuten roept een leider een emotie. De spelers schakelen onmiddellijk om. (MentorShow)",
+              "needsAudience": true
             }
           ],
           "confirme": [
@@ -4050,6 +5170,70 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Genres door elkaar",
               "desc": "De spelleider wisselt elke 30 seconden van genre (western, krimi, romance, horror...)."
+            },
+            {
+              "name": "In de stijl van",
+              "desc": "Iedereen speelt het thema in een opgelegde auteurs- of genrestijl: Claus, film noir, Tarantino... (Aangepast van match-categorie)"
+            },
+            {
+              "name": "Stom",
+              "desc": "Geen woord gesproken — alleen de collectieve enscenering vertelt het verhaal. Extreme concentratie. (Aangepast van match-categorie)"
+            },
+            {
+              "name": "Stom met muziek",
+              "desc": "Stomme improvisatie, maar het schrijven wordt streng gevormd door de opgelegde muzikale sfeer. (Dramaction)"
+            },
+            {
+              "name": "Met dwangopgave",
+              "desc": "Twee subgroepen spelen om beurten hetzelfde thema, elk met een andere willekeurig getrokken opgave. (Aangepast van match-categorie)"
+            },
+            {
+              "name": "Zonder thema, zonder caucus",
+              "desc": "Geen thema aangekondigd, geen voorbereidingstijd. Pure spontane invention. (Dramaction)"
+            },
+            {
+              "name": "Bokspringen",
+              "desc": "Vier verschillende impro's, telkens een ander thema. De 1ª met één speler, bij elke volgende impro komt er één bij. (Dramaction)"
+            },
+            {
+              "name": "Zintuiglijk",
+              "desc": "Eén van de vijf zintuigen van een speler wordt tijdens de scène geprikkeld. Die gewaarwording moet het hele schrijven dragen. (Dramaction)"
+            },
+            {
+              "name": "Vergelijkend in de stijl van",
+              "desc": "Twee subgroepen van de troupe spelen om beurten hetzelfde thema in de opgelegde stijl, elk op hun eigen manier. (Aangepast van match-categorie)"
+            },
+            {
+              "name": "Drievoudige status",
+              "desc": "Elk personage heeft een geheim, een doel en een obstakel. Alle drie worden in de loop van de scène onthuld."
+            },
+            {
+              "name": "Omgekeerde scène",
+              "desc": "Men begint bij de climax en werkt terug tot de eerste ontmoeting van de personages."
+            },
+            {
+              "name": "Het ontstemde koor",
+              "desc": "Een koor op het podium — één lid is vals of uit het ritme. Het hele drama komt van hem. (Wikiversité)"
+            },
+            {
+              "name": "Acteurs in de coulissen",
+              "desc": "Een scène speelt zich af in de coulissen terwijl de « voorstelling » op het podium doorgaat. Spel in spel. (Wikiversité)"
+            },
+            {
+              "name": "De vastgelopen lift",
+              "desc": "Ultra krappe ruimte, meerdere personages, gedwongen afsluiting. Een klassieker. (Wikiversité)"
+            },
+            {
+              "name": "De lerarenvergadering",
+              "desc": "Een lerarenvergadering waar elke leerkracht een verborgen agenda en een lievelingsleerling heeft."
+            },
+            {
+              "name": "Terug naar het verleden",
+              "desc": "Op een sleutelmoment klapt een speler in de handen. De scène spoelt één minuut terug en wordt anders gespeeld."
+            },
+            {
+              "name": "Getrokken personage",
+              "desc": "Elke speler trekt een personagetype (clown, verleider, paranoïde) dat hij moet spelen zonder het te noemen."
             }
           ],
           "expert": [
@@ -4084,6 +5268,54 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Beckett-stijl",
               "desc": "Lange absurde vorm: bewoonde stiltes, wachten, taal die zich leegt. Godot-stijl."
+            },
+            {
+              "name": "Gezongen",
+              "desc": "Improvisatie geheel of gedeeltelijk gezongen door de hele troupe, geïmproviseerde melodieën en teksten in collectief. (Aangepast van match-categorie)"
+            },
+            {
+              "name": "Rijmend",
+              "desc": "Alle replica's rijmen. Achtsilbig of alexandrijn naargelang het niveau. De hele troupe houdt het metrum. (Aangepast van match-categorie)"
+            },
+            {
+              "name": "Videoway",
+              "desc": "Gemengd met vier TV-kanalen (F1-F4), verschillende inhoud per kanaal. De scheidsrechter springt zonder vooraf bepaalde volgorde tussen de kanalen. (Dramaction)"
+            },
+            {
+              "name": "Stelling",
+              "desc": "De collectieve improvisatie moet een vooraf aangekondigde filosofische stelling verdedigen."
+            },
+            {
+              "name": "Vergelijkend gezongen",
+              "desc": "Twee subgroepen van de troupe bieden achtereenvolgens hun gezongen versie van hetzelfde thema. (Aangepast van match-categorie)"
+            },
+            {
+              "name": "Vergelijkend rijmend",
+              "desc": "Twee subgroepen van de troupe leveren achtereenvolgens hun rijmende versie van het thema. (Aangepast van match-categorie)"
+            },
+            {
+              "name": "De vuurbal",
+              "desc": "Alle spelers op het podium. Op elk hoogtepunt maakt een duo zich los voor een miniscène en keert dan terug naar de groep."
+            },
+            {
+              "name": "Gedeelde monoloog",
+              "desc": "Een lange monoloog wordt door elke speler hernomen, die hem vervormt en verrijkt terwijl hij hetzelfde personage blijft."
+            },
+            {
+              "name": "Impro-opera",
+              "desc": "Recitatieven en aria's afwisselend gezongen, volledig geïmproviseerd libretto, lyrische stemmen."
+            },
+            {
+              "name": "Het Huis (Del Close)",
+              "desc": "Lange vorm waarin elke scène thema's opent die de volgende scènes hernemen en verdiepen."
+            },
+            {
+              "name": "Het Deconstructed",
+              "desc": "Eén enkele scène wordt gespeeld, daarna ontleed en hernomen vanuit meerdere verhaalhoeken."
+            },
+            {
+              "name": "Tsjechoviaans",
+              "desc": "Lange vorm à la Tsjechov: geen climax, personages die elkaar mislopen, niets-doen als motor."
             }
           ]
         },
@@ -4345,8 +5577,16 @@ window.IMPRO_BUNDLE = {
           "desc": "Stijl of genre opgelegd (Claus, film noir, Tarantino...)."
         },
         {
+          "name": "Vergelijkend in de stijl van",
+          "desc": "Elke ploeg speelt het thema in de opgelegde stijl, op haar eigen manier."
+        },
+        {
           "name": "Gezongen",
           "desc": "Improvisatie geheel of gedeeltelijk gezongen."
+        },
+        {
+          "name": "Vergelijkend gezongen",
+          "desc": "Elke ploeg biedt haar eigen gezongen versie van hetzelfde thema."
         },
         {
           "name": "Stom",
@@ -4359,6 +5599,10 @@ window.IMPRO_BUNDLE = {
         {
           "name": "Rijmend",
           "desc": "Alle replica's moeten rijmen."
+        },
+        {
+          "name": "Vergelijkend rijmend",
+          "desc": "Elke ploeg levert haar eigen rijmende versie van het thema."
         },
         {
           "name": "Met rekwisiet",

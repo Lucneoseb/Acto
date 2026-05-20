@@ -1393,6 +1393,15 @@ body.is-signed-in .settings-trigger { display: inline-flex !important; }
 }
 .top-trigger svg { display: block; transition: transform 0.25s ease; }
 .settings-trigger:hover svg { transform: rotate(20deg); }
+/* Inspiration nav button — visible on every page (logged-in or not).
+   When the current page is inspirations.html, the matching .is-active
+   variant glows in gold to signal "you're here". */
+.inspire-trigger { text-decoration: none; }
+.inspire-trigger.is-active {
+  background: rgba(245, 196, 81, 0.15);
+  border-color: rgba(245, 196, 81, 0.5);
+  color: var(--gold);
+}
 .rules-trigger:hover    svg { transform: scale(1.08); }
 
 /* ----------------------------------------
