@@ -527,13 +527,21 @@
   body.view-impro   [data-view="inspirations"]      { display: none !important; }
   body.view-inspirations [data-view="tableau"],
   body.view-inspirations [data-view="impro"]        { display: none !important; }
-  /* Nav-button visibility per view */
-  body.view-tableau      .nav-on-impro,
-  body.view-tableau      .nav-on-inspirations       { display: none !important; }
-  body.view-impro        .nav-on-tableau,
-  body.view-impro        .nav-on-inspirations       { display: none !important; }
-  body.view-inspirations .nav-on-tableau,
-  body.view-inspirations .nav-on-impro              { display: none !important; }
+  /* Nav-button visibility per view.
+     ───────────────────────────────
+     Semantic: `.nav-on-X` = "this button BELONGS to view X's nav set",
+     i.e. visible only when that view is active. A button with TWO
+     classes (e.g. `nav-on-impro nav-on-inspirations`) shows on either
+     view. We invert the default (hidden) and reveal matching ones,
+     because the previous hide-based rules created false negatives with
+     buttons carrying multiple classes (any matching hide rule wins
+     over a non-matching one, so combinations failed). */
+  .nav-on-tableau,
+  .nav-on-impro,
+  .nav-on-inspirations { display: none !important; }
+  body.view-tableau      .nav-on-tableau      { display: inline-flex !important; }
+  body.view-impro        .nav-on-impro        { display: inline-flex !important; }
+  body.view-inspirations .nav-on-inspirations { display: inline-flex !important; }
   /* H1 label switching */
   body.view-impro          header.bar h1 .h1-tableau,
   body.view-impro          header.bar h1 .h1-inspirations,
@@ -1060,12 +1068,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
         integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
         crossorigin="anonymous"></script>
-<script src="./js/config.js?v=20260560"></script>
-<script src="./js/utils.js?v=20260560"></script>
+<script src="./js/config.js?v=20260561"></script>
+<script src="./js/utils.js?v=20260561"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=20260560"></script>
+<script src="./data/all.js?v=20260561"></script>
 <script>
 (function () {
   "use strict";
