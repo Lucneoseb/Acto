@@ -694,4 +694,123 @@ insert into public.inspiration_videos (title, channel, content_type, nature, cat
 select 'Les déglingués', 'Théâtre Improvisation', 'spectacle', null, null, null, null, 'Premier spectacle de la troupe « Improvisons à Rêves en Saône »', 'https://www.youtube.com/watch?v=kYGBb-e611w', 'fr', 'approved'
 where not exists (select 1 from public.inspiration_videos where title = 'Les déglingués');
 
+-- ─── H) v2 additions — French impro videos, category/theme split correct ───
+--
+-- Each entry was sourced via Chrome MCP + YouTube SSR HTML (cookie-bypassed)
+-- and verified via the YouTube oEmbed endpoint. Format keywords in titles
+-- (chantée / rimée / freeze / contée / sans paroles / à la manière de /
+-- carte blanche / un mot à la fois) drive the `category` column; the
+-- remaining title becomes the `theme`. duration_text is filled from the
+-- YouTube SSR `lengthText` where available, otherwise left NULL.
+
+-- H.1 Improtéine tutorial — Les catégories (partie I)
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'Les catégories, partie I  -  L''IMPRO DE 1 à Z, avec Improtéine', 'improteine', 'tutoriel', null, null, 'Catégories d''impro (partie I)', '5:07', 'Première partie du tutoriel Improtéine sur les catégories en match d''impro — complément de la partie II déjà au catalogue.', 'https://www.youtube.com/watch?v=reoH0yC5UxQ', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'Les catégories, partie I  -  L''IMPRO DE 1 à Z, avec Improtéine');
+
+-- H.2 Improtéine tutorial — Le caucus
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'Le caucus -  L''IMPRO DE 1 à Z, avec Improtéine', 'improteine', 'tutoriel', null, null, 'Le caucus', '4:43', 'Décryptage pédagogique du caucus (concertation d''équipe) en match d''impro.', 'https://www.youtube.com/watch?v=mvrODT38MM4', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'Le caucus -  L''IMPRO DE 1 à Z, avec Improtéine');
+
+-- H.3 Improtéine tutorial — Le match d'impro
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'Le match d''impro  -  L''IMPRO de 1 à Z, avec Improtéine', 'improteine', 'tutoriel', null, null, 'Le match d''impro (présentation)', '5:27', 'Introduction au format match d''impro par Improtéine.', 'https://www.youtube.com/watch?v=8s-e6-dAX30', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'Le match d''impro  -  L''IMPRO de 1 à Z, avec Improtéine');
+
+-- H.4 Improtéine 100% musique (spectacle chanté)
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'Improtéine 100% musique [extrait]', 'improteine', 'spectacle', null, 'chantee', 'Spectacle 100% musique improvisée', '7:01', 'Extrait du spectacle 100% musique d''Improtéine : entièrement improvisé en chanson.', 'https://www.youtube.com/watch?v=w-XogQF75M8', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'Improtéine 100% musique [extrait]');
+
+-- H.5 La Ligue d'Impro — Un sacré parfum
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'La Ligue d''Impro: Un sacré parfum', 'La Ligue d''Impro', 'match_impro', null, 'libre', 'Un sacré parfum', '5:39', 'Improvisation libre de La Ligue d''Impro (Bordeaux) sur le thème « Un sacré parfum ».', 'https://www.youtube.com/watch?v=sLppuessQRI', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'La Ligue d''Impro: Un sacré parfum');
+
+-- H.6 La Ligue d'Impro — Au poste
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'La Ligue d''Impro : Au poste', 'La Ligue d''Impro', 'match_impro', null, 'libre', 'Au poste', null, 'Improvisation libre de La Ligue d''Impro (Bordeaux) sur le thème « Au poste ».', 'https://www.youtube.com/watch?v=YH5HsbeuC70', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'La Ligue d''Impro : Au poste');
+
+-- H.7 LNI 2017 — Catégorie chantée « Perdu dans le West Island »
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'LNI - National D''Impro 2017 - Chantée « Perdu dans le West Island » (Performance Outaouais)', '1''Assaut D''1mpro', 'match_impro', null, 'chantee', 'Perdu dans le West Island', null, 'Catégorie chantée du National D''Impro 2017 — performance de l''Outaouais sur le thème « Perdu dans le West Island ».', 'https://www.youtube.com/watch?v=oj5bXkWPWiM', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'LNI - National D''Impro 2017 - Chantée « Perdu dans le West Island » (Performance Outaouais)');
+
+-- H.8 Impro'Cibo Ensat — La question de trop (rimée)
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'La question de trop (catégorie « rimée »)', 'Impro''Cibo Ensat', 'format_court', null, 'rimee', 'La question de trop', null, 'Courte improvisation rimée de la troupe étudiante Impro''Cibo (ENSAT Toulouse).', 'https://www.youtube.com/watch?v=r3f42B5PtwE', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'La question de trop (catégorie « rimée »)');
+
+-- H.9 Les Improvisiak's — Grand Spectacle d'Impro - Le freeze
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'Grand Spectacle d''Impro - Le freeze', 'Les Improvisiak''s', 'spectacle', null, 'freeze', 'Grand spectacle d''impro - le freeze', null, 'Démonstration du format Freeze (tag-out) en spectacle long par Les Improvisiak''s.', 'https://www.youtube.com/watch?v=qYWIH-JjXpA', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'Grand Spectacle d''Impro - Le freeze');
+
+-- H.10 IMPRO! Le Spectacle — La Fuerza del Amor (télénovela)
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'La Fuerza del Amor - A la manière d''une Telenovela - Impro', 'IMPRO! Le Spectacle', 'format_court', null, 'a_la_maniere_de', 'télénovela', null, 'Sketch d''impro « à la manière d''une telenovela » par la troupe IMPRO! Le Spectacle.', 'https://www.youtube.com/watch?v=ywqzcGfhcB0', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'La Fuerza del Amor - A la manière d''une Telenovela - Impro');
+
+-- H.11 IMPRO! Le Spectacle — Les Portes du Saloon (western)
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'Les Portes du Saloon - A la manière d''un Western - Impro', 'IMPRO! Le Spectacle', 'format_court', null, 'a_la_maniere_de', 'western', null, 'Sketch d''impro « à la manière d''un western » par IMPRO! Le Spectacle.', 'https://www.youtube.com/watch?v=axNj-6C9moo', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'Les Portes du Saloon - A la manière d''un Western - Impro');
+
+-- H.12 La Brique de Toulouse — Spectacle Tarantino
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'Spectacle d''impro : Tarantino', 'La Brique de Toulouse', 'spectacle', null, 'a_la_maniere_de', 'Tarantino', null, 'Spectacle entier improvisé à la manière de Quentin Tarantino par La Brique de Toulouse.', 'https://www.youtube.com/watch?v=FdbUA_HX2fE', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'Spectacle d''impro : Tarantino');
+
+-- H.13 LNI 2017 — « Tabac » à la manière de Tarantino
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'LNI - National D''Impro 2017 - « Tabac », à la manière de Quentin Tarantino', '1''Assaut D''1mpro', 'match_impro', null, 'a_la_maniere_de', 'Tarantino — « Tabac »', null, 'Catégorie « à la manière de Quentin Tarantino » au National D''Impro 2017, thème « Tabac ».', 'https://www.youtube.com/watch?v=_HGiuO3m0zM', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'LNI - National D''Impro 2017 - « Tabac », à la manière de Quentin Tarantino');
+
+-- H.14 IMPRO! Le Spectacle — Exercice un mot à la fois
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'Exercice d''impro - Un Mot À La Fois', 'IMPRO! Le Spectacle', 'tutoriel', null, 'un_mot_a_la_fois', 'Exercice « un mot à la fois »', null, 'Démonstration / exercice du format « un mot à la fois » par IMPRO! Le Spectacle.', 'https://www.youtube.com/watch?v=HaFSNRG7GLs', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'Exercice d''impro - Un Mot À La Fois');
+
+-- H.15 IMPRO! Le Spectacle — Le Pape (sans paroles)
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'Le Pape - Sans Parole - Impro', 'IMPRO! Le Spectacle', 'format_court', null, 'sans_paroles', 'Le Pape', null, 'Catégorie sans paroles : scène muette sur le thème « Le Pape » par IMPRO! Le Spectacle.', 'https://www.youtube.com/watch?v=pn1tajedask', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'Le Pape - Sans Parole - Impro');
+
+-- H.16 La CRIC — 1900 (sans parole)
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'Impro par La CRIC "1900" catégorie "sans parole"', 'La CRIC', 'format_court', null, 'sans_paroles', '1900', null, 'Improvisation sans paroles de la troupe La CRIC sur le thème « 1900 ».', 'https://www.youtube.com/watch?v=o8tLI4MrLhw', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'Impro par La CRIC "1900" catégorie "sans parole"');
+
+-- H.17 HeroCorp/LILY — Colimaçon (sans paroles)
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'Impro Hero Corp/LILY - "Colimaçon" (sans paroles)', 'Mira Leann', 'format_court', null, 'sans_paroles', 'Colimaçon (HeroCorp vs Lily)', null, 'Scène sans paroles « Colimaçon » du match HeroCorp vs Lily.', 'https://www.youtube.com/watch?v=loIJaKYeB8w', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'Impro Hero Corp/LILY - "Colimaçon" (sans paroles)');
+
+-- H.18 713lola — Arme secrète à la manière d'un conte
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select '8 improvisation comparée "arme secrète" à la manière d''un conte', '713lola', 'format_court', 'comparee', 'contee', 'Arme secrète', null, 'Improvisation comparée en catégorie « contée » sur le thème « arme secrète ».', 'https://www.youtube.com/watch?v=kXB0W2Hi6dQ', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = '8 improvisation comparée "arme secrète" à la manière d''un conte');
+
+-- H.19 compagnie du Capitaine — Impro chantée Le Doigt
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'Impro chantée Le Doigt', 'compagnie du Capitaine', 'format_court', null, 'chantee', 'Le Doigt', null, 'Courte improvisation chantée de la compagnie du Capitaine sur le thème « Le Doigt ».', 'https://www.youtube.com/watch?v=sapO7af97yI', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'Impro chantée Le Doigt');
+
+-- H.20 flash impro — Amis pour la vie (contée)
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'Flash Impro d''été: Amis pour la vie / catégorie contée', 'flash impro', 'format_court', null, 'contee', 'Amis pour la vie', null, 'Catégorie contée du Flash Impro d''été : narration à la troisième personne sur le thème « Amis pour la vie ».', 'https://www.youtube.com/watch?v=nWHW8GoWB7w', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'Flash Impro d''été: Amis pour la vie / catégorie contée');
+
+-- H.21 Canal Impro — La Carte blanche des EUX
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'La Carte blanche des EUX au Festival d''impro de Paris', 'Canal Impro', 'spectacle', null, 'carte_blanche', 'Carte blanche des Eux — Festival d''impro de Paris', null, 'Carte blanche de la troupe Les Eux au Festival d''impro de Paris (Canal Impro).', 'https://www.youtube.com/watch?v=cWYtCpDBM3o', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'La Carte blanche des EUX au Festival d''impro de Paris');
+
+-- H.22 Canal Impro — Carte blanche d'Omar Galvan
+insert into public.inspiration_videos (title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, status)
+select 'Carte blanche d''Omar Galvan au Festival d''Impro de Paris, Impro en Seine 2019', 'Canal Impro', 'spectacle', null, 'carte_blanche', 'Carte blanche d''Omar Galvan — Impro en Seine 2019', null, 'Carte blanche d''Omar Galvan (Argentine) au Festival Impro en Seine 2019.', 'https://www.youtube.com/watch?v=vAhMPBWheQU', 'fr', 'approved'
+where not exists (select 1 from public.inspiration_videos where title = 'Carte blanche d''Omar Galvan au Festival d''Impro de Paris, Impro en Seine 2019');
+
 -- ─── End of seed ───

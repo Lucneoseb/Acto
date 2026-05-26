@@ -58,13 +58,21 @@
     libre: "Libre", a_la_maniere_de: "À la manière de", chantee: "Chantée",
     rimee: "Rimée", sans_paroles: "Sans paroles", costumee: "Costumée",
     doublee: "Doublée", silencieuse: "Silencieuse", sportive: "Sportive",
-    sans_contact: "Sans contact", a_2: "À 2", a_3: "À 3"
+    sans_contact: "Sans contact", a_2: "À 2", a_3: "À 3",
+    // v2 additions (short-form impro categories)
+    trois_mots: "3 mots", abc: "ABC / ABCdaire", carte_blanche: "Carte Blanche",
+    contee: "Contée", freeze: "Freeze", un_mot_a_la_fois: "Un mot à la fois",
+    carre_hollandais: "Carré hollandais"
   };
   const LABEL_CAT_EN = {
     libre: "Free", a_la_maniere_de: "In the manner of", chantee: "Sung",
     rimee: "Rhymed", sans_paroles: "Silent", costumee: "Costumed",
     doublee: "Dubbed", silencieuse: "Silent (Wikiversité)", sportive: "Sport-themed",
-    sans_contact: "No contact", a_2: "Duo", a_3: "Trio"
+    sans_contact: "No contact", a_2: "Duo", a_3: "Trio",
+    // v2 additions
+    trois_mots: "Three words", abc: "ABC / Alphabet", carte_blanche: "Carte Blanche",
+    contee: "Storytelling", freeze: "Freeze tag", un_mot_a_la_fois: "Word at a time",
+    carre_hollandais: "Dutch square (rotating quartet)"
   };
   function labelType(v)    { const l = (ui().__locale__ === "en") ? LABEL_TYPE_EN    : LABEL_TYPE_FR;    return l[v] || v || ""; }
   function labelNature(v)  { const l = (ui().__locale__ === "en") ? LABEL_NATURE_EN  : LABEL_NATURE_FR;  return l[v] || v || ""; }

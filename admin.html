@@ -1021,6 +1021,7 @@
       </select>
       <input type="search" id="inspireFilterText" placeholder="Recherche titre / troupe…" />
       <button class="btn btn-primary" id="inspireAddAdminBtn" type="button" style="margin-left:auto;">+ Ajouter une inspiration</button>
+      <button class="btn" id="inspireExportCsvBtn" type="button" title="Exporter la liste filtrée en CSV">⬇ Export CSV</button>
       <span class="count" id="inspireCount"></span>
     </div>
     <div class="table-wrap">
@@ -1101,7 +1102,7 @@
           <select id="inspireAddCategory">
             <option value="">—</option>
             <option value="libre">Libre</option>
-            <option value="a_la_maniere_de">À la manière de</option>
+            <option value="a_la_maniere_de">À la manière de…</option>
             <option value="chantee">Chantée</option>
             <option value="rimee">Rimée</option>
             <option value="sans_paroles">Sans paroles</option>
@@ -1112,6 +1113,13 @@
             <option value="sans_contact">Sans contact</option>
             <option value="a_2">À 2</option>
             <option value="a_3">À 3</option>
+            <option value="trois_mots">3 mots</option>
+            <option value="abc">ABC / ABCdaire</option>
+            <option value="carte_blanche">Carte Blanche</option>
+            <option value="contee">Contée</option>
+            <option value="freeze">Freeze</option>
+            <option value="un_mot_a_la_fois">Un mot à la fois</option>
+            <option value="carre_hollandais">Carré hollandais</option>
           </select>
         </div>
       </div>
@@ -1218,12 +1226,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
         integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
         crossorigin="anonymous"></script>
-<script src="./js/config.js?v=20260568"></script>
-<script src="./js/utils.js?v=20260568"></script>
+<script src="./js/config.js?v=20260570"></script>
+<script src="./js/utils.js?v=20260570"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=20260568"></script>
+<script src="./data/all.js?v=20260570"></script>
 <script>
 (function () {
   "use strict";
@@ -1857,7 +1865,12 @@
     libre: "Libre", a_la_maniere_de: "À la manière de", chantee: "Chantée",
     rimee: "Rimée", sans_paroles: "Sans paroles", costumee: "Costumée",
     doublee: "Doublée", silencieuse: "Silencieuse", sportive: "Sportive",
-    sans_contact: "Sans contact", a_2: "À 2", a_3: "À 3"
+    sans_contact: "Sans contact", a_2: "À 2", a_3: "À 3",
+    // v2 — short-form impro categories extracted from the YouTube shorts
+    // scrape (Impro.Comedy etc.) so they sit in `category` instead of `theme`.
+    trois_mots: "3 mots", abc: "ABC / ABCdaire", carte_blanche: "Carte Blanche",
+    contee: "Contée", freeze: "Freeze", un_mot_a_la_fois: "Un mot à la fois",
+    carre_hollandais: "Carré hollandais"
   };
 
   async function loadInspirations() {
@@ -2020,6 +2033,54 @@
       if (status === "approved") row.approved_at = new Date().toISOString();
     }
     renderInspirations();
+  }
+
+  /** Export the currently-filtered inspirations as a CSV file.
+   *  Re-applies the filter (status/type/locale/text) so the file
+   *  matches what's visible in the admin table. UTF-8 with BOM and
+   *  CRLF line endings so Excel opens it cleanly. */
+  function exportInspirationsCsv() {
+    const status = $("inspireFilterStatus").value;
+    const type   = $("inspireFilterType").value;
+    const locale = ($("inspireFilterLocale") && $("inspireFilterLocale").value) || "";
+    const text   = ($("inspireFilterText").value || "").trim().toLowerCase();
+    const filtered = allInspirations.filter(v => {
+      if (status && v.status !== status) return false;
+      if (type   && v.content_type !== type) return false;
+      if (locale && v.locale !== locale) return false;
+      if (text) {
+        const hay = [v.title, v.channel, v.theme, v.notes, v.video_url].filter(Boolean).join(" ").toLowerCase();
+        if (!hay.includes(text)) return false;
+      }
+      return true;
+    });
+    if (filtered.length === 0) { alert("Aucune entrée à exporter pour ces filtres."); return; }
+
+    const headers = ["Titre","Chaîne / Troupe","Type","Nature","Catégorie","Thème",
+                     "Durée","Notes","URL vidéo","Langue","Statut","Créé le","Approuvé le"];
+    const cols = ["title","channel","content_type","nature","category","theme",
+                  "duration_text","notes","video_url","locale","status","created_at","approved_at"];
+    const esc = (v) => v == null ? '""' : '"' + String(v).replace(/"/g, '""') + '"';
+    const lines = [headers.map(esc).join(",")];
+    filtered.forEach(r => lines.push(cols.map(c => {
+      // For type/nature/category, translate enum to label so the CSV is human-readable.
+      if (c === "content_type") return esc(INSPIRE_TYPE_LBL[r[c]]   || r[c]);
+      if (c === "nature")       return esc(INSPIRE_NATURE_LBL[r[c]] || r[c]);
+      if (c === "category")     return esc(INSPIRE_CAT_LBL[r[c]]    || r[c]);
+      return esc(r[c]);
+    }).join(",")));
+    // BOM so Excel auto-detects UTF-8; CRLF per RFC 4180.
+    const csv = "﻿" + lines.join("\r\n") + "\r\n";
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    a.href = url;
+    a.download = "acto-inspirations-" + ts + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   async function deleteInspiration(id) {
@@ -2190,6 +2251,11 @@
     // edit mode with editRow.id === undefined → 22P02 UUID error).
     const addBtn = $("inspireAddAdminBtn");
     if (addBtn) addBtn.addEventListener("click", () => openInspireAddDialog());
+    // Export CSV: downloads the CURRENTLY-FILTERED inspirations as a
+    // UTF-8 CSV with BOM (Excel-friendly). Honors all active filters
+    // (status + type + locale + text search).
+    const exportBtn = $("inspireExportCsvBtn");
+    if (exportBtn) exportBtn.addEventListener("click", () => exportInspirationsCsv());
     const closeBtn = $("inspireAddCloseBtn");
     if (closeBtn) closeBtn.addEventListener("click", closeInspireAddDialog);
     const cancelBtn = $("inspireAddCancelBtn");

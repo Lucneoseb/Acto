@@ -1466,7 +1466,7 @@ begin
     add constraint inspiration_videos_category_chk
       check (category is null or category in (
         'libre','a_la_maniere_de','chantee','rimee','sans_paroles','costumee',
-        'doublee','silencieuse','sportive','sans_contact','a_2','a_3'
+        'doublee','silencieuse','sportive','sans_contact','a_2','a_3','trois_mots','abc','carte_blanche','contee','freeze','un_mot_a_la_fois','carre_hollandais'
       )) not valid;
   begin alter table public.inspiration_videos validate constraint inspiration_videos_content_type_chk;
   exception when check_violation then raise notice 'inspiration_videos_content_type_chk kept NOT VALID'; end;
@@ -1550,7 +1550,7 @@ begin
   end if;
   if p_category is not null and p_category <> '' and p_category not in (
     'libre','a_la_maniere_de','chantee','rimee','sans_paroles','costumee',
-    'doublee','silencieuse','sportive','sans_contact','a_2','a_3'
+    'doublee','silencieuse','sportive','sans_contact','a_2','a_3','trois_mots','abc','carte_blanche','contee','freeze','un_mot_a_la_fois','carre_hollandais'
   ) then
     raise exception 'invalid category: %', p_category;
   end if;
@@ -1648,7 +1648,7 @@ begin
   end if;
   if p_category is not null and p_category <> '' and p_category not in (
     'libre','a_la_maniere_de','chantee','rimee','sans_paroles','costumee',
-    'doublee','silencieuse','sportive','sans_contact','a_2','a_3'
+    'doublee','silencieuse','sportive','sans_contact','a_2','a_3','trois_mots','abc','carte_blanche','contee','freeze','un_mot_a_la_fois','carre_hollandais'
   ) then
     raise exception 'invalid category: %', p_category;
   end if;
@@ -1718,7 +1718,7 @@ begin
   end if;
   if p_category is not null and p_category <> '' and p_category not in (
     'libre','a_la_maniere_de','chantee','rimee','sans_paroles','costumee',
-    'doublee','silencieuse','sportive','sans_contact','a_2','a_3'
+    'doublee','silencieuse','sportive','sans_contact','a_2','a_3','trois_mots','abc','carte_blanche','contee','freeze','un_mot_a_la_fois','carre_hollandais'
   ) then
     raise exception 'invalid category: %', p_category;
   end if;
