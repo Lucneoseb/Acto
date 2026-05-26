@@ -960,9 +960,9 @@
     <table class="profiles bundled-list" id="bundledTable">
       <thead>
         <tr>
-          <th style="width:40%;">Texte</th>
-          <th>Description</th>
-          <th>État</th>
+          <th data-sort-bundled="name"   style="width:40%;">Texte</th>
+          <th data-sort-bundled="desc">Description</th>
+          <th data-sort-bundled="state">État</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -1027,17 +1027,17 @@
       <table class="profiles" id="inspireTableAdmin">
         <thead>
           <tr>
-            <th>Titre</th>
-            <th>Chaîne / Troupe</th>
-            <th>Type</th>
-            <th>Nat.</th>
-            <th>Catégorie</th>
-            <th>Thème</th>
-            <th>Durée</th>
-            <th>Langue</th>
-            <th>URL</th>
-            <th>Soumis par</th>
-            <th>État</th>
+            <th data-sort-inspire="title">Titre</th>
+            <th data-sort-inspire="channel">Chaîne / Troupe</th>
+            <th data-sort-inspire="content_type">Type</th>
+            <th data-sort-inspire="nature">Nat.</th>
+            <th data-sort-inspire="category">Catégorie</th>
+            <th data-sort-inspire="theme">Thème</th>
+            <th data-sort-inspire="duration_text">Durée</th>
+            <th data-sort-inspire="locale">Langue</th>
+            <th data-sort-inspire="video_url">URL</th>
+            <th data-sort-inspire="submitted_by">Soumis par</th>
+            <th data-sort-inspire="status">État</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -1218,12 +1218,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
         integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
         crossorigin="anonymous"></script>
-<script src="./js/config.js?v=20260567"></script>
-<script src="./js/utils.js?v=20260567"></script>
+<script src="./js/config.js?v=20260568"></script>
+<script src="./js/utils.js?v=20260568"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=20260567"></script>
+<script src="./data/all.js?v=20260568"></script>
 <script>
 (function () {
   "use strict";
@@ -1897,6 +1897,11 @@
     }
   }
 
+  // Sort state for the inspirations admin table. Default = latest first
+  // (created_at desc) which matches the initial DB query order.
+  let inspireSortKey = null;
+  let inspireSortDir = "asc";
+
   function renderInspirations() {
     refreshInspirePendingBadge();
     const status = $("inspireFilterStatus").value;
@@ -1915,6 +1920,30 @@
       }
       return true;
     });
+    // Sort by user-selected column (if any). Falls back to DB order.
+    if (inspireSortKey) {
+      const dir = inspireSortDir === "asc" ? 1 : -1;
+      filtered.sort((a, b) => {
+        let va = a[inspireSortKey], vb = b[inspireSortKey];
+        // Empty / null sorts last regardless of direction.
+        const aEmpty = va == null || va === "";
+        const bEmpty = vb == null || vb === "";
+        if (aEmpty && !bEmpty) return 1;
+        if (!aEmpty && bEmpty) return -1;
+        if (aEmpty && bEmpty) return 0;
+        // Lowercase string comparison for consistency.
+        va = String(va).toLocaleLowerCase();
+        vb = String(vb).toLocaleLowerCase();
+        if (va < vb) return -1 * dir;
+        if (va > vb) return  1 * dir;
+        return 0;
+      });
+    }
+    // Reflect sort indicator on the active header.
+    document.querySelectorAll("#inspireTableAdmin th[data-sort-inspire]").forEach(th => {
+      th.dataset.sortActive = (th.dataset.sortInspire === inspireSortKey) ? inspireSortDir : "";
+    });
+
     $("inspireCount").textContent = filtered.length + " / " + allInspirations.length;
     if (filtered.length === 0) {
       // Distinguish "no inspirations at all in DB" from "filter hides everything".
@@ -2128,6 +2157,19 @@
       el.addEventListener("input",  renderInspirations);
       el.addEventListener("change", renderInspirations);
     });
+    // Sortable headers: click cycles (none → asc → desc → none).
+    document.querySelectorAll("#inspireTableAdmin th[data-sort-inspire]").forEach(th => {
+      th.addEventListener("click", () => {
+        const k = th.dataset.sortInspire;
+        if (inspireSortKey === k) {
+          if (inspireSortDir === "asc") { inspireSortDir = "desc"; }
+          else { inspireSortKey = null; inspireSortDir = "asc"; }
+        } else {
+          inspireSortKey = k; inspireSortDir = "asc";
+        }
+        renderInspirations();
+      });
+    });
     const body = $("inspireBodyAdmin");
     if (body) {
       body.addEventListener("click", (ev) => {
@@ -2245,6 +2287,10 @@
     );
   }
 
+  // Sort state for the bundled list. null key = source order.
+  let bundledSortKey = null;
+  let bundledSortDir = "asc";
+
   function renderBundled() {
     const locale = $("bundleFilterLocale").value;
     const kind   = $("bundleFilterKind").value;
@@ -2284,6 +2330,32 @@
         return !findHiddenRow(kind, mode, level, locale, text);
       });
     }
+
+    // Optional sort by user-clicked column. `bundledSortKey` can be
+    // "name" / "desc" / "state"; default = none (keeps source order).
+    if (bundledSortKey) {
+      const dir = bundledSortDir === "asc" ? 1 : -1;
+      const getKey = (it) => {
+        const isObj = typeof it === "object";
+        const name  = (isObj ? (it && it.name) : it) || "";
+        const desc  = (isObj ? (it && it.desc) : "") || "";
+        const isHid = !!findHiddenRow(kind, mode, level, locale, name);
+        if (bundledSortKey === "name")  return name.toLocaleLowerCase();
+        if (bundledSortKey === "desc")  return desc.toLocaleLowerCase();
+        if (bundledSortKey === "state") return isHid ? "caché" : "visible";
+        return "";
+      };
+      combined.sort((a, b) => {
+        const ka = getKey(a), kb = getKey(b);
+        if (ka < kb) return -1 * dir;
+        if (ka > kb) return  1 * dir;
+        return 0;
+      });
+    }
+    // Reflect sort indicator on the active column header.
+    document.querySelectorAll("#bundledTable th[data-sort-bundled]").forEach(th => {
+      th.dataset.sortActive = (th.dataset.sortBundled === bundledSortKey) ? bundledSortDir : "";
+    });
 
     $("bundleCount").textContent = combined.length + (showHidden ? "" : (" / " + (items.length + hiddenOnlyItems.length)));
 
@@ -2465,6 +2537,20 @@
     ["bundleFilterLocale","bundleFilterKind","bundleFilterMode","bundleFilterLevel","bundleShowHidden"].forEach(id => {
       const el = $(id); if (!el) return;
       el.addEventListener("change", renderBundled);
+    });
+    // Sortable headers — clicking a column header cycles through:
+    // (none) → asc → desc → none (back to source order).
+    document.querySelectorAll("#bundledTable th[data-sort-bundled]").forEach(th => {
+      th.addEventListener("click", () => {
+        const k = th.dataset.sortBundled;
+        if (bundledSortKey === k) {
+          if (bundledSortDir === "asc") { bundledSortDir = "desc"; }
+          else { bundledSortKey = null; bundledSortDir = "asc"; }
+        } else {
+          bundledSortKey = k; bundledSortDir = "asc";
+        }
+        renderBundled();
+      });
     });
     $("bundledBody").addEventListener("click", (ev) => {
       const btn = ev.target.closest("button[data-bundle-act]");

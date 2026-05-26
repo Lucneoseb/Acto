@@ -6,11 +6,11 @@
 <meta name="description" content="Inspirations vidéo · Acto The Impro Studio" />
 <meta name="theme-color" content="#0c0814" />
 <title>Acto — Inspirations</title>
-<link rel="icon" type="image/png" href="./assets/logo.png?v=20260567" />
+<link rel="icon" type="image/png" href="./assets/logo.png?v=20260568" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=20260567" />
+<link rel="stylesheet" href="styles.css?v=20260568" />
 <style>
   /* Page wrapper — wider than support.html since this is a data table. */
   .inspire-screen {
@@ -193,6 +193,16 @@
     border-bottom: 1px solid rgba(245,196,81,0.2);
     position: sticky; top: 0; z-index: 1;
   }
+  /* Sortable header cells — click to cycle asc/desc, indicator arrow
+     appears via the data-sort-active attribute set from JS. */
+  .inspire-row.is-header .sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s;
+  }
+  .inspire-row.is-header .sortable:hover { color: var(--gold); }
+  .inspire-row.is-header .sortable[data-sort-active="asc"]::after  { content: " ▲"; color: var(--gold); }
+  .inspire-row.is-header .sortable[data-sort-active="desc"]::after { content: " ▼"; color: var(--gold); }
   .inspire-row:not(.is-header):hover { background: rgba(255,255,255,0.02); }
   .inspire-row > div {
     overflow: hidden;
@@ -503,7 +513,7 @@
 
   <header class="hero">
     <a class="hero-logo-link" href="./index.html" aria-label="Acto - The Impro Studio">
-      <img class="hero-logo" src="./assets/logo.png?v=20260567" alt="Acto - The Impro Studio" />
+      <img class="hero-logo" src="./assets/logo.png?v=20260568" alt="Acto - The Impro Studio" />
     </a>
   </header>
 
@@ -542,16 +552,18 @@
     <p class="inspire-status" id="inspireStatus"></p>
 
     <div class="inspire-table" id="inspireTable">
+      <!-- Header row: each cell is clickable to sort the table by that column.
+           The JS reads the data-sort-key attribute. -->
       <div class="inspire-row is-header">
-        <div class="col-title"      id="hdrTitle">Titre / Lien</div>
-        <div class="col-channel"    id="hdrChannel">Chaîne / Troupe</div>
-        <div class="col-type"       id="hdrType">Type</div>
-        <div class="col-nature"     id="hdrNature">Nature</div>
-        <div class="col-category"   id="hdrCategory">Catégorie</div>
-        <div class="col-theme"      id="hdrTheme">Thème</div>
-        <div class="col-duration"   id="hdrDuration">Durée</div>
-        <div class="col-locale"     id="hdrLocale">Langue</div>
-        <div class="col-notes"      id="hdrNotes">Notes</div>
+        <div class="col-title    sortable" id="hdrTitle"    data-sort-key="title">Titre / Lien</div>
+        <div class="col-channel  sortable" id="hdrChannel"  data-sort-key="channel">Chaîne / Troupe</div>
+        <div class="col-type     sortable" id="hdrType"     data-sort-key="content_type">Type</div>
+        <div class="col-nature   sortable" id="hdrNature"   data-sort-key="nature">Nature</div>
+        <div class="col-category sortable" id="hdrCategory" data-sort-key="category">Catégorie</div>
+        <div class="col-theme    sortable" id="hdrTheme"    data-sort-key="theme">Thème</div>
+        <div class="col-duration sortable" id="hdrDuration" data-sort-key="duration_text">Durée</div>
+        <div class="col-locale   sortable" id="hdrLocale"   data-sort-key="locale">Langue</div>
+        <div class="col-notes    sortable" id="hdrNotes"    data-sort-key="notes">Notes</div>
       </div>
       <div id="inspireBody"></div>
     </div>
@@ -655,9 +667,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
           integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
           crossorigin="anonymous"></script>
-  <script src="./js/config.js?v=20260567"></script>
-  <script src="./js/utils.js?v=20260567"></script>
-  <script src="./data/all.js?v=20260567"></script>
-  <script src="./js/inspirations.js?v=20260567"></script>
+  <script src="./js/config.js?v=20260568"></script>
+  <script src="./js/utils.js?v=20260568"></script>
+  <script src="./data/all.js?v=20260568"></script>
+  <script src="./js/inspirations.js?v=20260568"></script>
 </body>
 </html>

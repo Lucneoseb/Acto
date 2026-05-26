@@ -241,11 +241,37 @@
     return tokens.every(tok => haystack.includes(tok));
   }
 
+  // Sort state — null key = source order (latest first from the
+  // DB query, no client-side reordering).
+  let sortKey = null;
+  let sortDir = "asc";
+
   function applyFilter() {
     const q = (($("#inspireQuery") && $("#inspireQuery").value) || "").trim();
     const locale = ($("#inspireFilterLocale") && $("#inspireFilterLocale").value) || "";
     const tokens = q.toLowerCase().split(/\s+/).filter(Boolean);
-    const list = allVideos.filter(v => videoMatches(v, tokens, locale));
+    let list = allVideos.filter(v => videoMatches(v, tokens, locale));
+    // Optional client-side sort by clicked column.
+    if (sortKey) {
+      const dir = sortDir === "asc" ? 1 : -1;
+      list = list.slice().sort((a, b) => {
+        let va = a[sortKey], vb = b[sortKey];
+        const aEmpty = va == null || va === "";
+        const bEmpty = vb == null || vb === "";
+        if (aEmpty && !bEmpty) return 1;          // empties last
+        if (!aEmpty && bEmpty) return -1;
+        if (aEmpty && bEmpty) return 0;
+        va = String(va).toLocaleLowerCase();
+        vb = String(vb).toLocaleLowerCase();
+        if (va < vb) return -1 * dir;
+        if (va > vb) return  1 * dir;
+        return 0;
+      });
+    }
+    // Reflect sort indicator on the active header.
+    document.querySelectorAll(".inspire-row.is-header .sortable").forEach(h => {
+      h.dataset.sortActive = (h.dataset.sortKey === sortKey) ? sortDir : "";
+    });
     renderRows(list, q);
     const status = $("#inspireStatus");
     if (status) {
@@ -415,6 +441,19 @@
     // Locale select — applies the filter on every change.
     const loc = $("#inspireFilterLocale");
     if (loc) loc.addEventListener("change", applyFilter);
+    // Sortable headers: click cycles (none → asc → desc → none).
+    document.querySelectorAll(".inspire-row.is-header .sortable").forEach(h => {
+      h.addEventListener("click", () => {
+        const k = h.dataset.sortKey;
+        if (sortKey === k) {
+          if (sortDir === "asc") { sortDir = "desc"; }
+          else { sortKey = null; sortDir = "asc"; }
+        } else {
+          sortKey = k; sortDir = "asc";
+        }
+        applyFilter();
+      });
+    });
     const addBtn = $("#inspireAddBtn");
     if (addBtn) addBtn.addEventListener("click", openSubmitDialog);
     const closeBtn = $("#inspireSubmitCloseBtn");
