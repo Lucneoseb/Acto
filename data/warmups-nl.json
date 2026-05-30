@@ -1,0 +1,1587 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-05-29",
+  "source": "impro-exo.fr",
+  "types": [
+    "Opwarming",
+    "Op gang komen",
+    "Workshop",
+    "Spelsituatie",
+    "Energie",
+    "Concentratie",
+    "Luisteren",
+    "Vertrouwen",
+    "Verbeelding",
+    "Stem",
+    "Lichaam",
+    "Status",
+    "Emotie",
+    "Verhaalopbouw",
+    "Personage",
+    "Mime",
+    "Ensemble",
+    "Geheugen"
+  ],
+  "exercises": [
+    {
+      "id": "la-mer-ou-la-montagne",
+      "type": "Opwarming",
+      "subtype": "Ensemble",
+      "name": "De zee of de berg",
+      "description": "Twee groepen vormen zich razendsnel door te kiezen tussen tegengestelde opties. De groep beweegt door de ruimte terwijl de begeleider twee tegengestelde opties aankondigt. De deelnemers splitsen zich snel in twee groepen volgens hun keuze, waarbij snelheid de enige prioriteit is. Doelen: concentratie en groepsdynamiek.",
+      "duration_seconds": null,
+      "participants": "10 tot 50 personen",
+      "source": "impro-exo.fr/exercice/la-mer-ou-la-montagne"
+    },
+    {
+      "id": "les-haies",
+      "type": "Opwarming",
+      "subtype": "Energie",
+      "name": "De hindernissen",
+      "description": "De groep loopt ter plaatse terwijl een begeleider bij elke denkbeeldige hindernis 'Een hindernis' roept. De spelers springen samen en roepen als antwoord 'hindernis'. Deze oefening ontwikkelt de fysieke en vocale opwarming, de concentratie en het collectieve luisteren.",
+      "duration_seconds": null,
+      "participants": "2 tot 50 personen",
+      "source": "impro-exo.fr/exercice/les-haies"
+    },
+    {
+      "id": "hep-taxi",
+      "type": "Opwarming",
+      "subtype": "Lichaam",
+      "name": "Hé taxi",
+      "description": "Collectieve oefening waarbij de deelnemers door de ruimte bewegen en bevriezen in posities die overeenkomen met nummers, gebaren en korte zinnen (1 tot 6). Elk nummer heeft een bijbehorend gebaar en een zin zoals 'Hé taxi' of 'Hallo mama'. Ontworpen voor de fysieke en vocale opwarming. De deelnemers blijven bevroren tot een signaal, met optionele eliminatie.",
+      "duration_seconds": null,
+      "participants": "6 tot 50 personen",
+      "source": "impro-exo.fr/exercice/hep-taxi"
+    },
+    {
+      "id": "le-serpent",
+      "type": "Opwarming",
+      "subtype": "Energie",
+      "name": "De slang",
+      "description": "Eén deelnemer speelt een slang die groeit terwijl hij door de ruimte beweegt. De anderen ontwijken de slang en de muren. Wanneer een speler wordt aangeraakt of tegen een muur botst, voegt hij zich bij de slang door het middel van de vorige vast te pakken. Alleen de kop stuurt de beweging.",
+      "duration_seconds": null,
+      "participants": "10 tot 20 personen",
+      "source": "impro-exo.fr/exercice/le-serpent"
+    },
+    {
+      "id": "montagnes-russes",
+      "type": "Opwarming",
+      "subtype": "Luisteren",
+      "name": "Achtbaan",
+      "description": "Collectieve oefening waarbij zes deelnemers nabootsen dat ze in een achtbaan zitten. De trein vertrekt en het doel is om hem tot leven te brengen. De oefening legt de nadruk op coördinatie, luisteren en emotie, en vraagt veel energie en lichaamsbeheersing.",
+      "duration_seconds": null,
+      "participants": "6 tot 8 personen",
+      "source": "impro-exo.fr/exercice/montagnes-russes"
+    },
+    {
+      "id": "epee-et-bouclier",
+      "type": "Opwarming",
+      "subtype": "Energie",
+      "name": "Zwaard en schild",
+      "description": "Iedereen kiest in het geheim twee mensen uit de groep: zijn 'zwaard' en zijn 'schild'. De deelnemer moet voortdurend zijn schild tussen zichzelf en zijn zwaard houden. De hele groep komt zo in een permanente beweging.",
+      "duration_seconds": null,
+      "participants": "10 tot 20 personen",
+      "source": "impro-exo.fr/exercice/epee-et-bouclier"
+    },
+    {
+      "id": "car-wash",
+      "type": "Opwarming",
+      "subtype": "Energie",
+      "name": "Carwash",
+      "description": "Twee rijen mensen staan tegenover elkaar terwijl iemand er tussendoor loopt en door de anderen wordt 'gewassen' met energieke gebaren. De oefening verhoogt de energie van de groep en het gevoel voor contact.",
+      "duration_seconds": null,
+      "participants": "6 tot 20 personen",
+      "source": "impro-exo.fr/exercice/car-wash"
+    },
+    {
+      "id": "hiha-hahi-holden",
+      "type": "Opwarming",
+      "subtype": "Energie",
+      "name": "Hiha hahi Holden",
+      "description": "Oefening in energie-doorgeven waarbij de deelnemers in een kring staan en de energie aan elkaar doorgeven met golvende bewegingen begeleid door 'Hi-ha'-geluiden. Er bestaan meerdere varianten: 'Holden', 'Ha-hi', 'Zap', enzovoort. Een gevorderde versie bevat een competitief spel waarbij fouten een 'verklikker' creëren die de fouten van anderen moet opsporen.",
+      "duration_seconds": null,
+      "participants": "6 tot 20 personen",
+      "source": "impro-exo.fr/exercice/hiha-hahi-holden"
+    },
+    {
+      "id": "droit-dans-les-yeux",
+      "type": "Opwarming",
+      "subtype": "Concentratie",
+      "name": "Recht in de ogen",
+      "description": "De deelnemers bewegen vrij door de ruimte tot de leider klapt. Bij het signaal bevriest iedereen en zoekt oogcontact met een partner, en houdt die blik vast tot de volgende klap. De pauzes worden geleidelijk langer en kunnen de 5 minuten overschrijden.",
+      "duration_seconds": null,
+      "participants": "6 tot 30 personen",
+      "source": "impro-exo.fr/exercice/droit-dans-les-yeux"
+    },
+    {
+      "id": "balle-et-prenoms",
+      "type": "Opwarming",
+      "subtype": "Geheugen",
+      "name": "Bal en voornamen",
+      "description": "Oefening in een kring waarbij de deelnemers een bal doorgeven terwijl ze hun eigen voornaam zeggen. Verloopt in fasen: bewegen door de ruimte, de voornaam van de ontvanger zeggen in plaats van die van jezelf, en daarna aanwijzen waar de bal vervolgens naartoe moet.",
+      "duration_seconds": null,
+      "participants": "6 tot 20 personen",
+      "source": "impro-exo.fr/exercice/balle-et-prenoms"
+    },
+    {
+      "id": "escargot",
+      "type": "Opwarming",
+      "subtype": "Lichaam",
+      "name": "Slak",
+      "description": "Oefening in tweetallen waarbij de een het lichaam van de ander naar believen aanraakt. De aangeraakte partner moet het betrokken lichaamsdeel terugtrekken als een slak in zijn huisje. Werkt aan het ritme van het terugtrekken, van snel naar volledige stilstand, en ontwikkelt de lichamelijke concentratie en het aanvaarden van fysiek contact.",
+      "duration_seconds": null,
+      "participants": "2 tot 50 (per twee)",
+      "source": "impro-exo.fr/exercice/escargot"
+    },
+    {
+      "id": "pan",
+      "type": "Opwarming",
+      "subtype": "Concentratie",
+      "name": "Pang (Lucky Luke)",
+      "description": "Collectieve oefening in een kring. De leider noemt een persoon die zich snel moet bukken voordat zijn buren 'PANG' roepen en het gebaar van het schieten nabootsen. De deelnemer die faalt neemt de plaats in het midden in of wordt geëlimineerd.",
+      "duration_seconds": null,
+      "participants": "6 tot 20 personen",
+      "source": "impro-exo.fr/exercice/pan"
+    },
+    {
+      "id": "bing-bang-turlututu",
+      "type": "Opwarming",
+      "subtype": "Energie",
+      "name": "Bing Bang Turlututu",
+      "description": "Oefening in energie-doorgeven met een klap. De deelnemers zeggen 'Bing' terwijl ze in hun handen klappen. 'Bang' verandert de richting van de energie, 'Turlututu' slaat de volgende persoon over. Het concentreert de aandacht door het hoofd leeg te maken en geeft een vermoeide groep nieuwe energie.",
+      "duration_seconds": null,
+      "participants": "8 tot 15 personen",
+      "source": "impro-exo.fr/exercice/bing-bang-turlututu"
+    },
+    {
+      "id": "parcours-du-combattant",
+      "type": "Opwarming",
+      "subtype": "Lichaam",
+      "name": "Hindernisbaan",
+      "description": "Een leider beweegt en legt gebaren op alsof het een parcours is (hindernissen, ladders, zwemmen). De groep volgt in een rij en bootst deze gebaren na. De begeleider kan thema's voorstellen: de sportwereld, dieren, ontdekkingsreizigers.",
+      "duration_seconds": null,
+      "participants": "4 tot 10 personen",
+      "source": "impro-exo.fr/exercice/parcours-du-combattant"
+    },
+    {
+      "id": "hypnose-colombienne",
+      "type": "Opwarming",
+      "subtype": "Concentratie",
+      "name": "Colombiaanse hypnose",
+      "description": "Eén deelnemer plaatst zijn hand enkele centimeters van de ogen van een partner, die deze afstand moet behouden terwijl de ander zijn hand in beweging brengt. Daarna worden de rollen omgewisseld. Kan worden uitgevoerd met muzikale begeleiding.",
+      "duration_seconds": null,
+      "participants": "2 spelers",
+      "source": "impro-exo.fr/exercice/hypnose-colombienne"
+    },
+    {
+      "id": "montee-demotion",
+      "type": "Opwarming",
+      "subtype": "Emotie",
+      "name": "Opbouw van emotie",
+      "description": "De groep, perfect op één lijn achteraan op het podium, beweegt in slow motion naar voren en gaat geleidelijk van neutraal naar een door de begeleider opgelegde emotie tot aan het hoogtepunt. De groep bevriest in expressieve standbeelden. De begeleider kan een nieuwe emotie voorstellen, waarna de groep geleidelijk overgaand achteruit beweegt.",
+      "duration_seconds": null,
+      "participants": "4 tot 25 personen",
+      "source": "impro-exo.fr/exercice/montee-demotion"
+    },
+    {
+      "id": "volley-ball",
+      "type": "Opwarming",
+      "subtype": "Energie",
+      "name": "Volleybal",
+      "description": "Een denkbeeldige volleybalwedstrijd. Een speler serveert een virtuele bal en roept de naam van degene naar wie hij hem stuurt. Het spel gaat door met maximaal drie passes tussen de deelnemers. Een scheidsrechter telt de punten en signaleert de fouten. Maakt fysieke opwarming en het onthouden van voornamen mogelijk.",
+      "duration_seconds": null,
+      "participants": "8 tot 15 personen",
+      "source": "impro-exo.fr/exercice/volley-ball"
+    },
+    {
+      "id": "si-jesus-etait",
+      "type": "Opwarming",
+      "subtype": "Verbeelding",
+      "name": "Als Jezus een... was",
+      "description": "Oefening in een kring waarbij een speler begint met 'als Jezus een auto was', gevolgd door de groep die 'halleluja' herhaalt. De volgende persoon stelt een conclusie voor 'dan zou hij een echte, echte stoere zijn', waarna de groep het refrein hervat. Het spel gaat door met nieuwe voorstellen (paard, enzovoort).",
+      "duration_seconds": null,
+      "participants": "6 tot 20 personen",
+      "source": "impro-exo.fr/exercice/si-jesus-etait"
+    },
+    {
+      "id": "1-2-3-4",
+      "type": "Opwarming",
+      "subtype": "Concentratie",
+      "name": "1-2-3-4",
+      "description": "Collectieve oefening waarbij de groep samen van 1 tot 4 telt op een regelmatig ritme, en elk cijfer geleidelijk vervangt door een fysiek gebaar (klap in de handen, op de borst, op de dij, met de voet). Het spel versnelt geleidelijk en maakt het mogelijk deelnemers die fouten maken te elimineren.",
+      "duration_seconds": null,
+      "participants": "4 tot 40 personen",
+      "source": "impro-exo.fr/exercice/1-2-3-4"
+    },
+    {
+      "id": "regroupement",
+      "type": "Opwarming",
+      "subtype": "Energie",
+      "name": "Hergroepering",
+      "description": "De bewegende deelnemers groeperen zich volgens een door de begeleider aangekondigd getal. Het doel is om snel te beslissen en groepen van de gevraagde grootte te vormen. De groep herschikt zich dynamisch voor een nieuw getal.",
+      "duration_seconds": null,
+      "participants": "8 tot 30 personen",
+      "source": "impro-exo.fr/exercice/regroupement"
+    },
+    {
+      "id": "course-au-ralenti",
+      "type": "Opwarming",
+      "subtype": "Lichaam",
+      "name": "Race in slow motion",
+      "description": "De deelnemers stellen zich achteraan op het podium op en rennen in slow motion naar het publiek. Alles is toegestaan, maar uitsluitend in slow motion. Werkt aan de beheersing van de beweging en de overdreven lichamelijke expressie.",
+      "duration_seconds": null,
+      "participants": "6 tot 25 personen",
+      "source": "impro-exo.fr/exercice/course-au-ralenti"
+    },
+    {
+      "id": "chevalier-et-dragon",
+      "type": "Opwarming",
+      "subtype": "Ensemble",
+      "name": "Ridders en draken",
+      "description": "Confrontatie tussen twee opgestelde teams die elkaar om beurten aanvallen. Eén deelnemer stapt naar voren met een aanvalsgebaar en bevriest dan, terwijl de rest van de groep zich perfect synchroniseert. Het tegenovergestelde team antwoordt op dezelfde manier, wat een afwisselende uitwisseling tussen de twee groepen creëert.",
+      "duration_seconds": null,
+      "participants": "8 tot 20 personen",
+      "source": "impro-exo.fr/exercice/chevalier-et-dragon"
+    },
+    {
+      "id": "bagarre-au-ralenti",
+      "type": "Opwarming",
+      "subtype": "Lichaam",
+      "name": "Gevecht in slow motion",
+      "description": "De deelnemers, in tweetallen georganiseerd, beelden een gevecht in slow motion uit. Het doel is een perfecte slow motion te behouden terwijl er gewerkt wordt aan evenwichtsverstoringen, toegebrachte klappen en dramatische intenties. Ontwikkelt de lichaamsbeheersing en de precisie van de theatrale bewegingen.",
+      "duration_seconds": null,
+      "participants": "2 tot 18 personen",
+      "source": "impro-exo.fr/exercice/bagarre-au-ralenti"
+    },
+    {
+      "id": "stop-and-go-hey-clap-saute",
+      "type": "Opwarming",
+      "subtype": "Luisteren",
+      "name": "Stop and go, hey, klap, spring",
+      "description": "De spelers lopen samen en stoppen op gesynchroniseerde wijze. Geleidelijk voegen ze elementen toe: een hoorbare 'hey', klappen in de handen, en daarna collectieve sprongen. Ontwikkelt het luisteren en de verbinding met de groep door een perfecte synchronisatie te vereisen.",
+      "duration_seconds": 900,
+      "participants": "6 tot 30 personen",
+      "source": "impro-exo.fr/exercice/stop-and-go-hey-clap-saute"
+    },
+    {
+      "id": "choregraphie-des-prenoms",
+      "type": "Opwarming",
+      "subtype": "Energie",
+      "name": "Choreografie van de voornamen",
+      "description": "Iedereen maakt een kleine choreografie op het ritme van de lettergrepen van zijn voornaam, waarna de groep die gesynchroniseerd nabootst. Het doel is om elkaar beter te leren kennen en het aandurven iets ongewoons te doen voor de groep, met de nadruk op spontaniteit.",
+      "duration_seconds": null,
+      "participants": "6 tot 15 personen",
+      "source": "impro-exo.fr/exercice/choregraphie-des-prenoms"
+    },
+    {
+      "id": "chat-statue-loup-glace",
+      "type": "Opwarming",
+      "subtype": "Energie",
+      "name": "Bevriezertikkertje",
+      "description": "Eén deelnemer speelt een kat die alle muizen moet aantikken. Wanneer een muis wordt aangetikt, blijft hij stilstaan met gespreide benen. De andere muizen kunnen de bevroren muis bevrijden door tussen zijn benen door te kruipen. Gericht op fysieke opwarming en loslaten.",
+      "duration_seconds": null,
+      "participants": "10 tot 30 personen",
+      "source": "impro-exo.fr/exercice/chat-statue-loup-glace"
+    },
+    {
+      "id": "chat-en-croix",
+      "type": "Opwarming",
+      "subtype": "Concentratie",
+      "name": "Kruis-tikkertje",
+      "description": "Traditioneel kat-en-muisspel waarbij een groep een kruis vormt met een lege plek in het midden. De muis kan zichzelf beschermen door zich hoorbaar achter een tak te plaatsen, waardoor de persoon aan de wortel een nieuwe muis wordt. Legt de nadruk op concentratie en luisteren, en onthult de clown door de complexiteit van de regels.",
+      "duration_seconds": null,
+      "participants": "12 tot 20 personen",
+      "source": "impro-exo.fr/exercice/chat-en-croix"
+    },
+    {
+      "id": "cercle-des-samourais",
+      "type": "Opwarming",
+      "subtype": "Stem",
+      "name": "Kring van de samoerai",
+      "description": "De deelnemers in een kring geven de energie door door zwaardslagen na te bootsen begeleid door ritmische geluiden (HA, HO, HÉ). De een slaat toe met de kreet 'HA', het doelwit pareert met 'HO', en de buren vallen de buik aan terwijl ze 'HÉ' uitspreken. Creëert een energieke muzikale dynamiek waarmee je fysiek en vocaal in vorm komt.",
+      "duration_seconds": null,
+      "participants": "4 tot 25 personen",
+      "source": "impro-exo.fr/exercice/cercle-des-samourais"
+    },
+    {
+      "id": "bataille-de-sous-marins",
+      "type": "Opwarming",
+      "subtype": "Vertrouwen",
+      "name": "Onderzeeërgevecht",
+      "description": "Meerdere teams vormen onderzeeërs in een rij. De laatste deelnemer, met open ogen, bestuurt het team door met de handen te sturen. De anderen houden hun ogen gesloten en worden torpedo's. De stuurman lanceert de torpedo's door op de schouders te tikken tot aan de voorste, die met gesloten ogen rechtdoor gaat om een vijandelijke onderzeeër te raken.",
+      "duration_seconds": null,
+      "participants": "8 tot 30 personen",
+      "source": "impro-exo.fr/exercice/bataille-de-sous-marins"
+    },
+    {
+      "id": "tai-chi",
+      "type": "Opwarming",
+      "subtype": "Lichaam",
+      "name": "Tai chi",
+      "description": "De groep, opgesteld in een ruitvorm, voert een perfect gesynchroniseerde tai chi uit. De oefening geeft de voorkeur aan eenvoudige, langzame en ruime gebaren om een harmonieuze collectieve coördinatie te bevorderen.",
+      "duration_seconds": null,
+      "participants": "8 tot 30 personen",
+      "source": "impro-exo.fr/exercice/tai-chi"
+    },
+    {
+      "id": "du-coin-de-loeil",
+      "type": "Opwarming",
+      "subtype": "Concentratie",
+      "name": "Vanuit je ooghoek",
+      "description": "De deelnemers bewegen door de ruimte terwijl ze een of meer gekozen personen in hun gezichtsveld houden. Begint met één persoon en gaat verder met twee, drie en dan vier. Alles gebeurt in stilte en bewegen is verplicht. Ontwikkelt de concentratie en het perifere zicht.",
+      "duration_seconds": null,
+      "participants": "6 tot 20 personen",
+      "source": "impro-exo.fr/exercice/du-coin-de-loeil"
+    },
+    {
+      "id": "cercle-son-geste",
+      "type": "Opwarming",
+      "subtype": "Energie",
+      "name": "Kring met geluid en gebaar",
+      "description": "De groep gaat in een kring staan. Eén persoon zet een herhalend gebaar en geluid in dat zich geleidelijk rond de kring verspreidt, waarbij elke deelnemer zich om de beurt synchroniseert. Daarna stelt iedereen een nieuw gebaar voor dat het vorige geleidelijk vervangt. Legt de nadruk op de eenvoud van het gebaar en het belang van het geluidsvolume.",
+      "duration_seconds": null,
+      "participants": "6 tot 20 personen",
+      "source": "impro-exo.fr/exercice/cercle-son-geste"
+    },
+    {
+      "id": "hop-1-2-wizz",
+      "type": "Opwarming",
+      "subtype": "Luisteren",
+      "name": "Hop, 1, 2, wizz",
+      "description": "De groep beweegt door de zaal volgens de aanwijzingen van de leider. Bij elk commando hoort een actie: 'Hop' voor een halve draai, 'één' voor een sprong, 'twee' voor in de handen klappen en 'wizz' voor achteruit lopen. Een dynamisch en collectief spel.",
+      "duration_seconds": null,
+      "participants": "4 tot 30 personen",
+      "source": "impro-exo.fr/exercice/hop-1-2-wizz"
+    },
+    {
+      "id": "moins-5-plus-5",
+      "type": "Opwarming",
+      "subtype": "Lichaam",
+      "name": "-5 +5",
+      "description": "De groep beweegt door de ruimte volgens de aanwijzingen van de leider. Deze roept getallen van -5 tot +5 om de bewegingssnelheid te regelen: -5 betekent vrijwel stilstaan, terwijl +5 overeenkomt met bijna rennen. Werkt aan het luisteren, de reactiviteit en de collectieve coördinatie.",
+      "duration_seconds": null,
+      "participants": "4 tot 30 personen",
+      "source": "impro-exo.fr/exercice/-5-+5"
+    },
+    {
+      "id": "marche-des-portes-tombantes",
+      "type": "Opwarming",
+      "subtype": "Ensemble",
+      "name": "Loop met vallende deuren",
+      "description": "De groep beweegt samen. De begeleider klapt in de handen om aan te geven dat er voor elke deelnemer een deur is gevallen, waardoor die van richting moet veranderen. Bij elke richtingsverandering neemt de paniek toe, wat een geleidelijke dramatische opbouw creëert.",
+      "duration_seconds": null,
+      "participants": "6 tot 30 personen",
+      "source": "impro-exo.fr/exercice/marche-des-portes-tombantes"
+    },
+    {
+      "id": "clap-energie",
+      "type": "Opwarming",
+      "subtype": "Energie",
+      "name": "Klap-energie",
+      "description": "In een kring geven de deelnemers de energie door door in de handen te klappen, één keer om te ontvangen, één keer om te geven. De spelers kijken elkaar in de ogen en houden een regelmatig ritme aan. Ontwikkelt de concentratie, het loslaten en het collectieve luisteren, met de mogelijkheid om de richting te veranderen of de kring kort te sluiten.",
+      "duration_seconds": null,
+      "participants": "6 tot 16 personen",
+      "source": "impro-exo.fr/exercice/clap-energie"
+    },
+    {
+      "id": "ninja",
+      "type": "Opwarming",
+      "subtype": "Lichaam",
+      "name": "Ninja",
+      "description": "De deelnemers gaan in een kring staan en nemen een ninja-houding aan. Om de beurt valt iedereen aan met één enkele beweging terwijl de anderen kunnen ontwijken. Een aangeraakte hand staat gelijk aan een verloren hand, en eliminatie volgt na het verlies van twee handen. De laatst overgebleven ninja wint het spel.",
+      "duration_seconds": null,
+      "participants": "3 tot 15 personen",
+      "source": "impro-exo.fr/exercice/ninja"
+    },
+    {
+      "id": "stop-marche",
+      "type": "Opwarming",
+      "subtype": "Luisteren",
+      "name": "Stop loop",
+      "description": "De deelnemers bewegen door de ruimte en reageren op de commando's van de leider. In het begin stopt 'Stop' de beweging en zet 'Loop' die weer in gang. Er komen andere commando's bij: 'Knuffel', 'Brand', 'Klap' en 'Spring'. De tweede fase keert de reacties om: dezelfde woorden roepen tegengestelde acties op, wat het luisteren en het aanpassingsvermogen test.",
+      "duration_seconds": null,
+      "participants": "5 tot 15 personen",
+      "source": "impro-exo.fr/exercice/stop-marche"
+    },
+    {
+      "id": "echauffement-individuel",
+      "type": "Opwarming",
+      "subtype": "Personage",
+      "name": "Individuele opwarming",
+      "description": "Elke deelnemer warmt individueel op het podium op. De spelers kunnen een sport- of theateropwarming parodiëren, met als optionele beperking de aandacht van het publiek opeisen. Het is essentieel om zich goed over de speelruimte te verdelen.",
+      "duration_seconds": null,
+      "participants": "1 tot 30 personen",
+      "source": "impro-exo.fr/exercice/echauffement-individuel"
+    },
+    {
+      "id": "stop-and-go",
+      "type": "Opwarming",
+      "subtype": "Luisteren",
+      "name": "Stop and go",
+      "description": "De groep beweegt samen en moet onmiddellijk stoppen zodra iemand bevriest. Wanneer een deelnemer weer begint te lopen, moet de hele groep weer in beweging komen. Vereist synchronisatie zonder zichtbaar signaal; een buitenstaander mag niet kunnen raden wie de verandering heeft ingezet.",
+      "duration_seconds": null,
+      "participants": "4 tot 30 personen",
+      "source": "impro-exo.fr/exercice/stop-and-go"
+    },
+    {
+      "id": "la-corde-a-sauter",
+      "type": "Opwarming",
+      "subtype": "Lichaam",
+      "name": "Het springtouw",
+      "description": "Twee mensen draaien gelijkmatig een springtouw. De deelnemers moeten er achtereenvolgens doorheen zonder het touw te raken of erdoor geraakt te worden. De draaiers kunnen de draaisnelheid variëren. Ontwikkelt het ritme en het luisteren.",
+      "duration_seconds": null,
+      "participants": "3 tot 15 personen",
+      "source": "impro-exo.fr/exercice/la-corde-a-sauter"
+    },
+    {
+      "id": "le-harras",
+      "type": "Opwarming",
+      "subtype": "Ensemble",
+      "name": "De renstal",
+      "description": "De spelers rennen in een kring op gelijke afstand van elkaar en houden hetzelfde tempo aan. Het doel is dat niemand weet wie versnelt als iemand het ritme verandert. De richting kan worden omgekeerd door van de binnenkant te draaien.",
+      "duration_seconds": null,
+      "participants": "6 tot 15 personen",
+      "source": "impro-exo.fr/exercice/le-harras"
+    },
+    {
+      "id": "nounours",
+      "type": "Opwarming",
+      "subtype": "Energie",
+      "name": "Teddybeer",
+      "description": "De groep wordt in tweetallen verdeeld. De duo's wrijven hun hele lichaam op een zeer energieke en gelijktijdige manier. Deze oefening bevordert de fysieke activering en de energie van de groep.",
+      "duration_seconds": null,
+      "participants": "2 tot 30 personen",
+      "source": "impro-exo.fr/exercice/nounours"
+    },
+    {
+      "id": "clap-prenom",
+      "type": "Opwarming",
+      "subtype": "Geheugen",
+      "name": "Klap-voornaam",
+      "description": "Oefening in energie-doorgeven met een klap waarbij voornamen worden gebruikt. De deelnemers stellen zich eerst voor in een kring. Vervolgens circuleert de energie via handklappen begeleid door het uitspreken van de voornaam van de ontvanger. Zodra de namen zijn onthouden, volstaat de klap alleen om de energie door te geven.",
+      "duration_seconds": null,
+      "participants": "15 tot 20 personen",
+      "source": "impro-exo.fr/exercice/clap-prenom"
+    },
+    {
+      "id": "samourais-cest-la-bataille",
+      "type": "Opwarming",
+      "subtype": "Lichaam",
+      "name": "Samoerai, het is oorlog",
+      "description": "De deelnemers spelen samoerai gewapend met vergiftigde zwaarden (hun onderarmen). Ze moeten in slow motion vechten, wetende dat een tegenstander ergens anders raken dan op de onderarmen hem doet sterven. Het gevecht gaat door tot er nog maar één deelnemer over is.",
+      "duration_seconds": null,
+      "participants": "6 tot 30 personen",
+      "source": "impro-exo.fr/exercice/samourais-cest-la-bataille"
+    },
+    {
+      "id": "ladoration-de-lidole",
+      "type": "Opwarming",
+      "subtype": "Energie",
+      "name": "De aanbidding van het idool",
+      "description": "De groep, verspreid door de ruimte, kiest in het geheim een persoon als idool. Bij het signaal werpen de deelnemers zich op hun idool en vereren het ongeveer 15 seconden lang. De oefening is gericht op loslaten en kan worden herhaald met de optie om zichzelf te aanbidden.",
+      "duration_seconds": 15,
+      "participants": "10 tot 25 personen",
+      "source": "impro-exo.fr/exercice/ladoration-de-lidole"
+    },
+    {
+      "id": "combat-de-torses-sans-contact",
+      "type": "Opwarming",
+      "subtype": "Lichaam",
+      "name": "Bovenlijfgevecht zonder contact",
+      "description": "De deelnemers in tweetallen tegenover elkaar voeren een mime van een bovenlijfgevecht uit zonder fysiek contact. De voeten blijven op de grond verankerd op ongeveer een meter afstand. Maakt het mogelijk de lichamelijke expressiviteit en de podiumaanwezigheid te ontwikkelen.",
+      "duration_seconds": null,
+      "participants": "2 tot 20 personen",
+      "source": "impro-exo.fr/exercice/combat-de-torses-sans-contact"
+    },
+    {
+      "id": "7-etats-de-tension",
+      "type": "Opwarming",
+      "subtype": "Lichaam",
+      "name": "7 spanningstoestanden",
+      "description": "De deelnemers lopen door de zaal en nemen achtereenvolgens zeven verschillende toestanden van lichamelijke spanning aan: uitgeput, cool/ontspannen, neutraal, nieuwsgierig, nerveus, paranoïde en bevroren/doodsbang. Elke toestand komt overeen met een niveau van spierspanning en een andere emotionele intentie, geleid door de aanwijzingen van de leider.",
+      "duration_seconds": null,
+      "participants": "1 tot 30 personen",
+      "source": "impro-exo.fr/exercice/7-etats-de-tension"
+    },
+    {
+      "id": "echauffement-membres-10-a-1",
+      "type": "Opwarming",
+      "subtype": "Energie",
+      "name": "Ledematen opwarmen van 10 tot 1",
+      "description": "Opwarmingsoefening in een kring waarbij de deelnemers van 10 tot 1 tellen terwijl ze afwisselend de rechterhand, de linkerhand, de rechtervoet en de linkervoet schudden. De intensiteit neemt bij elke aftelling toe. Het doel is opwarmen, loslaten, samen doen, ritme en energie inbrengen.",
+      "duration_seconds": null,
+      "participants": "1 tot 50 personen",
+      "source": "impro-exo.fr/exercice/echauffements-des-membres-de-10-a-1"
+    },
+    {
+      "id": "le-toucher-ninja",
+      "type": "Opwarming",
+      "subtype": "Lichaam",
+      "name": "De ninja-aanraking",
+      "description": "Spelers staan tegenover elkaar en proberen elkaars onderarm aan te raken zonder zelf geraakt te worden. De spelers mogen alleen hun handen bewegen of hun schouders verplaatsen, zonder hun voeten te verzetten. De eerste die 3 punten haalt wint, daarna wisselen de spelers van partner.",
+      "duration_seconds": null,
+      "participants": "Per paar",
+      "source": "impro-exo.fr/exercice/le-toucher-ninja"
+    },
+    {
+      "id": "les-pistoleros",
+      "type": "Opwarming",
+      "subtype": "Concentratie",
+      "name": "De pistoleros",
+      "description": "Duo's staan tegenover elkaar. De deelnemers slaan op het ritme op hun dijen, heffen dan hun handen met de duimen in een vrij gekozen richting. Als beide deelnemers hun duimen identiek richten, 'schieten' ze bij de volgende beurt op elkaar voordat ze opnieuw beginnen.",
+      "duration_seconds": null,
+      "participants": "2 tot 30 personen",
+      "source": "impro-exo.fr/exercice/les-pistoleros"
+    },
+    {
+      "id": "le-cri-emotif",
+      "type": "Opwarming",
+      "subtype": "Stem",
+      "name": "De emotionele schreeuw",
+      "description": "Oefening om emotie via de stem te bevrijden. De deelnemers schreeuwen terwijl ze gedurende 3 minuten een bepaalde emotie uitdrukken zoals woede of angst. De schreeuw heeft een theatrale betekenis en is niet gericht op andere spelers.",
+      "duration_seconds": 180,
+      "participants": "4 tot 20 personen",
+      "source": "impro-exo.fr/exercice/le-cri-emotif"
+    },
+    {
+      "id": "marche-des-ages-de-la-vie",
+      "type": "Opwarming",
+      "subtype": "Personage",
+      "name": "Loop van de levensfasen",
+      "description": "De groep beweegt op neutrale wijze over het podium. De begeleider noemt achtereenvolgens verschillende leeftijden (2 jaar, 6 jaar, 10 jaar, enzovoort), en de deelnemers integreren deze aanwijzingen door hun lichaam en hun bewegingsritme aan te passen aan elke aangekondigde leeftijdscategorie.",
+      "duration_seconds": null,
+      "participants": "2 tot 36 personen",
+      "source": "impro-exo.fr/exercice/marche-des-ages-de-la-vie"
+    },
+    {
+      "id": "chaises-au-clap",
+      "type": "Opwarming",
+      "subtype": "Energie",
+      "name": "Stoelen op de klap",
+      "description": "De deelnemers betwisten elkaar een te klein aantal stoelen. Wanneer de begeleider in de handen klapt, moet iedereen van stoel wisselen; wie blijft staan moet een opdracht uitvoeren (zijn voornaam zeggen, zingen, enzovoort). Bevordert de groepsdynamiek en het theatrale spel.",
+      "duration_seconds": null,
+      "participants": "6 tot 12 personen",
+      "source": "impro-exo.fr/exercice/chaises-au-clap"
+    },
+    {
+      "id": "danse-statues",
+      "type": "Opwarming",
+      "subtype": "Mime",
+      "name": "Dansstandbeelden",
+      "description": "De groep danst op muziek op het podium. Wanneer de muziek stopt, bevriest elke deelnemer en rechtvaardigt zijn houding door een dagelijkse handeling uit te beelden die hij nabootst. De begeleider stelt vervolgens nieuwe muziek in een andere stijl voor.",
+      "duration_seconds": null,
+      "participants": "4 tot 30 personen",
+      "source": "impro-exo.fr/exercice/danse-statues"
+    },
+    {
+      "id": "oui-et",
+      "type": "Op gang komen",
+      "subtype": "Verhaalopbouw",
+      "name": "Ja en",
+      "description": "In een kring bouwen de deelnemers gezamenlijk een verhaal op. Iedereen aanvaardt het vorige voorstel door te beginnen met 'Ja en bovendien' gevolgd door een nieuw voorstel. Ontwikkelt het aanvaarden van andermans ideeën en het actief luisteren.",
+      "duration_seconds": null,
+      "participants": "4 tot 15 personen",
+      "source": "impro-exo.fr/exercice/oui-et"
+    },
+    {
+      "id": "les-6-sons",
+      "type": "Op gang komen",
+      "subtype": "Luisteren",
+      "name": "De 6 geluiden",
+      "description": "De groep, verspreid door de ruimte, voert herhalende handelingen uit. De begeleider produceert regelmatig een geluid, en de deelnemers moeten reageren volgens zes oplopende stappen: zonder reactie, luisterend, stoppend om te controleren, de oorsprong identificerend, dan beseffend dat ze die niet kennen, en ten slotte zich snel neerwerpend alsof er een vliegtuig scheert.",
+      "duration_seconds": null,
+      "participants": "2 tot 30 personen",
+      "source": "impro-exo.fr/exercice/les-6-sons"
+    },
+    {
+      "id": "2-mots-1-associes",
+      "type": "Op gang komen",
+      "subtype": "Verbeelding",
+      "name": "2 woorden + 1 verbindend",
+      "description": "Een eerste persoon noemt een woord, een tweede stelt een ongerelateerd woord voor, en een derde vindt een term die de twee verbindt. Het proces herhaalt zich, telkens één persoon opschuivend per ronde. Kan worden uitgevoerd in groepjes van drie deelnemers.",
+      "duration_seconds": null,
+      "participants": "6 tot 20 personen",
+      "source": "impro-exo.fr/exercice/2-mots-+-1-associes"
+    },
+    {
+      "id": "clap-position",
+      "type": "Op gang komen",
+      "subtype": "Verbeelding",
+      "name": "Klap-positie",
+      "description": "Twee mensen improviseren vanuit een bevroren positie. De groep in een kring onderbreekt de scène met een klap of door 'freeze' te zeggen, waarna een nieuwe persoon een van de improvisatoren vervangt om een nieuwe scène te creëren die geïnspireerd is op de ingenomen posities. De leider houdt een dynamisch ritme aan.",
+      "duration_seconds": null,
+      "participants": "6 tot 15 personen",
+      "source": "impro-exo.fr/exercice/clap-position"
+    },
+    {
+      "id": "la-poule-et-ses-poussins",
+      "type": "Op gang komen",
+      "subtype": "Luisteren",
+      "name": "De kip en haar kuikens",
+      "description": "De deelnemers verspreiden zich met gesloten ogen door een zaal. De begeleider wijst stilletjes een of meer kippen aan terwijl de anderen kuikens spelen. De kippen bewegen voortdurend met open ogen, terwijl de kuikens hun ogen gesloten houden en hen proberen te vinden door 'piep' te zeggen.",
+      "duration_seconds": null,
+      "participants": "12 tot 50 personen",
+      "source": "impro-exo.fr/exercice/la-poule-et-ses-poussins"
+    },
+    {
+      "id": "tour-des-prenoms",
+      "type": "Op gang komen",
+      "subtype": "Geheugen",
+      "name": "Voornamenronde",
+      "description": "In een kring stelt elke deelnemer zijn voornaam op een gedenkwaardige manier voor. De deelnemers noemen vervolgens de voornaam van hun buur, en sommen daarna de voornamen van de hele groep op, wat het luisteren en het onthouden ontwikkelt.",
+      "duration_seconds": null,
+      "participants": "8 tot 20 personen",
+      "source": "impro-exo.fr/exercice/tour-des-prenoms"
+    },
+    {
+      "id": "en-file-indienne",
+      "type": "Op gang komen",
+      "subtype": "Ensemble",
+      "name": "In een rij",
+      "description": "De deelnemers bewegen door de ruimte en stellen zich op signaal van de begeleider in een rij op volgens verschillende criteria. Onder de criteria: lengte, alfabetische volgorde van de voornamen, schoenmaat, beroepen, oogkleur of leeftijd.",
+      "duration_seconds": null,
+      "participants": "6 tot 20 personen",
+      "source": "impro-exo.fr/exercice/en-file-indienne"
+    },
+    {
+      "id": "la-corde",
+      "type": "Op gang komen",
+      "subtype": "Mime",
+      "name": "Het touw",
+      "description": "Touwtrekken zonder fysiek touw. Twee teams stellen zich aan weerszijden van een denkbeeldige lijn op en grijpen een eveneens denkbeeldig touw vast. Bij het signaal proberen ze te winnen door te trekken, met respect voor zowel de integriteit van het touw als de dramaturgie van de scène.",
+      "duration_seconds": null,
+      "participants": "Twee teams",
+      "source": "impro-exo.fr/exercice/la-corde"
+    },
+    {
+      "id": "miroir",
+      "type": "Op gang komen",
+      "subtype": "Luisteren",
+      "name": "Spiegel",
+      "description": "Twee deelnemers staan tegenover elkaar en kijken elkaar recht in de ogen. De een leidt door eenvoudige gebaren te maken terwijl de ander ze gespiegeld nabootst. Het doel is dat men de leider niet van de volger kan onderscheiden. Ontwikkelt het luisteren naar het lichaam van de ander.",
+      "duration_seconds": null,
+      "participants": "2 tot 30 personen",
+      "source": "impro-exo.fr/exercice/miroir"
+    },
+    {
+      "id": "machine-infernale",
+      "type": "Op gang komen",
+      "subtype": "Ensemble",
+      "name": "Helse machine",
+      "description": "De deelnemers nemen één voor één positie in om een collectieve machine te vormen. Iedereen creëert een herhalend gebaar en een geluid, terwijl hij ritmisch verbonden blijft met de andere onderdelen van deze machine. Het geheel kan vervolgens versnellen of vertragen volgens de aanwijzingen.",
+      "duration_seconds": null,
+      "participants": "6 tot 8 personen",
+      "source": "impro-exo.fr/exercice/machine-infernale"
+    },
+    {
+      "id": "compter-jusqua-20",
+      "type": "Op gang komen",
+      "subtype": "Luisteren",
+      "name": "Tellen tot 20",
+      "description": "De deelnemers, zittend in een kring of in beweging, moeten met gesloten ogen samen tot 20 tellen. De groep begint opnieuw bij nul zodra er een fout optreedt of zodra twee personen tegelijk spreken. Werkt aan de concentratie, het luisteren en de synchronisatie.",
+      "duration_seconds": null,
+      "participants": "6 tot 20 personen",
+      "source": "impro-exo.fr/exercice/compter-jusqua-20"
+    },
+    {
+      "id": "quest-ce-que-tu-fais",
+      "type": "Op gang komen",
+      "subtype": "Mime",
+      "name": "Wat doe je?",
+      "description": "De deelnemers gaan in een kring staan. Eén persoon beeldt een herhalende handeling uit terwijl zijn buur hem vraagt 'Wat doe je?'. Het antwoord moet een andere handeling zijn dan de uitgebeelde. De buur beeldt dan deze nieuwe handeling uit. Bevordert de dissociatie en de continuïteit van de beweging.",
+      "duration_seconds": null,
+      "participants": "2 tot 15 personen",
+      "source": "impro-exo.fr/exercice/quest-ce-que-tu-fais-"
+    },
+    {
+      "id": "samourai-et-ses-paysans",
+      "type": "Op gang komen",
+      "subtype": "Emotie",
+      "name": "De samoerai en zijn boeren",
+      "description": "Een samoerai beeldt uit dat hij met een zwaard tegen een groep angstige boeren vecht. Het doel is een dramatische scène te creëren met spanning en emotie, waarbij de samoerai de slachtoffers aanvankelijk een kans laat om de slagen te ontwijken voordat hij de aanval intensiveert.",
+      "duration_seconds": null,
+      "participants": "6 tot 12 personen",
+      "source": "impro-exo.fr/exercice/samourai-le-et-ses-paysans"
+    },
+    {
+      "id": "statues-demotions",
+      "type": "Op gang komen",
+      "subtype": "Emotie",
+      "name": "Emotiestandbeelden",
+      "description": "De groep beweegt op neutrale wijze door de ruimte. Op signaal van de leider bevriezen de deelnemers in een opgelegde emotie. Het doel is om de eerste instinctieve reactie lichamelijk uit te drukken zonder na te denken of te anticiperen. De standbeelden moeten doorleefd, persoonlijk en volkomen onbeweeglijk zijn.",
+      "duration_seconds": null,
+      "participants": "6 tot 30 personen",
+      "source": "impro-exo.fr/exercice/statues-demotions"
+    },
+    {
+      "id": "statues-impros",
+      "type": "Op gang komen",
+      "subtype": "Verbeelding",
+      "name": "Improstandbeelden",
+      "description": "De deelnemers bewegen willekeurig door de ruimte. Bij het signaal bevriest de groep in standbeelden en moet zijn houding rechtvaardigen met woorden, mime of een repliek. Geleidelijk creëren twee personen een improvisatie vanuit hun beginposities.",
+      "duration_seconds": null,
+      "participants": "6 tot 20 personen",
+      "source": "impro-exo.fr/exercice/statues-impros"
+    },
+    {
+      "id": "passage-dobjet",
+      "type": "Op gang komen",
+      "subtype": "Mime",
+      "name": "Doorgeven van gevormde voorwerpen",
+      "description": "De groep in een kring boetseert en geeft denkbeeldige voorwerpen door. Eén persoon creëert een virtueel voorwerp, waarna elke deelnemer het benoemt en transformeert voordat hij het aan de buur doorgeeft. Moedigt de creativiteit en de actie aan, zonder oordeel over de overeenkomst tussen het gecreëerde en het herkende voorwerp.",
+      "duration_seconds": null,
+      "participants": "4 tot 20 personen",
+      "source": "impro-exo.fr/exercice/passage-dobjet"
+    },
+    {
+      "id": "mot-lance",
+      "type": "Op gang komen",
+      "subtype": "Verbeelding",
+      "name": "Geworpen woord",
+      "description": "De deelnemers in een kring geven geassocieerde woorden door op het ritme van een collectief vingerknippen. Elke deelnemer moet snel inspelen op het vorige woord zonder te anticiperen. Ontwikkelt het actief luisteren en de creatieve reactiviteit, met zorg om luid te spreken en duidelijk te articuleren.",
+      "duration_seconds": null,
+      "participants": "2 tot 15 personen",
+      "source": "impro-exo.fr/exercice/mot-lance"
+    },
+    {
+      "id": "arret-sur-images",
+      "type": "Op gang komen",
+      "subtype": "Verbeelding",
+      "name": "Beeldbevriezing",
+      "description": "De deelnemers bewegen energiek door de zaal en bevriezen onmiddellijk in een lichamelijk standbeeld wanneer de leider een woord noemt en in de handen klapt. Ontwikkelt de spontaniteit en de persoonlijke impuls zonder anticipatie, door abstracte begrippen te belichamen zoals 'storm', 'leegte' of 'vulkanisch'.",
+      "duration_seconds": null,
+      "participants": "6 tot 30 personen",
+      "source": "impro-exo.fr/exercice/arret-sur-images"
+    },
+    {
+      "id": "cest-toi-moi",
+      "type": "Op gang komen",
+      "subtype": "Stem",
+      "name": "Jij! Ik?",
+      "description": "Uitwisseling van replieken in een lus waarbij de spelers elkaar om de beurt uitspraken doorgeven met verschillende intonaties: uitroepend, vragend, bevestigend en overtuigend. De begeleider zet het spel in gang door de eerste deelnemer aan te wijzen, waarna de spelers het woord aan elkaar doorgeven door iemand anders aan te wijzen.",
+      "duration_seconds": null,
+      "participants": "4 tot 15 personen",
+      "source": "impro-exo.fr/exercice/cest-toi-moi-"
+    },
+    {
+      "id": "la-bouteille-saoule",
+      "type": "Op gang komen",
+      "subtype": "Vertrouwen",
+      "name": "De dronken fles",
+      "description": "De groep vormt een kring rond een persoon in het midden die geleidelijk heen en weer wankelt tot hij zich laat vallen. De groep vangt hem collectief op, wat het wederzijdse vertrouwen en de concentratie ontwikkelt. Het wankelen wordt steeds ruimer.",
+      "duration_seconds": null,
+      "participants": "5 tot 14 personen",
+      "source": "impro-exo.fr/exercice/la-bouteille-saoule"
+    },
+    {
+      "id": "je-suis-le-du",
+      "type": "Op gang komen",
+      "subtype": "Verbeelding",
+      "name": "Ik ben de ... van de ...",
+      "description": "De deelnemers nemen achtereenvolgens positie in door te verklaren wat ze belichamen ten opzichte van het vorige voorwerp. De eerste noemt een onbeweeglijk voorwerp, de volgende plaatst zich in relatie ertoe, enzovoort, waardoor een hiërarchische keten ontstaat. Versnelt geleidelijk.",
+      "duration_seconds": null,
+      "participants": "6 tot 20 personen",
+      "source": "impro-exo.fr/exercice/je-suis-le-du"
+    },
+    {
+      "id": "mot-tape",
+      "type": "Op gang komen",
+      "subtype": "Verbeelding",
+      "name": "Getikt woord",
+      "description": "De deelnemers klappen achtereenvolgens in elkaars handen terwijl ze een woord associëren met het zojuist uitgesproken woord. De spelers vormen een keten, waarbij iedereen zijn hand uitsteekt nadat hij een tik heeft ontvangen. Anticipatie moet worden vermeden.",
+      "duration_seconds": null,
+      "participants": "6 tot 15 personen",
+      "source": "impro-exo.fr/exercice/mot-tape"
+    },
+    {
+      "id": "cercle-de-lexageration",
+      "type": "Op gang komen",
+      "subtype": "Mime",
+      "name": "Kring van de overdrijving",
+      "description": "De deelnemers gaan in een kring staan. De eerste beeldt een dagelijkse handeling uit, en iedereen voert deze handeling om de beurt opnieuw uit door ze nog verder te overdrijven. Het doel is een logica te behouden in de opeenvolging van voorstellen zonder voorbereiding. Men kan de intentie, de emotie, het ritme of de grootte van de voorwerpen overdrijven.",
+      "duration_seconds": null,
+      "participants": "6 tot 20 personen",
+      "source": "impro-exo.fr/exercice/cercle-de-lexageration"
+    },
+    {
+      "id": "photos-de-vacances",
+      "type": "Op gang komen",
+      "subtype": "Ensemble",
+      "name": "Vakantiefoto's",
+      "description": "Eén speler geeft de titel van een vakantiefoto en de andere deelnemers nemen geleidelijk posities in om deze foto na te bootsen. De begeleider geeft een denkbeeldig fototoestel door aan de speler die een titel voorstelt, waarna elke deelnemer zijn plaats inneemt tot het volledige tafereel is gevormd.",
+      "duration_seconds": null,
+      "participants": "6 tot 8 personen",
+      "source": "impro-exo.fr/exercice/photos-de-vacances"
+    },
+    {
+      "id": "goaler",
+      "type": "Op gang komen",
+      "subtype": "Personage",
+      "name": "Goaler",
+      "description": "Een speler, de goaler, aanvaardt en past zich onmiddellijk aan verschillende situaties aan die zijn medespelers hem na elkaar opleggen. Elke speler uit de rij stelt de goaler een situatie voor en zet de interactie drie replieken lang voort voordat hij plaatsmaakt voor de volgende. Ontwikkelt het aanpassings- en aanvaardingsvermogen.",
+      "duration_seconds": null,
+      "participants": "Minimaal 6 spelers",
+      "source": "impro-exo.fr/exercice/goaler"
+    },
+    {
+      "id": "prenom-ville-fleur",
+      "type": "Op gang komen",
+      "subtype": "Geheugen",
+      "name": "Voornaam - stad - bloem...",
+      "description": "De leider wijst snel deelnemers aan die een woord uit een gegeven categorie moeten noemen. De woordfamilies omvatten voornamen, steden, kleuren, bloemen en landen. De begeleider kan het proces herhalen met dezelfde of andere getallen.",
+      "duration_seconds": null,
+      "participants": "2 tot 15 personen",
+      "source": "impro-exo.fr/exercice/prenom-ville-fleur"
+    },
+    {
+      "id": "ambassadeur",
+      "type": "Op gang komen",
+      "subtype": "Mime",
+      "name": "Ambassadeur",
+      "description": "Meerdere teams wedijveren om een lijst van woorden, filmtitels of andere elementen te raden die door een teamgenoot worden uitgebeeld. De deelnemers moeten de antwoorden vinden zonder spreken of geluid, waarbij elke vondst een nieuw teamlid in staat stelt het volgende element te zoeken.",
+      "duration_seconds": null,
+      "participants": "6 tot 30 personen",
+      "source": "impro-exo.fr/exercice/ambassadeur"
+    },
+    {
+      "id": "activites-express",
+      "type": "Op gang komen",
+      "subtype": "Mime",
+      "name": "Express-activiteiten",
+      "description": "De deelnemers veranderen van activiteit bij elk geluidssignaal. Bij het signaal beginnen de improvisatoren een activiteit. Bij elke 'ding' veranderen ze van activiteit. Bevordert de reactiviteit en het aanpassingsvermogen.",
+      "duration_seconds": null,
+      "participants": "2 tot 25 personen",
+      "source": "impro-exo.fr/exercice/activites-express"
+    },
+    {
+      "id": "comme-une-onde",
+      "type": "Op gang komen",
+      "subtype": "Luisteren",
+      "name": "Als een golf",
+      "description": "De deelnemers, aanvankelijk in een kring opgesteld, verspreiden zich door de ruimte en reproduceren precies de houding van de persoon die links van hen stond. Elke minieme beweging plant zich voort binnen het collectief, waardoor een golf van gebaren ontstaat. Ontwikkelt de concentratie op de ander en het teamwerk.",
+      "duration_seconds": null,
+      "participants": "6 tot 25 personen",
+      "source": "impro-exo.fr/exercice/comme-une-onde"
+    },
+    {
+      "id": "balles-de-couleurs-imaginaires",
+      "type": "Op gang komen",
+      "subtype": "Concentratie",
+      "name": "Denkbeeldige gekleurde ballen",
+      "description": "Een leider gooit denkbeeldige gekleurde ballen naar deelnemers die in een kring staan. Iedereen ontvangt de bal door de kleur ervan te herhalen en gooit hem dan terug met dezelfde tint. De leider voegt geleidelijk nieuwe gekleurde ballen toe. Het doel is geen enkele bal te verliezen.",
+      "duration_seconds": null,
+      "participants": "6 tot 15 personen",
+      "source": "impro-exo.fr/exercice/balles-de-couleurs-imaginaires"
+    },
+    {
+      "id": "le-cercle-des-emotions",
+      "type": "Op gang komen",
+      "subtype": "Emotie",
+      "name": "De kring van de emoties",
+      "description": "Een begeleider in het midden van een kring wijst deelnemers aan die moeten improviseren of een opgelegde zin uitspreken terwijl ze een specifieke emotie uitdrukken. Maakt het mogelijk te werken aan de emotionele variatie en haalt de druk van de improvisatie weg door een zin aan te reiken.",
+      "duration_seconds": null,
+      "participants": "4 tot 15 personen",
+      "source": "impro-exo.fr/exercice/le-cercle-des-emotions"
+    },
+    {
+      "id": "echange-de-phrases",
+      "type": "Op gang komen",
+      "subtype": "Geheugen",
+      "name": "Zinnen uitwisselen",
+      "description": "De deelnemers lopen door de ruimte met een eenvoudige zin. Bij elke ontmoeting wisselen ze hun zin met de andere persoon en vertrekken met de nieuwe. Het spel gaat door tot iedereen zijn oorspronkelijke zin terugvindt om te gaan zitten. Varianten met gebarentaal of een bijbehorende emotie.",
+      "duration_seconds": null,
+      "participants": "4 tot 25 personen",
+      "source": "impro-exo.fr/exercice/echange-de-phrases"
+    },
+    {
+      "id": "points-communs-points-de-desaccord",
+      "type": "Op gang komen",
+      "subtype": "Luisteren",
+      "name": "Overeenkomsten, meningsverschillen",
+      "description": "Oefening in tweetallen waarmee de deelnemers elkaar leren kennen. Gedurende 30 seconden identificeren de duo's 3 niet-zichtbare overeenkomsten, en daarna 2 meningsverschillen, met terugkoppeling aan de groep bij elke stap. Wordt twee keer herhaald met verschillende tweetallen.",
+      "duration_seconds": 30,
+      "participants": "6 tot 30 personen",
+      "source": "impro-exo.fr/exercice/points-communs-points-de-desaccord"
+    },
+    {
+      "id": "mots-associes-rythmes",
+      "type": "Op gang komen",
+      "subtype": "Verbeelding",
+      "name": "Geassocieerde woorden op ritme",
+      "description": "De deelnemers in een kring maken een woordassociatie op ritme. De groep tikt op de knieën, op de borst en knipt dan gesynchroniseerd met de vingers. Eén deelnemer noemt een woord bij de eerste knip, daarna associeert men collectief een woord, gevolgd door de individuele associatie van de volgende deelnemer.",
+      "duration_seconds": null,
+      "participants": "6 tot 15 personen",
+      "source": "impro-exo.fr/exercice/mots-associes-rythmes"
+    },
+    {
+      "id": "lintrus-dans-limage",
+      "type": "Op gang komen",
+      "subtype": "Verhaalopbouw",
+      "name": "De indringer in het beeld",
+      "description": "De deelnemers bouwen gezamenlijk een scène op door voorwerpen toe te voegen. Zodra er een vreemd voorwerp wordt opgemerkt, gaat de groep uit elkaar en begint opnieuw vanaf dat element. Het doel is een gedeelde verantwoordelijkheid te creëren en de cohesie te versterken.",
+      "duration_seconds": null,
+      "participants": "6 tot 25 personen",
+      "source": "impro-exo.fr/exercice/lintrus-dans-limage"
+    },
+    {
+      "id": "1-2-3-jai-foire",
+      "type": "Op gang komen",
+      "subtype": "Vertrouwen",
+      "name": "1 2 3 - Ik heb het verprutst!",
+      "description": "Twee spelers tellen afwisselend in cycli van drie. Geleidelijk worden er gebaren aan de cijfers toegevoegd. Bij elke aarzeling of fout heffen de deelnemers hun armen en roepen 'ik heb het verprutst' en wisselen van partner. Gericht op het aanvaarden van fouten en het cultiveren van de collectieve verantwoordelijkheid.",
+      "duration_seconds": null,
+      "participants": "Per paar",
+      "source": "impro-exo.fr/exercice/1-2-3-jai-foire-"
+    },
+    {
+      "id": "meli-melo-des-mains",
+      "type": "Op gang komen",
+      "subtype": "Vertrouwen",
+      "name": "Handenkluwen",
+      "description": "Ontwarren van een menselijke ketting. De deelnemers stellen zich schouder aan schouder op, met gesloten ogen, en grijpen willekeurig de hand van een ander. De groep zet een stap achteruit en probeert zich te ontwarren terwijl het fysieke contact behouden blijft zonder de ketting te verbreken.",
+      "duration_seconds": null,
+      "participants": "10 tot 20 personen",
+      "source": "impro-exo.fr/exercice/meli-melo-des-mains"
+    },
+    {
+      "id": "je-suis-superman",
+      "type": "Op gang komen",
+      "subtype": "Verbeelding",
+      "name": "Ik ben Superman",
+      "description": "De deelnemers nemen om de beurt plaats in het midden van een kring. Iedereen spreekt drie keer zo snel mogelijk de zin 'Ik ben Superman omdat' uit, gevolgd door telkens andere redenen. Deze herhaling maakt het mogelijk het anticiperen van de antwoorden te vermijden.",
+      "duration_seconds": null,
+      "participants": "6 tot 15 personen",
+      "source": "impro-exo.fr/exercice/je-suis-superman"
+    },
+    {
+      "id": "mot-contact",
+      "type": "Op gang komen",
+      "subtype": "Verbeelding",
+      "name": "Convergerende woorden",
+      "description": "Het samenkomen van ideeën tussen twee deelnemers. Twee personen noemen elk een woord, tellen daarna samen tot drie en zeggen een verbindend woord. Het proces herhaalt zich met andere paren. Verkent het gezamenlijke denken en de collectieve mentale associaties.",
+      "duration_seconds": null,
+      "participants": "2 tot 15 personen",
+      "source": "impro-exo.fr/exercice/mot-contact"
+    },
+    {
+      "id": "je-donne-le-graal",
+      "type": "Op gang komen",
+      "subtype": "Stem",
+      "name": "Ik geef de Graal",
+      "description": "De Graal gaat van deelnemer naar deelnemer. Deelnemer A geeft de Graal aan B met de woorden 'ik geef de Graal'. B bevestigt 'ik heb de Graal' en de rest van de groep antwoordt 'hij heeft de Graal'. Het proces gaat door met elke nieuwe drager.",
+      "duration_seconds": null,
+      "participants": "6 tot 12 personen",
+      "source": "impro-exo.fr/exercice/je-donne-le-graal"
+    },
+    {
+      "id": "statue-perso",
+      "type": "Op gang komen",
+      "subtype": "Personage",
+      "name": "Personagestandbeeld",
+      "description": "Het creëren van een personage op basis van de neutrale loop. De groep bevriest bij de klap door een personage en zijn silhouet te belichamen, en hervat de beweging bij de tweede klap. De acteur moet zich laten verrassen door zijn eigen voorstel in plaats van het voor te bereiden.",
+      "duration_seconds": null,
+      "participants": "Groep",
+      "source": "impro-exo.fr/exercice/statue-perso"
+    },
+    {
+      "id": "un-mot-deux-vers-rimes",
+      "type": "Op gang komen",
+      "subtype": "Verhaalopbouw",
+      "name": "Eén woord, twee rijmende verzen",
+      "description": "Eén persoon stelt een woord voor, de volgende creëert een vers dat ermee rijmt, en een derde sluit af met het oorspronkelijke woord. De oefening wordt complexer in fase 2, waarin elke deelnemer twee rijmende verzen moet produceren voordat hij het estafettestokje doorgeeft.",
+      "duration_seconds": null,
+      "participants": "In een kring",
+      "source": "impro-exo.fr/exercice/un-mot-deux-vers-rimes"
+    },
+    {
+      "id": "la-voix-de-lautre",
+      "type": "Op gang komen",
+      "subtype": "Stem",
+      "name": "De stem van de ander",
+      "description": "De deelnemers werken in tweetallen. De een levert de stem terwijl de ander de lippen en het lichaam beweegt. De oefening verloopt in drie fasen: eerst elkaar aankijkend, dan zonder oogcontact, en ten slotte door een dialoog te creëren waarin ieder de stem van zijn partner doet.",
+      "duration_seconds": null,
+      "participants": "2 tot 12 personen",
+      "source": "impro-exo.fr/exercice/la-voix-de-lautre"
+    },
+    {
+      "id": "echange-de-prenoms",
+      "type": "Op gang komen",
+      "subtype": "Geheugen",
+      "name": "Voornamen uitwisselen",
+      "description": "In een kring leren de deelnemers elkaars voornamen en wisselen ze uit. Het spel verloopt in fasen: je naam zeggen in de kring, je tot een specifieke persoon richten, en dan de naam van je gesprekspartner geven. De slotfase omvat verplaatsingen waarbij elke ontmoeting een uitwisseling van voornaam met zich meebrengt tot je je eigen voornaam terugvindt.",
+      "duration_seconds": null,
+      "participants": "6 tot 20 personen",
+      "source": "impro-exo.fr/exercice/echange-de-prenoms"
+    },
+    {
+      "id": "le-cercle-de-lacceptation",
+      "type": "Op gang komen",
+      "subtype": "Luisteren",
+      "name": "De kring van de aanvaarding",
+      "description": "De spelers gaan in een kring staan. De eerste stelt een eenvoudig gebaar voor, eventueel begeleid door een geluid. Elke volgende deelnemer moet precies hetzelfde gebaar en geluid reproduceren. Als er een wijziging optreedt, integreert de volgende speler deze veranderingen evenals alle toegevoegde elementen.",
+      "duration_seconds": null,
+      "participants": "4 tot 20 personen",
+      "source": "impro-exo.fr/exercice/le-cercle-de-lacceptation"
+    },
+    {
+      "id": "je-nai-jamais",
+      "type": "Op gang komen",
+      "subtype": "Luisteren",
+      "name": "Ik heb nog nooit",
+      "description": "De deelnemers staan in een kring met geheven handen en gestrekte vingers. Om de beurt noemt iedereen iets wat hij nog nooit heeft gedaan, beginnend met 'Ik heb nog nooit...'. De deelnemers die de genoemde handeling wel hebben gedaan, vouwen een vinger neer. Als niemand het heeft gedaan, vouwt degene die sprak zijn vinger neer.",
+      "duration_seconds": null,
+      "participants": "6 tot 30 personen",
+      "source": "impro-exo.fr/exercice/je-nai-jamais"
+    },
+    {
+      "id": "histoire-en-continu",
+      "type": "Op gang komen",
+      "subtype": "Verhaalopbouw",
+      "name": "Doorlopend verhaal",
+      "description": "De begeleider geeft een thema en wijst de deelnemers om de beurt aan om het verhaal zonder onderbreking voort te zetten. De deelnemers moeten stiltes, aarzelingen en herhalingen vermijden; bij de geringste fout begint er een nieuw verhaal met een nieuw thema.",
+      "duration_seconds": null,
+      "participants": "4 tot 15 personen",
+      "source": "impro-exo.fr/exercice/histoire-en-continu"
+    },
+    {
+      "id": "recherche-personnage-marche",
+      "type": "Op gang komen",
+      "subtype": "Personage",
+      "name": "Personage zoeken al lopend",
+      "description": "De groep beweegt neutraal door de zaal. Bij elke klap creëren de deelnemers een nieuw personage met een eigen houding, stem, manier van lopen en silhouet. Na meerdere individuele voorstellen bootst de groep het personage van één persoon na voordat hij naar de volgende overgaat.",
+      "duration_seconds": null,
+      "participants": "4 tot 30 personen",
+      "source": "impro-exo.fr/exercice/recherche-personnage-marche"
+    },
+    {
+      "id": "frankenstein",
+      "type": "Op gang komen",
+      "subtype": "Personage",
+      "name": "Frankenstein - De monstermakers",
+      "description": "De deelnemers worden in tweetallen door de ruimte verdeeld. De een boetseert de ander tot een monster. Zodra alle monsters geboetseerd zijn, komen ze tot leven en spelen met het publiek. Maakt het mogelijk de creativiteit en de interactie tussen deelnemers te ontwikkelen.",
+      "duration_seconds": null,
+      "participants": "8 tot 24 personen",
+      "source": "impro-exo.fr/exercice/frankenstein"
+    },
+    {
+      "id": "un-nom-un-adjectif-un-nom",
+      "type": "Op gang komen",
+      "subtype": "Verbeelding",
+      "name": "Een zelfstandig naamwoord, een bijvoeglijk naamwoord, een zelfstandig naamwoord",
+      "description": "De groep gaat in een kring staan en creëert een opeenvolging van woordassociaties. De eerste deelnemer noemt een zelfstandig naamwoord, de volgende voegt een bijbehorend bijvoeglijk naamwoord toe, en de volgende een nieuw zelfstandig naamwoord verbonden aan dat bijvoeglijk naamwoord. Deze afwisseling stimuleert de creativiteit en de ideeënassociaties van de groep.",
+      "duration_seconds": null,
+      "participants": "6 tot 15 personen",
+      "source": "impro-exo.fr/exercice/un-nom-un-adjectif-un-nom"
+    },
+    {
+      "id": "definition-de-mots-inventes",
+      "type": "Op gang komen",
+      "subtype": "Verbeelding",
+      "name": "Definitie van verzonnen woorden",
+      "description": "In een kring noemen drie personen achtereenvolgens een lettergreep om een denkbeeldig woord te creëren, waarna een vierde de definitie ervan verzint. De begeleider kan om aanvullende verduidelijkingen over de gecreëerde term vragen om de oefening te verrijken.",
+      "duration_seconds": null,
+      "participants": "4 tot 15 personen",
+      "source": "impro-exo.fr/exercice/definition-de-mots-inventes"
+    },
+    {
+      "id": "et-cest-ainsi",
+      "type": "Workshop",
+      "subtype": "Verhaalopbouw",
+      "name": "En zo gebeurde het...",
+      "description": "De groep vormt een kring. Eén speler begint een handeling, een tweede sluit zich aan, en na 20 seconden brengt een derde een breuk aan. Een vierde sluit af met de zin 'En zo gebeurde het'. Het doel is snel op te bouwen, het aandurven te beginnen, breuken voor te stellen en af te sluiten, zelfs onvolmaakt.",
+      "duration_seconds": 30,
+      "participants": "4 tot 15 personen",
+      "source": "impro-exo.fr/exercice/et-cest-ainsi"
+    },
+    {
+      "id": "reste-concentree",
+      "type": "Workshop",
+      "subtype": "Concentratie",
+      "name": "Blijf geconcentreerd (De zondebok)",
+      "description": "Eén persoon staat tegenover het publiek en fixeert een punt op de achtergrond terwijl hij een zin of een liedje in een lus herhaalt. Aangewezen leden van het publiek proberen hem af te leiden, maar hij moet zijn concentratie behouden zonder zijn blik af te wenden. Gericht op het ontwikkelen van het vermogen om geconcentreerd te blijven ondanks verstoringen.",
+      "duration_seconds": null,
+      "participants": "1 acteur + publiek",
+      "source": "impro-exo.fr/exercice/reste-concentree"
+    },
+    {
+      "id": "parler-avec-des-chiffres",
+      "type": "Workshop",
+      "subtype": "Stem",
+      "name": "Spreken met getallen (1 tot 50)",
+      "description": "Twee deelnemers spelen een scène waarin ze de tekst vervangen door een opeenvolging van getallen van 1 tot 50. Het doel is het spel van intenties te ontwikkelen zonder afhankelijk te zijn van woorden, een verbinding te leggen die verder gaat dan de woorden en bondig te blijven in de voorstellen.",
+      "duration_seconds": null,
+      "participants": "2 spelers",
+      "source": "impro-exo.fr/exercice/1-a-50"
+    },
+    {
+      "id": "on-est-mardi",
+      "type": "Workshop",
+      "subtype": "Verhaalopbouw",
+      "name": "Het is dinsdag (Het is maandag)",
+      "description": "Eén speler noemt een banaliteit, terwijl de tweede speler een volledige tirade opbouwt op basis van deze onbeduidende opmerking, om vervolgens af te sluiten met een meer ingetogen zin.",
+      "duration_seconds": null,
+      "participants": "2 spelers",
+      "source": "impro-exo.fr/exercice/cest-mardi"
+    },
+    {
+      "id": "commentaire-ralenti",
+      "type": "Workshop",
+      "subtype": "Mime",
+      "name": "Commentaar in slow motion",
+      "description": "Twee spelers improviseren door een handeling in slow motion uit te beelden terwijl een derde de handeling zo snel mogelijk becommentarieert zonder stiltes. De acteurs volgen de verteller niet en de gebaren mogen abstract zijn. De begeleider zorgt ervoor dat de mimespelers traag blijven en de commentator snel.",
+      "duration_seconds": null,
+      "participants": "3 spelers",
+      "source": "impro-exo.fr/exercice/commentaire-ralenti"
+    },
+    {
+      "id": "premiere-replique-imposee",
+      "type": "Workshop",
+      "subtype": "Verhaalopbouw",
+      "name": "Opgelegde openingszin",
+      "description": "De deelnemers schrijven een repliek op papier, en trekken dan in tweetallen willekeurig een repliek die de eerste zin van hun personage wordt. Ze moeten vervolgens improviseren en een dramatische samenhang vinden vanuit deze opgelegde beperking.",
+      "duration_seconds": null,
+      "participants": "2 spelers",
+      "source": "impro-exo.fr/exercice/premiere-replique-imposee"
+    },
+    {
+      "id": "sculpteurs-et-statues",
+      "type": "Workshop",
+      "subtype": "Personage",
+      "name": "Beeldhouwers en standbeelden",
+      "description": "De groep wordt verdeeld in tweetallen bestaande uit een beeldhouwer en een standbeeld. De beeldhouwer manipuleert en plaatst zijn standbeeld in de ruimte. Zodra de creaties klaar zijn, trekken de beeldhouwers zich terug om het geïmproviseerde museum te bezoeken. Elk standbeeld krijgt een titel, komt dan in beweging en tot leven.",
+      "duration_seconds": null,
+      "participants": "2 tot 30 personen",
+      "source": "impro-exo.fr/exercice/sculpteurs-et-statues"
+    },
+    {
+      "id": "objet-detourne",
+      "type": "Workshop",
+      "subtype": "Verbeelding",
+      "name": "Alles behalve dat (vervreemd voorwerp)",
+      "description": "De begeleider plaatst een voorwerp op het podium. Elke deelnemer moet het gebruiken voor wat het niet is, en de scène theatraliseren. Een wandelstok wordt een honkbalknuppel, bijl, bezem of periscoop. Een minimumtijd kan worden opgelegd.",
+      "duration_seconds": null,
+      "participants": "Variabel",
+      "source": "impro-exo.fr/exercice/tout-mais-pas-a-ca-objet-detourne"
+    },
+    {
+      "id": "3e-idee",
+      "type": "Workshop",
+      "subtype": "Verbeelding",
+      "name": "3e idee",
+      "description": "Twee spelers beginnen gelijktijdig twee verschillende activiteiten zonder voorafgaand overleg. Ze moeten vervolgens een derde idee identificeren en voorstellen dat deze twee activiteiten met elkaar verbindt. Ontwikkelt het vermogen om originele beginvoorstellen te genereren in gemengde improvisatie.",
+      "duration_seconds": null,
+      "participants": "2 spelers",
+      "source": "impro-exo.fr/exercice/3e-idee"
+    },
+    {
+      "id": "activites-express-exagerees",
+      "type": "Workshop",
+      "subtype": "Mime",
+      "name": "Overdreven express-activiteiten",
+      "description": "De improvisatoren beginnen met het uitbeelden van een gewone activiteit. Op signaal van de begeleider overdrijven ze hun gebaar geleidelijk. Er kunnen meerdere niveaus van intensivering worden vastgesteld. Het toevoegen van geluiden wordt aangemoedigd om het komische en expressieve effect te versterken.",
+      "duration_seconds": null,
+      "participants": "Tot 12 personen",
+      "source": "impro-exo.fr/exercice/activites-express-exagerees"
+    },
+    {
+      "id": "demarrer-avec-un-lieu",
+      "type": "Workshop",
+      "subtype": "Verhaalopbouw",
+      "name": "Beginnen met een plek",
+      "description": "Eén deelnemer zet een scène in gang door de voorwerpen van een specifieke plek te gebruiken. Zodra de plek door de anderen is geïdentificeerd, komt een tweede deelnemer in het spel en gebruikt op zijn beurt de voorgestelde elementen. Ontwikkelt de creativiteit en de interactie tussen improvisatoren.",
+      "duration_seconds": null,
+      "participants": "2 spelers",
+      "source": "impro-exo.fr/exercice/demarrer-avec-un-lieu"
+    },
+    {
+      "id": "choregraphie-a-b-c-d",
+      "type": "Workshop",
+      "subtype": "Ensemble",
+      "name": "Choreografie A B C D",
+      "description": "Voorbereiding op de geïmproviseerde musical. Vier spelers creëren geleidelijk een choreografie in lussen: A begint een eerste muzikale lus, B sluit zich aan bij de tweede lus, en C en D voegen zich toe bij de derde. De deelnemers kunnen verschillende ruimtelijke configuraties vormen.",
+      "duration_seconds": null,
+      "participants": "4 tot 5 spelers",
+      "source": "impro-exo.fr/exercice/choregraphie-a-b-c-d"
+    },
+    {
+      "id": "dialogue-image-flash-fixe",
+      "type": "Workshop",
+      "subtype": "Lichaam",
+      "name": "Dialoog met vaste flitsbeelden",
+      "description": "Twee personen gaan een dialoog aan. Bij elke nieuwe repliek moet degene die spreekt verstijven in een standbeeld dat geen verband houdt met de context van de scène. Deze oefening creëert een komisch contrast tussen de woorden en de aangenomen houdingen.",
+      "duration_seconds": null,
+      "participants": "2 spelers",
+      "source": "impro-exo.fr/exercice/dialogue-image-flash-fixe"
+    },
+    {
+      "id": "duos-dimpro-alternatif",
+      "type": "Workshop",
+      "subtype": "Verhaalopbouw",
+      "name": "Afwisselende impro-duo's",
+      "description": "Twee duo's improviseren afwisselend. Terwijl het ene duo speelt, blijft het andere gehurkt zitten. Ontwikkelt het luisteren, de ellipsen en het gevoel voor ritme. De spelers leren één idee tegelijk te spelen, zich duidelijk te laten gelden en de sleutelmomenten van het verhaal te beheren.",
+      "duration_seconds": null,
+      "participants": "4 tot 8 personen",
+      "source": "impro-exo.fr/exercice/duos-dimpro-alternatif"
+    },
+    {
+      "id": "duos-dimpro-pioche",
+      "type": "Workshop",
+      "subtype": "Verhaalopbouw",
+      "name": "Geplukte impro-duo's",
+      "description": "Impro-duo's volgen elkaar achtereenvolgens op. Een eerste duo improviseert, daarna springt een toeschouwer op het podium en sleept zonder overleg een partner mee op basis van een idee uit de lopende impro. Ontwikkelt het vermogen om op het juiste moment af te kappen en een actief luisteren te cultiveren.",
+      "duration_seconds": null,
+      "participants": "4 tot 16 personen",
+      "source": "impro-exo.fr/exercice/duos-dimpro-pioche"
+    },
+    {
+      "id": "le-monstre",
+      "type": "Workshop",
+      "subtype": "Ensemble",
+      "name": "Het monster",
+      "description": "De groep beweegt als een compacte massa om een monster te vormen. Het monster beweegt, spreidt zich uit, kreunt en golft op collectieve wijze, en creëert zo een unieke en dynamische theatrale entiteit.",
+      "duration_seconds": null,
+      "participants": "4 tot 12 personen",
+      "source": "impro-exo.fr/exercice/le-monstre"
+    },
+    {
+      "id": "cest-comme-moi",
+      "type": "Workshop",
+      "subtype": "Verhaalopbouw",
+      "name": "Net als ik",
+      "description": "Eén speler vertelt een persoonlijk verhaal, waarna de andere spelers hem onderbreken met de woorden 'net als ik!' om op hun beurt een anekdote te vertellen die geïnspireerd is door iets wat ze hoorden. De verhalen volgen elkaar zo geleidelijk op.",
+      "duration_seconds": null,
+      "participants": "2 tot 5 spelers",
+      "source": "impro-exo.fr/exercice/cest-comme-moi"
+    },
+    {
+      "id": "prise-de-reperes",
+      "type": "Workshop",
+      "subtype": "Lichaam",
+      "name": "Beperkt zicht: oriëntatie",
+      "description": "De deelnemers maken met hun handen een verrekijker om hun perifere gezichtsveld te verkleinen en bewegen vervolgens over het podium terwijl ze hun gezichtsveld geleidelijk vernauwen. Gericht op het begrijpen van het zicht binnen een masker en het ontwikkelen van ruimtelijke oriëntatiepunten.",
+      "duration_seconds": null,
+      "participants": "2 tot 16 personen",
+      "source": "impro-exo.fr/exercice/prise-de-reperes"
+    },
+    {
+      "id": "grand-gestes-et-petits-gestes",
+      "type": "Workshop",
+      "subtype": "Lichaam",
+      "name": "Grote gebaren en kleine gebaren",
+      "description": "De spelers voeren een eenvoudige en korte handeling uit terwijl ze volledige maskers dragen. Ze moeten de handeling eerst met ruime gebaren uitvoeren en daarna reproduceren met de kleinst mogelijke gebaren. Ontwikkelt het bewustzijn van de gebarenomvang en de relatie ervan met de expressie van het masker.",
+      "duration_seconds": null,
+      "participants": "Solo",
+      "source": "impro-exo.fr/exercice/grand-gestes-et-petits-gestes"
+    },
+    {
+      "id": "3-chaises",
+      "type": "Workshop",
+      "subtype": "Personage",
+      "name": "3 stoelen om te beginnen",
+      "description": "Theaterimprovisatie voor drie gemaskerde en zwijgende spelers. De deelnemers gaan op drie op een rij geplaatste stoelen in het midden van het podium zitten zonder hun identiteit of de context te kennen. Ze improviseren een scène met alleen gebaren en geluiden om de emoties uit te drukken, en de scène eindigt wanneer de drie personages samen vertrekken.",
+      "duration_seconds": null,
+      "participants": "3 spelers",
+      "source": "impro-exo.fr/exercice/3-chaises"
+    },
+    {
+      "id": "grognement-inquietude-et-seduction",
+      "type": "Workshop",
+      "subtype": "Emotie",
+      "name": "Grommen, bezorgdheid en verleiding",
+      "description": "Trio's spelen een verjaardagsscène in drie verschillende versies. De spelers moeten hetzelfde sketchje herhalen met behoud van specifieke fysieke aanwijzingen: grommen met opeengeklemde tanden, bezorgdheid met opgetrokken wenkbrauwen en hijgende ademhaling, en daarna verleiding met wiegende schouders.",
+      "duration_seconds": null,
+      "participants": "3 spelers per groep",
+      "source": "impro-exo.fr/exercice/grognement-inquietude-et-seduction"
+    },
+    {
+      "id": "donnez-les-noms",
+      "type": "Workshop",
+      "subtype": "Personage",
+      "name": "Geef de namen",
+      "description": "Improvisatie in duo waarbij de spelers ernaar streven de personages meermaals te benoemen. De begeleider vraagt elk personage na 30 seconden hoe het heet, en in de tweede ronde moeten de voornamen ten minste twee keer worden herhaald door ze op natuurlijke wijze in de dialoog te integreren.",
+      "duration_seconds": 30,
+      "participants": "2 tot 20 spelers",
+      "source": "impro-exo.fr/exercice/donnez-les-noms"
+    },
+    {
+      "id": "paravent",
+      "type": "Workshop",
+      "subtype": "Personage",
+      "name": "Kamerscherm",
+      "description": "Solo-oefening waarbij een deelnemer zich achter een kamerscherm verbergt. Op suggestie van de begeleider of het publiek creëert hij snel een personage en stelt het voor. Zodra hij achter het kamerscherm verdwijnt, wordt er een nieuw personage voorgesteld, wat een snelle opeenvolging van geïmproviseerde creaties mogelijk maakt.",
+      "duration_seconds": null,
+      "participants": "1 tot 2",
+      "source": "impro-exo.fr/exercice/paravent"
+    },
+    {
+      "id": "vers-limmobilite",
+      "type": "Workshop",
+      "subtype": "Lichaam",
+      "name": "Naar de onbeweeglijkheid (no motion)",
+      "description": "Twee personen beginnen met een afgesproken overleg en verminderen vervolgens geleidelijk hun bewegingen en verplaatsingen naarmate de improvisatie vordert. Alleen de dialoog blijft bestaan terwijl de onbeweeglijkheid intreedt, zonder dat deze afname een narratief gevolg van het verhaal is.",
+      "duration_seconds": null,
+      "participants": "2 spelers",
+      "source": "impro-exo.fr/exercice/vers-limmobilite"
+    },
+    {
+      "id": "encore-une-histoire-jusqua-la-fin",
+      "type": "Workshop",
+      "subtype": "Verhaalopbouw",
+      "name": "Nog een verhaal tot het einde",
+      "description": "De groep bouwt een verhaal op door één woord per keer te zeggen. Als een speler het verhaal saai of verwarrend vindt, roept hij 'nog eens' om opnieuw te beginnen. Wanneer een deelnemer vindt dat het verhaal af is, strekt hij zijn handen naar voren, en als de meerderheid het goedkeurt, eindigt het verhaal.",
+      "duration_seconds": null,
+      "participants": "4 tot 16 personen",
+      "source": "impro-exo.fr/exercice/encore-une-histoire-jusqua-la-fin"
+    },
+    {
+      "id": "cherche-ton-neutre",
+      "type": "Workshop",
+      "subtype": "Lichaam",
+      "name": "Zoek je neutrale uitdrukking",
+      "description": "De speler zit tegenover het publiek en houdt zo lang mogelijk een neutrale gezichtsuitdrukking aan. De groep gebruikt duimgebaren om aan te geven of het gezicht te lachend of te gesloten is. De deelnemer moet zijn uitdrukking geleidelijk corrigeren op basis van de terugkoppeling van het publiek.",
+      "duration_seconds": null,
+      "participants": "1 speler + publiek",
+      "source": "impro-exo.fr/exercice/cherche-ton-neutre"
+    },
+    {
+      "id": "faire-sonner-sa-voix",
+      "type": "Workshop",
+      "subtype": "Stem",
+      "name": "Je stem laten klinken",
+      "description": "Modulatie van het stemvolume. De deelnemers kiezen een zin die ze herhalen terwijl ze door de ruimte lopen, terwijl de begeleider variaties in volume voorstelt (normaal, luider, fluisteren). Wanneer ze aan de beurt zijn, laat elke deelnemer zijn zin 3 à 4 keer boven het volume van de groep uit klinken.",
+      "duration_seconds": null,
+      "participants": "6 tot 20 personen",
+      "source": "impro-exo.fr/exercice/faire-sonner-sa-voix"
+    },
+    {
+      "id": "le-banc-des-emotions",
+      "type": "Workshop",
+      "subtype": "Emotie",
+      "name": "De emotiebank",
+      "description": "De spelers, gezeten op een bank tegenover het publiek, herhalen om de beurt een korte en neutrale zin. Bij elke doorgave aan de volgende speler neemt de emotionele intensiteit geleidelijk toe. Het doel is de mate van een emotie binnen de groep te variëren en te moduleren.",
+      "duration_seconds": null,
+      "participants": "4 tot 6 personen",
+      "source": "impro-exo.fr/exercice/le-banc-des-emotions"
+    },
+    {
+      "id": "le-conte-parcours-du-heros",
+      "type": "Workshop",
+      "subtype": "Verhaalopbouw",
+      "name": "Het sprookje: de heldenreis",
+      "description": "De deelnemers, opgesteld in een kring, bouwen gezamenlijk een verhaal op door sleutelmomenten te volgen die worden gemarkeerd door specifieke formules: 'Er was eens', 'Elke dag', 'En', 'Op een dag', 'Daardoor/Dankzij dat', en 'Sinds die dag'. Ontwikkelt het vermogen om de narratieve structuur te herkennen.",
+      "duration_seconds": null,
+      "participants": "4 tot 12 personen",
+      "source": "impro-exo.fr/exercice/le-conte-parcours-du-heros"
+    },
+    {
+      "id": "balade-guidee",
+      "type": "Workshop",
+      "subtype": "Stem",
+      "name": "Begeleide wandeling",
+      "description": "Een geblinddoekte deelnemer wordt geleid door een verteller die het landschap nauwkeurig beschrijft. De andere spelers creëren gelijktijdig de bijbehorende geluidseffecten. Ontwikkelt het luisteren, het aanleren van geluidseffecten en de collectieve verbeelding.",
+      "duration_seconds": null,
+      "participants": "4 tot 6 personen",
+      "source": "impro-exo.fr/exercice/balade-guidee"
+    },
+    {
+      "id": "conversation-telephonique",
+      "type": "Workshop",
+      "subtype": "Geheugen",
+      "name": "Telefoongesprek (President)",
+      "description": "Eén speler speelt een president in een belangrijk telefoongesprek dat hij niet kan onderbreken. De andere deelnemers stellen hem om de beurt vragen, die hij moet onthouden en waarop hij zal antwoorden nadat hij heeft opgehangen. Ontwikkelt het luisteren, het geheugen en de concentratie.",
+      "duration_seconds": null,
+      "participants": "5 tot 10 personen",
+      "source": "impro-exo.fr/exercice/conversation-telephonique"
+    },
+    {
+      "id": "emotions-personnifiees",
+      "type": "Workshop",
+      "subtype": "Emotie",
+      "name": "Verpersoonlijkte emoties",
+      "description": "Elk personage wordt vergezeld door een dubbelganger die zwijgend zijn emoties uitbeeldt. Twee spelers belichamen personages in interactie rond een gegeven kwestie, terwijl twee andere spelers hun respectieve emotionele toestanden lichamelijk uitdrukken, zonder woorden en zonder direct contact.",
+      "duration_seconds": null,
+      "participants": "4 tot 6 spelers",
+      "source": "impro-exo.fr/exercice/emotions-personnifiees"
+    },
+    {
+      "id": "tu-mas-fait-peur",
+      "type": "Workshop",
+      "subtype": "Emotie",
+      "name": "Je liet me schrikken",
+      "description": "Twee personen lopen over het podium, kruisen elkaar en laten elkaar schrikken voordat ze lachen. De niveaus van schrik en lach kunnen variëren: hoe groter de schrik, hoe groter de lach moet zijn. Er kan een blik naar het publiek worden toegevoegd.",
+      "duration_seconds": null,
+      "participants": "2 spelers",
+      "source": "impro-exo.fr/exercice/tu-mas-fait-peur"
+    },
+    {
+      "id": "jouer-de-dos",
+      "type": "Workshop",
+      "subtype": "Stem",
+      "name": "Met de rug spelen!",
+      "description": "De spelers improviseren met hun rug naar het publiek. Ze krijgen een situatie en een plek (strand, stadion, kerk, enzovoort) en moeten een scène creëren zonder zich naar het publiek te draaien. Ontwikkelt de lichamelijke expressiviteit en de vocale projectie.",
+      "duration_seconds": null,
+      "participants": "2 tot 6 personen",
+      "source": "impro-exo.fr/exercice/jouer-de-dos"
+    },
+    {
+      "id": "gimmicks-imposes",
+      "type": "Workshop",
+      "subtype": "Personage",
+      "name": "Opgelegde gimmicks",
+      "description": "Elke deelnemer krijgt een terugkerende beperking om regelmatig te gebruiken. Bij elke entree legt de scheidsrechter een specifiek motief op: een gebaar voor elke repliek, herhaling van het laatste woord, een opgelegd woord voor of na elke repliek, enzovoort. De deelnemer moet deze beperking op natuurlijke wijze in zijn spel integreren.",
+      "duration_seconds": null,
+      "participants": "2 tot 6 personen",
+      "source": "impro-exo.fr/exercice/gimmicks-imposes"
+    },
+    {
+      "id": "bataille-daccessoires",
+      "type": "Workshop",
+      "subtype": "Verbeelding",
+      "name": "Rekwisietenstrijd",
+      "description": "De teams volgen elkaar op om verschillende manieren voor te stellen om het opgelegde rekwisiet te vervreemden. De optredens gebeuren afwisselend, solo of met meerderen, waarbij elk team zijn eigen creatieve interpretatie van het voorwerp presenteert.",
+      "duration_seconds": null,
+      "participants": "4 tot 12 personen",
+      "source": "impro-exo.fr/exercice/bataille-daccessoires"
+    },
+    {
+      "id": "a-la-maniere-feydeau",
+      "type": "Workshop",
+      "subtype": "Personage",
+      "name": "In de stijl van Georges Feydeau",
+      "description": "Oefening geïnspireerd op het vaudeville en het boulevardtheater van rond 1900. De deelnemers creëren scènes die de Parijse bourgeoisie ten tonele voeren met haar liefdes-, financiële en sociale intriges. De stijl geeft de voorkeur aan misverstanden, verwarringen, terzijdes en leugens.",
+      "duration_seconds": null,
+      "participants": "2 tot 8 personen",
+      "source": "impro-exo.fr/exercice/a-la-maniere-du-theatre-de-georges-feydeau"
+    },
+    {
+      "id": "broadway",
+      "type": "Workshop",
+      "subtype": "Stem",
+      "name": "Broadway",
+      "description": "Elke speler krijgt een bij het publiek bekend lied. De artiest moet het voorgestelde lied bevestigen en daarna al zijn replieken improviseren door op de melodie van die muziek te zingen. De MC/scheidsrechter coördineert de entree van de artiesten en verzamelt de muzieksuggesties bij het publiek.",
+      "duration_seconds": null,
+      "participants": "Variabel",
+      "source": "impro-exo.fr/exercice/broadway"
+    },
+    {
+      "id": "champ-contre-champ",
+      "type": "Workshop",
+      "subtype": "Lichaam",
+      "name": "Schot tegenschot",
+      "description": "Twee spelers tegenover het publiek spelen alsof ze tegenover elkaar staan. Alleen de speler die door een volgspot wordt belicht mag spelen, terwijl de ander onbeweeglijk en stil blijft. De tweede speler wacht tot hij belicht wordt om te antwoorden, wat een afwisselend spel van uitwisseling creëert.",
+      "duration_seconds": null,
+      "participants": "2 spelers",
+      "source": "impro-exo.fr/exercice/champ-contre-champ"
+    },
+    {
+      "id": "distanciation-physique",
+      "type": "Workshop",
+      "subtype": "Lichaam",
+      "name": "Fysieke afstand",
+      "description": "De spelers moeten een vooraf bepaalde afstand behouden tijdens hun voorstelling. De acteurs spelen op het podium met respect voor een beperking van fysieke afstand tussen hen, wat een extra dimensie aan het dramatische spel toevoegt.",
+      "duration_seconds": null,
+      "participants": "2 tot 4 personen",
+      "source": "impro-exo.fr/exercice/distanciation-physique"
+    },
+    {
+      "id": "poursuite-paravent",
+      "type": "Workshop",
+      "subtype": "Personage",
+      "name": "Achtervolging met kamerscherm",
+      "description": "Eén persoon belichaamt twee verschillende personages. De rolwisselingen vinden plaats achter een kamerscherm, waardoor de twee personages kunnen interageren zonder ooit samen op het podium te verschijnen. Ontwikkelt het vermogen om genuanceerde personages op te bouwen.",
+      "duration_seconds": null,
+      "participants": "1 speler",
+      "source": "impro-exo.fr/exercice/poursuite-paravent"
+    },
+    {
+      "id": "charabia-canape",
+      "type": "Spelsituatie",
+      "subtype": "Stem",
+      "name": "Wartaal op de bank",
+      "description": "De spelers verzamelen zich rond een bank voor een gezellige avond. Elke deelnemer bereidt vooraf een grap in wartaal op papier voor en leest die dan voor aan de groep, die op elk verhaal reageert. Gericht op improvisatie en creatieve expressie.",
+      "duration_seconds": null,
+      "participants": "4 tot 6 personen",
+      "source": "impro-exo.fr/exercice/charabia-canape"
+    },
+    {
+      "id": "1-minute-dans-la-vie-dun-objet",
+      "type": "Spelsituatie",
+      "subtype": "Personage",
+      "name": "1 minuut in het leven van een voorwerp",
+      "description": "Solo-improvisatie waarbij de deelnemer gedurende één minuut een voorwerp naar keuze belichaamt en zijn gemoedstoestanden verkent. De oefening geeft de voorkeur aan de emotionele vertolking boven de fysieke weergave van het voorwerp.",
+      "duration_seconds": 60,
+      "participants": "1 speler",
+      "source": "impro-exo.fr/exercice/1-minute-dans-la-vie-dun-objet"
+    },
+    {
+      "id": "1-minute-de-silence",
+      "type": "Spelsituatie",
+      "subtype": "Mime",
+      "name": "1 minuut stilte",
+      "description": "Twee spelers beginnen een scène waarin ze zichzelf verbieden om gedurende de eerste minuut te spreken. Na het signaal van de begeleider mogen ze het woord nemen, hoewel dat niet verplicht is. Ontwikkelt de non-verbale communicatie en de creativiteit in gebaren.",
+      "duration_seconds": 60,
+      "participants": "2 spelers",
+      "source": "impro-exo.fr/exercice/1-minute-de-silence"
+    },
+    {
+      "id": "bataille-darguments",
+      "type": "Spelsituatie",
+      "subtype": "Stem",
+      "name": "Argumentenstrijd",
+      "description": "Twee deelnemers debatteren over een controversieel onderwerp door argumenten uit te wisselen. De sprekers geven de voorkeur aan het ritme van de replieken en de bondigheid boven het geluidsvolume, en creëren zo een dynamisch en gestructureerd debat.",
+      "duration_seconds": null,
+      "participants": "2 spelers",
+      "source": "impro-exo.fr/exercice/bataille-darguments"
+    },
+    {
+      "id": "traducteur",
+      "type": "Spelsituatie",
+      "subtype": "Stem",
+      "name": "De tolk",
+      "description": "Eén speler houdt nadrukkelijk een toespraak in brabbeltaal terwijl een ander hem in het Nederlands vertaalt. Het publiek kan vragen stellen die in brabbeltaal worden vertaald. Ontwikkelt de improvisatie en de emotionele expressie via een fictieve taal.",
+      "duration_seconds": null,
+      "participants": "2 spelers",
+      "source": "impro-exo.fr/exercice/traducteur-le"
+    },
+    {
+      "id": "le-taxi-des-emotions",
+      "type": "Spelsituatie",
+      "subtype": "Emotie",
+      "name": "De emotietaxi",
+      "description": "Vier spelers stappen achtereenvolgens in een auto, elk met een opgelegde emotie. Bij elke aankomst nemen de passagiers de nieuwe emotie over. Bij het vertrek verschijnt de vorige emotie geleidelijk weer. Werkt aan de emotionele overdracht.",
+      "duration_seconds": null,
+      "participants": "4 spelers",
+      "source": "impro-exo.fr/exercice/le-taxi-des-emotions"
+    },
+    {
+      "id": "good-morning",
+      "type": "Spelsituatie",
+      "subtype": "Verhaalopbouw",
+      "name": "Good morning",
+      "description": "Twee personen slapen samen op een stoel in een houding naar keuze. Bij het uitspreken van 'good morning' begint de improvisatie met het ontwaken van de personages. Het publiek moet binnen drie minuten ontdekken waar ze zich bevinden, waarop ze hebben geslapen, wat hen verbindt en of deze situatie regelmatig of uitzonderlijk is.",
+      "duration_seconds": 180,
+      "participants": "2 spelers",
+      "source": "impro-exo.fr/exercice/good-morningt"
+    },
+    {
+      "id": "freestyle",
+      "type": "Spelsituatie",
+      "subtype": "Verhaalopbouw",
+      "name": "Freestyle",
+      "description": "Gemengde improvisatie zonder thema waarbij twee personen van elk team in duo improviseren vanuit een gegeven positie. Bij elk fluitsignaal worden de improvisatoren vervangen door twee anderen die de eindpositie van de vorige improvisatie overnemen om een nieuwe te beginnen.",
+      "duration_seconds": null,
+      "participants": "2 tot 12 personen",
+      "source": "impro-exo.fr/exercice/freestyle"
+    },
+    {
+      "id": "melange-de-films",
+      "type": "Spelsituatie",
+      "subtype": "Verbeelding",
+      "name": "Filmmix",
+      "description": "Elk team krijgt een andere film en moet elementen van die film in zijn voorstelling verwerken. De regisseur legt elke tegenstander een film op, die door het publiek kan worden bepaald, vooraf voorbereid of uit een lijst gekozen.",
+      "duration_seconds": null,
+      "participants": "2 tot 12 personen",
+      "source": "impro-exo.fr/exercice/melange-de-films"
+    }
+  ]
+}

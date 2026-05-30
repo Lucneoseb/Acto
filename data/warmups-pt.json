@@ -1,0 +1,1587 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-05-29",
+  "source": "impro-exo.fr",
+  "types": [
+    "Aquecimento",
+    "Aquecimento inicial",
+    "Ateliê",
+    "Situação de jogo",
+    "Energia",
+    "Concentração",
+    "Escuta",
+    "Confiança",
+    "Imaginação",
+    "Voz",
+    "Corpo",
+    "Estatuto",
+    "Emoção",
+    "Construção de história",
+    "Personagem",
+    "Mímica",
+    "Conjunto",
+    "Memória"
+  ],
+  "exercises": [
+    {
+      "id": "la-mer-ou-la-montagne",
+      "type": "Aquecimento",
+      "subtype": "Conjunto",
+      "name": "O mar ou a montanha",
+      "description": "Formam-se rapidamente dois grupos, escolhendo entre propostas opostas. O grupo desloca-se pelo espaço enquanto o animador anuncia duas opções opostas. Os participantes dividem-se depressa em dois grupos consoante a sua escolha, sendo a rapidez a única prioridade. Objetivos: concentração e dinâmica de grupo.",
+      "duration_seconds": null,
+      "participants": "10 a 50 pessoas",
+      "source": "impro-exo.fr/exercice/la-mer-ou-la-montagne"
+    },
+    {
+      "id": "les-haies",
+      "type": "Aquecimento",
+      "subtype": "Energia",
+      "name": "As barreiras",
+      "description": "O grupo corre no mesmo sítio enquanto um animador grita «Uma barreira» a cada obstáculo imaginário. Os jogadores saltam em conjunto e gritam «barreira» em resposta. Este exercício desenvolve o aquecimento físico e vocal, a concentração e a escuta coletiva.",
+      "duration_seconds": null,
+      "participants": "2 a 50 pessoas",
+      "source": "impro-exo.fr/exercice/les-haies"
+    },
+    {
+      "id": "hep-taxi",
+      "type": "Aquecimento",
+      "subtype": "Corpo",
+      "name": "Táxi!",
+      "description": "Exercício coletivo em que os participantes se deslocam pelo espaço e congelam em posições correspondentes a números, gestos e frases curtas (1 a 6). Cada número tem um gesto associado e uma frase como «Táxi!» ou «Está lá, mãe?». Concebido para o aquecimento físico e vocal. Os participantes ficam imóveis até um sinal, com eliminação facultativa.",
+      "duration_seconds": null,
+      "participants": "6 a 50 pessoas",
+      "source": "impro-exo.fr/exercice/hep-taxi"
+    },
+    {
+      "id": "le-serpent",
+      "type": "Aquecimento",
+      "subtype": "Energia",
+      "name": "A serpente",
+      "description": "Um participante faz de serpente que cresce ao deslocar-se pelo espaço. Os outros evitam a serpente e as paredes. Quando um jogador é tocado ou bate numa parede, junta-se à serpente agarrando a cintura do anterior. Só a cabeça dirige o movimento.",
+      "duration_seconds": null,
+      "participants": "10 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/le-serpent"
+    },
+    {
+      "id": "montagnes-russes",
+      "type": "Aquecimento",
+      "subtype": "Escuta",
+      "name": "Montanha-russa",
+      "description": "Exercício coletivo em que seis participantes mimam estar num comboio de montanha-russa. O comboio arranca e o objetivo é fazê-lo existir. O exercício põe a tónica na coordenação, na escuta e na emoção, exigindo muita energia e controlo corporal.",
+      "duration_seconds": null,
+      "participants": "6 a 8 pessoas",
+      "source": "impro-exo.fr/exercice/montagnes-russes"
+    },
+    {
+      "id": "epee-et-bouclier",
+      "type": "Aquecimento",
+      "subtype": "Energia",
+      "name": "Espada e escudo",
+      "description": "Cada pessoa escolhe secretamente duas pessoas do grupo: a sua «espada» e o seu «escudo». O participante tem de manter constantemente o seu escudo entre si e a sua espada. O grupo inteiro entra então em movimento permanente.",
+      "duration_seconds": null,
+      "participants": "10 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/epee-et-bouclier"
+    },
+    {
+      "id": "car-wash",
+      "type": "Aquecimento",
+      "subtype": "Energia",
+      "name": "Túnel de lavagem",
+      "description": "Duas colunas de pessoas ficam frente a frente enquanto uma pessoa passa entre elas e é «lavada» pelas outras com gestos enérgicos. O exercício eleva a energia do grupo e o sentido do contacto.",
+      "duration_seconds": null,
+      "participants": "6 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/car-wash"
+    },
+    {
+      "id": "hiha-hahi-holden",
+      "type": "Aquecimento",
+      "subtype": "Energia",
+      "name": "Hiha hahi Holden",
+      "description": "Exercício de passagem de energia em que os participantes se colocam em círculo e transmitem a energia através de movimentos de onda acompanhados de sons «Hi-ha». Existem várias variantes: «Holden», «Ha-hi», «Zap», etc. Uma versão avançada inclui um jogo competitivo em que os erros criam um «delator» que tem de caçar as faltas dos outros.",
+      "duration_seconds": null,
+      "participants": "6 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/hiha-hahi-holden"
+    },
+    {
+      "id": "droit-dans-les-yeux",
+      "type": "Aquecimento",
+      "subtype": "Concentração",
+      "name": "Olhos nos olhos",
+      "description": "Os participantes deslocam-se livremente pelo espaço até à palma do orientador. Ao sinal, cada um congela e procura o contacto visual com um parceiro, mantendo esse olhar até à palma seguinte. As pausas vão-se prolongando, podendo ultrapassar os 5 minutos.",
+      "duration_seconds": null,
+      "participants": "6 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/droit-dans-les-yeux"
+    },
+    {
+      "id": "balle-et-prenoms",
+      "type": "Aquecimento",
+      "subtype": "Memória",
+      "name": "Bola e nomes",
+      "description": "Exercício em círculo em que os participantes passam uma bola dizendo o seu próprio nome. Evolui por etapas: deslocação pelo espaço, dizer o nome do destinatário em vez do próprio e, depois, indicar para onde a bola deve ir a seguir.",
+      "duration_seconds": null,
+      "participants": "6 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/balle-et-prenoms"
+    },
+    {
+      "id": "escargot",
+      "type": "Aquecimento",
+      "subtype": "Corpo",
+      "name": "Caracol",
+      "description": "Exercício a pares em que um toca no corpo do outro à vontade. O parceiro tocado tem de recolher a parte em causa como um caracol na sua concha. Trabalha o ritmo de recolha, do rápido até à imobilidade, e desenvolve a concentração corporal e a aceitação do contacto físico.",
+      "duration_seconds": null,
+      "participants": "2 a 50 (duas par duas)",
+      "source": "impro-exo.fr/exercice/escargot"
+    },
+    {
+      "id": "pan",
+      "type": "Aquecimento",
+      "subtype": "Concentração",
+      "name": "Pum (Lucky Luke)",
+      "description": "Exercício coletivo em círculo. O orientador nomeia uma pessoa que se tem de baixar rapidamente antes que os seus vizinhos gritem «PUM» mimando o gesto de disparar. O participante que falha vai para o centro ou é eliminado.",
+      "duration_seconds": null,
+      "participants": "6 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/pan"
+    },
+    {
+      "id": "bing-bang-turlututu",
+      "type": "Aquecimento",
+      "subtype": "Energia",
+      "name": "Bing Bang Turlututu",
+      "description": "Exercício de passagem de energia com palma. Os participantes dizem «Bing» ao bater as palmas. «Bang» muda a direção da energia e «Turlututu» salta o elemento seguinte. Concentra a atenção esvaziando a mente e revitaliza um grupo cansado.",
+      "duration_seconds": null,
+      "participants": "8 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/bing-bang-turlututu"
+    },
+    {
+      "id": "parcours-du-combattant",
+      "type": "Aquecimento",
+      "subtype": "Corpo",
+      "name": "Pista de obstáculos",
+      "description": "Um líder desloca-se impondo gestos como num percurso (obstáculos, escadas, natação). O grupo, em fila indiana, segue-o e reproduz esses gestos. O animador pode propor temas: mundo do desporto, animais, exploradores.",
+      "duration_seconds": null,
+      "participants": "4 a 10 pessoas",
+      "source": "impro-exo.fr/exercice/parcours-du-combattant"
+    },
+    {
+      "id": "hypnose-colombienne",
+      "type": "Aquecimento",
+      "subtype": "Concentração",
+      "name": "Hipnose colombiana",
+      "description": "Um participante coloca a mão a poucos centímetros dos olhos de um parceiro, que tem de manter essa distância enquanto o outro põe a mão em movimento. Os papéis invertem-se depois. Pode ser feito com acompanhamento musical.",
+      "duration_seconds": null,
+      "participants": "2",
+      "source": "impro-exo.fr/exercice/hypnose-colombienne"
+    },
+    {
+      "id": "montee-demotion",
+      "type": "Aquecimento",
+      "subtype": "Emoção",
+      "name": "Crescendo de emoção",
+      "description": "O grupo, perfeitamente alinhado ao fundo do palco, avança em câmara lenta passando gradualmente do neutro a uma emoção imposta pelo animador, até ao seu paroxismo. O grupo congela em estátuas expressivas. O animador pode propor uma nova emoção e o grupo recua, fazendo a transição de forma gradual.",
+      "duration_seconds": null,
+      "participants": "4 a 25 pessoas",
+      "source": "impro-exo.fr/exercice/montee-demotion"
+    },
+    {
+      "id": "volley-ball",
+      "type": "Aquecimento",
+      "subtype": "Energia",
+      "name": "Voleibol",
+      "description": "Jogo de voleibol imaginário. Um jogador serve uma bola virtual gritando o nome da pessoa a quem a envia. O jogo prossegue com um máximo de três passes entre participantes. Um árbitro conta os pontos e assinala as faltas. Permite o aquecimento físico e a memorização dos nomes.",
+      "duration_seconds": null,
+      "participants": "8 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/volley-ball"
+    },
+    {
+      "id": "si-jesus-etait",
+      "type": "Aquecimento",
+      "subtype": "Imaginação",
+      "name": "Se o Jesus fosse",
+      "description": "Exercício em círculo em que um ator começa «se o Jesus fosse um carro», seguido pelo grupo que repete «aleluia». A pessoa seguinte propõe uma conclusão «seria mesmo durão», e depois o grupo retoma o refrão. O jogo continua com novas propostas (cavalo, etc.).",
+      "duration_seconds": null,
+      "participants": "6 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/si-jesus-etait"
+    },
+    {
+      "id": "1-2-3-4",
+      "type": "Aquecimento",
+      "subtype": "Concentração",
+      "name": "1-2-3-4",
+      "description": "Exercício coletivo em que o grupo conta em conjunto de 1 a 4 com um ritmo regular, substituindo gradualmente cada número por um gesto físico (palmas, peito, coxa, pé). O jogo vai acelerando e permite eliminar os participantes que cometem erros.",
+      "duration_seconds": null,
+      "participants": "4 a 40 pessoas",
+      "source": "impro-exo.fr/exercice/1-2-3-4"
+    },
+    {
+      "id": "regroupement",
+      "type": "Aquecimento",
+      "subtype": "Energia",
+      "name": "Reagrupamento",
+      "description": "Os participantes em movimento agrupam-se segundo um número anunciado pelo animador. O objetivo é decidir depressa e formar grupos do tamanho pedido. O grupo reorganiza-se dinamicamente para um novo número.",
+      "duration_seconds": null,
+      "participants": "8 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/regroupement"
+    },
+    {
+      "id": "course-au-ralenti",
+      "type": "Aquecimento",
+      "subtype": "Corpo",
+      "name": "Corrida em câmara lenta",
+      "description": "Os participantes alinham-se ao fundo do palco e correm em câmara lenta em direção ao público. Vale tudo, mas apenas em câmara lenta. Trabalha o controlo do movimento e a expressão corporal exagerada.",
+      "duration_seconds": null,
+      "participants": "6 a 25 pessoas",
+      "source": "impro-exo.fr/exercice/course-au-ralenti"
+    },
+    {
+      "id": "chevalier-et-dragon",
+      "type": "Aquecimento",
+      "subtype": "Conjunto",
+      "name": "Cavaleiros e dragões",
+      "description": "Confronto frente a frente entre duas equipas alinhadas que se atacam à vez. Um participante avança executando um gesto de ataque e depois congela, sincronizando-se o resto do grupo na perfeição. A equipa adversária responde da mesma maneira, criando uma troca alternada entre os dois grupos.",
+      "duration_seconds": null,
+      "participants": "8 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/chevalier-et-dragon"
+    },
+    {
+      "id": "bagarre-au-ralenti",
+      "type": "Aquecimento",
+      "subtype": "Corpo",
+      "name": "Briga em câmara lenta",
+      "description": "Os participantes, organizados em duplas, mimam um combate em câmara lenta. O objetivo é manter uma câmara lenta perfeita ao mesmo tempo que se trabalham os desequilíbrios, os golpes desferidos e as intenções dramáticas. Desenvolve o controlo corporal e a precisão dos movimentos teatrais.",
+      "duration_seconds": null,
+      "participants": "2 a 18 pessoas",
+      "source": "impro-exo.fr/exercice/bagarre-au-ralenti"
+    },
+    {
+      "id": "stop-and-go-hey-clap-saute",
+      "type": "Aquecimento",
+      "subtype": "Escuta",
+      "name": "Stop and go, hey, palma, salta",
+      "description": "Os jogadores caminham juntos e param de forma sincronizada. Gradualmente, acrescentam elementos: um «hey» sonoro, palmas e, depois, saltos coletivos. Desenvolve a escuta e a ligação ao grupo, exigindo uma sincronização perfeita.",
+      "duration_seconds": 900,
+      "participants": "6 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/stop-and-go-hey-clap-saute"
+    },
+    {
+      "id": "choregraphie-des-prenoms",
+      "type": "Aquecimento",
+      "subtype": "Energia",
+      "name": "Coreografia dos nomes",
+      "description": "Cada pessoa cria uma pequena coreografia ritmada pelas sílabas do seu nome, e depois o grupo reproduz em sincronia. O objetivo é favorecer o conhecimento mútuo e atrever-se a fazer algo invulgar perante o grupo, privilegiando a espontaneidade.",
+      "duration_seconds": null,
+      "participants": "6 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/choregraphie-des-prenoms"
+    },
+    {
+      "id": "chat-statue-loup-glace",
+      "type": "Aquecimento",
+      "subtype": "Energia",
+      "name": "Apanhada do gelo",
+      "description": "Um participante faz de gato que tem de apanhar todos os ratos. Quando um rato é apanhado, fica imóvel com as pernas afastadas. Os outros ratos podem libertar quem está congelado passando-lhe por entre as pernas. Visa o aquecimento físico e o deixar-se ir.",
+      "duration_seconds": null,
+      "participants": "10 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/chat-statue-loup-glace"
+    },
+    {
+      "id": "chat-en-croix",
+      "type": "Aquecimento",
+      "subtype": "Concentração",
+      "name": "Gato em cruz",
+      "description": "Jogo tradicional do gato e do rato em que um grupo forma uma cruz com um vazio ao centro. O rato pode proteger-se posicionando-se atrás de um braço de forma sonora, o que transforma a pessoa na raiz em novo rato. Põe a tónica na concentração e na escuta, revelando ao mesmo tempo o palhaço através da complexidade das regras.",
+      "duration_seconds": null,
+      "participants": "12 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/chat-en-croix"
+    },
+    {
+      "id": "cercle-des-samourais",
+      "type": "Aquecimento",
+      "subtype": "Voz",
+      "name": "Círculo dos samurais",
+      "description": "Os participantes em círculo passam a energia mimando golpes de catana acompanhados de sons ritmados (HÁ, HÓ, HÊ). Um golpeia gritando «HÁ», o alvo apara dizendo «HÓ», e os vizinhos atacam a barriga pronunciando «HÊ». Cria uma dinâmica musical energizante que permite pôr-se em forma física e vocal.",
+      "duration_seconds": null,
+      "participants": "4 a 25 pessoas",
+      "source": "impro-exo.fr/exercice/cercle-des-samourais"
+    },
+    {
+      "id": "bataille-de-sous-marins",
+      "type": "Aquecimento",
+      "subtype": "Confiança",
+      "name": "Batalha de submarinos",
+      "description": "Várias equipas formam submarinos em fila indiana. O último participante, de olhos abertos, pilota a equipa dirigindo com as mãos. Os outros mantêm os olhos fechados e tornam-se torpedos. O piloto lança os torpedos batendo nos ombros até ao primeiro, que segue em frente de olhos fechados para atingir um submarino inimigo.",
+      "duration_seconds": null,
+      "participants": "8 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/bataille-de-sous-marins"
+    },
+    {
+      "id": "tai-chi",
+      "type": "Aquecimento",
+      "subtype": "Corpo",
+      "name": "Tai chi",
+      "description": "O grupo, distribuído em formação de losango, executa um tai chi perfeitamente sincronizado. O exercício privilegia gestos simples, lentos e amplos para favorecer uma coordenação coletiva harmoniosa.",
+      "duration_seconds": null,
+      "participants": "8 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/tai-chi"
+    },
+    {
+      "id": "du-coin-de-loeil",
+      "type": "Aquecimento",
+      "subtype": "Concentração",
+      "name": "Pelo canto do olho",
+      "description": "Os participantes deslocam-se pelo espaço mantendo uma ou várias pessoas escolhidas no seu campo de visão. Começa com uma só pessoa e depois evolui com duas, três e quatro. Tudo decorre em silêncio e as deslocações são obrigatórias. Desenvolve a concentração e a visão periférica.",
+      "duration_seconds": null,
+      "participants": "6 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/du-coin-de-loeil"
+    },
+    {
+      "id": "cercle-son-geste",
+      "type": "Aquecimento",
+      "subtype": "Energia",
+      "name": "Círculo som e gesto",
+      "description": "O grupo coloca-se em círculo. Uma pessoa inicia um gesto e um som repetitivos que se propagam gradualmente à volta do círculo, sincronizando-se cada participante à vez. Depois, cada um propõe um novo gesto que substitui gradualmente o anterior. Põe a tónica na simplicidade do gesto e na importância do volume sonoro.",
+      "duration_seconds": null,
+      "participants": "6 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/cercle-son-geste"
+    },
+    {
+      "id": "hop-1-2-wizz",
+      "type": "Aquecimento",
+      "subtype": "Escuta",
+      "name": "Hop, 1, 2, wizz",
+      "description": "O grupo desloca-se pela sala seguindo as indicações do orientador. A cada comando corresponde uma ação: «Hop» para uma meia-volta, «um» para um salto, «dois» para bater palmas e «wizz» para andar para trás. Um jogo dinâmico e coletivo.",
+      "duration_seconds": null,
+      "participants": "4 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/hop-1-2-wizz"
+    },
+    {
+      "id": "moins-5-plus-5",
+      "type": "Aquecimento",
+      "subtype": "Corpo",
+      "name": "-5 +5",
+      "description": "O grupo desloca-se pelo espaço segundo as indicações do orientador. Este grita números que variam de -5 a +5 para modular a velocidade de deslocação: -5 significa praticamente a paragem, ao passo que +5 corresponde quase à corrida. Trabalha a escuta, a reatividade e a coordenação coletiva.",
+      "duration_seconds": null,
+      "participants": "4 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/-5-+5"
+    },
+    {
+      "id": "marche-des-portes-tombantes",
+      "type": "Aquecimento",
+      "subtype": "Conjunto",
+      "name": "Marcha das portas que caem",
+      "description": "O grupo desloca-se em conjunto. O animador bate as palmas para assinalar que caiu uma porta à frente de cada participante, que tem então de mudar de direção. A cada mudança de direção, o pânico aumenta, criando um crescendo dramático progressivo.",
+      "duration_seconds": null,
+      "participants": "6 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/marche-des-portes-tombantes"
+    },
+    {
+      "id": "clap-energie",
+      "type": "Aquecimento",
+      "subtype": "Energia",
+      "name": "Palma energia",
+      "description": "Em círculo, os participantes transmitem a energia batendo palmas, uma vez para receber, outra para dar. Os jogadores olham-se nos olhos e mantêm um ritmo regular. Desenvolve a concentração, o deixar-se ir e a escuta coletiva, com possibilidade de variar o sentido ou de fazer um atalho no círculo.",
+      "duration_seconds": null,
+      "participants": "6 a 16 pessoas",
+      "source": "impro-exo.fr/exercice/clap-energie"
+    },
+    {
+      "id": "ninja",
+      "type": "Aquecimento",
+      "subtype": "Corpo",
+      "name": "Ninja",
+      "description": "Os participantes colocam-se em círculo e adotam uma posição de ninja. À vez, cada um ataca com um único movimento enquanto os outros podem esquivar-se. Uma mão tocada equivale a uma mão perdida, e a eliminação ocorre após a perda de duas mãos. O último ninja que resta vence o jogo.",
+      "duration_seconds": null,
+      "participants": "3 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/ninja"
+    },
+    {
+      "id": "stop-marche",
+      "type": "Aquecimento",
+      "subtype": "Escuta",
+      "name": "Para anda",
+      "description": "Os participantes deslocam-se pelo espaço e reagem aos comandos do orientador. Inicialmente, «Para» interrompe o movimento e «Anda» retoma-o. Acrescentam-se outros comandos: «Abraço», «Fogo», «Palma» e «Salto». A segunda fase inverte as reações: as mesmas palavras desencadeiam ações opostas, testando a escuta e a adaptabilidade.",
+      "duration_seconds": null,
+      "participants": "5 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/stop-marche"
+    },
+    {
+      "id": "echauffement-individuel",
+      "type": "Aquecimento",
+      "subtype": "Personagem",
+      "name": "Aquecimento individual",
+      "description": "Cada participante aquece individualmente em palco. Os jogadores podem parodiar um aquecimento desportivo ou teatral, tendo como restrição opcional captar a atenção do público. É essencial distribuírem-se bem pelo espaço cénico.",
+      "duration_seconds": null,
+      "participants": "1 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/echauffement-individuel"
+    },
+    {
+      "id": "stop-and-go",
+      "type": "Aquecimento",
+      "subtype": "Escuta",
+      "name": "Stop and go",
+      "description": "O grupo desloca-se em conjunto e tem de parar instantaneamente assim que uma pessoa congela. Quando um participante volta a caminhar, todo o grupo tem de se pôr de novo em movimento. Exige sincronização sem sinal aparente; um observador externo não deve adivinhar quem iniciou a mudança.",
+      "duration_seconds": null,
+      "participants": "4 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/stop-and-go"
+    },
+    {
+      "id": "la-corde-a-sauter",
+      "type": "Aquecimento",
+      "subtype": "Corpo",
+      "name": "A corda de saltar",
+      "description": "Duas pessoas rodam regularmente uma corda de saltar. Os participantes têm de atravessar sucessivamente sem tocar na corda nem serem tocados por ela. Quem roda pode variar a velocidade de rotação. Desenvolve o ritmo e a escuta.",
+      "duration_seconds": null,
+      "participants": "3 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/la-corde-a-sauter"
+    },
+    {
+      "id": "le-harras",
+      "type": "Aquecimento",
+      "subtype": "Conjunto",
+      "name": "A coudelaria",
+      "description": "Os atores correm em círculo a igual distância uns dos outros, mantendo o mesmo andamento. O objetivo é que ninguém saiba quem acelera quando alguém muda de ritmo. O sentido pode ser mudado virando-se pelo interior.",
+      "duration_seconds": null,
+      "participants": "6 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/le-harras"
+    },
+    {
+      "id": "nounours",
+      "type": "Aquecimento",
+      "subtype": "Energia",
+      "name": "Ursinho",
+      "description": "O grupo distribui-se a pares. As duplas esfregam todo o corpo de forma muito enérgica e simultânea. Este exercício favorece a ativação física e a energia do grupo.",
+      "duration_seconds": null,
+      "participants": "2 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/nounours"
+    },
+    {
+      "id": "clap-prenom",
+      "type": "Aquecimento",
+      "subtype": "Memória",
+      "name": "Palma nome",
+      "description": "Exercício de passagem de energia com palma usando os nomes. Os participantes apresentam-se primeiro numa volta ao círculo. Depois, a energia circula através de palmas acompanhadas pela pronúncia do nome do destinatário. Uma vez memorizados os nomes, basta a palma para transmitir a energia.",
+      "duration_seconds": null,
+      "participants": "15 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/clap-prenom"
+    },
+    {
+      "id": "samourais-cest-la-bataille",
+      "type": "Aquecimento",
+      "subtype": "Corpo",
+      "name": "Samurais, é a batalha",
+      "description": "Os participantes encarnam samurais armados de catanas envenenadas (os seus antebraços). Têm de lutar em câmara lenta, sabendo que tocar num adversário fora dos antebraços o mata. O combate continua até restar um único participante.",
+      "duration_seconds": null,
+      "participants": "6 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/samourais-cest-la-bataille"
+    },
+    {
+      "id": "ladoration-de-lidole",
+      "type": "Aquecimento",
+      "subtype": "Energia",
+      "name": "A adoração do ídolo",
+      "description": "O grupo, disperso pela sala, escolhe secretamente uma pessoa como ídolo. Ao sinal, os participantes atiram-se ao seu ídolo e veneram-no durante cerca de 15 segundos. O exercício visa o deixar-se ir e pode ser repetido com a opção de se idolatrar a si próprio.",
+      "duration_seconds": 15,
+      "participants": "10 a 25 pessoas",
+      "source": "impro-exo.fr/exercice/ladoration-de-lidole"
+    },
+    {
+      "id": "combat-de-torses-sans-contact",
+      "type": "Aquecimento",
+      "subtype": "Corpo",
+      "name": "Combate de troncos sem contacto",
+      "description": "Os participantes, a pares e frente a frente, praticam uma mímica de combate de tronco sem contacto físico. Os pés ficam ancorados ao chão a cerca de um metro de distância. Permite desenvolver a expressividade corporal e a presença cénica.",
+      "duration_seconds": null,
+      "participants": "2 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/combat-de-torses-sans-contact"
+    },
+    {
+      "id": "7-etats-de-tension",
+      "type": "Aquecimento",
+      "subtype": "Corpo",
+      "name": "7 estados de tensão",
+      "description": "Os participantes caminham pela sala adotando sucessivamente sete estados de tensão corporal distintos: exausto, descontraído, neutro, curioso, nervoso, paranoico e congelado/terror. Cada estado corresponde a um nível de tensão muscular e a uma intenção emocional diferente, guiados pelas indicações do orientador.",
+      "duration_seconds": null,
+      "participants": "1 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/7-etats-de-tension"
+    },
+    {
+      "id": "echauffement-membres-10-a-1",
+      "type": "Aquecimento",
+      "subtype": "Energia",
+      "name": "Aquecimento dos membros de 10 a 1",
+      "description": "Exercício de aquecimento em círculo em que os participantes contam de 10 a 1 sacudindo alternadamente a mão direita, a mão esquerda, o pé direito e o pé esquerdo. A intensidade aumenta a cada contagem decrescente. O objetivo é aquecer, deixar-se ir, fazer em conjunto, pôr ritmo e energia.",
+      "duration_seconds": null,
+      "participants": "1 a 50 pessoas",
+      "source": "impro-exo.fr/exercice/echauffements-des-membres-de-10-a-1"
+    },
+    {
+      "id": "le-toucher-ninja",
+      "type": "Aquecimento",
+      "subtype": "Corpo",
+      "name": "O toque ninja",
+      "description": "Os atores ficam frente a frente e tentam tocar no antebraço um do outro sem serem tocados em troca. Os jogadores só podem mexer as mãos ou deslocar os ombros, sem mover os pés. O primeiro a conquistar 3 pontos ganha, e depois os atores trocam de parceiro.",
+      "duration_seconds": null,
+      "participants": "Aos pares",
+      "source": "impro-exo.fr/exercice/le-toucher-ninja"
+    },
+    {
+      "id": "les-pistoleros",
+      "type": "Aquecimento",
+      "subtype": "Concentração",
+      "name": "Os pistoleiros",
+      "description": "As duplas ficam frente a frente. Os participantes batem nas coxas ao ritmo e depois levantam as mãos com os polegares a apontar numa direção à escolha. Se os dois participantes orientarem os polegares de forma idêntica, «disparam» um sobre o outro na jogada seguinte antes de recomeçar.",
+      "duration_seconds": null,
+      "participants": "2 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/les-pistoleros"
+    },
+    {
+      "id": "le-cri-emotif",
+      "type": "Aquecimento",
+      "subtype": "Voz",
+      "name": "O grito emotivo",
+      "description": "Exercício que permite libertar a emoção pela voz. Os participantes gritam exprimindo uma emoção dada, como a raiva ou o medo, durante 3 minutos. O grito tem um sentido teatral e não é dirigido a outros jogadores.",
+      "duration_seconds": 180,
+      "participants": "4 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/le-cri-emotif"
+    },
+    {
+      "id": "marche-des-ages-de-la-vie",
+      "type": "Aquecimento",
+      "subtype": "Personagem",
+      "name": "Marcha das idades da vida",
+      "description": "O grupo desloca-se de forma neutra pelo palco. O animador enuncia sucessivamente diferentes idades (2 anos, 6 anos, 10 anos, etc.), e os participantes integram essas indicações adaptando o corpo e o ritmo de deslocação a cada faixa etária anunciada.",
+      "duration_seconds": null,
+      "participants": "2 a 36 pessoas",
+      "source": "impro-exo.fr/exercice/marche-des-ages-de-la-vie"
+    },
+    {
+      "id": "chaises-au-clap",
+      "type": "Aquecimento",
+      "subtype": "Energia",
+      "name": "Cadeiras à palma",
+      "description": "Os participantes disputam cadeiras em número insuficiente. Quando o animador bate as palmas, cada um tem de mudar de cadeira; quem fica de pé tem de cumprir uma tarefa (dizer o nome, cantar, etc.). Favorece a dinâmica de grupo e o jogo teatral.",
+      "duration_seconds": null,
+      "participants": "6 a 12 pessoas",
+      "source": "impro-exo.fr/exercice/chaises-au-clap"
+    },
+    {
+      "id": "danse-statues",
+      "type": "Aquecimento",
+      "subtype": "Mímica",
+      "name": "Dança estátuas",
+      "description": "O grupo dança ao som da música no palco. Quando a música para, cada participante congela e justifica a sua posição descrevendo uma ação do dia a dia que mima. O animador propõe depois uma nova música num estilo diferente.",
+      "duration_seconds": null,
+      "participants": "4 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/danse-statues"
+    },
+    {
+      "id": "oui-et",
+      "type": "Aquecimento inicial",
+      "subtype": "Construção de história",
+      "name": "Sim e",
+      "description": "Em círculo, os participantes constroem coletivamente uma história. Cada pessoa aceita a proposta anterior começando por «Sim e ainda por cima» seguido de uma nova proposta. Desenvolve a aceitação das ideias dos outros e a escuta ativa.",
+      "duration_seconds": null,
+      "participants": "4 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/oui-et"
+    },
+    {
+      "id": "les-6-sons",
+      "type": "Aquecimento inicial",
+      "subtype": "Escuta",
+      "name": "Os 6 sons",
+      "description": "O grupo, distribuído pelo espaço, executa ações repetitivas. O animador produz regularmente um som, e os participantes têm de reagir segundo seis etapas progressivas: sem reação, escutando, parando para verificar, identificando a origem, depois apercebendo-se de que não a conhecem e, por fim, deitando-se rapidamente imaginando que passa um avião a rasar.",
+      "duration_seconds": null,
+      "participants": "2 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/les-6-sons"
+    },
+    {
+      "id": "2-mots-1-associes",
+      "type": "Aquecimento inicial",
+      "subtype": "Imaginação",
+      "name": "2 palavras + 1 associada",
+      "description": "Uma primeira pessoa enuncia uma palavra, uma segunda propõe uma palavra sem relação, e depois uma terceira encontra um termo que as liga. O processo repete-se, avançando uma pessoa a cada volta. Pode ser feito em grupos de três participantes.",
+      "duration_seconds": null,
+      "participants": "6 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/2-mots-+-1-associes"
+    },
+    {
+      "id": "clap-position",
+      "type": "Aquecimento inicial",
+      "subtype": "Imaginação",
+      "name": "Palma posição",
+      "description": "Duas pessoas improvisam a partir de uma posição congelada. O grupo em círculo interrompe a cena com uma palma ou dizendo «freeze», e depois uma nova pessoa substitui um dos improvisadores para criar uma nova cena inspirada nas posições estabelecidas. O orientador mantém um ritmo dinâmico.",
+      "duration_seconds": null,
+      "participants": "6 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/clap-position"
+    },
+    {
+      "id": "la-poule-et-ses-poussins",
+      "type": "Aquecimento inicial",
+      "subtype": "Escuta",
+      "name": "A galinha e os seus pintos",
+      "description": "Os participantes distribuem-se por uma sala de olhos fechados. O animador designa silenciosamente uma ou várias galinhas, enquanto os outros fazem de pintos. As galinhas deslocam-se constantemente de olhos abertos, ao passo que os pintos mantêm os olhos fechados e tentam encontrá-las dizendo «piu».",
+      "duration_seconds": null,
+      "participants": "12 a 50 pessoas",
+      "source": "impro-exo.fr/exercice/la-poule-et-ses-poussins"
+    },
+    {
+      "id": "tour-des-prenoms",
+      "type": "Aquecimento inicial",
+      "subtype": "Memória",
+      "name": "Volta dos nomes",
+      "description": "Em círculo, cada participante apresenta o seu nome de forma memorável. Os participantes enunciam depois o nome do seu vizinho e, em seguida, enumeram os nomes de todo o grupo, desenvolvendo a escuta e a memorização.",
+      "duration_seconds": null,
+      "participants": "8 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/tour-des-prenoms"
+    },
+    {
+      "id": "en-file-indienne",
+      "type": "Aquecimento inicial",
+      "subtype": "Conjunto",
+      "name": "Em fila indiana",
+      "description": "Os participantes deslocam-se pelo espaço e organizam-se em fila indiana segundo diferentes critérios ao sinal do animador. Entre os critérios: a altura, a ordem alfabética dos nomes, o número do calçado, as profissões, a cor dos olhos ou a idade.",
+      "duration_seconds": null,
+      "participants": "6 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/en-file-indienne"
+    },
+    {
+      "id": "la-corde",
+      "type": "Aquecimento inicial",
+      "subtype": "Mímica",
+      "name": "A corda",
+      "description": "Jogo de cabo de guerra sem corda física. Duas equipas posicionam-se de ambos os lados de uma linha imaginária e agarram uma corda igualmente imaginária. Ao sinal, tentam ganhar puxando, respeitando ao mesmo tempo a integridade da corda e a dramaturgia da cena.",
+      "duration_seconds": null,
+      "participants": "Duas équipes",
+      "source": "impro-exo.fr/exercice/la-corde"
+    },
+    {
+      "id": "miroir",
+      "type": "Aquecimento inicial",
+      "subtype": "Escuta",
+      "name": "Espelho",
+      "description": "Dois participantes ficam frente a frente e olham-se nos olhos. Um conduz executando gestos simples enquanto o outro os reproduz em espelho. O objetivo é que não se consiga distinguir quem conduz de quem segue. Desenvolve a escuta do corpo do outro.",
+      "duration_seconds": null,
+      "participants": "2 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/miroir"
+    },
+    {
+      "id": "machine-infernale",
+      "type": "Aquecimento inicial",
+      "subtype": "Conjunto",
+      "name": "Máquina infernal",
+      "description": "Os participantes posicionam-se um a um para formar uma máquina coletiva. Cada um cria um gesto repetitivo e um som, mantendo-se ligado ritmicamente às outras peças desta máquina. O conjunto pode depois acelerar ou abrandar consoante as indicações.",
+      "duration_seconds": null,
+      "participants": "6 a 8 pessoas",
+      "source": "impro-exo.fr/exercice/machine-infernale"
+    },
+    {
+      "id": "compter-jusqua-20",
+      "type": "Aquecimento inicial",
+      "subtype": "Escuta",
+      "name": "Contar até 20",
+      "description": "Os participantes, sentados em círculo ou em deslocação, têm de contar em conjunto até 20 de olhos fechados. O grupo recomeça do zero assim que ocorre um erro ou que duas pessoas falam em simultâneo. Trabalha a concentração, a escuta e a sincronização.",
+      "duration_seconds": null,
+      "participants": "6 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/compter-jusqua-20"
+    },
+    {
+      "id": "quest-ce-que-tu-fais",
+      "type": "Aquecimento inicial",
+      "subtype": "Mímica",
+      "name": "O que estás a fazer?",
+      "description": "Os participantes colocam-se em círculo. Uma pessoa mima uma ação repetitiva enquanto a sua vizinha lhe pergunta «O que estás a fazer?». A resposta tem de ser uma ação diferente da que está a mimar. O vizinho mima então essa nova ação. Favorece a dissociação e a continuidade do movimento.",
+      "duration_seconds": null,
+      "participants": "2 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/quest-ce-que-tu-fais-"
+    },
+    {
+      "id": "samourai-et-ses-paysans",
+      "type": "Aquecimento inicial",
+      "subtype": "Emoção",
+      "name": "O samurai e os seus camponeses",
+      "description": "Um samurai mima combater um grupo de camponeses assustados com uma catana. O objetivo é criar uma cena dramática com suspense e emoção, em que o samurai dá inicialmente uma hipótese às vítimas de evitarem os golpes antes de intensificar o ataque.",
+      "duration_seconds": null,
+      "participants": "6 a 12 pessoas",
+      "source": "impro-exo.fr/exercice/samourai-le-et-ses-paysans"
+    },
+    {
+      "id": "statues-demotions",
+      "type": "Aquecimento inicial",
+      "subtype": "Emoção",
+      "name": "Estátuas de emoções",
+      "description": "O grupo desloca-se de forma neutra pelo espaço. Ao sinal do orientador, os participantes congelam encarnando uma emoção imposta. O objetivo consiste em exprimir corporalmente a primeira reação instintiva sem pensar nem antecipar. As estátuas devem ser assumidas, pessoais e perfeitamente imóveis.",
+      "duration_seconds": null,
+      "participants": "6 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/statues-demotions"
+    },
+    {
+      "id": "statues-impros",
+      "type": "Aquecimento inicial",
+      "subtype": "Imaginação",
+      "name": "Estátuas impro",
+      "description": "Os participantes deslocam-se aleatoriamente pelo espaço. Ao sinal, o grupo congela em estátuas e tem de justificar a sua posição pela palavra, pela mímica ou por uma fala. Gradualmente, duas pessoas criam uma improvisação a partir das suas posições de partida.",
+      "duration_seconds": null,
+      "participants": "6 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/statues-impros"
+    },
+    {
+      "id": "passage-dobjet",
+      "type": "Aquecimento inicial",
+      "subtype": "Mímica",
+      "name": "Passagem de objetos esculpidos",
+      "description": "O grupo em círculo esculpe e passa objetos imaginários. Uma pessoa cria um objeto virtual, e depois cada participante nomeia-o e transforma-o antes de o passar ao vizinho. Incentiva a criatividade e a ação, sem julgamento sobre a correspondência entre o objeto criado e o reconhecido.",
+      "duration_seconds": null,
+      "participants": "4 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/passage-dobjet"
+    },
+    {
+      "id": "mot-lance",
+      "type": "Aquecimento inicial",
+      "subtype": "Imaginação",
+      "name": "Palavra lançada",
+      "description": "Os participantes em círculo passam palavras associadas ao ritmo de um estalar de dedos coletivo. Cada participante tem de saltar rapidamente sobre a palavra anterior sem antecipar. Desenvolve a escuta ativa e a reatividade criativa, tendo o cuidado de falar alto e articular com clareza.",
+      "duration_seconds": null,
+      "participants": "2 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/mot-lance"
+    },
+    {
+      "id": "arret-sur-images",
+      "type": "Aquecimento inicial",
+      "subtype": "Imaginação",
+      "name": "Imagem congelada",
+      "description": "Os participantes deslocam-se energicamente pela sala e imobilizam-se instantaneamente formando uma estátua corporal quando o orientador enuncia uma palavra e bate as palmas. Desenvolve a espontaneidade e o impulso pessoal sem antecipação, encarnando conceitos abstratos como «tempestade», «vazio» ou «vulcânico».",
+      "duration_seconds": null,
+      "participants": "6 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/arret-sur-images"
+    },
+    {
+      "id": "cest-toi-moi",
+      "type": "Aquecimento inicial",
+      "subtype": "Voz",
+      "name": "És tu! Eu?",
+      "description": "Troca de falas em ciclo em que os jogadores passam à vez enunciados com diferentes entoações: exclamativa, interrogativa, afirmativa e convincente. O animador inicia o jogo designando o primeiro participante, e depois os jogadores passam a palavra apontando para outra pessoa.",
+      "duration_seconds": null,
+      "participants": "4 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/cest-toi-moi-"
+    },
+    {
+      "id": "la-bouteille-saoule",
+      "type": "Aquecimento inicial",
+      "subtype": "Confiança",
+      "name": "A garrafa bêbeda",
+      "description": "O grupo forma um círculo à volta de uma pessoa ao centro que oscila gradualmente até se deixar cair. O grupo segura-a coletivamente, desenvolvendo a confiança mútua e a concentração. A oscilação torna-se cada vez mais ampla.",
+      "duration_seconds": null,
+      "participants": "5 a 14 pessoas",
+      "source": "impro-exo.fr/exercice/la-bouteille-saoule"
+    },
+    {
+      "id": "je-suis-le-du",
+      "type": "Aquecimento inicial",
+      "subtype": "Imaginação",
+      "name": "Eu sou o ... do ...",
+      "description": "Os participantes posicionam-se sucessivamente declarando o que encarnam em relação ao objeto anterior. O primeiro enuncia um objeto imóvel, o seguinte coloca-se em relação com este, e assim por diante, criando uma cadeia hierárquica. Vai acelerando gradualmente.",
+      "duration_seconds": null,
+      "participants": "6 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/je-suis-le-du"
+    },
+    {
+      "id": "mot-tape",
+      "type": "Aquecimento inicial",
+      "subtype": "Imaginação",
+      "name": "Palavra com palmada",
+      "description": "Os participantes batem sucessivamente as palmas uns aos outros associando uma palavra à palavra dita anteriormente. Os jogadores formam uma cadeia, estendendo cada um a mão depois de receber uma palmada. A antecipação deve ser evitada.",
+      "duration_seconds": null,
+      "participants": "6 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/mot-tape"
+    },
+    {
+      "id": "cercle-de-lexageration",
+      "type": "Aquecimento inicial",
+      "subtype": "Mímica",
+      "name": "Círculo do exagero",
+      "description": "Os participantes colocam-se em círculo. O primeiro mima uma ação do dia a dia, e depois cada um à vez volta a executar essa ação exagerando-a ainda mais. O objetivo é manter uma lógica no encadeamento das propostas sem preparação prévia. Pode exagerar-se a intenção, a emoção, o ritmo ou o tamanho dos objetos.",
+      "duration_seconds": null,
+      "participants": "6 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/cercle-de-lexageration"
+    },
+    {
+      "id": "photos-de-vacances",
+      "type": "Aquecimento inicial",
+      "subtype": "Conjunto",
+      "name": "Fotos de férias",
+      "description": "Um jogador dá o título de uma foto de férias e os outros participantes posicionam-se gradualmente para reconstituir essa foto. O animador passa uma máquina fotográfica mimada ao jogador que propõe um título, e depois cada participante toma o seu lugar até formar o quadro completo.",
+      "duration_seconds": null,
+      "participants": "6 a 8 pessoas",
+      "source": "impro-exo.fr/exercice/photos-de-vacances"
+    },
+    {
+      "id": "goaler",
+      "type": "Aquecimento inicial",
+      "subtype": "Personagem",
+      "name": "Guarda-redes",
+      "description": "Um ator, o guarda-redes, aceita e adapta-se de imediato a diferentes situações impostas pelos colegas que se vão sucedendo. Cada jogador da coluna propõe uma situação ao guarda-redes e prossegue a interação durante três falas antes de dar lugar ao seguinte. Desenvolve a capacidade de adaptação e de aceitação.",
+      "duration_seconds": null,
+      "participants": "6 jogadores mínimo",
+      "source": "impro-exo.fr/exercice/goaler"
+    },
+    {
+      "id": "prenom-ville-fleur",
+      "type": "Aquecimento inicial",
+      "subtype": "Memória",
+      "name": "Nome - cidade - flor...",
+      "description": "O orientador designa rapidamente participantes que têm de enunciar uma palavra pertencente a uma categoria dada. As famílias de palavras incluem nomes, cidades, cores, flores e países. O animador pode repetir o processo com números iguais ou diferentes.",
+      "duration_seconds": null,
+      "participants": "2 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/prenom-ville-fleur"
+    },
+    {
+      "id": "ambassadeur",
+      "type": "Aquecimento inicial",
+      "subtype": "Mímica",
+      "name": "Embaixador",
+      "description": "Várias equipas competem para adivinhar uma lista de palavras, títulos de filmes ou outros elementos mimados por um colega de equipa. Os participantes têm de encontrar as respostas sem palavras nem ruído, permitindo cada descoberta que um novo membro da equipa procure o elemento seguinte.",
+      "duration_seconds": null,
+      "participants": "6 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/ambassadeur"
+    },
+    {
+      "id": "activites-express",
+      "type": "Aquecimento inicial",
+      "subtype": "Mímica",
+      "name": "Atividades expresso",
+      "description": "Os participantes mudam de atividade a cada sinal sonoro. Ao sinal, os improvisadores iniciam uma atividade. A cada toque, mudam de atividade. Favorece a reatividade e a adaptabilidade.",
+      "duration_seconds": null,
+      "participants": "2 a 25 pessoas",
+      "source": "impro-exo.fr/exercice/activites-express"
+    },
+    {
+      "id": "comme-une-onde",
+      "type": "Aquecimento inicial",
+      "subtype": "Escuta",
+      "name": "Como uma onda",
+      "description": "Os participantes, dispostos inicialmente em círculo, distribuem-se pelo espaço e reproduzem exatamente a posição da pessoa que estava à sua esquerda. Cada ínfimo movimento repercute-se no coletivo, criando uma onda de gestos. Desenvolve a concentração no outro e o trabalho de equipa.",
+      "duration_seconds": null,
+      "participants": "6 a 25 pessoas",
+      "source": "impro-exo.fr/exercice/comme-une-onde"
+    },
+    {
+      "id": "balles-de-couleurs-imaginaires",
+      "type": "Aquecimento inicial",
+      "subtype": "Concentração",
+      "name": "Bolas de cores imaginárias",
+      "description": "Um orientador lança bolas imaginárias de cor a participantes dispostos em círculo. Cada pessoa recebe a bola repetindo a sua cor e devolve-a com a mesma tonalidade. O orientador acrescenta gradualmente novas bolas coloridas. O objetivo é não perder nenhuma bola.",
+      "duration_seconds": null,
+      "participants": "6 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/balles-de-couleurs-imaginaires"
+    },
+    {
+      "id": "le-cercle-des-emotions",
+      "type": "Aquecimento inicial",
+      "subtype": "Emoção",
+      "name": "O círculo das emoções",
+      "description": "Um animador ao centro de um círculo designa participantes que têm de improvisar ou enunciar uma frase imposta exprimindo uma emoção específica. Permite trabalhar a variação emocional e retira a pressão da improvisação ao fornecer uma frase.",
+      "duration_seconds": null,
+      "participants": "4 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/le-cercle-des-emotions"
+    },
+    {
+      "id": "echange-de-phrases",
+      "type": "Aquecimento inicial",
+      "subtype": "Memória",
+      "name": "Troca de frases",
+      "description": "Os participantes caminham pelo espaço com uma frase simples. A cada encontro, trocam a sua frase com a outra pessoa e seguem com a nova. O jogo continua até cada um reencontrar a sua frase original para se sentar. Variantes com língua gestual ou com uma emoção associada.",
+      "duration_seconds": null,
+      "participants": "4 a 25 pessoas",
+      "source": "impro-exo.fr/exercice/echange-de-phrases"
+    },
+    {
+      "id": "points-communs-points-de-desaccord",
+      "type": "Aquecimento inicial",
+      "subtype": "Escuta",
+      "name": "Pontos em comum, pontos de desacordo",
+      "description": "Exercício a pares que permite aos participantes conhecerem-se mutuamente. Durante 30 segundos, as duplas identificam 3 pontos em comum não visíveis e depois 2 pontos de desacordo, com partilha ao grupo a cada etapa. Repete-se duas vezes com duplas diferentes.",
+      "duration_seconds": 30,
+      "participants": "6 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/points-communs-points-de-desaccord"
+    },
+    {
+      "id": "mots-associes-rythmes",
+      "type": "Aquecimento inicial",
+      "subtype": "Imaginação",
+      "name": "Palavras associadas ritmadas",
+      "description": "Os participantes em círculo criam uma associação de palavras ao ritmo. O grupo bate nos joelhos, no peito e depois estala os dedos de forma sincronizada. Um participante enuncia uma palavra no primeiro estalar, e depois associa-se coletivamente uma palavra, seguida da associação individual do participante seguinte.",
+      "duration_seconds": null,
+      "participants": "6 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/mots-associes-rythmes"
+    },
+    {
+      "id": "lintrus-dans-limage",
+      "type": "Aquecimento inicial",
+      "subtype": "Construção de história",
+      "name": "O intruso na imagem",
+      "description": "Os participantes constroem coletivamente uma cena acrescentando objetos. Assim que se deteta um objeto intruso, o grupo separa-se e recomeça a partir desse elemento. O objetivo é criar uma responsabilidade comum e reforçar a coesão.",
+      "duration_seconds": null,
+      "participants": "6 a 25 pessoas",
+      "source": "impro-exo.fr/exercice/lintrus-dans-limage"
+    },
+    {
+      "id": "1-2-3-jai-foire",
+      "type": "Aquecimento inicial",
+      "subtype": "Confiança",
+      "name": "1 2 3 - Estraguei tudo!",
+      "description": "Dois atores contam alternadamente em ciclos de três. Gradualmente, acrescentam-se gestos aos números. A cada hesitação ou erro, os participantes levantam os braços gritando «estraguei tudo» e mudam de dupla. Visa aceitar os erros e cultivar a responsabilidade coletiva.",
+      "duration_seconds": null,
+      "participants": "Aos pares",
+      "source": "impro-exo.fr/exercice/1-2-3-jai-foire-"
+    },
+    {
+      "id": "meli-melo-des-mains",
+      "type": "Aquecimento inicial",
+      "subtype": "Confiança",
+      "name": "Salgalhada de mãos",
+      "description": "Desembaraçar de uma cadeia humana. Os participantes posicionam-se ombro a ombro, de olhos fechados, e agarram ao acaso a mão de outro. O grupo recua um passo e tenta desembaraçar-se mantendo o contacto físico sem quebrar a cadeia.",
+      "duration_seconds": null,
+      "participants": "10 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/meli-melo-des-mains"
+    },
+    {
+      "id": "je-suis-superman",
+      "type": "Aquecimento inicial",
+      "subtype": "Imaginação",
+      "name": "Eu sou o Super-Homem",
+      "description": "Os participantes colocam-se à vez no centro de um círculo. Cada um enuncia três vezes a frase «Eu sou o Super-Homem porque» seguida de razões diferentes, o mais depressa possível. Esta repetição permite evitar a antecipação das respostas.",
+      "duration_seconds": null,
+      "participants": "6 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/je-suis-superman"
+    },
+    {
+      "id": "mot-contact",
+      "type": "Aquecimento inicial",
+      "subtype": "Imaginação",
+      "name": "Palavras convergentes",
+      "description": "Convergência de ideias entre dois participantes. Duas pessoas enunciam cada uma uma palavra e depois, em conjunto, contam até três e dizem uma palavra associada. O processo repete-se com outros pares. Explora o pensamento comum e as associações mentais coletivas.",
+      "duration_seconds": null,
+      "participants": "2 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/mot-contact"
+    },
+    {
+      "id": "je-donne-le-graal",
+      "type": "Aquecimento inicial",
+      "subtype": "Voz",
+      "name": "Eu dou o Graal",
+      "description": "O Graal passa de participante em participante. Um participante A dá o Graal a B dizendo «eu dou o Graal». B confirma «eu tenho o Graal» e o resto do grupo responde «ele tem o Graal». O processo continua com cada novo portador.",
+      "duration_seconds": null,
+      "participants": "6 a 12 pessoas",
+      "source": "impro-exo.fr/exercice/je-donne-le-graal"
+    },
+    {
+      "id": "statue-perso",
+      "type": "Aquecimento inicial",
+      "subtype": "Personagem",
+      "name": "Estátua personagem",
+      "description": "Criação de personagem com base na marcha neutra. O grupo congela à palma encarnando uma personagem e a sua silhueta, e retoma o movimento à segunda palma. O ator deve deixar-se surpreender pela sua própria proposta em vez de a preparar.",
+      "duration_seconds": null,
+      "participants": "Grupo",
+      "source": "impro-exo.fr/exercice/statue-perso"
+    },
+    {
+      "id": "un-mot-deux-vers-rimes",
+      "type": "Aquecimento inicial",
+      "subtype": "Construção de história",
+      "name": "Uma palavra, dois versos rimados",
+      "description": "Uma pessoa propõe uma palavra, a seguinte cria um verso que rima com ela, e depois uma terceira termina com a palavra inicial. O exercício complica-se na etapa 2, em que cada participante tem de produzir dois versos rimados antes de passar o testemunho.",
+      "duration_seconds": null,
+      "participants": "En cercle",
+      "source": "impro-exo.fr/exercice/un-mot-deux-vers-rimes"
+    },
+    {
+      "id": "la-voix-de-lautre",
+      "type": "Aquecimento inicial",
+      "subtype": "Voz",
+      "name": "A voz do outro",
+      "description": "Os participantes trabalham a pares. Um produz a voz enquanto o outro mexe os lábios e o corpo. O exercício evolui em três etapas: primeiro olhando-se, depois sem contacto visual e, por fim, criando um diálogo em que cada um faz a voz do seu parceiro.",
+      "duration_seconds": null,
+      "participants": "2 a 12 pessoas",
+      "source": "impro-exo.fr/exercice/la-voix-de-lautre"
+    },
+    {
+      "id": "echange-de-prenoms",
+      "type": "Aquecimento inicial",
+      "subtype": "Memória",
+      "name": "Troca de nomes",
+      "description": "Em círculo, os participantes aprendem e trocam os nomes uns dos outros. O jogo evolui por etapas: dizer o seu nome em círculo, dirigir-se a uma pessoa específica e depois dizer o nome do interlocutor. A fase final implica deslocações em que cada encontro leva a uma troca de nome até reencontrar o seu.",
+      "duration_seconds": null,
+      "participants": "6 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/echange-de-prenoms"
+    },
+    {
+      "id": "le-cercle-de-lacceptation",
+      "type": "Aquecimento inicial",
+      "subtype": "Escuta",
+      "name": "O círculo da aceitação",
+      "description": "Os jogadores colocam-se em círculo. O primeiro propõe um gesto simples acompanhado eventualmente de um som. Cada participante seguinte tem de reproduzir exatamente o mesmo gesto e o mesmo som. Se houver uma alteração, o jogador seguinte integra essas mudanças, bem como todos os elementos acrescentados.",
+      "duration_seconds": null,
+      "participants": "4 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/le-cercle-de-lacceptation"
+    },
+    {
+      "id": "je-nai-jamais",
+      "type": "Aquecimento inicial",
+      "subtype": "Escuta",
+      "name": "Eu nunca",
+      "description": "Os participantes ficam em círculo, com as mãos levantadas e os dedos esticados. À vez, cada um enuncia algo que nunca fez começando por «Eu nunca...». Os participantes que tenham feito a ação mencionada baixam um dedo. Se ninguém fez essa coisa, é quem falou que baixa o dedo.",
+      "duration_seconds": null,
+      "participants": "6 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/je-nai-jamais"
+    },
+    {
+      "id": "histoire-en-continu",
+      "type": "Aquecimento inicial",
+      "subtype": "Construção de história",
+      "name": "História em contínuo",
+      "description": "O animador dá um tema e designa os participantes à vez para continuarem a história sem interrupção. Os participantes têm de evitar os silêncios, as hesitações e as repetições; ao menor erro, começa uma nova história com um novo tema.",
+      "duration_seconds": null,
+      "participants": "4 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/histoire-en-continu"
+    },
+    {
+      "id": "recherche-personnage-marche",
+      "type": "Aquecimento inicial",
+      "subtype": "Personagem",
+      "name": "Procura de personagem a caminhar",
+      "description": "O grupo desloca-se pela sala mantendo-se neutro. A cada palma, os participantes criam uma nova personagem com um andamento, uma voz, um andar e uma silhueta distintos. Após várias propostas individuais, o grupo imita a personagem de uma pessoa antes de passar à seguinte.",
+      "duration_seconds": null,
+      "participants": "4 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/recherche-personnage-marche"
+    },
+    {
+      "id": "frankenstein",
+      "type": "Aquecimento inicial",
+      "subtype": "Personagem",
+      "name": "Frankenstein - Os criadores de monstros",
+      "description": "Os participantes distribuem-se em duplas pelo espaço. Um esculpe o outro em monstro. Uma vez esculpidos todos os monstros, estes ganham vida e brincam com o público. Permite desenvolver a criatividade e a interação entre participantes.",
+      "duration_seconds": null,
+      "participants": "8 a 24 pessoas",
+      "source": "impro-exo.fr/exercice/frankenstein"
+    },
+    {
+      "id": "un-nom-un-adjectif-un-nom",
+      "type": "Aquecimento inicial",
+      "subtype": "Imaginação",
+      "name": "Um nome, um adjetivo, um nome",
+      "description": "O grupo coloca-se em círculo e cria uma sucessão de associações de palavras. O primeiro participante enuncia um nome, o seguinte acrescenta um adjetivo associado, e depois o próximo um novo nome ligado a esse adjetivo. Esta alternância estimula a criatividade e as associações de ideias do grupo.",
+      "duration_seconds": null,
+      "participants": "6 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/un-nom-un-adjectif-un-nom"
+    },
+    {
+      "id": "definition-de-mots-inventes",
+      "type": "Aquecimento inicial",
+      "subtype": "Imaginação",
+      "name": "Definição de palavras inventadas",
+      "description": "Em círculo, três pessoas enunciam sucessivamente uma sílaba para criar uma palavra imaginária, e depois uma quarta inventa a sua definição. O animador pode pedir esclarecimentos adicionais sobre o termo criado para enriquecer o exercício.",
+      "duration_seconds": null,
+      "participants": "4 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/definition-de-mots-inventes"
+    },
+    {
+      "id": "et-cest-ainsi",
+      "type": "Ateliê",
+      "subtype": "Construção de história",
+      "name": "E é assim...",
+      "description": "O grupo forma um círculo. Um ator começa uma ação, um segundo junta-se-lhe, e depois, ao fim de 20 segundos, um terceiro introduz uma rutura. Um quarto conclui com a frase «E é assim». O objetivo é construir depressa, atrever-se a arrancar, propor ruturas e concluir, mesmo que imperfeitamente.",
+      "duration_seconds": 30,
+      "participants": "4 a 15 pessoas",
+      "source": "impro-exo.fr/exercice/et-cest-ainsi"
+    },
+    {
+      "id": "reste-concentree",
+      "type": "Ateliê",
+      "subtype": "Concentração",
+      "name": "Mantém-te concentrado(a) (O bode expiatório)",
+      "description": "Uma pessoa virada para o público fixa um ponto ao fundo enquanto repete uma frase ou canção em ciclo. Membros do público designados tentam incomodá-la, mas ela tem de manter a concentração sem desviar o olhar. Visa desenvolver a capacidade de se manter concentrado apesar das perturbações.",
+      "duration_seconds": null,
+      "participants": "1 ator + público",
+      "source": "impro-exo.fr/exercice/reste-concentree"
+    },
+    {
+      "id": "parler-avec-des-chiffres",
+      "type": "Ateliê",
+      "subtype": "Voz",
+      "name": "Falar com números (1 a 50)",
+      "description": "Dois participantes representam uma cena substituindo o texto por uma sucessão de números de 1 a 50. O objetivo é desenvolver o jogo de intenções sem depender das palavras, estabelecer uma ligação para além das palavras e manter-se conciso nas propostas.",
+      "duration_seconds": null,
+      "participants": "2",
+      "source": "impro-exo.fr/exercice/1-a-50"
+    },
+    {
+      "id": "on-est-mardi",
+      "type": "Ateliê",
+      "subtype": "Construção de história",
+      "name": "É terça-feira (É segunda)",
+      "description": "Um jogador enuncia uma banalidade, enquanto o segundo jogador constrói uma tirada completa a partir dessa observação anódina, antes de concluir com uma frase mais discreta.",
+      "duration_seconds": null,
+      "participants": "2",
+      "source": "impro-exo.fr/exercice/cest-mardi"
+    },
+    {
+      "id": "commentaire-ralenti",
+      "type": "Ateliê",
+      "subtype": "Mímica",
+      "name": "Comentário em câmara lenta",
+      "description": "Dois jogadores improvisam mimando uma ação em câmara lenta enquanto um terceiro comenta a ação o mais depressa possível sem silêncios. Os atores não seguem o narrador e a gestualidade pode ser abstrata. O animador zela por manter a lentidão de quem mima e a rapidez de quem comenta.",
+      "duration_seconds": null,
+      "participants": "3",
+      "source": "impro-exo.fr/exercice/commentaire-ralenti"
+    },
+    {
+      "id": "premiere-replique-imposee",
+      "type": "Ateliê",
+      "subtype": "Construção de história",
+      "name": "Primeira fala imposta",
+      "description": "Os participantes escrevem uma fala num papel e depois, a pares, tiram à sorte uma fala que se torna a primeira frase da sua personagem. Têm então de improvisar e encontrar uma coerência dramática a partir dessa restrição imposta.",
+      "duration_seconds": null,
+      "participants": "2",
+      "source": "impro-exo.fr/exercice/premiere-replique-imposee"
+    },
+    {
+      "id": "sculpteurs-et-statues",
+      "type": "Ateliê",
+      "subtype": "Personagem",
+      "name": "Escultores e estátuas",
+      "description": "O grupo divide-se em duplas compostas por um escultor e uma estátua. O escultor manipula e posiciona a sua estátua no espaço. Terminadas as criações, os escultores afastam-se para visitar o museu improvisado. Cada estátua recebe um título e depois anima-se e ganha vida.",
+      "duration_seconds": null,
+      "participants": "2 a 30 pessoas",
+      "source": "impro-exo.fr/exercice/sculpteurs-et-statues"
+    },
+    {
+      "id": "objet-detourne",
+      "type": "Ateliê",
+      "subtype": "Imaginação",
+      "name": "Tudo menos isso (objeto desviado)",
+      "description": "O animador coloca um objeto em palco. Cada participante tem de o usar para aquilo que não é, teatralizando a cena. Uma bengala torna-se taco de basebol, machado, vassoura ou periscópio. Pode impor-se um tempo mínimo.",
+      "duration_seconds": null,
+      "participants": "Variável",
+      "source": "impro-exo.fr/exercice/tout-mais-pas-a-ca-objet-detourne"
+    },
+    {
+      "id": "3e-idee",
+      "type": "Ateliê",
+      "subtype": "Imaginação",
+      "name": "3.ª ideia",
+      "description": "Dois atores começam em simultâneo duas atividades diferentes sem combinação prévia. Têm depois de identificar e propor uma terceira ideia que ligue essas duas atividades. Desenvolve a capacidade de gerar propostas de partida originais em improvisação mista.",
+      "duration_seconds": null,
+      "participants": "2",
+      "source": "impro-exo.fr/exercice/3e-idee"
+    },
+    {
+      "id": "activites-express-exagerees",
+      "type": "Ateliê",
+      "subtype": "Mímica",
+      "name": "Atividades expresso exageradas",
+      "description": "Os improvisadores começam por mimar uma atividade comum. Ao sinal do animador, exageram gradualmente o seu gesto. Podem definir-se vários níveis de intensificação. O acrescento de ruídos é incentivado para reforçar o efeito cómico e expressivo.",
+      "duration_seconds": null,
+      "participants": "Jusqu'à 12 pessoas",
+      "source": "impro-exo.fr/exercice/activites-express-exagerees"
+    },
+    {
+      "id": "demarrer-avec-un-lieu",
+      "type": "Ateliê",
+      "subtype": "Construção de história",
+      "name": "Começar com um lugar",
+      "description": "Um participante inicia uma cena usando os objetos de um lugar específico. Uma vez identificado o lugar pelos outros, um segundo participante entra em cena e usa por sua vez os elementos propostos. Desenvolve a criatividade e a interação entre improvisadores.",
+      "duration_seconds": null,
+      "participants": "2",
+      "source": "impro-exo.fr/exercice/demarrer-avec-un-lieu"
+    },
+    {
+      "id": "choregraphie-a-b-c-d",
+      "type": "Ateliê",
+      "subtype": "Conjunto",
+      "name": "Coreografia A B C D",
+      "description": "Preparação para o musical improvisado. Quatro atores criam gradualmente uma coreografia em loops: A começa um primeiro loop musical, B junta-se-lhe no segundo loop, e depois C e D acrescentam-se no terceiro. Os participantes podem formar diferentes configurações espaciais.",
+      "duration_seconds": null,
+      "participants": "4 a 5 atores",
+      "source": "impro-exo.fr/exercice/choregraphie-a-b-c-d"
+    },
+    {
+      "id": "dialogue-image-flash-fixe",
+      "type": "Ateliê",
+      "subtype": "Corpo",
+      "name": "Diálogo com imagem flash fixa",
+      "description": "Duas pessoas iniciam um diálogo. A cada nova fala, a pessoa que fala tem de se imobilizar numa estátua sem relação com o contexto da cena. Este exercício cria um contraste cómico entre as palavras e as posturas adotadas.",
+      "duration_seconds": null,
+      "participants": "2",
+      "source": "impro-exo.fr/exercice/dialogue-image-flash-fixe"
+    },
+    {
+      "id": "duos-dimpro-alternatif",
+      "type": "Ateliê",
+      "subtype": "Construção de história",
+      "name": "Duplas de impro alternadas",
+      "description": "Duas duplas improvisam alternadamente. Enquanto uma dupla joga, a outra fica de cócoras. Desenvolve a escuta, as elipses e a sensibilidade ao ritmo. Os jogadores aprendem a jogar uma só ideia de cada vez, a impor-se com clareza e a gerir os momentos-chave da história.",
+      "duration_seconds": null,
+      "participants": "4 a 8 pessoas",
+      "source": "impro-exo.fr/exercice/duos-dimpro-alternatif"
+    },
+    {
+      "id": "duos-dimpro-pioche",
+      "type": "Ateliê",
+      "subtype": "Construção de história",
+      "name": "Duplas de impro à sorte",
+      "description": "Improvisações em dupla encadeiam-se sucessivamente. Uma primeira dupla improvisa, e depois um espectador salta para o palco arrastando sem combinação um parceiro, com base numa ideia retirada da impro em curso. Desenvolve a capacidade de cortar no momento certo e de cultivar uma escuta ativa.",
+      "duration_seconds": null,
+      "participants": "4 a 16 pessoas",
+      "source": "impro-exo.fr/exercice/duos-dimpro-pioche"
+    },
+    {
+      "id": "le-monstre",
+      "type": "Ateliê",
+      "subtype": "Conjunto",
+      "name": "O monstro",
+      "description": "O grupo desloca-se em massa compacta para formar um monstro. O monstro desloca-se, espalha-se, geme e ondula de forma coletiva, criando uma entidade teatral única e dinâmica.",
+      "duration_seconds": null,
+      "participants": "4 a 12 pessoas",
+      "source": "impro-exo.fr/exercice/le-monstre"
+    },
+    {
+      "id": "cest-comme-moi",
+      "type": "Ateliê",
+      "subtype": "Construção de história",
+      "name": "É como eu",
+      "description": "Um ator conta uma história pessoal, e depois os outros jogadores interrompem-no dizendo «é como eu!» para contarem por sua vez um episódio inspirado por um elemento ouvido. As histórias encadeiam-se assim, à medida que avançam.",
+      "duration_seconds": null,
+      "participants": "2 a 5 jogadores",
+      "source": "impro-exo.fr/exercice/cest-comme-moi"
+    },
+    {
+      "id": "prise-de-reperes",
+      "type": "Ateliê",
+      "subtype": "Corpo",
+      "name": "Visão reduzida: tomada de referências",
+      "description": "Os participantes criam binóculos com as mãos para reduzir o seu campo de visão periférica e depois deslocam-se pelo palco estreitando gradualmente o seu campo visual. Visa apreender a visão dentro de uma máscara e desenvolver referências espaciais.",
+      "duration_seconds": null,
+      "participants": "2 a 16 pessoas",
+      "source": "impro-exo.fr/exercice/prise-de-reperes"
+    },
+    {
+      "id": "grand-gestes-et-petits-gestes",
+      "type": "Ateliê",
+      "subtype": "Corpo",
+      "name": "Grandes gestos e pequenos gestos",
+      "description": "Os atores executam uma ação simples e curta usando máscaras inteiras. Têm primeiro de efetuar a ação com gestos amplos e depois reproduzi-la com os gestos mais mínimos. Desenvolve a consciência da amplitude gestual e a sua relação com a expressão da máscara.",
+      "duration_seconds": null,
+      "participants": "A solo",
+      "source": "impro-exo.fr/exercice/grand-gestes-et-petits-gestes"
+    },
+    {
+      "id": "3-chaises",
+      "type": "Ateliê",
+      "subtype": "Personagem",
+      "name": "3 cadeiras à partida",
+      "description": "Improvisação teatral para três atores mascarados e silenciosos. Os participantes sentam-se em três cadeiras alinhadas ao centro do palco sem conhecerem a sua identidade nem o contexto. Improvisam uma cena usando apenas gestos e sons para exprimir as emoções, terminando a cena quando as três personagens saem em conjunto.",
+      "duration_seconds": null,
+      "participants": "3 atores",
+      "source": "impro-exo.fr/exercice/3-chaises"
+    },
+    {
+      "id": "grognement-inquietude-et-seduction",
+      "type": "Ateliê",
+      "subtype": "Emoção",
+      "name": "Rosnar, inquietação e sedução",
+      "description": "Trios representam uma cena de aniversário em três versões distintas. Os atores têm de repetir o mesmo sketch mantendo indicações físicas específicas: rosnar com os dentes cerrados, inquietação com as sobrancelhas levantadas e respiração ofegante, e depois sedução com balanceamento dos ombros.",
+      "duration_seconds": null,
+      "participants": "3 atores par grupo",
+      "source": "impro-exo.fr/exercice/grognement-inquietude-et-seduction"
+    },
+    {
+      "id": "donnez-les-noms",
+      "type": "Ateliê",
+      "subtype": "Personagem",
+      "name": "Digam os nomes",
+      "description": "Improvisação em dupla em que os jogadores se esforçam por nomear as personagens várias vezes. O animador pergunta a cada personagem como se chama ao fim de 30 segundos, e depois, na segunda volta, os nomes têm de ser repetidos pelo menos duas vezes, integrando-os naturalmente no diálogo.",
+      "duration_seconds": 30,
+      "participants": "2 a 20 jogadores",
+      "source": "impro-exo.fr/exercice/donnez-les-noms"
+    },
+    {
+      "id": "paravent",
+      "type": "Ateliê",
+      "subtype": "Personagem",
+      "name": "Biombo",
+      "description": "Exercício a solo em que um participante se esconde atrás de um biombo. Por sugestão do animador ou do público, cria rapidamente uma personagem e apresenta-a. Assim que desaparece atrás do biombo, é proposta uma nova personagem, permitindo uma sucessão rápida de criações improvisadas.",
+      "duration_seconds": null,
+      "participants": "1 a 2",
+      "source": "impro-exo.fr/exercice/paravent"
+    },
+    {
+      "id": "vers-limmobilite",
+      "type": "Ateliê",
+      "subtype": "Corpo",
+      "name": "Rumo à imobilidade (no motion)",
+      "description": "Duas pessoas começam por um aparte combinado e depois reduzem gradualmente os seus movimentos e deslocações ao longo da improvisação. Só o diálogo persiste à medida que a imobilidade se instala, sem que essa diminuição seja uma consequência narrativa da história.",
+      "duration_seconds": null,
+      "participants": "2",
+      "source": "impro-exo.fr/exercice/vers-limmobilite"
+    },
+    {
+      "id": "encore-une-histoire-jusqua-la-fin",
+      "type": "Ateliê",
+      "subtype": "Construção de história",
+      "name": "Mais uma história até ao fim",
+      "description": "O grupo constrói uma história dizendo uma palavra de cada vez. Se um ator achar a história aborrecida ou confusa, grita «mais» para recomeçar. Quando um participante considera que a história terminou, estende as mãos para a frente e, se a maioria aprovar, a história acaba.",
+      "duration_seconds": null,
+      "participants": "4 a 16 pessoas",
+      "source": "impro-exo.fr/exercice/encore-une-histoire-jusqua-la-fin"
+    },
+    {
+      "id": "cherche-ton-neutre",
+      "type": "Ateliê",
+      "subtype": "Corpo",
+      "name": "Procura o teu neutro",
+      "description": "O jogador, sentado de frente para o público, mantém o máximo de tempo possível uma expressão facial neutra. O grupo usa gestos com os polegares para indicar se a cara está demasiado sorridente ou demasiado fechada. O participante tem de corrigir gradualmente a sua expressão consoante o retorno do público.",
+      "duration_seconds": null,
+      "participants": "1 jogador + público",
+      "source": "impro-exo.fr/exercice/cherche-ton-neutre"
+    },
+    {
+      "id": "faire-sonner-sa-voix",
+      "type": "Ateliê",
+      "subtype": "Voz",
+      "name": "Fazer soar a voz",
+      "description": "Modulação do volume da voz. Os participantes escolhem uma frase que repetem ao caminhar pelo espaço enquanto o animador propõe variações de volume (normal, mais alto, sussurrar). À escuta, cada participante faz ressoar a sua frase acima do volume do grupo 3 a 4 vezes.",
+      "duration_seconds": null,
+      "participants": "6 a 20 pessoas",
+      "source": "impro-exo.fr/exercice/faire-sonner-sa-voix"
+    },
+    {
+      "id": "le-banc-des-emotions",
+      "type": "Ateliê",
+      "subtype": "Emoção",
+      "name": "O banco das emoções",
+      "description": "Os atores, sentados num banco de frente para o público, repetem à vez uma frase curta e neutra. A cada transmissão ao jogador seguinte, a intensidade emocional aumenta gradualmente. O objetivo é fazer variar e modular o grau de uma emoção no seio do grupo.",
+      "duration_seconds": null,
+      "participants": "4 a 6 pessoas",
+      "source": "impro-exo.fr/exercice/le-banc-des-emotions"
+    },
+    {
+      "id": "le-conte-parcours-du-heros",
+      "type": "Ateliê",
+      "subtype": "Construção de história",
+      "name": "O conto: a viagem do herói",
+      "description": "Os participantes, dispostos em círculo, constroem coletivamente uma história seguindo etapas-chave marcadas por fórmulas específicas: «Era uma vez», «Todos os dias», «E», «Um dia», «Por causa disso/Graças a isso» e «Desde esse dia». Desenvolve a capacidade de reconhecer a estrutura narrativa.",
+      "duration_seconds": null,
+      "participants": "4 a 12 pessoas",
+      "source": "impro-exo.fr/exercice/le-conte-parcours-du-heros"
+    },
+    {
+      "id": "balade-guidee",
+      "type": "Ateliê",
+      "subtype": "Voz",
+      "name": "Passeio guiado",
+      "description": "Um participante cego é conduzido por um narrador que descreve com precisão a paisagem. Os outros jogadores criam em simultâneo os efeitos sonoros correspondentes. Desenvolve a escuta, a aprendizagem da sonoplastia e o imaginário coletivo.",
+      "duration_seconds": null,
+      "participants": "4 a 6 pessoas",
+      "source": "impro-exo.fr/exercice/balade-guidee"
+    },
+    {
+      "id": "conversation-telephonique",
+      "type": "Ateliê",
+      "subtype": "Memória",
+      "name": "Conversa telefónica (Presidente)",
+      "description": "Um jogador encarna um presidente numa conversa telefónica importante que não pode interromper. Os outros participantes fazem-lhe perguntas à vez, que ele tem de memorizar e às quais responderá depois de desligar. Desenvolve a escuta, a memória e a concentração.",
+      "duration_seconds": null,
+      "participants": "5 a 10 pessoas",
+      "source": "impro-exo.fr/exercice/conversation-telephonique"
+    },
+    {
+      "id": "emotions-personnifiees",
+      "type": "Ateliê",
+      "subtype": "Emoção",
+      "name": "Emoções personificadas",
+      "description": "Cada personagem é acompanhada de um duplo que mima silenciosamente as suas emoções. Dois jogadores encarnam personagens em interação em torno de uma problemática dada, enquanto outros dois jogadores exprimem corporalmente os respetivos estados emocionais, sem palavras e sem contacto direto.",
+      "duration_seconds": null,
+      "participants": "4 a 6 jogadores",
+      "source": "impro-exo.fr/exercice/emotions-personnifiees"
+    },
+    {
+      "id": "tu-mas-fait-peur",
+      "type": "Ateliê",
+      "subtype": "Emoção",
+      "name": "Pregaste-me um susto",
+      "description": "Duas pessoas caminham em palco, cruzam-se e pregam um susto uma à outra antes de rir. Os níveis de susto e de riso podem variar: quanto maior o susto, maior deve ser o riso. Pode acrescentar-se um olhar para o público.",
+      "duration_seconds": null,
+      "participants": "2",
+      "source": "impro-exo.fr/exercice/tu-mas-fait-peur"
+    },
+    {
+      "id": "jouer-de-dos",
+      "type": "Ateliê",
+      "subtype": "Voz",
+      "name": "Representar de costas!",
+      "description": "Os atores improvisam mantendo-se de costas para o público. Recebem uma situação e um lugar (praia, estádio, igreja, etc.) e têm de criar uma cena sem se virarem para a plateia. Desenvolve a expressividade corporal e a projeção vocal.",
+      "duration_seconds": null,
+      "participants": "2 a 6 pessoas",
+      "source": "impro-exo.fr/exercice/jouer-de-dos"
+    },
+    {
+      "id": "gimmicks-imposes",
+      "type": "Ateliê",
+      "subtype": "Personagem",
+      "name": "Tiques impostos",
+      "description": "Cada participante recebe uma restrição recorrente a usar com regularidade. A cada entrada, o árbitro impõe um padrão específico: gesto antes de cada fala, repetição da última palavra, palavra imposta antes ou depois de cada fala, etc. O participante tem de integrar essa restrição de forma natural no seu jogo.",
+      "duration_seconds": null,
+      "participants": "2 a 6 pessoas",
+      "source": "impro-exo.fr/exercice/gimmicks-imposes"
+    },
+    {
+      "id": "bataille-daccessoires",
+      "type": "Ateliê",
+      "subtype": "Imaginação",
+      "name": "Batalha de adereços",
+      "description": "As equipas sucedem-se para propor diferentes formas de desviar o adereço imposto. As passagens fazem-se em alternância, a solo ou a vários, apresentando cada equipa a sua própria interpretação criativa do objeto.",
+      "duration_seconds": null,
+      "participants": "4 a 12 pessoas",
+      "source": "impro-exo.fr/exercice/bataille-daccessoires"
+    },
+    {
+      "id": "a-la-maniere-feydeau",
+      "type": "Ateliê",
+      "subtype": "Personagem",
+      "name": "À maneira de Georges Feydeau",
+      "description": "Exercício inspirado no vaudeville e no teatro de bulevar de 1900. Os participantes criam cenas que põem em cena a burguesia parisiense com as suas intrigas amorosas, financeiras e sociais. O estilo privilegia os equívocos, os mal-entendidos, os apartes e as mentiras.",
+      "duration_seconds": null,
+      "participants": "2 a 8 pessoas",
+      "source": "impro-exo.fr/exercice/a-la-maniere-du-theatre-de-georges-feydeau"
+    },
+    {
+      "id": "broadway",
+      "type": "Ateliê",
+      "subtype": "Voz",
+      "name": "Broadway",
+      "description": "Cada jogador recebe uma canção conhecida do público. O artista tem de validar a canção proposta e depois improvisar todas as suas falas cantando ao som dessa música. O MC/árbitro coordena a entrada dos artistas e recolhe as sugestões musicais junto do público.",
+      "duration_seconds": null,
+      "participants": "Variável",
+      "source": "impro-exo.fr/exercice/broadway"
+    },
+    {
+      "id": "champ-contre-champ",
+      "type": "Ateliê",
+      "subtype": "Corpo",
+      "name": "Plano e contraplano",
+      "description": "Dois atores de frente para o público representam como se estivessem frente a frente. Só o ator iluminado por um foco pode jogar, enquanto o outro fica imóvel e silencioso. O segundo ator espera ser iluminado para responder, criando um jogo de troca alternada.",
+      "duration_seconds": null,
+      "participants": "2 atores",
+      "source": "impro-exo.fr/exercice/champ-contre-champ"
+    },
+    {
+      "id": "distanciation-physique",
+      "type": "Ateliê",
+      "subtype": "Corpo",
+      "name": "Distanciamento físico",
+      "description": "Os atores têm de manter uma distância definida à partida durante a sua atuação. Os atores jogam em palco respeitando uma restrição de distância física entre si, o que acrescenta uma dimensão adicional ao jogo dramático.",
+      "duration_seconds": null,
+      "participants": "2 a 4 pessoas",
+      "source": "impro-exo.fr/exercice/distanciation-physique"
+    },
+    {
+      "id": "poursuite-paravent",
+      "type": "Ateliê",
+      "subtype": "Personagem",
+      "name": "Perseguição com biombo",
+      "description": "Uma pessoa encarna duas personagens distintas. As mudanças de papel fazem-se atrás de um biombo, permitindo que as duas personagens interajam sem nunca aparecerem juntas em palco. Desenvolve a capacidade de construir personagens cheias de nuances.",
+      "duration_seconds": null,
+      "participants": "1 ator",
+      "source": "impro-exo.fr/exercice/poursuite-paravent"
+    },
+    {
+      "id": "charabia-canape",
+      "type": "Situação de jogo",
+      "subtype": "Voz",
+      "name": "Algaraviada no sofá",
+      "description": "Os atores reúnem-se à volta de um sofá para um serão agradável. Cada participante prepara antecipadamente uma piada em algaraviada num papel e depois lê-a ao grupo, que reage a cada história. Centrada na improvisação e na expressão criativa.",
+      "duration_seconds": null,
+      "participants": "4 a 6 pessoas",
+      "source": "impro-exo.fr/exercice/charabia-canape"
+    },
+    {
+      "id": "1-minute-dans-la-vie-dun-objet",
+      "type": "Situação de jogo",
+      "subtype": "Personagem",
+      "name": "1 minuto na vida de um objeto",
+      "description": "Improvisação a solo em que o participante encarna um objeto à sua escolha durante um minuto, explorando os seus estados de alma. O exercício privilegia a interpretação emocional em vez da representação física do objeto.",
+      "duration_seconds": 60,
+      "participants": "1",
+      "source": "impro-exo.fr/exercice/1-minute-dans-la-vie-dun-objet"
+    },
+    {
+      "id": "1-minute-de-silence",
+      "type": "Situação de jogo",
+      "subtype": "Mímica",
+      "name": "1 minuto de silêncio",
+      "description": "Dois atores iniciam uma cena proibindo-se de falar durante o primeiro minuto. Após o sinal do animador, ficam autorizados a tomar a palavra, embora não seja obrigatório. Desenvolve a comunicação não-verbal e a criatividade gestual.",
+      "duration_seconds": 60,
+      "participants": "2",
+      "source": "impro-exo.fr/exercice/1-minute-de-silence"
+    },
+    {
+      "id": "bataille-darguments",
+      "type": "Situação de jogo",
+      "subtype": "Voz",
+      "name": "Batalha de argumentos",
+      "description": "Dois participantes debatem um tema polémico trocando argumentos. Os intervenientes privilegiam o ritmo das falas e a concisão em vez do volume sonoro, criando assim um debate dinâmico e estruturado.",
+      "duration_seconds": null,
+      "participants": "2",
+      "source": "impro-exo.fr/exercice/bataille-darguments"
+    },
+    {
+      "id": "traducteur",
+      "type": "Situação de jogo",
+      "subtype": "Voz",
+      "name": "O tradutor",
+      "description": "Um ator profere um discurso em grammelot com ênfase enquanto outro o traduz para português. O público pode fazer perguntas, que são traduzidas para grammelot. Desenvolve a improvisação e a expressão emocional através de uma língua fictícia.",
+      "duration_seconds": null,
+      "participants": "2",
+      "source": "impro-exo.fr/exercice/traducteur-le"
+    },
+    {
+      "id": "le-taxi-des-emotions",
+      "type": "Situação de jogo",
+      "subtype": "Emoção",
+      "name": "O táxi das emoções",
+      "description": "Quatro atores entram sucessivamente num carro, trazendo cada um uma emoção imposta. A cada chegada, os passageiros adotam a nova emoção. Nas saídas, a emoção anterior reaparece gradualmente. Trabalha a transmissão emocional.",
+      "duration_seconds": null,
+      "participants": "4 atores",
+      "source": "impro-exo.fr/exercice/le-taxi-des-emotions"
+    },
+    {
+      "id": "good-morning",
+      "type": "Situação de jogo",
+      "subtype": "Construção de história",
+      "name": "Good morning",
+      "description": "Duas pessoas dormem juntas numa cadeira numa posição à sua escolha. Ao dizer-se «good morning», a improvisação arranca com o despertar das personagens. O público tem de descobrir em três minutos onde estão, sobre o que dormiram, o que as une e se esta situação é regular ou excecional.",
+      "duration_seconds": 180,
+      "participants": "2",
+      "source": "impro-exo.fr/exercice/good-morningt"
+    },
+    {
+      "id": "freestyle",
+      "type": "Situação de jogo",
+      "subtype": "Construção de história",
+      "name": "Freestyle",
+      "description": "Improvisação mista sem tema em que duas pessoas de cada equipa improvisam em dupla a partir de uma posição dada. A cada apito, os improvisadores são substituídos por outros dois que retomam a posição final da improvisação anterior para começar uma nova.",
+      "duration_seconds": null,
+      "participants": "2 a 12 pessoas",
+      "source": "impro-exo.fr/exercice/freestyle"
+    },
+    {
+      "id": "melange-de-films",
+      "type": "Situação de jogo",
+      "subtype": "Imaginação",
+      "name": "Mistura de filmes",
+      "description": "Cada equipa recebe um filme diferente e tem de incorporar elementos desse filme na sua atuação. O encenador impõe um filme a cada adversário, podendo este ser definido pelo público, preparado antecipadamente ou escolhido de uma lista.",
+      "duration_seconds": null,
+      "participants": "2 a 12 pessoas",
+      "source": "impro-exo.fr/exercice/melange-de-films"
+    }
+  ]
+}

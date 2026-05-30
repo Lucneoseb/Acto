@@ -24,6 +24,10 @@ window.IMPRO_BUNDLE = {
     "nl": {
       "name": "Vlaams",
       "flag": "🇧🇪"
+    },
+    "it": {
+      "name": "Italiano",
+      "flag": "🇮🇹"
     }
   },
   "ui": {
@@ -307,7 +311,363 @@ window.IMPRO_BUNDLE = {
       "inspireSubmitErr": "Échec de l'envoi",
       "inspireSubmitErrTitle": "Le titre est obligatoire.",
       "inspireSubmitNeedsAuth": "Connecte-toi sur l'app pour proposer une vidéo. Le lien : ",
-      "authWelcomeBack": "Bon retour, {prenom} !"
+      "authWelcomeBack": "Bon retour, {prenom} !",
+      "warmupsPageTitle": "Échauffement",
+      "warmupsBlurb": "Une bibliothèque d'exercices pour préparer le corps, la voix et l'énergie avant une impro. Filtre par type, ou laisse le tirage aléatoire choisir pour toi.",
+      "warmupsSearchPlaceholder": "Tape un nom d'exercice, un mot-clé…",
+      "warmupsTypeAll": "Tous les types",
+      "warmupsRandomBtn": "🎲 Tirage aléatoire",
+      "warmupsAddBtn": "+ Proposer un exercice",
+      "warmupsBackToApp": "← Retour à l'app",
+      "warmupsCount": "{n} / {total} exercices",
+      "warmupsEmptyTitle": "Aucun exercice ne correspond à ces filtres.",
+      "warmupsEmptyBlurb": "Change le type ou efface la recherche.",
+      "warmupsCardChronoBtn": "⏱ Lancer chrono",
+      "warmupsCommunityTag": "Communauté",
+      "warmupsDrawBadge": "🎲 Tirage",
+      "warmupsDrawChrono": "⏱ Lancer le chrono",
+      "warmupsDrawRedraw": "🎲 Relancer",
+      "warmupsDrawClose": "✕ Fermer",
+      "warmupsChronoStart": "▶ Démarrer",
+      "warmupsChronoResume": "▶ Reprendre",
+      "warmupsChronoPause": "⏸ Pause",
+      "warmupsChronoReset": "↺ Reset",
+      "warmupsChronoSetLabel": "Aucune durée définie — choisis-en une :",
+      "warmupsSubmitTitle": "Proposer un exercice",
+      "warmupsSubmitHelp": "La proposition sera envoyée à l'admin pour validation avant publication.",
+      "warmupsFieldType": "Type *",
+      "warmupsFieldSubtype": "Sous-type",
+      "warmupsFieldName": "Nom de l'exercice *",
+      "warmupsFieldDescription": "Description *",
+      "warmupsFieldDuration": "Durée (optionnel)",
+      "warmupsFieldParticipants": "Participants",
+      "warmupsFieldSource": "Source (optionnel)",
+      "warmupsSubmitSend": "Envoyer",
+      "warmupsSubmitSending": "Envoi…",
+      "warmupsSubmitCancel": "Annuler",
+      "warmupsSubmitOk": "✓ Proposition envoyée à l'admin pour validation.",
+      "warmupsSubmitErrRequired": "Le nom et la description sont obligatoires.",
+      "warmupsSubmitErrPrefix": "Échec de l'envoi",
+      "warmupsSubmitNeedsAuth": "Connecte-toi sur l'app pour proposer un exercice : "
+    },
+    "it": {
+      "title": "Impro",
+      "titleAccent": "Studio",
+      "subtitle": "Generatore di esercizi, vincoli e temi",
+      "subtitle2": "per l'improvvisazione teatrale",
+      "settings": "Impostazioni",
+      "rulesBtn": "Regole",
+      "rulesTitle": "Regole del match d'improvvisazione",
+      "rulesClose": "Chiudi",
+      "settingsPersonalize": "🎬 Personalizza le mie impro",
+      "authStatsTitle": "📊 Le mie statistiche",
+      "statsLabelLaunched": "Impro avviate da me",
+      "statsLabelPerformed": "Impro che ho recitato",
+      "statsLabelImproSec": "Tempo di impro recitato",
+      "statsLabelRecordCount": "Video registrati",
+      "statsLabelRecordSec": "Tempo registrato",
+      "personalizeTitle": "Personalizza le mie impro",
+      "personalizeBlurb": "Scegli quali temi, categorie, vincoli ed esercizi vuoi vedere. Puoi anche aggiungerne — saranno visibili solo a te su questo dispositivo. Le modifiche vengono salvate automaticamente.",
+      "personalizeBackToApp": "← Torna all'app",
+      "personalizeAddPlaceholder": "Aggiungi un nuovo elemento…",
+      "personalizeAddDescPlaceholder": "Descrizione (facoltativa)",
+      "personalizeAddBtn": "+ Aggiungi",
+      "personalizeShowAll": "Mostra tutto",
+      "personalizeHideAll": "Nascondi tutto",
+      "personalizeAddedByMe": "aggiunto da me",
+      "personalizeNoItems": "Nessun elemento da mostrare.",
+      "personalizeVisible": "visibile",
+      "personalizeHidden": "nascosto",
+      "personalizeShow": "Mostra",
+      "personalizeHide": "Nascondi",
+      "personalizeSaved": "Salvato",
+      "personalizeSyncSent": "✓ Inviato all'admin",
+      "personalizeSyncPending": "⏳ Non ancora inviato all'admin",
+      "personalizeSyncLoginNotice": "Accedi affinché le tue aggiunte vengano inviate all'admin per la convalida.",
+      "personalizeSyncReady": "Le tue aggiunte saranno automaticamente proposte all'admin per la convalida.",
+      "language": "Lingua",
+      "label01": "Scegli la tua modalità",
+      "label02": "Livello di difficoltà",
+      "label03": "I tuoi temi (facoltativo)",
+      "labelTeams": "Le due squadre",
+      "modeTroupe": "Compagnia di impro",
+      "modeTroupeDesc": "Laboratorio di gruppo, senza competizione",
+      "modeMatch": "Match d'improvvisazione",
+      "modeMatchDesc": "Competizione tra due squadre",
+      "levelDebutant": "Principiante",
+      "levelConfirme": "Intermedio",
+      "levelExpert": "Esperto",
+      "teamA": "Squadra A",
+      "teamB": "Squadra B",
+      "teamTroupe": "Nome della compagnia",
+      "themesHint": "Inserisci i tuoi temi (uno per riga) o lascia vuoto per una selezione casuale.",
+      "themesPlaceholder": "Es.\nL'ultima domenica del mondo\nUn gatto che parla al suo padrone\nL'appuntamento mancato",
+      "useRandom": "🎲 Usa temi casuali",
+      "statusRandom": "Modalità: casuale",
+      "generate": "Genera un'improvvisazione",
+      "generating": "Generazione...",
+      "cardCategory": "Categoria",
+      "cardNature": "Natura dell'improvvisazione",
+      "natureMixte": "Mista",
+      "natureComparee": "Comparata",
+      "cardExercise": "Esercizio",
+      "cardConstraint": "Vincolo",
+      "cardTheme": "Tema",
+      "cardDuration": "Durata",
+      "cardPlayers": "Giocatori",
+      "rerollLabel": "Non convinto? Ri-estrai:",
+      "rerollExercise": "Esercizio",
+      "rerollConstraint": "Vincolo",
+      "rerollTheme": "Tema",
+      "rerollCategory": "Categoria",
+      "rerollDuration": "Durata",
+      "rerollPlayers": "Giocatori",
+      "placeholder": "Clicca su Genera",
+      "emDash": "—",
+      "footer": "Fatto con ♥ per la comunità dell'impro",
+      "sourcesLabel": "Fonti di ispirazione",
+      "label04": "Durata dell'esercizio",
+      "durationRandomLabel": "🎲 Durata casuale",
+      "durationManualLabel": "Durata manuale",
+      "durationMaxHelp": "Durata massima: ",
+      "cardChrono": "Cronometro",
+      "rerollChrono": "Cronometro",
+      "chronoStart": "▶ Avvia",
+      "chronoPause": "⏸ Pausa",
+      "chronoResume": "▶ Riprendi",
+      "chronoReset": "↺ Reimposta",
+      "audienceTitle": "Intervento del pubblico",
+      "audienceHint": "Questo esercizio può trarre vantaggio da un intervento del pubblico — un segnale regolare ricorda agli improvvisatori di invitare un suggerimento.",
+      "audienceIntervalLabel": "Intervallo tra gli interventi",
+      "audienceFlashMsg": "Pubblico: intervento!",
+      "audienceBadge": "👥 Interazione con il pubblico",
+      "themesModeRandom": "Casuale",
+      "themesModeCustom": "I miei temi",
+      "themeEditBtn": "📝 Inserisci i miei temi",
+      "themesDlgTitle": "I tuoi temi personali",
+      "themesDlgHint": "Inserisci i tuoi temi (uno per riga o separati da virgole).",
+      "themesDlgClear": "Cancella",
+      "themesDlgSave": "Salva",
+      "themesEmpty": "Nessun tema inserito",
+      "footerCredit": "Creato da Sébastien Spas",
+      "supportLabel": "Sostieni il progetto",
+      "supportTitle": "Sostieni Acto",
+      "supportBlurb": "Acto · The Impro Studio è gestito da una sola persona. Se lo strumento ti è utile, una piccola mancia aiuta a coprire i costi di hosting e il tempo dedicato allo sviluppo di nuove funzionalità. Nessun obbligo.",
+      "supportButton": "Offri un caffè",
+      "supportSuggested": "Importi comuni: 3 € · 5 € · 10 € — o quello che ti sembra giusto.",
+      "supportNote": "Ospitato su Buy Me a Coffee — pagamento con carta, Apple Pay o Google Pay, nella valuta locale. Nessun account richiesto.",
+      "supportThanks": "Grazie, davvero.",
+      "supportBackToApp": "← Torna all'app",
+      "recordOpenBtn": "🎥 Registra il video",
+      "recordTitle": "Registrazione video",
+      "recordStartBtn": "🔴 Avvia la registrazione",
+      "recordStopBtn": "⏹ Ferma",
+      "recordCloseBtn": "✕ Chiudi",
+      "recordSwitchCam": "🔄 Cambia fotocamera",
+      "recordDownload": "💾 Scarica il video",
+      "recordParticipantsHint": "Conferma il nome della squadra e l'elenco degli attori. Rimuovi chi non ha partecipato cliccando su ✕.",
+      "recordParticipantsTroupe": "Compagnia",
+      "recordParticipantsTeamA": "Squadra A",
+      "recordParticipantsTeamB": "Squadra B",
+      "recordParticipantsActorsPlaceholder": "Un nome per riga",
+      "recordParticipantsRemoveActor": "Rimuovi questo attore",
+      "recordParticipantsAddActorBtn": "+ Aggiungi",
+      "recordParticipantsAddActorPlaceholder": "Nome d'arte",
+      "recordValidate": "✓ Conferma i partecipanti",
+      "recordValidating": "Invio…",
+      "recordValidateFailed": "Invio non riuscito",
+      "recordSkipParticipants": "→ Salta questo passaggio",
+      "tirageStartsA": "🎲 {team} inizia — tocca a lei giocare o passare la mano.",
+      "tirageStartsB": "🎲 {team} inizia — tocca a lei giocare o passare la mano.",
+      "recordingTeamLabel": "🎬 Registrazione: {team}",
+      "recordOtherTeamBtn": "🎬 Registra la 2ª squadra",
+      "recordingTeamSelectorLabel": "Quale squadra stai registrando?",
+      "recordAgain": "↻ Rifai",
+      "recordOverlayCons": "Vincolo",
+      "recordOverlayTheme": "Tema",
+      "recordRec": "REC",
+      "recordHttpsHint": "La registrazione richiede HTTPS o localhost (non file://). Servi la pagina tramite un server web.",
+      "recordCamError": "Impossibile accedere alla fotocamera. Verifica l'autorizzazione nel tuo browser.",
+      "recordUnsupported": "Il tuo browser non supporta la registrazione video. Prova con una versione recente di Chrome o Safari.",
+      "recordPauseBtn": "Pausa",
+      "recordResumeBtn": "Riprendi",
+      "recordConfirmStopTitle": "Fermare la registrazione?",
+      "recordConfirmStopMsg": "Il video verrà finalizzato e potrai scaricarlo.",
+      "recordConfirmStopYes": "Sì, ferma",
+      "recordConfirmStopNo": "Continua",
+      "recordPreviewTitle": "Il tuo video",
+      "recordExitBtn": "Chiudi",
+      "recordOverlayExercise": "Esercizio",
+      "authLoginTitle": "Accesso",
+      "authEmail": "Email",
+      "authPassword": "Password",
+      "authLoginBtn": "Accedi",
+      "authNoAccount": "Non hai ancora un account?",
+      "authCreateAccount": "Crea un account",
+      "authHaveAccount": "Hai già un account?",
+      "authBackToLogin": "Torna all'accesso",
+      "authForgotPassword": "Password dimenticata?",
+      "authResetSent": "Email di reimpostazione inviata. Controlla la tua casella di posta.",
+      "authPendingTitle": "Controlla la tua email",
+      "authPendingMsg": "Un'email di conferma è stata inviata a {email}. Clicca sul link per attivare il tuo account, poi torna qui per accedere.",
+      "authResendEmail": "Invia di nuovo l'email di conferma",
+      "authSignupTitle": "Crea un account",
+      "authPrenom": "Nome",
+      "authNom": "Cognome",
+      "authDob": "Data di nascita",
+      "authConfirmPassword": "Conferma la password",
+      "authSignupSubmit": "Crea l'account",
+      "authErrorRequired": "Tutti i campi sono obbligatori",
+      "authErrorEmailFormat": "Indirizzo email non valido",
+      "authErrorPasswordShort": "La password deve contenere almeno 8 caratteri",
+      "authErrorPasswordMismatch": "Le password non corrispondono",
+      "authErrorDobInvalid": "Data di nascita non valida",
+      "authErrorDobYoung": "Devi avere almeno 13 anni per usare l'applicazione",
+      "authDobDay": "GG",
+      "authDobMonth": "MM",
+      "authDobYear": "AAAA",
+      "authStageName": "Nome d'arte",
+      "authStageNamePlaceholder": "es. Bowie, Lavalanche…",
+      "labelRoster": "La mia compagnia / la mia squadra",
+      "rosterEditBtn": "👥 Configura la formazione",
+      "rosterEditBtnShort": "👥 Formazione",
+      "editValueTitle": "Aggiungi",
+      "editValueHelp": "Aggiungi una nuova voce alla tua lista personale. Sarà anche proposta all'admin per la convalida.",
+      "editValueSave": "Salva",
+      "editValueSaving": "Invio…",
+      "editValueSubmitted": "✓ Aggiunto alla tua lista e proposto all'admin per tutti.",
+      "editValueSubmitFailed": "Invio all'admin non riuscito",
+      "editValueErrorEmpty": "Il testo è obbligatorio.",
+      "editValueErrorDuplicate": "Questa voce esiste già nella lista.",
+      "editValueErrorNotSignedIn": "Accedi per proporre la nuova voce all'admin (è comunque stata aggiunta alla tua lista).",
+      "editValueDescLabel": "Descrizione",
+      "editValueDescPlaceholder": "Come funziona?",
+      "rosterStatusEmpty": "Nessun partecipante",
+      "rosterStatusN": "{n} partecipante",
+      "rosterStatusN_plural": "{n} partecipanti",
+      "rosterDialogTitle": "Formazione",
+      "rosterDialogHint": "Cerca un attore per nome d'arte, nome, cognome o email — oppure aggiungi un ospite senza account.",
+      "rosterSearchPlaceholder": "Nome d'arte, nome, cognome o email…",
+      "rosterAdHocPlaceholder": "Nome di un ospite (senza account)",
+      "rosterAdHocAdd": "+ Aggiungi",
+      "rosterListEmpty": "Nessun partecipante aggiunto.",
+      "rosterRemove": "Rimuovi",
+      "rosterSave": "Salva",
+      "rosterTeamNameLabel": "Nome della squadra",
+      "rosterTeamNamePlaceholder": "Es. Le Tigri, La mia compagnia…",
+      "rosterTeamNameAvailable": "✓ Nome disponibile",
+      "rosterTeamNameTakenSelf": "ℹ Hai già una squadra «{name}» — il salvataggio la aggiornerà",
+      "rosterTeamNameTakenOther": "ℹ Un'altra persona ha già chiamato una squadra «{name}»",
+      "rosterPresenceHint": "Clicca su un partecipante per segnarlo come assente stasera",
+      "rosterChipAbsent": "assente",
+      "savedTeamsLabel": "Squadre salvate",
+      "savedTeamsPlaceholder": "— Carica una squadra salvata —",
+      "savedTeamsLoadBtn": "📥 Carica",
+      "savedTeamsSaveBtn": "💾 Salva questa squadra",
+      "savedTeamsUpdateBtn": "✎ Aggiorna",
+      "savedTeamsDeleteBtn": "🗑 Elimina",
+      "savedTeamsByOwner": "di {email}",
+      "savedTeamsNamePrompt": "Nome della squadra da salvare:",
+      "savedTeamsWarning": "Salvando, il nome della squadra e i nomi d'arte degli attori saranno visibili agli altri utenti di Acto. Nessun'altra informazione personale viene condivisa. Continuare?",
+      "savedTeamsConfirmDelete": "Eliminare definitivamente la squadra «{name}»?",
+      "savedTeamsConfirmUpdate": "Sostituire il contenuto salvato di «{name}» con la formazione attuale?",
+      "savedTeamsLoginRequired": "Accedi per salvare o caricare una squadra.",
+      "savedTeamsEmpty": "Nessuna squadra salvata per il momento.",
+      "rosterCancel": "Annulla",
+      "rosterSearchSearching": "Ricerca in corso…",
+      "rosterSearchFound": "{n} risultato/i trovato/i",
+      "rosterSearchNone": "Nessun attore trovato per «{q}». Puoi aggiungerlo come ospite qui sotto.",
+      "authErrorStageNameTaken": "Questo nome d'arte è già in uso. Scegline un altro.",
+      "authErrorStageNameUnsuitable": "Questo nome d'arte contiene un termine inappropriato.",
+      "authErrorEmailNotConfirmed": "Devi confermare la tua email prima di accedere. Controlla la tua casella di posta.",
+      "authErrorInvalidCredentials": "Email o password errati",
+      "authLoading": "Caricamento…",
+      "authLogout": "Disconnetti",
+      "authEditAccount": "Modifica i miei dati",
+      "authEditAccountTitle": "Modifica il mio account",
+      "authEditSave": "Salva",
+      "authAccountSection": "Il mio account",
+      "authAccountInfo": "Connesso come {email}",
+      "authDeleteAccount": "Elimina il mio account",
+      "authDeleteConfirm": "Questa azione è irreversibile. Tutti i tuoi dati saranno eliminati definitivamente. Digita ELIMINA per confermare.",
+      "authDeleteWord": "ELIMINA",
+      "authDeleteConfirmBtn": "Elimina definitivamente",
+      "authDeleteCancel": "Annulla",
+      "inspireLabelText": "Ispirazioni",
+      "inspirePageTitleShort": "Ispirazioni",
+      "inspireBlurb": "Una selezione di video dalla comunità dell'impro: match, forma lunga, tutorial, canali… Digita qui sotto per filtrare per categoria, tema, compagnia o natura.",
+      "inspireSearchPlaceholder": "Digita una categoria, un tema, il nome di una compagnia, una natura…",
+      "inspireAddBtn": "+ Proponi un video",
+      "inspireBackToApp": "← Torna all'app",
+      "inspireLoading": "Caricamento…",
+      "inspireLoadError": "Errore di caricamento",
+      "inspireResultCount": "{n} risultato/i · {total} in totale",
+      "inspireNoResults": "Nessun risultato per questa ricerca.",
+      "inspireEmptyTitle": "Ancora nessuna ispirazione qui",
+      "inspireEmptyBlurb": "Sii la prima persona a proporre un video tramite il pulsante «+ Proponi».",
+      "inspireColTitle": "Titolo / Link",
+      "inspireColChannel": "Canale / Compagnia",
+      "inspireColType": "Tipo",
+      "inspireColNature": "Natura",
+      "inspireColCategory": "Categoria",
+      "inspireColTheme": "Tema",
+      "inspireColDuration": "Durata",
+      "inspireColNotes": "Note",
+      "inspireSubmitTitle": "Proponi un'ispirazione",
+      "inspireSubmitHelp": "La proposta sarà inviata all'admin per la convalida prima della pubblicazione.",
+      "inspireSubmitFieldUrl": "Link del video (YouTube, Vimeo, …)",
+      "inspireSubmitFieldTitle": "Titolo *",
+      "inspireSubmitFieldChannel": "Canale / Compagnia",
+      "inspireSubmitFieldType": "Tipo *",
+      "inspireSubmitFieldNature": "Natura",
+      "inspireSubmitFieldCategory": "Categoria",
+      "inspireSubmitFieldTheme": "Tema",
+      "inspireSubmitFieldDuration": "Durata",
+      "inspireSubmitFieldNotes": "Note / Descrizione",
+      "inspireSubmitConfirmBtn": "Invia",
+      "inspireSubmitSending": "Invio…",
+      "inspireSubmitOk": "✓ Proposta inviata all'admin per la convalida.",
+      "inspireSubmitErr": "Invio non riuscito",
+      "inspireSubmitErrTitle": "Il titolo è obbligatorio.",
+      "inspireSubmitNeedsAuth": "Accedi all'app per proporre un video. Il link: ",
+      "authWelcomeBack": "Bentornato, {prenom}!",
+      "warmupsPageTitle": "Riscaldamento",
+      "warmupsBlurb": "Una raccolta di esercizi per preparare il corpo, la voce e l'energia prima di un'improvvisazione. Filtra per tipo o lascia che il sorteggio scelga per te.",
+      "warmupsSearchPlaceholder": "Scrivi il nome di un esercizio, una parola chiave…",
+      "warmupsTypeAll": "Tutti i tipi",
+      "warmupsRandomBtn": "🎲 Sorteggio casuale",
+      "warmupsAddBtn": "+ Proponi un esercizio",
+      "warmupsBackToApp": "← Torna all'app",
+      "warmupsCount": "{n} / {total} esercizi",
+      "warmupsEmptyTitle": "Nessun esercizio corrisponde a questi filtri.",
+      "warmupsEmptyBlurb": "Cambia il tipo o cancella la ricerca.",
+      "warmupsCardChronoBtn": "⏱ Avvia cronometro",
+      "warmupsCommunityTag": "Comunità",
+      "warmupsDrawBadge": "🎲 Sorteggio",
+      "warmupsDrawChrono": "⏱ Avvia il cronometro",
+      "warmupsDrawRedraw": "🎲 Rilancia",
+      "warmupsDrawClose": "✕ Chiudi",
+      "warmupsChronoStart": "▶ Avvia",
+      "warmupsChronoResume": "▶ Riprendi",
+      "warmupsChronoPause": "⏸ Pausa",
+      "warmupsChronoReset": "↺ Reset",
+      "warmupsChronoSetLabel": "Nessuna durata definita — scegline una:",
+      "warmupsSubmitTitle": "Proponi un esercizio",
+      "warmupsSubmitHelp": "La proposta sarà inviata all'admin per la validazione prima della pubblicazione.",
+      "warmupsFieldType": "Tipo *",
+      "warmupsFieldSubtype": "Sottotipo",
+      "warmupsFieldName": "Nome dell'esercizio *",
+      "warmupsFieldDescription": "Descrizione *",
+      "warmupsFieldDuration": "Durata (facoltativo)",
+      "warmupsFieldParticipants": "Partecipanti",
+      "warmupsFieldSource": "Fonte (facoltativo)",
+      "warmupsSubmitSend": "Invia",
+      "warmupsSubmitSending": "Invio…",
+      "warmupsSubmitCancel": "Annulla",
+      "warmupsSubmitOk": "✓ Proposta inviata all'admin per la validazione.",
+      "warmupsSubmitErrRequired": "Il nome e la descrizione sono obbligatori.",
+      "warmupsSubmitErrPrefix": "Invio non riuscito",
+      "warmupsSubmitNeedsAuth": "Accedi all'app per proporre un esercizio: "
     },
     "en": {
       "title": "Impro",
@@ -589,7 +949,44 @@ window.IMPRO_BUNDLE = {
       "inspireSubmitErr": "Failed to send",
       "inspireSubmitErrTitle": "Title is required.",
       "inspireSubmitNeedsAuth": "Log in to the app to suggest a video. Link: ",
-      "authWelcomeBack": "Welcome back, {prenom}!"
+      "authWelcomeBack": "Welcome back, {prenom}!",
+      "warmupsPageTitle": "Warm-up",
+      "warmupsBlurb": "A library of exercises to prepare the body, voice and energy before an improv. Filter by type, or let the random draw choose for you.",
+      "warmupsSearchPlaceholder": "Type an exercise name, a keyword…",
+      "warmupsTypeAll": "All types",
+      "warmupsRandomBtn": "🎲 Random draw",
+      "warmupsAddBtn": "+ Suggest an exercise",
+      "warmupsBackToApp": "← Back to the app",
+      "warmupsCount": "{n} / {total} exercises",
+      "warmupsEmptyTitle": "No exercise matches these filters.",
+      "warmupsEmptyBlurb": "Change the type or clear the search.",
+      "warmupsCardChronoBtn": "⏱ Start timer",
+      "warmupsCommunityTag": "Community",
+      "warmupsDrawBadge": "🎲 Draw",
+      "warmupsDrawChrono": "⏱ Start the timer",
+      "warmupsDrawRedraw": "🎲 Draw again",
+      "warmupsDrawClose": "✕ Close",
+      "warmupsChronoStart": "▶ Start",
+      "warmupsChronoResume": "▶ Resume",
+      "warmupsChronoPause": "⏸ Pause",
+      "warmupsChronoReset": "↺ Reset",
+      "warmupsChronoSetLabel": "No duration set — choose one:",
+      "warmupsSubmitTitle": "Suggest an exercise",
+      "warmupsSubmitHelp": "The suggestion will be sent to the admin for review before publication.",
+      "warmupsFieldType": "Type *",
+      "warmupsFieldSubtype": "Subtype",
+      "warmupsFieldName": "Exercise name *",
+      "warmupsFieldDescription": "Description *",
+      "warmupsFieldDuration": "Duration (optional)",
+      "warmupsFieldParticipants": "Participants",
+      "warmupsFieldSource": "Source (optional)",
+      "warmupsSubmitSend": "Send",
+      "warmupsSubmitSending": "Sending…",
+      "warmupsSubmitCancel": "Cancel",
+      "warmupsSubmitOk": "✓ Suggestion sent to the admin for review.",
+      "warmupsSubmitErrRequired": "Name and description are required.",
+      "warmupsSubmitErrPrefix": "Submission failed",
+      "warmupsSubmitNeedsAuth": "Sign in to the app to suggest an exercise: "
     },
     "de": {
       "title": "Impro",
@@ -871,7 +1268,44 @@ window.IMPRO_BUNDLE = {
       "inspireSubmitErr": "Senden fehlgeschlagen",
       "inspireSubmitErrTitle": "Der Titel ist erforderlich.",
       "inspireSubmitNeedsAuth": "Melde dich in der App an, um ein Video vorzuschlagen. Link: ",
-      "authWelcomeBack": "Willkommen zurück, {prenom}!"
+      "authWelcomeBack": "Willkommen zurück, {prenom}!",
+      "warmupsPageTitle": "Aufwärmen",
+      "warmupsBlurb": "Eine Sammlung von Übungen, um Körper, Stimme und Energie vor einer Impro vorzubereiten. Nach Typ filtern oder die Zufallsauswahl entscheiden lassen.",
+      "warmupsSearchPlaceholder": "Übungsname, Stichwort eingeben…",
+      "warmupsTypeAll": "Alle Typen",
+      "warmupsRandomBtn": "🎲 Zufallsauswahl",
+      "warmupsAddBtn": "+ Übung vorschlagen",
+      "warmupsBackToApp": "← Zurück zur App",
+      "warmupsCount": "{n} / {total} Übungen",
+      "warmupsEmptyTitle": "Keine Übung passt zu diesen Filtern.",
+      "warmupsEmptyBlurb": "Ändere den Typ oder lösche die Suche.",
+      "warmupsCardChronoBtn": "⏱ Timer starten",
+      "warmupsCommunityTag": "Community",
+      "warmupsDrawBadge": "🎲 Auswahl",
+      "warmupsDrawChrono": "⏱ Timer starten",
+      "warmupsDrawRedraw": "🎲 Neu auswählen",
+      "warmupsDrawClose": "✕ Schließen",
+      "warmupsChronoStart": "▶ Start",
+      "warmupsChronoResume": "▶ Fortsetzen",
+      "warmupsChronoPause": "⏸ Pause",
+      "warmupsChronoReset": "↺ Zurücksetzen",
+      "warmupsChronoSetLabel": "Keine Dauer festgelegt — wähle eine:",
+      "warmupsSubmitTitle": "Übung vorschlagen",
+      "warmupsSubmitHelp": "Der Vorschlag wird vor der Veröffentlichung dem Admin zur Prüfung gesendet.",
+      "warmupsFieldType": "Typ *",
+      "warmupsFieldSubtype": "Untertyp",
+      "warmupsFieldName": "Name der Übung *",
+      "warmupsFieldDescription": "Beschreibung *",
+      "warmupsFieldDuration": "Dauer (optional)",
+      "warmupsFieldParticipants": "Teilnehmer",
+      "warmupsFieldSource": "Quelle (optional)",
+      "warmupsSubmitSend": "Senden",
+      "warmupsSubmitSending": "Senden…",
+      "warmupsSubmitCancel": "Abbrechen",
+      "warmupsSubmitOk": "✓ Vorschlag an den Admin zur Prüfung gesendet.",
+      "warmupsSubmitErrRequired": "Name und Beschreibung sind erforderlich.",
+      "warmupsSubmitErrPrefix": "Senden fehlgeschlagen",
+      "warmupsSubmitNeedsAuth": "Melde dich in der App an, um eine Übung vorzuschlagen: "
     },
     "es": {
       "title": "Impro",
@@ -1153,7 +1587,44 @@ window.IMPRO_BUNDLE = {
       "inspireSubmitErr": "Error al enviar",
       "inspireSubmitErrTitle": "El título es obligatorio.",
       "inspireSubmitNeedsAuth": "Inicia sesión en la app para proponer un vídeo. Enlace: ",
-      "authWelcomeBack": "¡Bienvenido de nuevo, {prenom}!"
+      "authWelcomeBack": "¡Bienvenido de nuevo, {prenom}!",
+      "warmupsPageTitle": "Calentamiento",
+      "warmupsBlurb": "Una biblioteca de ejercicios para preparar el cuerpo, la voz y la energía antes de una impro. Filtra por tipo o deja que el sorteo elija por ti.",
+      "warmupsSearchPlaceholder": "Escribe el nombre de un ejercicio, una palabra clave…",
+      "warmupsTypeAll": "Todos los tipos",
+      "warmupsRandomBtn": "🎲 Sorteo aleatorio",
+      "warmupsAddBtn": "+ Proponer un ejercicio",
+      "warmupsBackToApp": "← Volver a la app",
+      "warmupsCount": "{n} / {total} ejercicios",
+      "warmupsEmptyTitle": "Ningún ejercicio coincide con estos filtros.",
+      "warmupsEmptyBlurb": "Cambia el tipo o borra la búsqueda.",
+      "warmupsCardChronoBtn": "⏱ Iniciar cronómetro",
+      "warmupsCommunityTag": "Comunidad",
+      "warmupsDrawBadge": "🎲 Sorteo",
+      "warmupsDrawChrono": "⏱ Iniciar el cronómetro",
+      "warmupsDrawRedraw": "🎲 Volver a sortear",
+      "warmupsDrawClose": "✕ Cerrar",
+      "warmupsChronoStart": "▶ Iniciar",
+      "warmupsChronoResume": "▶ Reanudar",
+      "warmupsChronoPause": "⏸ Pausa",
+      "warmupsChronoReset": "↺ Reiniciar",
+      "warmupsChronoSetLabel": "Sin duración definida — elige una:",
+      "warmupsSubmitTitle": "Proponer un ejercicio",
+      "warmupsSubmitHelp": "La propuesta se enviará al admin para validación antes de publicarse.",
+      "warmupsFieldType": "Tipo *",
+      "warmupsFieldSubtype": "Subtipo",
+      "warmupsFieldName": "Nombre del ejercicio *",
+      "warmupsFieldDescription": "Descripción *",
+      "warmupsFieldDuration": "Duración (opcional)",
+      "warmupsFieldParticipants": "Participantes",
+      "warmupsFieldSource": "Fuente (opcional)",
+      "warmupsSubmitSend": "Enviar",
+      "warmupsSubmitSending": "Enviando…",
+      "warmupsSubmitCancel": "Cancelar",
+      "warmupsSubmitOk": "✓ Propuesta enviada al admin para validación.",
+      "warmupsSubmitErrRequired": "El nombre y la descripción son obligatorios.",
+      "warmupsSubmitErrPrefix": "Fallo en el envío",
+      "warmupsSubmitNeedsAuth": "Inicia sesión en la app para proponer un ejercicio: "
     },
     "pt": {
       "title": "Impro",
@@ -1435,7 +1906,44 @@ window.IMPRO_BUNDLE = {
       "inspireSubmitErr": "Falha no envio",
       "inspireSubmitErrTitle": "O título é obrigatório.",
       "inspireSubmitNeedsAuth": "Inicia sessão na app para sugerir um vídeo. Link: ",
-      "authWelcomeBack": "Bem-vindo de volta, {prenom}!"
+      "authWelcomeBack": "Bem-vindo de volta, {prenom}!",
+      "warmupsPageTitle": "Aquecimento",
+      "warmupsBlurb": "Uma biblioteca de exercícios para preparar o corpo, a voz e a energia antes de uma impro. Filtra por tipo ou deixa o sorteio escolher por ti.",
+      "warmupsSearchPlaceholder": "Escreve o nome de um exercício, uma palavra-chave…",
+      "warmupsTypeAll": "Todos os tipos",
+      "warmupsRandomBtn": "🎲 Sorteio aleatório",
+      "warmupsAddBtn": "+ Propor um exercício",
+      "warmupsBackToApp": "← Voltar à app",
+      "warmupsCount": "{n} / {total} exercícios",
+      "warmupsEmptyTitle": "Nenhum exercício corresponde a estes filtros.",
+      "warmupsEmptyBlurb": "Muda o tipo ou limpa a pesquisa.",
+      "warmupsCardChronoBtn": "⏱ Iniciar cronómetro",
+      "warmupsCommunityTag": "Comunidade",
+      "warmupsDrawBadge": "🎲 Sorteio",
+      "warmupsDrawChrono": "⏱ Iniciar o cronómetro",
+      "warmupsDrawRedraw": "🎲 Sortear de novo",
+      "warmupsDrawClose": "✕ Fechar",
+      "warmupsChronoStart": "▶ Iniciar",
+      "warmupsChronoResume": "▶ Retomar",
+      "warmupsChronoPause": "⏸ Pausa",
+      "warmupsChronoReset": "↺ Repor",
+      "warmupsChronoSetLabel": "Sem duração definida — escolhe uma:",
+      "warmupsSubmitTitle": "Propor um exercício",
+      "warmupsSubmitHelp": "A proposta será enviada ao admin para validação antes da publicação.",
+      "warmupsFieldType": "Tipo *",
+      "warmupsFieldSubtype": "Subtipo",
+      "warmupsFieldName": "Nome do exercício *",
+      "warmupsFieldDescription": "Descrição *",
+      "warmupsFieldDuration": "Duração (opcional)",
+      "warmupsFieldParticipants": "Participantes",
+      "warmupsFieldSource": "Fonte (opcional)",
+      "warmupsSubmitSend": "Enviar",
+      "warmupsSubmitSending": "A enviar…",
+      "warmupsSubmitCancel": "Cancelar",
+      "warmupsSubmitOk": "✓ Proposta enviada ao admin para validação.",
+      "warmupsSubmitErrRequired": "O nome e a descrição são obrigatórios.",
+      "warmupsSubmitErrPrefix": "Falha no envio",
+      "warmupsSubmitNeedsAuth": "Inicia sessão na app para propor um exercício: "
     },
     "nl": {
       "title": "Impro",
@@ -1717,7 +2225,44 @@ window.IMPRO_BUNDLE = {
       "inspireSubmitErr": "Verzenden mislukt",
       "inspireSubmitErrTitle": "De titel is verplicht.",
       "inspireSubmitNeedsAuth": "Meld je aan in de app om een video voor te stellen. Link: ",
-      "authWelcomeBack": "Welkom terug, {prenom}!"
+      "authWelcomeBack": "Welkom terug, {prenom}!",
+      "warmupsPageTitle": "Opwarming",
+      "warmupsBlurb": "Een bibliotheek met oefeningen om lichaam, stem en energie voor te bereiden vóór een impro. Filter op type of laat de loting voor je kiezen.",
+      "warmupsSearchPlaceholder": "Typ een oefeningnaam, een trefwoord…",
+      "warmupsTypeAll": "Alle types",
+      "warmupsRandomBtn": "🎲 Willekeurige loting",
+      "warmupsAddBtn": "+ Oefening voorstellen",
+      "warmupsBackToApp": "← Terug naar de app",
+      "warmupsCount": "{n} / {total} oefeningen",
+      "warmupsEmptyTitle": "Geen enkele oefening komt overeen met deze filters.",
+      "warmupsEmptyBlurb": "Wijzig het type of wis de zoekopdracht.",
+      "warmupsCardChronoBtn": "⏱ Timer starten",
+      "warmupsCommunityTag": "Community",
+      "warmupsDrawBadge": "🎲 Loting",
+      "warmupsDrawChrono": "⏱ Timer starten",
+      "warmupsDrawRedraw": "🎲 Opnieuw loten",
+      "warmupsDrawClose": "✕ Sluiten",
+      "warmupsChronoStart": "▶ Starten",
+      "warmupsChronoResume": "▶ Hervatten",
+      "warmupsChronoPause": "⏸ Pauze",
+      "warmupsChronoReset": "↺ Reset",
+      "warmupsChronoSetLabel": "Geen duur ingesteld — kies er een:",
+      "warmupsSubmitTitle": "Oefening voorstellen",
+      "warmupsSubmitHelp": "Het voorstel wordt vóór publicatie naar de admin gestuurd ter validatie.",
+      "warmupsFieldType": "Type *",
+      "warmupsFieldSubtype": "Subtype",
+      "warmupsFieldName": "Naam van de oefening *",
+      "warmupsFieldDescription": "Beschrijving *",
+      "warmupsFieldDuration": "Duur (optioneel)",
+      "warmupsFieldParticipants": "Deelnemers",
+      "warmupsFieldSource": "Bron (optioneel)",
+      "warmupsSubmitSend": "Versturen",
+      "warmupsSubmitSending": "Verzenden…",
+      "warmupsSubmitCancel": "Annuleren",
+      "warmupsSubmitOk": "✓ Voorstel naar de admin gestuurd ter validatie.",
+      "warmupsSubmitErrRequired": "Naam en beschrijving zijn verplicht.",
+      "warmupsSubmitErrPrefix": "Verzenden mislukt",
+      "warmupsSubmitNeedsAuth": "Meld je aan in de app om een oefening voor te stellen: "
     }
   },
   "data": {
@@ -5683,6 +6228,716 @@ window.IMPRO_BUNDLE = {
           "3 opgelegde spelers",
           "Hele ploeg",
           "Kapitein + 1"
+        ]
+      }
+    },
+    "it": {
+      "exercises": {
+        "troupe": {
+          "debutant": [
+            {
+              "name": "Lo specchio",
+              "desc": "Due giocatori uno di fronte all'altro. Uno fa movimenti lenti, l'altro lo imita in uno specchio perfetto. Si accelera progressivamente. (Tadam Impro)"
+            },
+            {
+              "name": "Le sedie",
+              "desc": "Una squadra ha 30s per costruire una struttura con delle sedie. Un'altra squadra ha 40s per preparare un'improvvisazione a partire da questa struttura. (Tadam Impro)"
+            },
+            {
+              "name": "Il discorso funebre",
+              "desc": "Ognuno improvvisa un discorso in omaggio al proprio animale domestico. Tono solenne, divertente, o entrambi. (Tadam Impro)"
+            },
+            {
+              "name": "Storia collettiva",
+              "desc": "In cerchio, una parola ciascuno. La storia si costruisce collettivamente, senza esitare né tornare indietro."
+            },
+            {
+              "name": "Il tema da incarnare",
+              "desc": "Il gruppo è in movimento, un conduttore lancia un tema (museo, piramidi...). Il gruppo lo ricrea immediatamente. (Tadam Impro)"
+            },
+            {
+              "name": "Conversazione bizzarra",
+              "desc": "Due giocatori improvvisano una situazione assurda: un uccello che spiega l'albero a un altro uccello, una pulce che litiga con un cane. (Tadam Impro)"
+            },
+            {
+              "name": "Yes, and...",
+              "desc": "Ogni proposta viene accettata e arricchita. Regola d'oro dell'improvvisazione secondo InFamily: non bloccare mai."
+            },
+            {
+              "name": "L'oggetto immaginario",
+              "desc": "Un giocatore manipola un oggetto invisibile. Gli altri indovinano e lo rilanciano aggiungendovi un utilizzo."
+            },
+            {
+              "name": "L'ubriaco",
+              "desc": "Un membro del pubblico (o un attore) interpreta l'« ubriaco » che interrompe la scena con suggerimenti assurdi che gli improvvisatori devono integrare per far evolvere la storia.",
+              "needsAudience": true
+            },
+            {
+              "name": "Cerchio di domande",
+              "desc": "Un giocatore al centro del cerchio. Gli altri gli pongono domande a raffica. Lui risponde con precisione a ciascuna. (Dramaction)",
+              "needsAudience": true
+            },
+            {
+              "name": "Emozioni a comando",
+              "desc": "Il conduttore lancia un'emozione. I giocatori cambiano immediatamente e la giustificano in scena."
+            },
+            {
+              "name": "La macchina umana",
+              "desc": "Uno alla volta, i giocatori entrano e aggiungono un gesto/suono ripetitivo. La macchina si costruisce organicamente."
+            },
+            {
+              "name": "ABC",
+              "desc": "Una scena in cui ogni battuta inizia con la lettera successiva dell'alfabeto. A, B, C... fino alla Z."
+            },
+            {
+              "name": "L'autobus",
+              "desc": "Una fermata dell'autobus. A ogni arrivo, un nuovo personaggio sale con il suo universo. La scena muta ogni volta."
+            },
+            {
+              "name": "Pantomima",
+              "desc": "Una scena interamente mimata a partire da un tema. (Dramaction)"
+            },
+            {
+              "name": "Tre personaggi",
+              "desc": "Tre giocatori entrano e costruiscono il proprio personaggio in meno di 30 secondi, solo con la postura e la voce."
+            },
+            {
+              "name": "Emozione che passa",
+              "desc": "Un giocatore trasmette un'emozione in silenzio al suo vicino con un gesto, che a sua volta la trasmette. (Dramaction)"
+            },
+            {
+              "name": "Il Freeze",
+              "desc": "Due giocatori improvvisano a partire da una postura. In qualsiasi momento, un altro batte le mani per congelare la scena e sostituire un giocatore. (Impro-Exo)"
+            },
+            {
+              "name": "Inizio-mezzo-fine in 30s",
+              "desc": "Iniziare un'improvvisazione, far muovere la posta in gioco e concludere — il tutto in 30 secondi cronometrati. (Impro-Exo)"
+            },
+            {
+              "name": "Conversazione a emozione mutevole",
+              "desc": "Una conversazione in coppia. Ogni 1-2 minuti, un conduttore grida un'emozione. I giocatori cambiano. (MentorShow)",
+              "needsAudience": true
+            },
+            {
+              "name": "Mista",
+              "desc": "Tutti i giocatori della compagnia entrano insieme e interpretano il tema senza divisione in squadre. (Categoria match adattata)"
+            },
+            {
+              "name": "Comparata",
+              "desc": "Due sottogruppi della compagnia interpretano successivamente la stessa proposta. La 2ª versione deve distinguersi dalla 1ª. (Categoria match adattata)"
+            },
+            {
+              "name": "Comparata libera",
+              "desc": "Due sottogruppi interpretano successivamente lo stesso tema, nessun vincolo di forma. Libertà totale. (Categoria match adattata)"
+            },
+            {
+              "name": "Mista con accessorio",
+              "desc": "Un oggetto imposto deve essere centrale nell'improvvisazione collettiva. L'intera compagnia lo addomestica in scena. (Categoria match adattata)"
+            }
+          ],
+          "confirme": [
+            {
+              "name": "Pausa-Ripresa",
+              "desc": "Il conduttore ferma la scena, cambia un elemento (luogo, epoca, status) e la fa riprendere."
+            },
+            {
+              "name": "Tre parole imposte",
+              "desc": "Tre parole estratte a sorte devono essere inserite naturalmente nella scena.",
+              "needsAudience": true
+            },
+            {
+              "name": "Lo status",
+              "desc": "Ogni personaggio ha uno status sociale nascosto (da 1 a 10). Il pubblico deve indovinarlo."
+            },
+            {
+              "name": "Doppiaggio",
+              "desc": "Due giocatori mimano, altri due parlano per loro dall'esterno del palco."
+            },
+            {
+              "name": "Conferenza di esperti",
+              "desc": "Un panel di esperti su un argomento assurdo risponde con serietà alle domande del pubblico.",
+              "needsAudience": true
+            },
+            {
+              "name": "Last word, first word",
+              "desc": "Ogni battuta deve iniziare con l'ultima parola di quella precedente."
+            },
+            {
+              "name": "Storia a ritroso",
+              "desc": "Raccontare una storia iniziando dalla fine e risalendo scena per scena."
+            },
+            {
+              "name": "Generi mescolati",
+              "desc": "Il conduttore cambia genere ogni 30 secondi (western, giallo, romance, horror...)."
+            },
+            {
+              "name": "Il triplo status",
+              "desc": "Ogni personaggio ha un segreto, un obiettivo e un ostacolo. Tutti si rivelano nel corso della scena."
+            },
+            {
+              "name": "Scena invertita",
+              "desc": "Si inizia dal climax e si risale fino all'incontro dei personaggi."
+            },
+            {
+              "name": "Il coro stonato",
+              "desc": "Un coro sul palco — un membro è stonato o fuori tempo. Tutto il dramma nasce da lui. (Wikiversité)"
+            },
+            {
+              "name": "Attori dietro le quinte",
+              "desc": "Una scena si svolge dietro le quinte mentre lo 'spettacolo' ha luogo sul palco. Messa in abisso. (Wikiversité)"
+            },
+            {
+              "name": "L'ascensore guasto",
+              "desc": "Spazio ultra-ristretto, più personaggi, la situazione chiusa è forzata. Un classico. (Wikiversité)"
+            },
+            {
+              "name": "La riunione dei prof",
+              "desc": "Una riunione di insegnanti in cui ogni prof ha un'agenda nascosta e un allievo prediletto."
+            },
+            {
+              "name": "Il ritorno al passato",
+              "desc": "In un momento chiave, un giocatore batte le mani. La scena torna indietro di 1 minuto e si rigioca diversamente."
+            },
+            {
+              "name": "Il personaggio estratto",
+              "desc": "Ogni giocatore estrae un tipo di personaggio (clown, seduttore, paranoico) che deve interpretare senza nominarlo."
+            },
+            {
+              "name": "Mista alla maniera di",
+              "desc": "Tutti interpretano il tema in uno stile d'autore o di genere imposto: Molière, Audiard, film noir... (Categoria match adattata)"
+            },
+            {
+              "name": "Comparata alla maniera di",
+              "desc": "Due sottogruppi interpretano successivamente lo stesso tema nello stile imposto, ciascuno a modo suo. (Categoria match adattata)"
+            },
+            {
+              "name": "Mista senza parole",
+              "desc": "Nessuna parola pronunciata: solo la messa in scena collettiva racconta. Concentrazione estrema. (Categoria match adattata)"
+            },
+            {
+              "name": "Senza parole con supporto musicale",
+              "desc": "Improvvisazione muta, ma la scrittura è rigorosamente influenzata dall'atmosfera musicale imposta. (Dramaction)"
+            },
+            {
+              "name": "Comparata con vincolo",
+              "desc": "Due sottogruppi interpretano successivamente lo stesso tema, ciascuno con un vincolo diverso estratto a sorte. (Categoria match adattata)"
+            },
+            {
+              "name": "Senza tema né caucus",
+              "desc": "Nessun tema annunciato, nessun tempo di concertazione. Pura inventiva immediata. (Dramaction)"
+            },
+            {
+              "name": "Salto della cavallina",
+              "desc": "Quattro improvvisazioni diverse, un tema per improvvisazione. La 1ª con un giocatore, se ne aggiunge uno a ogni improvvisazione successiva. (Dramaction)"
+            },
+            {
+              "name": "Sensoriale",
+              "desc": "Uno dei cinque sensi di un improvvisatore viene stimolato durante la scena. Questa sensazione deve nutrire tutta la scrittura. (Dramaction)"
+            }
+          ],
+          "expert": [
+            {
+              "name": "L'Harold",
+              "desc": "Forma lunga: tre scene in parallelo si intrecciano, si rispondono e si nutrono a vicenda. Formato Del Close."
+            },
+            {
+              "name": "La Palla di fuoco",
+              "desc": "Tutti i giocatori sul palco. A ogni momento clou, una coppia si stacca per una mini-scena, poi torna al gruppo."
+            },
+            {
+              "name": "L'improvvisazione cantata",
+              "desc": "Una scena interamente cantata con melodia improvvisata, rime e struttura strofa/ritornello."
+            },
+            {
+              "name": "Il monologo condiviso",
+              "desc": "Un lungo monologo viene ripreso da ogni giocatore, che lo deforma e lo arricchisce assumendo lo stesso personaggio."
+            },
+            {
+              "name": "Forma libera 20 minuti",
+              "desc": "Una sola scena, venti minuti, senza interruzione né cambiamento. Reggere un mondo intero."
+            },
+            {
+              "name": "L'opera impro",
+              "desc": "Recitativi e arie cantati in alternanza, libretto interamente improvvisato, voci liriche."
+            },
+            {
+              "name": "Lo specchio Pirandello",
+              "desc": "I personaggi prendono coscienza di essere improvvisati... ma devono continuare comunque la scena.",
+              "needsAudience": true
+            },
+            {
+              "name": "Scena a due tempi",
+              "desc": "Una scena si gioca, poi si rigioca dieci anni dopo con le conseguenze logiche della prima."
+            },
+            {
+              "name": "Improvvisazione muta",
+              "desc": "Spettacolo di 15 minuti, integralmente senza parole, con intreccio chiaro e risolto."
+            },
+            {
+              "name": "Il teatro nel teatro",
+              "desc": "I personaggi improvvisano a loro volta una pièce dentro la scena. Tre livelli di finzione sovrapposti."
+            },
+            {
+              "name": "La Casa (Del Close)",
+              "desc": "Forma lunga in cui ogni scena apre temi che le successive riprendono e approfondiscono."
+            },
+            {
+              "name": "Il Deconstructed",
+              "desc": "Una sola scena viene interpretata, poi sviscerata e ricominciata secondo diversi angoli narrativi."
+            },
+            {
+              "name": "Cechoviana",
+              "desc": "Forma lunga alla Cechov: nessun climax, personaggi che si mancano, l'inazione come motore."
+            },
+            {
+              "name": "Beckettiana",
+              "desc": "Forma lunga assurda: silenzi abitati, attesa, linguaggio che si svuota. Sul modello di Aspettando Godot."
+            },
+            {
+              "name": "Mista cantata",
+              "desc": "Improvvisazione interamente o parzialmente cantata da tutta la compagnia, melodie e parole improvvisate in collettivo. (Categoria match adattata)"
+            },
+            {
+              "name": "Comparata cantata",
+              "desc": "Due sottogruppi propongono successivamente la propria versione cantata dello stesso tema. (Categoria match adattata)"
+            },
+            {
+              "name": "Mista in rima",
+              "desc": "Tutte le battute fanno rima. Ottonari o alessandrini a seconda del livello. L'intera compagnia regge il metro. (Categoria match adattata)"
+            },
+            {
+              "name": "Comparata in rima",
+              "desc": "Due sottogruppi propongono successivamente la propria versione in rima del tema. (Categoria match adattata)"
+            },
+            {
+              "name": "Videoway",
+              "desc": "Mista con quattro canali TV (F1-F4), contenuto diverso per canale. Il conduttore salta da un canale all'altro senza ordine predefinito. (Dramaction)"
+            },
+            {
+              "name": "Mista a tesi",
+              "desc": "L'improvvisazione collettiva deve difendere una tesi filosofica annunciata in anticipo."
+            }
+          ]
+        },
+        "match": {
+          "debutant": [
+            {
+              "name": "Improvvisazione semplice",
+              "desc": "Una squadra gioca, l'altra aspetta. Forma classica del match d'improvvisazione della LNI."
+            },
+            {
+              "name": "Improvvisazione mista",
+              "desc": "Le due squadre giocano insieme nella stessa improvvisazione, in equilibrio numerico."
+            },
+            {
+              "name": "Improvvisazione comparata",
+              "desc": "Ogni squadra interpreta a turno la stessa proposta. Il pubblico confronta e vota."
+            },
+            {
+              "name": "Mista senza parole",
+              "desc": "Le due squadre insieme, ma in silenzio assoluto per tutta la scena."
+            },
+            {
+              "name": "Comparata cantata",
+              "desc": "Ogni squadra interpreta il tema integrandovi almeno un passaggio cantato."
+            },
+            {
+              "name": "Comparata con accessorio",
+              "desc": "Un accessorio imposto deve essere centrale. Ogni squadra lo usa a modo suo."
+            }
+          ],
+          "confirme": [
+            {
+              "name": "Alla maniera di",
+              "desc": "Stile d'autore o di genere imposto: Molière, Audiard, film noir... (Categoria LNI classica)"
+            },
+            {
+              "name": "Mista con accessorio",
+              "desc": "Un oggetto imposto deve essere centrale nell'improvvisazione. Le due squadre negoziano in scena."
+            },
+            {
+              "name": "Comparata con vincolo",
+              "desc": "Ogni squadra interpreta il tema con un vincolo estratto a sorte diversamente."
+            },
+            {
+              "name": "Mista con personaggio imposto",
+              "desc": "Un tipo di personaggio imposto deve comparire fin dal primo minuto."
+            },
+            {
+              "name": "Improvvisazione a ritroso",
+              "desc": "La squadra deve interpretare la scena iniziando dalla fine e risalendo."
+            },
+            {
+              "name": "Mista a frasi",
+              "desc": "I giocatori possono parlare solo con frasi intere e complete — nessuna interruzione."
+            },
+            {
+              "name": "Comparata in rima",
+              "desc": "Tutte le battute devono fare rima (ottonari o rime baciate)."
+            },
+            {
+              "name": "Comparata muta",
+              "desc": "Nessuna parola: solo il gesto e l'espressione raccontano la storia."
+            }
+          ],
+          "expert": [
+            {
+              "name": "Cantata e ballata",
+              "desc": "Mini-musical: alternanza di dialoghi, canti e coreografie improvvisate. Stile Broadway impro."
+            },
+            {
+              "name": "Alla maniera di + epoca",
+              "desc": "Stile d'autore E epoca storica imposti. Entrambi devono essere leggibili fin dall'ingresso."
+            },
+            {
+              "name": "Mista in alessandrini",
+              "desc": "Tutte le battute in alessandrini (12 piedi), rime baciate o alternate. Livello classico."
+            },
+            {
+              "name": "Comparata silenziosa + rumorata",
+              "desc": "Una squadra gioca muta, l'altra solo con effetti sonori. Stesso tema, letture opposte."
+            },
+            {
+              "name": "Senza eroe",
+              "desc": "L'improvvisazione deve funzionare senza un personaggio principale identificabile. Coralità totale."
+            },
+            {
+              "name": "A tesi",
+              "desc": "L'improvvisazione deve difendere una tesi filosofica annunciata in anticipo dall'arbitro."
+            },
+            {
+              "name": "Alla maniera di Cechov",
+              "desc": "Stile russo di fine XIX secolo: noia aristocratica, samovar, silenzi carichi, monologhi."
+            },
+            {
+              "name": "Retromarcia temporale",
+              "desc": "La scena avanza poi torna indietro ogni 30 secondi. Loop vertiginoso."
+            }
+          ]
+        }
+      },
+      "constraints": {
+        "troupe": {
+          "debutant": [
+            "Sussurrando",
+            "Camminando in cerchio per tutta la scena",
+            "Con una sola parola ripetuta",
+            "Tenendosi per mano dall'inizio alla fine",
+            "Senza toccare il suolo con i talloni",
+            "Con una sola emozione (gioia, tristezza, rabbia...)",
+            "Ballando in permanenza",
+            "Senza guardare il proprio partner",
+            "Con gli occhi chiusi",
+            "Facendo effetti sonori invece di parlare",
+            "Una battuta su due è obbligatoriamente cantata",
+            "Tutti di spalle al pubblico",
+            "Nessuno si siede né si sdraia"
+          ],
+          "confirme": [
+            "Senza usare la parola « no »",
+            "Senza usare pronomi personali",
+            "In rime sistematiche",
+            "Alla maniera di Molière",
+            "Alla maniera di un film noir degli anni '40",
+            "Con una battuta su due cantata",
+            "Al rallentatore dalla A alla Z",
+            "In accelerato dalla A alla Z",
+            "Con una parola proibita scelta dal pubblico",
+            "Alternando italiano e lingua inventata",
+            "Alla maniera di un cartone animato per bambini",
+            "Con un narratore esterno che commenta",
+            "Nello stile di un telegiornale",
+            "Alla maniera di un documentario naturalistico"
+          ],
+          "expert": [
+            "Con retromarcia temporale: la scena avanza poi torna indietro ogni 30s",
+            "A più voci: ogni personaggio è interpretato simultaneamente da 2 attori",
+            "Solo in teatro d'ombre",
+            "Con una narrazione esterna che contraddice l'azione",
+            "In versi liberi e in esametri",
+            "Alla maniera di Beckett (silenzi, assurdo, attesa)",
+            "Con una quarta parete permanente (gli attori si rivolgono al pubblico)",
+            "In palindromo: la scena deve poter essere giocata al contrario",
+            "Senza un solo verbo d'azione",
+            "Con una lingua interamente inventata ma coerente",
+            "Alla maniera del teatro Nō",
+            "In messa in abisso (la pièce parla di una pièce che si recita)",
+            "Con una sola battuta udibile al minuto",
+            "Tutta la scena alla prima persona plurale"
+          ]
+        },
+        "match": {
+          "debutant": [
+            "Sussurrando",
+            "Cantando",
+            "Con un accessorio imposto",
+            "Con una frase imposta da inserire",
+            "Ballando",
+            "Alla maniera di un cartone animato",
+            "Con un'emozione imposta",
+            "In modalità commedia musicale",
+            "Con accenti regionali imposti",
+            "Senza toccare il suolo",
+            "Con una parola proibita",
+            "Alla maniera del muto (Chaplin, Keaton)"
+          ],
+          "confirme": [
+            "Alla maniera di Shakespeare",
+            "Alla maniera di un film horror",
+            "Alla maniera di Audiard",
+            "In versi",
+            "Senza usare la parola « no »",
+            "Con una parola proibita scelta dall'arbitro",
+            "Alla maniera dei fratelli Coen",
+            "Alla maniera di un peplum",
+            "In fantascienza degli anni '60",
+            "Con una sola battuta udibile al minuto",
+            "Alla maniera del muto (Chaplin, Keaton)",
+            "Con un narratore onnisciente esterno",
+            "Alla maniera di una soap opera",
+            "Alla maniera di un manga"
+          ],
+          "expert": [
+            "In alessandrini dall'inizio alla fine",
+            "Alla maniera di Cechov",
+            "Alla maniera del teatro Nō giapponese",
+            "Con retromarcia temporale",
+            "Alla maniera di Wes Anderson",
+            "Alla maniera della Commedia dell'arte",
+            "Con un sottotesto filosofico imposto",
+            "In cluedo (il colpevole deve essere rivelato alla fine)",
+            "Alla maniera del teatro dell'assurdo",
+            "Con un personaggio che sa di essere in una finzione",
+            "Alla maniera di Pirandello",
+            "Alla maniera di Tarantino",
+            "In forma di tragedia greca (coro + eroe + hybris)",
+            "Alla maniera di Bergman"
+          ]
+        }
+      },
+      "themes": {
+        "debutant": [
+          "L'appuntamento dal parrucchiere",
+          "Primo giorno di scuola",
+          "Una serata pizza che degenera",
+          "Le chiavi dimenticate sul pianerottolo",
+          "La metro un lunedì mattina",
+          "I vicini del piano di sopra fanno festa",
+          "Il picnic sotto la pioggia",
+          "Il supermercato alle 19:59",
+          "Il guasto dell'ascensore",
+          "Il matrimonio del cugino",
+          "Il baby-sitting della sera",
+          "L'attesa dal medico",
+          "L'esame della patente di guida",
+          "L'aperitivo che si trascina all'infinito",
+          "Il trasloco fallito",
+          "La fila in panetteria",
+          "La lezione di cucina catastrofica",
+          "Il karaoke tra amici",
+          "Il giorno del rientro a scuola",
+          "Il ritorno dalle vacanze",
+          "Spiegare Snapchat alla nonna",
+          "La giuria di un concorso di canto che non si capisce",
+          "Un programma di cucina con una ricetta assurda",
+          "La telecronaca di una partita a bocce come se fosse la finale dei mondiali",
+          "Un supereroe con poteri inutili",
+          "Il telegiornale di un pianeta lontano",
+          "Documentario naturalistico sugli umani",
+          "Riunione di valutazione al lavoro che va fuori controllo",
+          "Un interrogatorio di polizia per una sciocchezza minuscola",
+          "La domenica in famiglia con i parenti acquisiti"
+        ],
+        "confirme": [
+          "L'ultima domenica del mondo",
+          "Un gatto che parla al suo padrone",
+          "L'appuntamento mancato",
+          "La lettera mai spedita",
+          "Il viaggio in treno senza destinazione",
+          "L'hotel dimenticato dalle mappe",
+          "Il sogno che ritorna ogni notte",
+          "Due sconosciuti in un ascensore guasto",
+          "Il funerale di un perfetto sconosciuto",
+          "I tre desideri del genio",
+          "Il portiere che sa tutto",
+          "La foto che non si sarebbe dovuta vedere",
+          "Il fratello mai conosciuto",
+          "Lo scrittore di fronte al suo personaggio",
+          "L'ultima telefonata",
+          "La casa che cambia di notte",
+          "Il ballo in maschera dei rimpianti",
+          "L'orologiaio del tempo perduto",
+          "La stazione delle anime in transito",
+          "Lo specchio che mente",
+          "Gli attori sorpresi dietro le quinte",
+          "Il coro stonato",
+          "La riunione dei prof in cui si parla di un solo allievo",
+          "L'ascensore bloccato tra due piani",
+          "La lezione che non ha alcun senso",
+          "Lo scienziato pazzo e il suo assistente disilluso",
+          "Darth Vader chiama per lasciare la fidanzata",
+          "Una terapia di coppia tra due oggetti",
+          "La deposizione dell'unico testimone",
+          "La cena in cui nessuno osa parlare"
+        ],
+        "expert": [
+          "Il processo alla memoria collettiva",
+          "L'ultima conversazione tra Dio e Diavolo",
+          "L'archivista delle vite non vissute",
+          "Il teorema indimostrabile della felicità",
+          "Il silenzio dopo la rivelazione",
+          "Il manicomio dei poeti dimenticati",
+          "Il testamento di una lingua morta",
+          "Le ore rubate di Schrödinger",
+          "La stanza in cui si entra da soli",
+          "La clessidra della coscienza",
+          "L'ultima rappresentazione del Globe Theatre",
+          "I sette peccati capitali a cena",
+          "Il manoscritto di Borges",
+          "Il sogno nel sogno nel sogno",
+          "L'esule tornato troppo tardi",
+          "Il funambolo tra due mondi",
+          "La sinfonia incompiuta del condannato",
+          "Il banchetto degli assenti",
+          "Il confine che non esisteva",
+          "Il filosofo e la formica",
+          "Tre sorelle che non andranno mai a Mosca",
+          "Il guardiano notturno del museo degli oblii",
+          "L'usciere delle anime in eccedenza",
+          "La conferenza stampa dell'oblio",
+          "L'ultimo traduttore dell'inutile",
+          "Autobiografia di un virus",
+          "Autopsia dell'anima gemella",
+          "Altare del peccato",
+          "L'amore è un bouquet di violenza",
+          "Lo straniero dell'ascensore",
+          "Il bacio della morte",
+          "Il ballo degli smascherati",
+          "La banca del ricordo",
+          "Battello ebbro",
+          "Il cinema degli altri"
+        ]
+      },
+      "categories": [
+        {
+          "name": "Mista",
+          "desc": "Le due squadre giocano insieme, in equilibrio numerico, sullo stesso tema."
+        },
+        {
+          "name": "Comparata",
+          "desc": "Ogni squadra interpreta a turno la stessa proposta. Il pubblico confronta e vota."
+        },
+        {
+          "name": "Mista alla maniera di",
+          "desc": "Stile d'autore o di genere imposto: Molière, Audiard, film noir..."
+        },
+        {
+          "name": "Comparata alla maniera di",
+          "desc": "Ogni squadra interpreta il tema nello stile imposto, a modo suo."
+        },
+        {
+          "name": "Mista cantata",
+          "desc": "Improvvisazione interamente o parzialmente cantata, melodie e parole improvvisate."
+        },
+        {
+          "name": "Comparata cantata",
+          "desc": "Ogni squadra propone la propria versione cantata dello stesso tema."
+        },
+        {
+          "name": "Mista senza parole",
+          "desc": "Nessuna parola pronunciata: solo il gesto racconta. Concentrazione estrema."
+        },
+        {
+          "name": "Senza parole con supporto musicale",
+          "desc": "Improvvisazione muta, ma la scrittura è rigorosamente influenzata dall'atmosfera musicale imposta. (Dramaction)"
+        },
+        {
+          "name": "Mista in rima",
+          "desc": "Tutte le battute fanno rima. Ottonari o alessandrini a seconda del livello."
+        },
+        {
+          "name": "Comparata in rima",
+          "desc": "Ogni squadra propone la propria versione in rima del tema."
+        },
+        {
+          "name": "Mista con accessorio",
+          "desc": "Un oggetto imposto deve essere centrale nell'improvvisazione."
+        },
+        {
+          "name": "Comparata con vincolo",
+          "desc": "Ogni squadra interpreta il tema con un vincolo diverso estratto a sorte."
+        },
+        {
+          "name": "Senza tema né caucus",
+          "desc": "Nessun tema annunciato, nessun tempo di concertazione. Pura inventiva immediata. (Dramaction)"
+        },
+        {
+          "name": "Salto della cavallina",
+          "desc": "Quattro improvvisazioni diverse, un tema per improvvisazione. La 1ª con un giocatore, se ne aggiunge uno a ogni improvvisazione successiva. (Dramaction)"
+        },
+        {
+          "name": "Videoway",
+          "desc": "Mista con 4 canali TV (F1-F4), contenuto diverso per canale. L'arbitro salta da un canale all'altro senza ordine predefinito. (Dramaction)"
+        },
+        {
+          "name": "Sensoriale",
+          "desc": "Uno dei cinque sensi di un improvvisatore viene stimolato. Questa sensazione deve nutrire tutta la scrittura dell'improvvisazione. (Dramaction)"
+        },
+        {
+          "name": "Mista a tesi",
+          "desc": "L'improvvisazione deve difendere una tesi filosofica annunciata in anticipo."
+        },
+        {
+          "name": "Comparata libera",
+          "desc": "Nessun vincolo di forma, solo il tema. Libertà totale di trattamento."
+        }
+      ],
+      "durations": {
+        "debutant": [
+          "30 secondi",
+          "1 minuto",
+          "1 minuto 30",
+          "2 minuti"
+        ],
+        "confirme": [
+          "1 minuto",
+          "2 minuti",
+          "3 minuti",
+          "4 minuti",
+          "5 minuti"
+        ],
+        "expert": [
+          "3 minuti",
+          "5 minuti",
+          "7 minuti",
+          "10 minuti",
+          "15 minuti",
+          "20 minuti"
+        ]
+      },
+      "players": {
+        "debutant": [
+          "1 giocatore",
+          "2 giocatori",
+          "3 giocatori",
+          "Tutta la squadra"
+        ],
+        "confirme": [
+          "1 giocatore",
+          "2 giocatori",
+          "3 giocatori",
+          "4 giocatori",
+          "Tutta la squadra",
+          "Solo il capitano"
+        ],
+        "expert": [
+          "1 giocatore",
+          "2 giocatori",
+          "Misto 1 + 1",
+          "Misto 2 + 2",
+          "3 giocatori imposti",
+          "Tutta la squadra",
+          "Capitano + 1"
         ]
       }
     }

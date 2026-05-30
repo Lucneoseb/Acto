@@ -21,6 +21,17 @@
   let activeQuery = "";
   let pickedId = null;
 
+  // ─── i18n — reads UI strings from the bundled IMPRO_BUNDLE.ui (data/all.js).
+  function uiStrings() {
+    const loc = (localStorage.getItem("impro-studio:locale:v1") || "fr").trim();
+    const all = (window.IMPRO_BUNDLE && window.IMPRO_BUNDLE.ui) || {};
+    return all[loc] || all.fr || {};
+  }
+  function t(key, fallback) {
+    const v = uiStrings()[key];
+    return (typeof v === "string" && v.length) ? v : (fallback || "");
+  }
+
   // Supabase client (optional — the static JSON works without it; the
   // client only adds community-submitted approved exercises + the submit
   // flow). Created lazily in boot().
@@ -40,16 +51,39 @@
   // ─────────────────────────────────────────────────────────────────
   //   Data loading
   // ─────────────────────────────────────────────────────────────────
+  function currentLocale() {
+    const supported = ["fr", "en", "de", "es", "pt", "nl", "it"];
+    let loc = (localStorage.getItem("impro-studio:locale:v1") || "").trim().toLowerCase();
+    if (!supported.includes(loc)) {
+      // Derive from the browser, fall back to FR.
+      const nav = (navigator.languages && navigator.languages[0]) || navigator.language || "fr";
+      loc = String(nav).toLowerCase().split(/[-_]/)[0];
+      if (!supported.includes(loc)) loc = "fr";
+    }
+    return loc;
+  }
+
   async function loadData() {
-    // The warmups.json file is referenced via a <script type="application/json">
-    // tag in the HTML; we re-fetch it explicitly so we get parsed JSON
-    // regardless of how the browser handled the tag.
-    try {
-      const r = await fetch("./data/warmups.json?v=" + Date.now());
+    // Locale-specific exercise file (data/warmups-<locale>.json), with a
+    // hard fallback to the French base if the translation is missing or
+    // fails to load.
+    const loc = currentLocale();
+    const tryFetch = async (url) => {
+      const r = await fetch(url + "?v=" + Date.now());
       if (!r.ok) throw new Error(r.status + " " + r.statusText);
-      WARMUPS = await r.json();
-    } catch (e) {
-      console.warn("[warmups] failed to load data/warmups.json", e);
+      return r.json();
+    };
+    try {
+      WARMUPS = await tryFetch("./data/warmups-" + loc + ".json");
+    } catch (e1) {
+      try {
+        WARMUPS = await tryFetch("./data/warmups-fr.json");
+      } catch (e2) {
+        try {
+          // Legacy single-file path (pre-i18n) — last resort.
+          WARMUPS = await tryFetch("./data/warmups.json");
+        } catch (e) {
+          console.warn("[warmups] failed to load any warmups data file", e1, e2, e);
       // Fallback: ship a minimal placeholder so the page is functional
       // even before the scrape agent has finished writing the file.
       WARMUPS = {
@@ -97,6 +131,8 @@
           "Personnage","Pantomime","Plateau (ensemble)","Mémoire"
         ]
       };
+        }
+      }
     }
   }
 
@@ -164,8 +200,8 @@
     const types = Array.from(counts.entries())
       .sort((a, b) => b[1] - a[1])
       .map(([t, n]) => ({ t, n }));
-    sel.innerHTML = '<option value="">Tous les types</option>'
-      + types.map(({ t, n }) => `<option value="${escapeHtml(t)}">${escapeHtml(t)} (${n})</option>`).join("");
+    sel.innerHTML = '<option value="">' + escapeHtml(t("warmupsTypeAll", "Tous les types")) + '</option>'
+      + types.map(({ t: ty, n }) => `<option value="${escapeHtml(ty)}">${escapeHtml(ty)} (${n})</option>`).join("");
   }
 
   function getFiltered() {
@@ -184,27 +220,30 @@
     const list = getFiltered();
     const status = $("#warmupStatus");
     if (status) {
-      status.textContent = list.length + " / " + (WARMUPS.exercises || []).length + " exercices";
+      status.textContent = t("warmupsCount", "{n} / {total} exercices")
+        .replace("{n}", list.length).replace("{total}", (WARMUPS.exercises || []).length);
     }
     const wrap = $("#warmupList");
     if (!wrap) return;
     if (list.length === 0) {
       wrap.innerHTML = '<div class="warmup-empty">' +
-        '<strong>Aucun exercice ne correspond à ces filtres.</strong>' +
-        '<div>Change le type ou efface la recherche.</div></div>';
+        '<strong>' + escapeHtml(t("warmupsEmptyTitle", "Aucun exercice ne correspond à ces filtres.")) + '</strong>' +
+        '<div>' + escapeHtml(t("warmupsEmptyBlurb", "Change le type ou efface la recherche.")) + '</div></div>';
       return;
     }
+    const chronoLbl = t("warmupsCardChronoBtn", "⏱ Lancer chrono");
+    const communityLbl = t("warmupsCommunityTag", "Communauté");
     wrap.innerHTML = list.map(e => {
       const meta = [];
       if (e.participants) meta.push('<span class="meta-chip">' + escapeHtml(e.participants) + '</span>');
       if (e.duration_seconds) meta.push('<span class="meta-chip">⏱ ' + escapeHtml(fmtDuration(e.duration_seconds)) + '</span>');
       if (e.source) meta.push('<span class="meta-chip" title="Source">' + escapeHtml(e.source) + '</span>');
       const chronoBtn = e.duration_seconds
-        ? '<button type="button" data-action="chrono" data-id="' + escapeHtml(e.id) + '">⏱ Lancer chrono</button>'
+        ? '<button type="button" data-action="chrono" data-id="' + escapeHtml(e.id) + '">' + escapeHtml(chronoLbl) + '</button>'
         : '';
       const isPicked = pickedId === e.id;
       const communityTag = e._community
-        ? '<span class="card-community-tag" title="Proposé par la communauté">Communauté</span>'
+        ? '<span class="card-community-tag">' + escapeHtml(communityLbl) + '</span>'
         : '';
       const subtypeBit = e.subtype ? ' · ' + escapeHtml(e.subtype) : '';
       return '<div class="warmup-card' + (isPicked ? ' is-picked' : '') + (e._community ? ' is-community' : '') + '" data-id="' + escapeHtml(e.id) + '">' +
@@ -218,41 +257,105 @@
   }
 
   // ─────────────────────────────────────────────────────────────────
-  //   Random picker
+  //   Random picker → result popup
   // ─────────────────────────────────────────────────────────────────
+  let drawnExercise = null;
+
   function pickRandom() {
     const list = getFiltered();
     if (list.length === 0) return;
     const choice = list[Math.floor(Math.random() * list.length)];
     pickedId = choice.id;
-    renderList();
-    // Scroll the picked card into view if it's off-screen.
-    setTimeout(() => {
-      const el = document.querySelector('.warmup-card[data-id="' + CSS.escape(choice.id) + '"]');
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 40);
+    drawnExercise = choice;
+    renderList(); // keep the card highlighted underneath the popup
+    openDrawPopup(choice);
+  }
+
+  function openDrawPopup(e) {
+    const overlay = $("#drawOverlay");
+    if (!overlay) return;
+    $("#drawExoType").textContent = (e.type || "") + (e.subtype ? " · " + e.subtype : "");
+    $("#drawExoName").textContent = e.name || "";
+    $("#drawExoDesc").textContent = e.description || "";
+    const meta = [];
+    if (e.participants) meta.push('<span class="meta-chip">' + escapeHtml(e.participants) + '</span>');
+    if (e.duration_seconds) meta.push('<span class="meta-chip">⏱ ' + escapeHtml(fmtDuration(e.duration_seconds)) + '</span>');
+    if (e.source) meta.push('<span class="meta-chip">' + escapeHtml(e.source) + '</span>');
+    $("#drawExoMeta").innerHTML = meta.join("");
+    overlay.hidden = false;
+  }
+  function closeDrawPopup() {
+    const overlay = $("#drawOverlay");
+    if (overlay) overlay.hidden = true;
   }
 
   // ─────────────────────────────────────────────────────────────────
-  //   Chrono overlay
+  //   Chrono overlay (with optional custom-duration setter + end sound)
   // ─────────────────────────────────────────────────────────────────
   const chrono = {
     total: 0, remaining: 0, running: false,
     intervalId: null, exercise: null
   };
 
+  /** Play an end-of-chrono sound via the Web Audio API (no asset file
+   *  needed). Three rising beeps. Tolerant of autoplay restrictions —
+   *  if the AudioContext can't start, it silently no-ops. */
+  function playEndSound() {
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      const ctx = new Ctx();
+      const now = ctx.currentTime;
+      const beep = (t, freq) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.0001, now + t);
+        gain.gain.exponentialRampToValueAtTime(0.35, now + t + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + t + 0.32);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(now + t); osc.stop(now + t + 0.34);
+      };
+      beep(0,    660);
+      beep(0.38, 880);
+      beep(0.76, 1180);
+      // Close the context shortly after the last beep ends.
+      setTimeout(() => { try { ctx.close(); } catch (e) {} }, 1500);
+    } catch (e) { /* ignore — audio is best-effort */ }
+  }
+
   function openChrono(exercise) {
     chrono.exercise = exercise;
-    chrono.total = exercise.duration_seconds || 0;
-    chrono.remaining = chrono.total;
-    chrono.running = false;
     const overlay = $("#chronoOverlay");
     if (!overlay) return;
     $("#chronoExoName").textContent = exercise.name || "";
-    $("#chronoExoType").textContent = exercise.type || "";
-    $("#chronoStartBtn").textContent = "▶ Démarrer";
+    $("#chronoExoType").textContent = (exercise.type || "") + (exercise.subtype ? " · " + exercise.subtype : "");
+    const setBox = $("#chronoSet");
+    if (exercise.duration_seconds) {
+      // Preset duration → hide the custom setter, prime the countdown.
+      if (setBox) setBox.hidden = true;
+      chrono.total = exercise.duration_seconds;
+    } else {
+      // No duration → show the custom setter, default 3 min.
+      if (setBox) setBox.hidden = false;
+      const min = $("#chronoSetMin"), sec = $("#chronoSetSec");
+      if (min) min.value = 3;
+      if (sec) sec.value = 0;
+      chrono.total = readCustomDuration();
+    }
+    chrono.remaining = chrono.total;
+    chrono.running = false;
+    $("#chronoStartBtn").textContent = t("warmupsChronoStart", "▶ Démarrer");
     refreshChronoDisplay();
     overlay.hidden = false;
+  }
+
+  /** Read the minutes+seconds inputs into a total seconds count. */
+  function readCustomDuration() {
+    const min = parseInt(($("#chronoSetMin") || {}).value, 10) || 0;
+    const sec = parseInt(($("#chronoSetSec") || {}).value, 10) || 0;
+    return Math.max(0, min * 60 + Math.min(59, Math.max(0, sec)));
   }
 
   function closeChrono() {
@@ -277,7 +380,7 @@
       refreshChronoDisplay();
       if (chrono.remaining === 0) {
         chronoStop();
-        // Quick haptic + audio cue if available.
+        playEndSound();
         try { if (navigator.vibrate) navigator.vibrate([180, 60, 180, 60, 180]); } catch (e) {}
       }
     } else {
@@ -287,11 +390,20 @@
 
   function chronoStart() {
     if (chrono.running) return;
+    // If the custom setter is visible (no preset duration), read it now.
+    const setBox = $("#chronoSet");
+    if (setBox && !setBox.hidden) {
+      chrono.total = readCustomDuration();
+      chrono.remaining = chrono.total;
+      // Lock the setter while running so the countdown is stable.
+      setBox.hidden = true;
+    }
     if (chrono.remaining <= 0) chrono.remaining = chrono.total;
     if (chrono.remaining <= 0) return;
     chrono.running = true;
     chrono.intervalId = setInterval(chronoTick, 1000);
-    $("#chronoStartBtn").textContent = "⏸ Pause";
+    refreshChronoDisplay();
+    $("#chronoStartBtn").textContent = t("warmupsChronoPause", "⏸ Pause");
   }
 
   function chronoStop() {
@@ -299,15 +411,21 @@
     chrono.intervalId = null;
     chrono.running = false;
     const btn = $("#chronoStartBtn");
-    if (btn) btn.textContent = chrono.remaining > 0 ? "▶ Reprendre" : "▶ Démarrer";
+    if (btn) btn.textContent = chrono.remaining > 0 ? t("warmupsChronoResume", "▶ Reprendre") : t("warmupsChronoStart", "▶ Démarrer");
   }
 
   function chronoReset() {
     chronoStop();
+    // If the exercise had no preset duration, re-show the setter.
+    const setBox = $("#chronoSet");
+    if (chrono.exercise && !chrono.exercise.duration_seconds && setBox) {
+      setBox.hidden = false;
+      chrono.total = readCustomDuration();
+    }
     chrono.remaining = chrono.total;
     refreshChronoDisplay();
     const btn = $("#chronoStartBtn");
-    if (btn) btn.textContent = "▶ Démarrer";
+    if (btn) btn.textContent = t("warmupsChronoStart", "▶ Démarrer");
   }
 
   // ─────────────────────────────────────────────────────────────────
@@ -450,9 +568,48 @@
     });
     const resetBtn = $("#chronoResetBtn");
     if (resetBtn) resetBtn.addEventListener("click", chronoReset);
-    // Close chrono on Esc
+
+    // Custom-duration preset chips (30s / 1min / 2min / 5min)
+    const presets = $("#chronoSet");
+    if (presets) presets.addEventListener("click", (ev) => {
+      const b = ev.target.closest("button[data-sec]");
+      if (!b) return;
+      const sec = parseInt(b.dataset.sec, 10) || 0;
+      const minEl = $("#chronoSetMin"), secEl = $("#chronoSetSec");
+      if (minEl) minEl.value = Math.floor(sec / 60);
+      if (secEl) secEl.value = sec % 60;
+      chrono.total = readCustomDuration();
+      chrono.remaining = chrono.total;
+      refreshChronoDisplay();
+    });
+    // Live-update the displayed countdown as the user types a custom time.
+    ["chronoSetMin", "chronoSetSec"].forEach(id => {
+      const el = $("#" + id);
+      if (el) el.addEventListener("input", () => {
+        if (chrono.running) return;
+        chrono.total = readCustomDuration();
+        chrono.remaining = chrono.total;
+        refreshChronoDisplay();
+      });
+    });
+
+    // Draw-result popup buttons
+    const drawClose  = $("#drawCloseBtn");
+    const drawClose2 = $("#drawCloseBtn2");
+    if (drawClose)  drawClose.addEventListener("click", closeDrawPopup);
+    if (drawClose2) drawClose2.addEventListener("click", closeDrawPopup);
+    const drawRedraw = $("#drawRedrawBtn");
+    if (drawRedraw) drawRedraw.addEventListener("click", pickRandom);
+    const drawChrono = $("#drawChronoBtn");
+    if (drawChrono) drawChrono.addEventListener("click", () => {
+      if (drawnExercise) { closeDrawPopup(); openChrono(drawnExercise); }
+    });
+
+    // Close any overlay on Esc.
     document.addEventListener("keydown", (ev) => {
-      if (ev.key === "Escape" && !$("#chronoOverlay").hidden) closeChrono();
+      if (ev.key !== "Escape") return;
+      if (!$("#chronoOverlay").hidden) closeChrono();
+      else if (!$("#drawOverlay").hidden) closeDrawPopup();
     });
   }
 
@@ -481,9 +638,54 @@
   // ─────────────────────────────────────────────────────────────────
   //   Boot
   // ─────────────────────────────────────────────────────────────────
+  /** Translate the static HTML chrome (labels, buttons, placeholders) from
+   *  the i18n bundle. Called once at boot after data loads. */
+  function applyStaticTexts() {
+    const setText = (sel, key, fb) => { const el = $(sel); if (el) el.textContent = t(key, fb); };
+    const setPh   = (sel, key, fb) => { const el = $(sel); if (el) el.placeholder = t(key, fb); };
+    setText("#warmupsPageTitle", "warmupsPageTitle", "Échauffement");
+    // Keep the 🔥 prefix on the H1.
+    const h1 = $("#warmupsPageTitle"); if (h1) h1.textContent = "🔥 " + t("warmupsPageTitle", "Échauffement");
+    setText("#warmupsBlurb", "warmupsBlurb", "");
+    setPh("#warmupQuery", "warmupsSearchPlaceholder", "");
+    setText("#warmupRandomBtn", "warmupsRandomBtn", "🎲 Tirage aléatoire");
+    setText("#warmupAddBtn", "warmupsAddBtn", "+ Proposer un exercice");
+    const back = $(".warmup-back a"); if (back) back.textContent = t("warmupsBackToApp", "← Retour à l'app");
+    // Draw popup
+    setText("#drawBadge", "warmupsDrawBadge", "🎲 Tirage");
+    setText("#drawChronoBtn", "warmupsDrawChrono", "⏱ Lancer le chrono");
+    setText("#drawRedrawBtn", "warmupsDrawRedraw", "🎲 Relancer");
+    setText("#drawCloseBtn2", "warmupsDrawClose", "✕ Fermer");
+    // Chrono
+    setText("#chronoStartBtn", "warmupsChronoStart", "▶ Démarrer");
+    setText("#chronoResetBtn", "warmupsChronoReset", "↺ Reset");
+    setText("#chronoSetLabel", "warmupsChronoSetLabel", "Aucune durée définie — choisis-en une :");
+    // Submit dialog
+    setText("#warmupSubmitTitle", "warmupsSubmitTitle", "Proposer un exercice");
+    setText("#warmupSubmitHelp", "warmupsSubmitHelp", "");
+    setText("#warmupSubmitConfirmBtn", "warmupsSubmitSend", "Envoyer");
+    setText("#warmupSubmitCancelBtn", "warmupsSubmitCancel", "Annuler");
+    // Submit dialog field labels (the <span> inside each <label>)
+    const labelByFor = [
+      ["warmupAddType", "warmupsFieldType", "Type *"],
+      ["warmupAddSubtype", "warmupsFieldSubtype", "Sous-type"],
+      ["warmupAddName", "warmupsFieldName", "Nom de l'exercice *"],
+      ["warmupAddDescription", "warmupsFieldDescription", "Description *"],
+      ["warmupAddDuration", "warmupsFieldDuration", "Durée (optionnel)"],
+      ["warmupAddParticipants", "warmupsFieldParticipants", "Participants"],
+      ["warmupAddSource", "warmupsFieldSource", "Source (optionnel)"]
+    ];
+    labelByFor.forEach(([inputId, key, fb]) => {
+      const inp = document.getElementById(inputId);
+      const span = inp && inp.closest("label") && inp.closest("label").querySelector("span");
+      if (span) span.textContent = t(key, fb);
+    });
+  }
+
   async function boot() {
     syncAuthClass();
     await loadData();
+    applyStaticTexts();
     // Merge community-approved exercises from Supabase (best-effort — the
     // static base renders immediately, community ones appear once fetched).
     await mergeCommunityExercises();

@@ -6,11 +6,11 @@
 <meta name="description" content="Échauffement · Acto The Impro Studio" />
 <meta name="theme-color" content="#0c0814" />
 <title>Acto — Échauffement</title>
-<link rel="icon" type="image/png" href="./assets/logo.png?v=20260573" />
+<link rel="icon" type="image/png" href="./assets/logo.png?v=20260578" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=20260573" />
+<link rel="stylesheet" href="styles.css?v=20260578" />
 <style>
   .warmup-screen {
     position: relative;
@@ -257,6 +257,99 @@
   }
   .chrono-controls .primary:hover { filter: brightness(1.05); }
 
+  /* Draw-result popup */
+  .draw-panel {
+    background: linear-gradient(180deg, rgba(255,122,89,0.12), rgba(255,255,255,0.04));
+    border: 1px solid rgba(255,122,89,0.5);
+    border-radius: 20px;
+    padding: 2rem 2.2rem 1.6rem;
+    max-width: 560px; width: calc(100vw - 2rem);
+    max-height: calc(100vh - 2rem); overflow-y: auto;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+    text-align: center; position: relative;
+  }
+  .draw-badge {
+    display: inline-block;
+    background: rgba(255,122,89,0.18);
+    border: 1px solid rgba(255,122,89,0.45);
+    color: #ff9a73;
+    border-radius: 999px;
+    padding: 0.15rem 0.7rem;
+    font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 0.6rem;
+  }
+  .draw-exo-name {
+    margin: 0.2rem 0 0.6rem;
+    font-family: 'Bebas Neue', Inter, sans-serif;
+    color: var(--gold); font-size: clamp(1.6rem, 5vw, 2.2rem);
+    letter-spacing: 0.03em; line-height: 1.1;
+  }
+  .draw-exo-desc {
+    color: var(--ink); font-size: 0.92rem; line-height: 1.5;
+    margin: 0 0 0.8rem; text-align: left;
+  }
+  .draw-meta {
+    display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;
+    margin-bottom: 1.1rem;
+    font-size: 0.76rem; color: var(--ink-muted);
+  }
+  .draw-meta .meta-chip {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 0.1rem 0.6rem; border-radius: 999px;
+  }
+  .draw-controls {
+    display: flex; gap: 0.55rem; justify-content: center; flex-wrap: wrap;
+  }
+  .draw-controls button {
+    appearance: none; cursor: pointer;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: var(--ink);
+    padding: 0.6rem 1.1rem; border-radius: 999px;
+    font: inherit; font-size: 0.88rem; font-weight: 700;
+    transition: background 0.15s;
+  }
+  .draw-controls button:hover { background: rgba(255,122,89,0.18); border-color: rgba(255,122,89,0.5); }
+  .draw-controls .primary {
+    background: linear-gradient(135deg, #ff7a59, #ff9a73);
+    color: #1a0f2b; border: 0;
+    box-shadow: 0 4px 16px rgba(255,122,89,0.4);
+  }
+  .draw-controls .primary:hover { filter: brightness(1.05); }
+
+  /* Custom-duration setter in the chrono panel */
+  .chrono-set { margin: 0.2rem 0 0.6rem; }
+  .chrono-set-label {
+    color: var(--ink-muted); font-size: 0.82rem; margin: 0 0 0.5rem;
+  }
+  .chrono-set-row {
+    display: flex; gap: 0.4rem; align-items: center; justify-content: center;
+    color: var(--ink-muted); font-size: 0.9rem;
+  }
+  .chrono-set-row input[type="number"] {
+    width: 4rem; text-align: center;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 8px; color: var(--ink);
+    padding: 0.4rem 0.3rem; font: inherit; font-size: 1.1rem;
+  }
+  .chrono-set-row input:focus { outline: none; border-color: rgba(255,122,89,0.55); }
+  .chrono-set-presets {
+    display: flex; gap: 0.35rem; justify-content: center; flex-wrap: wrap;
+    margin-top: 0.6rem;
+  }
+  .chrono-set-presets button {
+    appearance: none; cursor: pointer;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--ink-muted);
+    border-radius: 999px; padding: 0.25rem 0.7rem;
+    font: inherit; font-size: 0.78rem;
+  }
+  .chrono-set-presets button:hover { background: rgba(255,122,89,0.15); color: var(--ink); border-color: rgba(255,122,89,0.4); }
+
   /* Back link */
   .warmup-back { text-align: center; margin: 1.8rem 0 0; }
   .warmup-back .auth-btn {
@@ -377,7 +470,7 @@
 
   <header class="hero">
     <a class="hero-logo-link" href="./index.html" aria-label="Acto - The Impro Studio">
-      <img class="hero-logo" src="./assets/logo.png?v=20260573" alt="Acto - The Impro Studio" />
+      <img class="hero-logo" src="./assets/logo.png?v=20260578" alt="Acto - The Impro Studio" />
     </a>
   </header>
 
@@ -475,12 +568,51 @@
     </form>
   </dialog>
 
-  <!-- Chrono overlay — opens when an exercise's "Lancer chrono" is clicked. -->
+  <!-- Draw-result overlay — opens after "🎲 Tirage aléatoire". Shows the
+       drawn exercise with Relancer / Fermer / Lancer chrono. -->
+  <div class="chrono-overlay" id="drawOverlay" hidden>
+    <div class="draw-panel" role="dialog" aria-modal="true" aria-labelledby="drawExoName">
+      <button type="button" class="chrono-close" id="drawCloseBtn" aria-label="Fermer">✕</button>
+      <div class="draw-badge" id="drawBadge">🎲 Tirage</div>
+      <div class="chrono-exo-type" id="drawExoType"></div>
+      <h2 class="draw-exo-name" id="drawExoName"></h2>
+      <p class="draw-exo-desc" id="drawExoDesc"></p>
+      <div class="draw-meta" id="drawExoMeta"></div>
+      <div class="draw-controls">
+        <button type="button" class="primary" id="drawChronoBtn">⏱ Lancer le chrono</button>
+        <button type="button" id="drawRedrawBtn">🎲 Relancer</button>
+        <button type="button" id="drawCloseBtn2">✕ Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chrono overlay — opens from a card's "Lancer chrono" OR from the draw
+       popup. If the exercise has no defined duration, a custom-duration
+       input lets the user set the time before starting. -->
   <div class="chrono-overlay" id="chronoOverlay" hidden>
     <div class="chrono-panel" role="dialog" aria-modal="true" aria-labelledby="chronoExoName">
       <button type="button" class="chrono-close" id="chronoCloseBtn" aria-label="Fermer">✕</button>
       <div class="chrono-exo-type" id="chronoExoType"></div>
       <h2 class="chrono-exo-name" id="chronoExoName"></h2>
+
+      <!-- Custom-duration setter — shown only when the exercise has no
+           preset duration. The user enters minutes:seconds then starts. -->
+      <div class="chrono-set" id="chronoSet" hidden>
+        <p class="chrono-set-label" id="chronoSetLabel">Aucune durée définie — choisis-en une :</p>
+        <div class="chrono-set-row">
+          <input type="number" id="chronoSetMin" min="0" max="120" value="3" aria-label="Minutes" />
+          <span>min</span>
+          <input type="number" id="chronoSetSec" min="0" max="59" value="0" aria-label="Secondes" />
+          <span>s</span>
+        </div>
+        <div class="chrono-set-presets">
+          <button type="button" data-sec="30">30 s</button>
+          <button type="button" data-sec="60">1 min</button>
+          <button type="button" data-sec="120">2 min</button>
+          <button type="button" data-sec="300">5 min</button>
+        </div>
+      </div>
+
       <div class="chrono-display" id="chronoDisplay">00:00</div>
       <div class="chrono-controls">
         <button type="button" class="primary" id="chronoStartBtn">▶ Démarrer</button>
@@ -494,9 +626,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
           integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
           crossorigin="anonymous"></script>
-  <script src="./js/config.js?v=20260573"></script>
-  <script src="./js/utils.js?v=20260573"></script>
-  <script src="./data/all.js?v=20260573"></script>
-  <script src="./js/warmups.js?v=20260573"></script>
+  <script src="./js/config.js?v=20260578"></script>
+  <script src="./js/utils.js?v=20260578"></script>
+  <script src="./data/all.js?v=20260578"></script>
+  <script src="./js/warmups.js?v=20260578"></script>
 </body>
 </html>

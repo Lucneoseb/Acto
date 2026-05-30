@@ -22,5 +22,9 @@
   "nl": {
     "name": "Vlaams",
     "flag": "🇧🇪"
+  },
+  "it": {
+    "name": "Italiano",
+    "flag": "🇮🇹"
   }
 }
