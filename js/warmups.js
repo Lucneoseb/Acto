@@ -441,8 +441,8 @@
       if (btn.dataset.action === "chrono") openChrono(exercise);
     });
     // Chrono controls
-    const closeBtn = $("#chronoCloseBtn");
-    if (closeBtn) closeBtn.addEventListener("click", closeChrono);
+    const chronoCloseBtn = $("#chronoCloseBtn");
+    if (chronoCloseBtn) chronoCloseBtn.addEventListener("click", closeChrono);
     const startBtn = $("#chronoStartBtn");
     if (startBtn) startBtn.addEventListener("click", () => {
       if (chrono.running) chronoStop();
