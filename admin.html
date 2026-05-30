@@ -668,11 +668,17 @@
      Inspirations (its own page). Each section in the page is wrapped in
      <div data-view="..."> and shown/hidden via these body class rules. */
   body.view-tableau [data-view="impro"],
-  body.view-tableau [data-view="inspirations"]      { display: none !important; }
+  body.view-tableau [data-view="inspirations"],
+  body.view-tableau [data-view="warmups"]           { display: none !important; }
   body.view-impro   [data-view="tableau"],
-  body.view-impro   [data-view="inspirations"]      { display: none !important; }
+  body.view-impro   [data-view="inspirations"],
+  body.view-impro   [data-view="warmups"]           { display: none !important; }
   body.view-inspirations [data-view="tableau"],
-  body.view-inspirations [data-view="impro"]        { display: none !important; }
+  body.view-inspirations [data-view="impro"],
+  body.view-inspirations [data-view="warmups"]      { display: none !important; }
+  body.view-warmups [data-view="tableau"],
+  body.view-warmups [data-view="impro"],
+  body.view-warmups [data-view="inspirations"]      { display: none !important; }
   /* Nav-button visibility per view.
      ───────────────────────────────
      Semantic: `.nav-on-X` = "this button BELONGS to view X's nav set",
@@ -684,17 +690,25 @@
      over a non-matching one, so combinations failed). */
   .nav-on-tableau,
   .nav-on-impro,
-  .nav-on-inspirations { display: none !important; }
+  .nav-on-inspirations,
+  .nav-on-warmups { display: none !important; }
   body.view-tableau      .nav-on-tableau      { display: inline-flex !important; }
   body.view-impro        .nav-on-impro        { display: inline-flex !important; }
   body.view-inspirations .nav-on-inspirations { display: inline-flex !important; }
+  body.view-warmups      .nav-on-warmups      { display: inline-flex !important; }
   /* H1 label switching */
   body.view-impro          header.bar h1 .h1-tableau,
   body.view-impro          header.bar h1 .h1-inspirations,
+  body.view-impro          header.bar h1 .h1-warmups,
   body.view-inspirations   header.bar h1 .h1-tableau,
-  body.view-inspirations   header.bar h1 .h1-impro            { display: none; }
+  body.view-inspirations   header.bar h1 .h1-impro,
+  body.view-inspirations   header.bar h1 .h1-warmups,
+  body.view-warmups        header.bar h1 .h1-tableau,
+  body.view-warmups        header.bar h1 .h1-impro,
+  body.view-warmups        header.bar h1 .h1-inspirations     { display: none; }
   body.view-tableau        header.bar h1 .h1-impro,
-  body.view-tableau        header.bar h1 .h1-inspirations     { display: none; }
+  body.view-tableau        header.bar h1 .h1-inspirations,
+  body.view-tableau        header.bar h1 .h1-warmups          { display: none; }
 </style>
 </head>
 <body>
@@ -733,7 +747,7 @@
 
 <div id="adminApp" class="wrap" hidden>
   <header class="bar">
-    <h1>Acto · <span class="h1-tableau">Tableau de bord</span><span class="h1-impro">Impro</span><span class="h1-inspirations">Inspirations</span></h1>
+    <h1>Acto · <span class="h1-tableau">Tableau de bord</span><span class="h1-impro">Impro</span><span class="h1-inspirations">Inspirations</span><span class="h1-warmups">Échauffement</span></h1>
     <div>
       <span class="who" id="whoami"></span>
       <div class="actions" style="margin-top:0.4rem;">
@@ -743,9 +757,10 @@
         <!-- View switchers. Three sibling views — Tableau / Impro /
              Inspirations — each with its own button shown only from
              OUTSIDE that view (via .nav-on-* visibility classes). -->
-        <button class="btn nav-on-impro nav-on-inspirations" id="backToTableauBtn" type="button">← Tableau de bord</button>
-        <button class="btn nav-on-tableau nav-on-inspirations" id="goImproBtn" type="button">🎭 Impro →</button>
-        <button class="btn nav-on-tableau nav-on-impro" id="goInspireBtn" type="button">🎭 Inspirations →</button>
+        <button class="btn nav-on-impro nav-on-inspirations nav-on-warmups" id="backToTableauBtn" type="button">← Tableau de bord</button>
+        <button class="btn nav-on-tableau nav-on-inspirations nav-on-warmups" id="goImproBtn" type="button">🎭 Impro →</button>
+        <button class="btn nav-on-tableau nav-on-impro nav-on-warmups" id="goInspireBtn" type="button">🎭 Inspirations →</button>
+        <button class="btn nav-on-tableau nav-on-impro nav-on-inspirations" id="goWarmupsBtn" type="button">🔥 Échauffement →</button>
         <a class="btn nav-on-inspirations" href="./inspirations.html" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;text-decoration:none;" title="Voir la page publique dans un nouvel onglet">↗ Page publique</a>
         <a class="btn" href="./index.html" style="display:inline-flex;align-items:center;text-decoration:none;">← App</a>
       </div>
@@ -1048,6 +1063,74 @@
       </table>
     </div>
   </div><!-- /data-view="inspirations" -->
+
+  <!-- ============================================================
+       🔥 ÉCHAUFFEMENT — warm-up exercises moderation queue.
+       Parallel sibling view to Inspirations. Surfaced via the
+       "🔥 Échauffement →" button in the header; routed through
+       #warmups in the URL hash so deep-links work.
+       ============================================================ -->
+  <div data-view="warmups">
+    <h2 class="section-title">
+      🔥 Exercices d'échauffement
+      <span id="warmupPendingBadge" class="pending-badge" hidden></span>
+    </h2>
+    <p style="color:var(--ink-muted);font-size:0.85rem;margin:0 0 0.6rem;">
+      Catalogue d'exercices d'échauffement. Approuver = devient public ·
+      Cacher = retire de la liste publique (mais garde la row pour pouvoir
+      la ré-afficher plus tard) · Supprimer = effacement définitif.
+    </p>
+    <div class="submission-filters">
+      <select id="warmupFilterStatus" class="btn">
+        <option value="" selected>Toutes</option>
+        <option value="pending">En attente</option>
+        <option value="approved">Approuvées (publiques)</option>
+        <option value="rejected">Cachées</option>
+      </select>
+      <select id="warmupFilterType" class="btn">
+        <option value="">Tous types</option>
+        <option value="Échauffement">Échauffement</option>
+        <option value="Mise en train">Mise en train</option>
+        <option value="Atelier">Atelier</option>
+        <option value="Situation de jeu">Situation de jeu</option>
+      </select>
+      <select id="warmupFilterLocale" class="btn">
+        <option value="">Toutes langues</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="en">🇬🇧 English</option>
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="pt">🇵🇹 Português</option>
+        <option value="nl">🇳🇱 Nederlands</option>
+      </select>
+      <input type="search" id="warmupFilterText" placeholder="Recherche nom / description…" />
+      <button class="btn btn-primary" id="warmupAddAdminBtn" type="button" style="margin-left:auto;">+ Ajouter un exercice</button>
+      <button class="btn" id="warmupExportCsvBtn" type="button" title="Exporter la liste filtrée en CSV">⬇ Export CSV</button>
+      <span class="count" id="warmupCount"></span>
+    </div>
+    <div class="table-wrap">
+      <table class="profiles" id="warmupTableAdmin">
+        <thead>
+          <tr>
+            <th data-sort-warmup="name">Nom</th>
+            <th data-sort-warmup="type">Type</th>
+            <th data-sort-warmup="subtype">Sous-type</th>
+            <th data-sort-warmup="description">Description</th>
+            <th data-sort-warmup="duration_seconds">Durée</th>
+            <th data-sort-warmup="participants">Participants</th>
+            <th data-sort-warmup="source">Source</th>
+            <th data-sort-warmup="locale">Langue</th>
+            <th data-sort-warmup="submitted_by">Soumis par</th>
+            <th data-sort-warmup="status">État</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="warmupBodyAdmin">
+          <tr><td colspan="11" class="empty">Chargement…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div><!-- /data-view="warmups" -->
 </div><!-- /adminApp -->
 
 <!-- Admin-only "Ajouter une inspiration" dialog. Opens from the
@@ -1159,6 +1242,76 @@
   </form>
 </dialog>
 
+<!-- Admin-only "Ajouter un exercice d'échauffement" dialog. Opens from the
+     + Ajouter button next to the warmups filters. Submitting calls
+     admin_add_warmup_exercise — the row lands with status='approved'
+     so it appears immediately on the public page. -->
+<dialog id="warmupAddDialog" class="bundle-add-dialog">
+  <form method="dialog" class="dlg-head">
+    <h2>Ajouter un exercice</h2>
+    <button type="button" class="dlg-close" id="warmupAddCloseBtn" aria-label="Fermer">✕</button>
+  </form>
+  <form id="warmupAddForm" class="bundle-add-form" novalidate>
+    <div class="dlg-body">
+      <div class="bundle-add-row">
+        <div class="bundle-add-field">
+          <span>Type *</span>
+          <select id="warmupAddType" required>
+            <option value="Échauffement" selected>Échauffement</option>
+            <option value="Mise en train">Mise en train</option>
+            <option value="Atelier">Atelier</option>
+            <option value="Situation de jeu">Situation de jeu</option>
+          </select>
+        </div>
+        <div class="bundle-add-field">
+          <span>Sous-type</span>
+          <input type="text" id="warmupAddSubtype" maxlength="120" />
+        </div>
+      </div>
+      <div class="bundle-add-field">
+        <span>Nom *</span>
+        <input type="text" id="warmupAddName" maxlength="200" required />
+      </div>
+      <div class="bundle-add-field">
+        <span>Description *</span>
+        <textarea id="warmupAddDescription" rows="3" maxlength="2000" required></textarea>
+      </div>
+      <div class="bundle-add-row">
+        <div class="bundle-add-field">
+          <span>Durée (en secondes)</span>
+          <input type="number" id="warmupAddDuration" min="0" step="1" placeholder="300" />
+        </div>
+        <div class="bundle-add-field">
+          <span>Participants</span>
+          <input type="text" id="warmupAddParticipants" maxlength="120" placeholder="2-6, tout le groupe…" />
+        </div>
+      </div>
+      <div class="bundle-add-row">
+        <div class="bundle-add-field">
+          <span>Source</span>
+          <input type="text" id="warmupAddSource" maxlength="200" />
+        </div>
+        <div class="bundle-add-field">
+          <span>Langue</span>
+          <select id="warmupAddLocale">
+            <option value="fr" selected>fr · Français</option>
+            <option value="en">en · English</option>
+            <option value="de">de · Deutsch</option>
+            <option value="es">es · Español</option>
+            <option value="pt">pt · Português</option>
+            <option value="nl">nl · Nederlands</option>
+          </select>
+        </div>
+      </div>
+      <p class="admin-login-error" id="warmupAddError" hidden></p>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="btn" id="warmupAddCancelBtn">Annuler</button>
+      <button type="submit" class="btn btn-primary" id="warmupAddSubmitBtn">Ajouter (publié immédiatement)</button>
+    </div>
+  </form>
+</dialog>
+
 <!-- Admin add-item dialog: opens from the "+ Ajouter" button on the
      "Listes bundled" section. Lets the admin insert a new theme /
      category / constraint / exercise into the pool without a redeploy.
@@ -1226,12 +1379,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
         integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
         crossorigin="anonymous"></script>
-<script src="./js/config.js?v=20260570"></script>
-<script src="./js/utils.js?v=20260570"></script>
+<script src="./js/config.js?v=20260571"></script>
+<script src="./js/utils.js?v=20260571"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=20260570"></script>
+<script src="./data/all.js?v=20260571"></script>
 <script>
 (function () {
   "use strict";
@@ -2269,6 +2422,369 @@
     }
   }
 
+  /* ============================================================
+     🔥 WARM-UP EXERCISES — moderation queue. Parallel to the
+     inspirations queue above; backed by the `warmup_exercises`
+     table and its set_/admin_add_/update_/delete_warmup_exercise
+     RPCs.
+     ============================================================ */
+  let allWarmups = [];
+  let warmupSortKey = null;
+  let warmupSortDir = "asc";
+  const WARMUP_TYPES = ["Échauffement", "Mise en train", "Atelier", "Situation de jeu"];
+
+  async function loadWarmups() {
+    const body = $("warmupBodyAdmin");
+    if (body) body.innerHTML = '<tr><td colspan="11" class="empty">Chargement…</td></tr>';
+    // Admins read all rows regardless of status.
+    const { data, error } = await sb
+      .from("warmup_exercises")
+      .select("id,type,subtype,name,description,duration_seconds,participants,source,locale,status,submitted_by,approved_by,approved_at,created_at")
+      .order("created_at", { ascending: false })
+      .limit(2000);
+    if (error) {
+      console.warn("[admin] loadWarmups", error);
+      if (body) body.innerHTML = '<tr><td colspan="11" class="empty">Erreur : ' + escapeHtml(error.message) + '</td></tr>';
+      return;
+    }
+    allWarmups = data || [];
+    renderWarmups();
+  }
+
+  function emailForWarmupRow(row) {
+    if (!row || !row.submitted_by) return "—";
+    if (typeof emailFor === "function") return emailFor(row.submitted_by);
+    return row.submitted_by;
+  }
+
+  function refreshWarmupPendingBadge() {
+    const badge = $("warmupPendingBadge");
+    if (!badge) return;
+    const pending = allWarmups.filter(v => v.status === "pending").length;
+    if (pending > 0) {
+      badge.textContent = pending + " en attente";
+      badge.hidden = false;
+    } else {
+      badge.hidden = true;
+    }
+  }
+
+  /** Format a raw duration (seconds) for the table. Under a minute → "Xs";
+   *  whole minutes → "X min"; otherwise "X min Ys". */
+  function formatWarmupDuration(seconds) {
+    if (seconds == null || seconds === "" || isNaN(seconds)) return "—";
+    const s = Math.round(Number(seconds));
+    if (s < 60) return s + "s";
+    const m = Math.floor(s / 60);
+    const rem = s % 60;
+    return rem === 0 ? m + " min" : m + " min " + rem + "s";
+  }
+
+  function renderWarmups() {
+    refreshWarmupPendingBadge();
+    const status = $("warmupFilterStatus").value;
+    const type   = $("warmupFilterType").value;
+    const locale = ($("warmupFilterLocale") && $("warmupFilterLocale").value) || "";
+    const text   = ($("warmupFilterText").value || "").trim().toLowerCase();
+    const body   = $("warmupBodyAdmin");
+    if (!body) return;
+    const filtered = allWarmups.filter(v => {
+      if (status && v.status !== status) return false;
+      if (type   && v.type !== type) return false;
+      if (locale && v.locale !== locale) return false;
+      if (text) {
+        const hay = [v.name, v.subtype, v.description, v.participants, v.source].filter(Boolean).join(" ").toLowerCase();
+        if (!hay.includes(text)) return false;
+      }
+      return true;
+    });
+    // Sort by user-selected column (if any). Falls back to DB order.
+    if (warmupSortKey) {
+      const dir = warmupSortDir === "asc" ? 1 : -1;
+      filtered.sort((a, b) => {
+        let va = a[warmupSortKey], vb = b[warmupSortKey];
+        const aEmpty = va == null || va === "";
+        const bEmpty = vb == null || vb === "";
+        if (aEmpty && !bEmpty) return 1;
+        if (!aEmpty && bEmpty) return -1;
+        if (aEmpty && bEmpty) return 0;
+        // Numeric compare for the duration column; string compare otherwise.
+        if (warmupSortKey === "duration_seconds") {
+          return (Number(va) - Number(vb)) * dir;
+        }
+        va = String(va).toLocaleLowerCase();
+        vb = String(vb).toLocaleLowerCase();
+        if (va < vb) return -1 * dir;
+        if (va > vb) return  1 * dir;
+        return 0;
+      });
+    }
+    document.querySelectorAll("#warmupTableAdmin th[data-sort-warmup]").forEach(th => {
+      th.dataset.sortActive = (th.dataset.sortWarmup === warmupSortKey) ? warmupSortDir : "";
+    });
+
+    $("warmupCount").textContent = filtered.length + " / " + allWarmups.length;
+    if (filtered.length === 0) {
+      const hasAny = allWarmups.length > 0;
+      body.innerHTML = '<tr><td colspan="11" class="empty">' +
+        (hasAny
+          ? 'Aucune entrée pour ces filtres — change le statut / type / langue ci-dessus, ou clic "+ Ajouter".'
+          : 'Aucun exercice en base. Clic "+ Ajouter un exercice" pour commencer.'
+        ) +
+      '</td></tr>';
+      return;
+    }
+    body.innerHTML = filtered.map(v => {
+      const isPending  = v.status === "pending";
+      const isApproved = v.status === "approved";
+      const isHidden   = v.status === "rejected";
+      let actions = "";
+      if (isPending) {
+        actions +=
+          '<button class="btn btn-approve" data-warmup-act="approve" data-id="' + escapeHtml(v.id) + '">✓ Approuver (publier)</button>' +
+          '<button class="btn btn-reject"  data-warmup-act="reject"  data-id="' + escapeHtml(v.id) + '">🙈 Cacher</button>';
+      } else if (isApproved) {
+        actions += '<button class="btn btn-reject" data-warmup-act="reject" data-id="' + escapeHtml(v.id) + '">🙈 Cacher</button>';
+      } else if (isHidden) {
+        actions += '<button class="btn btn-approve" data-warmup-act="approve" data-id="' + escapeHtml(v.id) + '">👁 Afficher</button>';
+      }
+      actions +=
+        '<button class="btn" data-warmup-act="edit"   data-id="' + escapeHtml(v.id) + '">✎ Éditer</button>' +
+        '<button class="btn btn-reject" data-warmup-act="delete" data-id="' + escapeHtml(v.id) + '">🗑 Supprimer</button>';
+      const LOC_FLAG = { fr: "🇫🇷", en: "🇬🇧", de: "🇩🇪", es: "🇪🇸", pt: "🇵🇹", nl: "🇳🇱" };
+      const localeCell = v.locale
+        ? (LOC_FLAG[v.locale] || "") + " " + escapeHtml(v.locale.toUpperCase())
+        : "—";
+      return '<tr data-row-id="' + escapeHtml(v.id) + '">' +
+        '<td class="wrap">'      + escapeHtml(v.name)                            + '</td>' +
+        '<td>'                   + escapeHtml(v.type || "—")                     + '</td>' +
+        '<td>'                   + escapeHtml(v.subtype || "—")                  + '</td>' +
+        '<td class="wrap">'      + escapeHtml(v.description || "—")              + '</td>' +
+        '<td>'                   + escapeHtml(formatWarmupDuration(v.duration_seconds)) + '</td>' +
+        '<td>'                   + escapeHtml(v.participants || "—")             + '</td>' +
+        '<td>'                   + escapeHtml(v.source || "—")                   + '</td>' +
+        '<td>'                   + localeCell                                    + '</td>' +
+        '<td class="email">'     + escapeHtml(emailForWarmupRow(v))             + '</td>' +
+        '<td><span class="status-' + escapeHtml(v.status) + '">' + escapeHtml(
+          v.status === "pending"  ? "En attente" :
+          v.status === "approved" ? "Public" :
+          v.status === "rejected" ? "Caché"     : v.status
+        ) + '</span></td>' +
+        '<td class="actions">'   + actions                                      + '</td>' +
+      '</tr>';
+    }).join("");
+  }
+
+  async function setWarmupStatus(id, status) {
+    const { error } = await sb.rpc("set_warmup_exercise_status", { p_id: id, p_status: status });
+    if (error) { alert("Erreur : " + error.message); return; }
+    const row = allWarmups.find(v => v.id === id);
+    if (row) {
+      row.status = status;
+      if (status === "approved") row.approved_at = new Date().toISOString();
+    }
+    renderWarmups();
+  }
+
+  /** Export the currently-filtered warmups as a CSV file. Honors all
+   *  active filters. UTF-8 with BOM + CRLF so Excel opens it cleanly. */
+  function exportWarmupsCsv() {
+    const status = $("warmupFilterStatus").value;
+    const type   = $("warmupFilterType").value;
+    const locale = ($("warmupFilterLocale") && $("warmupFilterLocale").value) || "";
+    const text   = ($("warmupFilterText").value || "").trim().toLowerCase();
+    const filtered = allWarmups.filter(v => {
+      if (status && v.status !== status) return false;
+      if (type   && v.type !== type) return false;
+      if (locale && v.locale !== locale) return false;
+      if (text) {
+        const hay = [v.name, v.subtype, v.description, v.participants, v.source].filter(Boolean).join(" ").toLowerCase();
+        if (!hay.includes(text)) return false;
+      }
+      return true;
+    });
+    if (filtered.length === 0) { alert("Aucune entrée à exporter pour ces filtres."); return; }
+
+    const headers = ["Nom","Type","Sous-type","Description","Durée (s)",
+                     "Participants","Source","Langue","Statut","Créé le","Approuvé le"];
+    const cols = ["name","type","subtype","description","duration_seconds",
+                  "participants","source","locale","status","created_at","approved_at"];
+    const esc = (v) => v == null ? '""' : '"' + String(v).replace(/"/g, '""') + '"';
+    const lines = [headers.map(esc).join(",")];
+    filtered.forEach(r => lines.push(cols.map(c => esc(r[c])).join(",")));
+    const csv = "﻿" + lines.join("\r\n") + "\r\n";
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    a.href = url;
+    a.download = "acto-echauffements-" + ts + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function deleteWarmup(id) {
+    if (!confirm("Supprimer définitivement cet exercice ?")) return;
+    const { error } = await sb.rpc("delete_warmup_exercise", { p_id: id });
+    if (error) { alert("Erreur : " + error.message); return; }
+    allWarmups = allWarmups.filter(v => v.id !== id);
+    renderWarmups();
+  }
+
+  function editWarmup(id) {
+    const row = allWarmups.find(v => v.id === id);
+    if (!row) return;
+    openWarmupAddDialog(row);
+  }
+
+  function openWarmupAddDialog(editRow) {
+    const dlg = $("warmupAddDialog");
+    if (!dlg) return;
+    const isEdit = !!editRow;
+    dlg.dataset.mode = isEdit ? "edit" : "add";
+    dlg.dataset.editId = isEdit ? editRow.id : "";
+    const head = dlg.querySelector(".dlg-head h2");
+    if (head) head.textContent = isEdit ? "Éditer l'exercice" : "Ajouter un exercice";
+    const submitBtn = $("warmupAddSubmitBtn");
+    if (submitBtn) submitBtn.textContent = isEdit ? "Enregistrer les changements" : "Ajouter (publié immédiatement)";
+    const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = (v == null ? "" : v); };
+    if (isEdit) {
+      setVal("warmupAddType",         editRow.type || "Échauffement");
+      setVal("warmupAddSubtype",      editRow.subtype);
+      setVal("warmupAddName",         editRow.name);
+      setVal("warmupAddDescription",  editRow.description);
+      setVal("warmupAddDuration",     editRow.duration_seconds);
+      setVal("warmupAddParticipants", editRow.participants);
+      setVal("warmupAddSource",       editRow.source);
+      setVal("warmupAddLocale",       editRow.locale || "fr");
+    } else {
+      ["warmupAddSubtype","warmupAddName","warmupAddDescription",
+       "warmupAddDuration","warmupAddParticipants","warmupAddSource"].forEach(id => setVal(id, ""));
+      setVal("warmupAddType",   "Échauffement");
+      setVal("warmupAddLocale", "fr");
+    }
+    const err = $("warmupAddError"); if (err) { err.hidden = true; err.textContent = ""; }
+    if (typeof dlg.showModal === "function") dlg.showModal();
+    else dlg.setAttribute("open", "");
+    setTimeout(() => {
+      const t = document.getElementById("warmupAddName"); if (t) t.focus();
+    }, 0);
+  }
+  function closeWarmupAddDialog() {
+    const dlg = $("warmupAddDialog");
+    if (!dlg) return;
+    if (typeof dlg.close === "function") dlg.close();
+    else dlg.removeAttribute("open");
+  }
+  async function submitWarmupAdd(ev) {
+    ev.preventDefault();
+    const dlg = $("warmupAddDialog");
+    const mode = (dlg && dlg.dataset.mode) || "add";
+    const editId = (dlg && dlg.dataset.editId) || "";
+    const err = $("warmupAddError");
+    if (err) { err.hidden = true; err.textContent = ""; }
+    const name = (document.getElementById("warmupAddName").value || "").trim();
+    if (!name) {
+      if (err) { err.textContent = "Le nom est obligatoire."; err.hidden = false; }
+      return;
+    }
+    const description = (document.getElementById("warmupAddDescription").value || "").trim();
+    if (!description) {
+      if (err) { err.textContent = "La description est obligatoire."; err.hidden = false; }
+      return;
+    }
+    const submitBtn = $("warmupAddSubmitBtn");
+    const cancelBtn = $("warmupAddCancelBtn");
+    const originalLabel = submitBtn ? submitBtn.textContent : "";
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = mode === "edit" ? "Enregistrement…" : "Ajout…"; }
+    if (cancelBtn) cancelBtn.disabled = true;
+    // Duration is entered raw in seconds. Empty → null (unknown duration).
+    const durRaw = (document.getElementById("warmupAddDuration").value || "").trim();
+    const durationSeconds = durRaw === "" ? null : parseInt(durRaw, 10);
+    const payload = {
+      p_type:             document.getElementById("warmupAddType").value || "Échauffement",
+      p_subtype:          document.getElementById("warmupAddSubtype").value || "",
+      p_name:             name,
+      p_description:      description,
+      p_duration_seconds: durationSeconds,
+      p_participants:     document.getElementById("warmupAddParticipants").value || "",
+      p_source:           document.getElementById("warmupAddSource").value || "",
+      p_locale:           document.getElementById("warmupAddLocale").value || "fr"
+    };
+    try {
+      if (mode === "edit" && editId) {
+        const { error } = await sb.rpc("update_warmup_exercise", { p_id: editId, ...payload });
+        if (error) throw error;
+      } else {
+        const { error } = await sb.rpc("admin_add_warmup_exercise", payload);
+        if (error) throw error;
+      }
+      await loadWarmups();
+      closeWarmupAddDialog();
+    } catch (e) {
+      console.error("[admin] warmup save failed (" + mode + ")", e);
+      if (err) {
+        err.textContent = "Erreur : " + ((e && e.message) || e);
+        err.hidden = false;
+      }
+    } finally {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalLabel; }
+      if (cancelBtn) cancelBtn.disabled = false;
+    }
+  }
+
+  function wireWarmupsControls() {
+    ["warmupFilterStatus","warmupFilterType","warmupFilterLocale","warmupFilterText"].forEach(id => {
+      const el = $(id); if (!el) return;
+      el.addEventListener("input",  renderWarmups);
+      el.addEventListener("change", renderWarmups);
+    });
+    // Sortable headers: click cycles (none → asc → desc → none).
+    document.querySelectorAll("#warmupTableAdmin th[data-sort-warmup]").forEach(th => {
+      th.addEventListener("click", () => {
+        const k = th.dataset.sortWarmup;
+        if (warmupSortKey === k) {
+          if (warmupSortDir === "asc") { warmupSortDir = "desc"; }
+          else { warmupSortKey = null; warmupSortDir = "asc"; }
+        } else {
+          warmupSortKey = k; warmupSortDir = "asc";
+        }
+        renderWarmups();
+      });
+    });
+    const body = $("warmupBodyAdmin");
+    if (body) {
+      body.addEventListener("click", (ev) => {
+        const btn = ev.target.closest("button[data-warmup-act]");
+        if (!btn) return;
+        const id = btn.dataset.id;
+        const act = btn.dataset.warmupAct;
+        if      (act === "approve") setWarmupStatus(id, "approved");
+        else if (act === "reject")  setWarmupStatus(id, "rejected");
+        else if (act === "delete")  deleteWarmup(id);
+        else if (act === "edit")    editWarmup(id);
+      });
+    }
+    // Arrow wrapper is critical — passing openWarmupAddDialog directly
+    // forwards the click Event as editRow (truthy → edit mode with a
+    // bogus id → UUID error).
+    const addBtn = $("warmupAddAdminBtn");
+    if (addBtn) addBtn.addEventListener("click", () => openWarmupAddDialog());
+    const exportBtn = $("warmupExportCsvBtn");
+    if (exportBtn) exportBtn.addEventListener("click", () => exportWarmupsCsv());
+    const closeBtn = $("warmupAddCloseBtn");
+    if (closeBtn) closeBtn.addEventListener("click", closeWarmupAddDialog);
+    const cancelBtn = $("warmupAddCancelBtn");
+    if (cancelBtn) cancelBtn.addEventListener("click", closeWarmupAddDialog);
+    const form = $("warmupAddForm");
+    if (form && !form.dataset.wired) {
+      form.dataset.wired = "1";
+      form.addEventListener("submit", submitWarmupAdd);
+    }
+  }
+
   /** Build the list of locale options based on what's in IMPRO_BUNDLE.
    *  `IMPRO_BUNDLE.locales` is shaped `{ fr: { name, flag }, en: {…}, … }`.
    *  Used by both the bundled-list filter (mandatory choice) and the
@@ -2749,6 +3265,7 @@
     try { await loadSubmissions(); } catch (e) { console.error("[admin] loadSubmissions error:", e); }
     try { wireBundledControls(); await loadHiddenItems(); renderBundled(); } catch (e) { console.error("[admin] bundled init error:", e); }
     try { wireInspirationsControls(); await loadInspirations(); } catch (e) { console.error("[admin] inspirations init error:", e); }
+    try { wireWarmupsControls(); await loadWarmups(); } catch (e) { console.error("[admin] warmups init error:", e); }
     } finally {
       __adminBooting = false;
     }
@@ -2825,15 +3342,17 @@
      selectors above use to show/hide the right sections.
      ============================================================ */
   function setView(name) {
-    // Three true sibling views, each with its own body class.
+    // Four true sibling views, each with its own body class.
     const v = (name === "impro") ? "impro"
             : (name === "inspirations") ? "inspirations"
+            : (name === "warmups") ? "warmups"
             : "tableau";
-    document.body.classList.remove("view-tableau", "view-impro", "view-inspirations");
+    document.body.classList.remove("view-tableau", "view-impro", "view-inspirations", "view-warmups");
     document.body.classList.add("view-" + v);
     document.title =
       v === "impro"        ? "Acto — Admin · Impro" :
       v === "inspirations" ? "Acto — Admin · Inspirations" :
+      v === "warmups"      ? "Acto — Admin · Échauffement" :
                              "Acto — Admin";
     // Reset scroll on view switch so the user lands at the top of the
     // freshly-shown section, not a stale scrollTop from the previous view.
@@ -2841,7 +3360,7 @@
   }
   function viewFromHash() {
     const h = (window.location.hash || "").replace(/^#/, "").toLowerCase();
-    if (h === "impro" || h === "inspirations") return h;
+    if (h === "impro" || h === "inspirations" || h === "warmups") return h;
     return "tableau";
   }
   function wireViewRouter() {
@@ -2849,9 +3368,11 @@
     window.addEventListener("hashchange", () => setView(viewFromHash()));
     const goImpro   = $("goImproBtn");
     const goInspire = $("goInspireBtn");
+    const goWarmups = $("goWarmupsBtn");
     const back      = $("backToTableauBtn");
     if (goImpro)   goImpro.addEventListener("click",   () => { window.location.hash = "impro"; });
     if (goInspire) goInspire.addEventListener("click", () => { window.location.hash = "inspirations"; });
+    if (goWarmups) goWarmups.addEventListener("click", () => { window.location.hash = "warmups"; });
     if (back) back.addEventListener("click",  () => {
       history.replaceState(null, "", window.location.pathname + window.location.search);
       setView("tableau");
