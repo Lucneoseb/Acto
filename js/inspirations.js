@@ -148,7 +148,7 @@
     const body = $("#inspireBody");
     if (body) body.innerHTML = renderLoadingSkeleton();
     const { data, error } = await sb.from("inspiration_videos")
-      .select("id, title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, created_at")
+      .select("id, title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, created_at, view_count")
       .eq("status", "approved")
       .order("created_at", { ascending: false });
     if (error) {
@@ -306,6 +306,19 @@
       return;
     }
     body.innerHTML = list.map(v => renderRow(v)).join("");
+    // Delegated copy-link handler (wired once).
+    if (!body.__shareWired) {
+      body.__shareWired = true;
+      body.addEventListener("click", (e) => {
+        const btn = e.target.closest(".insp-share-btn");
+        if (!btn) return;
+        e.preventDefault();
+        const url = new URL(btn.getAttribute("data-share"), location.href).href;
+        const ok = () => { btn.textContent = "✓"; setTimeout(() => { btn.textContent = "🔗"; }, 1500); };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok, () => window.prompt(t("inspireShare", "Copier le lien"), url));
+        else window.prompt(t("inspireShare", "Copier le lien"), url);
+      });
+    }
   }
 
   // Flag emojis for quick visual scan in the language column.
@@ -319,11 +332,12 @@
     // these on mobile so the card metadata row stays clean instead of being
     // padded with placeholder dashes.
     const emptyCls = (val) => val ? "" : " is-empty";
-    const titleCell = v.video_url
-      ? '<a href="' + escapeHtml(v.video_url) + '" target="_blank" rel="noopener noreferrer">' +
-          escapeHtml(v.title || "(sans titre)") +
-        '</a>'
-      : '<span class="no-link">' + escapeHtml(v.title || "(sans titre)") + '</span>';
+    // Title → the public detail/share page (where you can watch, share + rate).
+    const detailUrl = "./inspiration.html?id=" + encodeURIComponent(v.id);
+    const titleCell =
+      '<a class="insp-title-link" href="' + detailUrl + '">' + escapeHtml(v.title || "(sans titre)") + '</a>' +
+      ' <button class="insp-share-btn" type="button" data-share="' + escapeHtml(detailUrl) + '" title="' + escapeHtml(t("inspireShare", "Copier le lien")) + '" aria-label="' + escapeHtml(t("inspireShare", "Copier le lien")) + '">🔗</button>' +
+      '<span class="insp-views" title="' + escapeHtml(t("inspireViews", "vues")) + '">👁 ' + (v.view_count || 0) + '</span>';
     const localeCellInner = v.locale
       ? (LOC_FLAG[v.locale] || "") + " " + escapeHtml(v.locale.toUpperCase())
       : "—";

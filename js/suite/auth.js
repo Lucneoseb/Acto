@@ -30,6 +30,8 @@
       window.actoUser = session.user;
       window.actoAuth = { state: { user: session.user } };
       reveal();
+      // Build the top-corner account menu now that we know who's logged in.
+      try { if (window.ActoAccount) window.ActoAccount.init(); } catch (e) { /* ignore */ }
     } else {
       go("quickgame.html");
     }

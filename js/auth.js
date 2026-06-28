@@ -82,6 +82,10 @@
     setText("authPasswordLabel",       t.authPassword);
     setText("authLoginSubmitBtn",      t.authLoginBtn);
     setText("authForgotBtn",           t.authForgotPassword);
+    setText("authOrText",              t.authOr);
+    setText("authGoogleText",          t.authGoogle);
+    setText("authAppleText",           t.authApple);
+    setText("authMagicBtn",            t.authMagicLink);
     // Set-new-password dialog (PASSWORD_RECOVERY)
     setText("authResetTitle",          t.authResetTitle);
     setText("authResetPasswordLabel",  t.authPassword);
@@ -731,6 +735,84 @@
   }
 
   /* ------------------------------------------------------------------
+     7b. SOCIAL AUTH (Google / Apple) + MAGIC LINK + auth-screen language
+     ------------------------------------------------------------------ */
+  // After the provider/email round-trip the browser returns to /quickgame,
+  // where detectSessionInUrl:true turns the callback into a SIGNED_IN event →
+  // the existing handler redirects to /welcome.
+  async function signInWithProvider(provider) {
+    showError("authLoginError", "");
+    try {
+      const { error } = await sb.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: window.location.origin + "/quickgame" }
+      });
+      if (error) throw error;
+    } catch (e) {
+      showError("authLoginError", (ui().authOauthError || "Sign-in failed.") + (e && e.message ? " (" + e.message + ")" : ""));
+    }
+  }
+
+  async function sendMagicLink() {
+    const emailEl = $("authLoginEmail");
+    const email = emailEl ? emailEl.value.trim() : "";
+    showError("authLoginError", "");
+    if (!email) {
+      showError("authLoginError", ui().authMagicNeedEmail || "Enter your email first.");
+      if (emailEl) emailEl.focus();
+      return;
+    }
+    const btn = $("authMagicBtn"); if (btn) btn.disabled = true;
+    try {
+      const { error } = await sb.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: window.location.origin + "/quickgame" }
+      });
+      if (error) throw error;
+      // Reuse the "check your email" pending card.
+      const form = $("authLoginForm"); if (form) form.parentElement.hidden = true;
+      const pending = $("authPendingCard");
+      if (pending) {
+        pending.hidden = false;
+        setText("authPendingTitle", ui().authMagicSentTitle || "Check your email");
+        setText("authPendingMsg", ui().authMagicSentMsg || "We've emailed you a sign-in link. Open it to log in.");
+        const resend = $("authResendBtn"); if (resend) resend.hidden = true;  // resend is signup-only
+      }
+    } catch (e) {
+      showError("authLoginError", (ui().authMagicError || "Couldn't send the link.") + (e && e.message ? " (" + e.message + ")" : ""));
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  // Populate + wire the pre-login language pickers (auth screen + signup dialog),
+  // driving the same app store so the change re-renders everything live.
+  function buildAuthLangPickers() {
+    const store = window.improStore;
+    const sels = ["authLangSelect", "authSignupLangSelect"].map($).filter(Boolean);
+    if (!sels.length) return;
+    const locales = (store && store.locales) || (window.IMPRO_BUNDLE && window.IMPRO_BUNDLE.locales) || {};
+    const cur = currentLocale();
+    sels.forEach((sel) => {
+      sel.innerHTML = "";
+      Object.keys(locales).forEach((code) => {
+        const meta = locales[code] || {};
+        const opt = document.createElement("option");
+        opt.value = code;
+        opt.textContent = (meta.flag ? meta.flag + " " : "") + (meta.name || code);
+        if (code === cur) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.onchange = () => {
+        const code = sel.value;
+        if (store && typeof store.setLocale === "function") store.setLocale(code);
+        else { try { localStorage.setItem("impro-studio:locale:v1", code); } catch (e) { /* ignore */ } location.reload(); }
+        sels.forEach((s) => { if (s !== sel) s.value = code; });
+      };
+    });
+  }
+
+  /* ------------------------------------------------------------------
      8. WIRING
      ------------------------------------------------------------------ */
   function wireUp() {
@@ -739,6 +821,17 @@
 
     const forgot = $("authForgotBtn");
     if (forgot) forgot.addEventListener("click", forgotPassword);
+
+    // OAuth (Google / Apple) + passwordless magic link.
+    const gBtn = $("authGoogleBtn");
+    if (gBtn) gBtn.addEventListener("click", () => signInWithProvider("google"));
+    const aBtn = $("authAppleBtn");
+    if (aBtn) aBtn.addEventListener("click", () => signInWithProvider("apple"));
+    const mBtn = $("authMagicBtn");
+    if (mBtn) mBtn.addEventListener("click", sendMagicLink);
+
+    // Language pickers on the auth screen + signup dialog (pre-login).
+    buildAuthLangPickers();
 
     const resetForm = $("resetPasswordForm");
     if (resetForm) resetForm.addEventListener("submit", (e) => {

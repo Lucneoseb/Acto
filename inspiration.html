@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Une improvisation à découvrir · Acto The Impro Studio" />
+<meta name="theme-color" content="#0c0814" />
+<title>Acto — Inspiration</title>
+<link rel="icon" type="image/png" href="./assets/logo.png?v=20260705" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css?v=20260705" />
+<style>
+  .insp1-wrap { position: relative; z-index: 5; max-width: 760px; margin: clamp(1rem,4vw,2.5rem) auto; padding: 0 1rem; }
+  .insp1-back { margin-bottom: 1rem; }
+  .insp1-back a { color: var(--gold-soft); text-decoration: none; font-size: 0.9rem; }
+  .insp1-card { background: linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    border: 1px solid rgba(245,196,81,0.25); border-radius: 18px; padding: clamp(1rem,3vw,1.8rem); box-shadow: 0 16px 48px rgba(0,0,0,0.4); }
+  .insp1-title { font-family: 'Bebas Neue', Inter, sans-serif; font-weight: 400; letter-spacing: 0.04em; color: var(--gold);
+    font-size: clamp(1.6rem,5vw,2.6rem); line-height: 1.05; margin: 0 0 0.3rem; }
+  .insp1-chan { color: var(--ink-muted); font-size: 0.95rem; margin: 0 0 0.9rem; }
+  .insp1-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 1rem; }
+  .insp1-tag { font-size: 0.78rem; padding: 0.25rem 0.65rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.16); color: var(--ink-muted); }
+  .insp1-tag.is-type { color: var(--gold-soft); border-color: rgba(245,196,81,0.4); }
+  .insp1-video { position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; background: #000; margin: 0 0 1rem; }
+  .insp1-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .insp1-watch { display: inline-flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+    color: var(--bg-deep); font-weight: 800; border-radius: 12px; padding: 0.7rem 1.2rem; text-decoration: none; }
+  .insp1-notes { color: var(--ink-muted); line-height: 1.55; font-size: 0.95rem; margin: 0.4rem 0 1rem; white-space: pre-wrap; }
+  .insp1-meta { color: var(--ink-faint); font-size: 0.85rem; margin: 0 0 1rem; }
+  .insp1-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.6rem; }
+  .insp1-btn { appearance: none; cursor: pointer; font: inherit; font-weight: 700; border-radius: 12px; padding: 0.65rem 1.1rem; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.05); color: var(--ink); text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; }
+  .insp1-btn:hover { border-color: var(--gold); }
+  .insp1-btn-primary { background: rgba(245,196,81,0.16); border-color: rgba(245,196,81,0.5); color: var(--gold); }
+  /* rating widget */
+  .insp1-rate { margin-top: 1.2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; }
+  .insp1-rate-h { font-weight: 700; color: var(--ink); margin: 0 0 0.5rem; font-size: 0.95rem; }
+  .insp1-grades { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+  .insp1-grade { width: 42px; height: 42px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.04);
+    color: var(--ink); font: 700 1.1rem/1 'Inter', sans-serif; cursor: pointer; }
+  .insp1-grade:hover { border-color: var(--gold); }
+  .insp1-grade.is-on { background: linear-gradient(135deg, var(--gold), var(--gold-soft)); color: var(--bg-deep); border-color: var(--gold); }
+  .insp1-comment { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.14); color: var(--ink); border-radius: 10px; padding: 0.6rem; font: inherit; font-size: 0.92rem; resize: vertical; min-height: 64px; }
+  .insp1-rate-actions { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem; flex-wrap: wrap; }
+  .insp1-rate-msg { font-size: 0.85rem; color: var(--ink-muted); }
+  .insp1-rate-msg.is-ok { color: var(--gold-soft); }
+  .insp1-login-hint { color: var(--ink-muted); font-size: 0.9rem; }
+  .insp1-login-hint a { color: var(--gold-soft); }
+  .insp1-loading, .insp1-empty { text-align: center; color: var(--ink-muted); padding: 3rem 1rem; }
+  .insp1-views { color: var(--ink-faint); font-size: 0.85rem; }
+</style>
+</head>
+<body>
+  <div class="stage-backdrop" aria-hidden="true">
+    <div class="spotlight spotlight-1"></div><div class="spotlight spotlight-2"></div><div class="spotlight spotlight-3"></div>
+    <div class="curtain curtain-left"></div><div class="curtain curtain-right"></div>
+  </div>
+
+  <div class="insp1-wrap">
+    <div class="insp1-back"><a href="./welcome.html">← Acto · The Impro Studio</a></div>
+    <div id="insp1Root"><div class="insp1-loading">…</div></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
+          integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
+          crossorigin="anonymous"></script>
+  <script src="./js/config.js?v=20260705"></script>
+  <script src="./js/utils.js?v=20260705"></script>
+  <script src="./data/all.js?v=20260705"></script>
+  <script src="./js/inspiration.js?v=20260705"></script>
+</body>
+</html>

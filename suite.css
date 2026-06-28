@@ -813,6 +813,41 @@
 .suite-contrib-msg.is-ok { color: var(--ink-muted); }
 .suite-contrib-thanks { color: var(--gold-soft); font-size: 1rem; text-align: center; padding: 1.2rem 0.5rem; margin: 0; }
 
+/* ---- Studio account: avatar button + dropdown + settings dialog ---- */
+.suite-account { position: relative; display: inline-flex; }
+.suite-acc-btn { appearance: none; cursor: pointer; border: 0; background: none; padding: 0; }
+.suite-acc-avatar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-soft)); color: var(--bg-deep);
+  font: 700 0.8rem/1 "Inter", sans-serif; letter-spacing: 0.02em; border: 1px solid rgba(0,0,0,0.2); }
+.suite-acc-btn:hover .suite-acc-avatar { filter: brightness(1.06); }
+.suite-acc-avatar-lg { width: 44px; height: 44px; font-size: 1rem; }
+.suite-acc-menu { position: absolute; top: calc(100% + 8px); right: 0; z-index: 60; width: 240px;
+  background: var(--bg-deep, #140d1f); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px;
+  box-shadow: 0 18px 44px rgba(0,0,0,0.5); padding: 0.5rem; display: flex; flex-direction: column; gap: 0.15rem; }
+.suite-acc-head { display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem 0.5rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.3rem; }
+.suite-acc-id { min-width: 0; }
+.suite-acc-name { font-weight: 700; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.suite-acc-email { color: var(--ink-faint); font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.suite-acc-lang { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.4rem 0.55rem; color: var(--ink-muted); font-size: 0.88rem; }
+.suite-acc-lang select { appearance: none; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.14); color: var(--ink); font: inherit; font-size: 0.82rem; padding: 0.25rem 0.5rem; border-radius: 8px; cursor: pointer; }
+.suite-acc-lang select option { color: #000; background: #fff; }
+.suite-acc-item { appearance: none; cursor: pointer; text-align: left; background: none; border: 0; color: var(--ink);
+  font: inherit; font-size: 0.9rem; padding: 0.55rem 0.55rem; border-radius: 9px; }
+.suite-acc-item:hover { background: rgba(255,255,255,0.06); }
+.suite-acc-logout { color: #e88; }
+.suite-acc-logout:hover { background: rgba(228,83,79,0.12); }
+
+.suite-acc-dlgbody { gap: 0.6rem; }
+.suite-acc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.suite-acc-h3 { font: 700 0.95rem/1.1 "Inter", sans-serif; color: var(--gold-soft); margin: 0.2rem 0 0; }
+.suite-acc-sep { border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 0.6rem 0 0.2rem; }
+.suite-acc-msg { margin: 0; font-size: 0.85rem; }
+.suite-acc-msg.is-err { color: #e4534f; }
+.suite-acc-msg.is-ok { color: var(--troupe, #6dd3c5); }
+.suite-acc-stats { display: flex; flex-direction: column; gap: 0.25rem; color: var(--ink-muted); font-size: 0.9rem; }
+.suite-acc-del { align-self: flex-start; }
+@media (max-width: 520px) { .suite-acc-grid { grid-template-columns: 1fr; } .suite-acc-menu { width: min(86vw, 260px); } }
+
 .suite-discover-card {
   border-radius: var(--radius-lg);
   border: 1px solid color-mix(in srgb, #ffffff 11%, transparent);

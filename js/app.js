@@ -315,6 +315,9 @@
   }
 
   const store = createStore();
+  // Exposed so the (pre-login) auth screen language picker can change locale
+  // and trigger a live re-render via the same store the app uses.
+  window.improStore = store;
 
   /* ============================================================
      2. SLOT-MACHINE ANIMATION
