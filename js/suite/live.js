@@ -4,9 +4,9 @@
  * Two roles, one codebase:
  *   PRESENTER  (#/match/live) — the referee control surface: current segment,
  *     chrono (impro / caucus / vote), transport, scores, score-visibility toggle.
- *   DISPLAY    (#/display)    — the public/projector board, rendered read-only
- *     from snapshots the presenter broadcasts over BroadcastChannel (with a
- *     localStorage fallback for browsers/contexts without it).
+ *   DISPLAY    (join.html?mode=display) — the public/projector board, read-only
+ *     from snapshots the presenter broadcasts over BroadcastChannel (same-device,
+ *     localStorage fallback) + Supabase Realtime keyed by join code (cross-device).
  *
  * The active match lives in localStorage (acto-suite:live:v1) so it survives a
  * reload and so the presenter can be reopened. Scores/penalties are ephemeral
@@ -33,15 +33,37 @@
     return _bc;
   }
 
-  /* ---------- Supabase Realtime (cross-device, same account) ----------
-     The presenter publishes snapshots on a channel keyed by the logged-in
-     user id; the public display + record device (logged in as the SAME
-     account, on other devices) subscribe. BroadcastChannel/localStorage above
-     still cover same-device windows, so Realtime is purely additive and the
-     whole thing degrades to same-device if there's no session/network. */
+  /* ---------- Supabase Realtime (cross-device, by join code) ----------
+     The presenter publishes snapshots on a public channel keyed by the match's
+     join CODE; the public display + record device subscribe by entering that
+     code (no account needed). BroadcastChannel/localStorage above still cover
+     same-device windows, so Realtime is purely additive and degrades to
+     same-device if there's no network.
+
+     TRUST MODEL (known limitation): this is a *public* broadcast channel, so any
+     subscriber holding the code can also publish — a technical prankster in the
+     audience could inject a forged scoreboard onto other viewers' screens (it is
+     overwritten by the presenter's next legit update). The content is a public
+     projector board, so impact is limited. To fully lock this down, switch to a
+     Supabase Realtime *private* channel with an RLS policy on realtime.messages
+     that only lets the authenticated match owner broadcast (viewers read-only). */
   var _rt = null, _rtRole = null;   // null | 'pub' | 'sub'
   function rtClient() { return window.actoSuiteSb || null; }
-  function rtChannelName() { var u = window.actoUser && window.actoUser.id; return u ? ("acto-live:" + u) : null; }
+  // Channel keyed by the match's JOIN CODE so ANY device (logged in or not) can
+  // view by entering the code. Presenter → its own sess.joinCode; a viewer / the
+  // public join page → window.actoJoinCode. Falls back to the account id (legacy).
+  function rtChannelName() {
+    // Keyed solely on the join CODE. No code → no Realtime (a stray viewer fails
+    // fast instead of silently subscribing to a channel nobody publishes to).
+    var code = (sess && sess.joinCode) || window.actoJoinCode;
+    return code ? ("acto-live:" + String(code).toUpperCase()) : null;
+  }
+  // Short, human-typeable code (no ambiguous 0/O/1/I).
+  function genJoinCode() {
+    var A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", s = "";
+    for (var i = 0; i < 6; i++) s += A.charAt(Math.floor(Math.random() * A.length));
+    return s;
+  }
   function rtEnsurePublisher() {
     if (_rt) return _rt;
     var sb = rtClient(), name = rtChannelName(); if (!sb || !name) return null;
@@ -211,13 +233,61 @@
     recordResults();
   }
 
+  function joinUrl(mode) {
+    var code = (sess && sess.joinCode) || "";
+    return "join.html?code=" + encodeURIComponent(code) + (mode ? "&mode=" + mode : "");
+  }
   function openPublicScreen() {
-    try { window.open("welcome.html#/display", "acto-display", "width=1280,height=720"); } catch (e) { /* ignore */ }
+    try { window.open(joinUrl("display"), "acto-display", "width=1280,height=720"); } catch (e) { /* ignore */ }
     setTimeout(broadcast, 400);
   }
   function openRecordScreen() {
-    try { window.open("welcome.html#/record", "acto-record", "width=960,height=720"); } catch (e) { /* ignore */ }
+    try { window.open(joinUrl("record"), "acto-record", "width=960,height=720"); } catch (e) { /* ignore */ }
     setTimeout(broadcast, 400);
+  }
+  // Show the join code + QR so any device (no account needed) can open the
+  // public screen or filming by entering the code or scanning the QR.
+  // QR built locally (qrcode-generator) → no third-party request, no access-code
+  // leak, fits the existing CSP (inline SVG). Returns "" if the lib is absent.
+  function buildQrSvg(text) {
+    try {
+      if (!window.qrcode) return "";
+      var qr = window.qrcode(0, "M");
+      qr.addData(text); qr.make();
+      return qr.createSvgTag({ cellSize: 5, margin: 2, scalable: true });
+    } catch (e) { return ""; }
+  }
+  function openCodeDialog() {
+    var code = sess && sess.joinCode; if (!code) return;
+    var base = window.location.origin + window.location.pathname.replace(/[^/]*$/, "");
+    var url = base + "join.html?code=" + encodeURIComponent(code);
+    var qrSvg = buildQrSvg(url);
+    var dlg = document.createElement("dialog");
+    dlg.className = "suite-dialog suite-code-dialog";
+    dlg.innerHTML =
+      '<div class="suite-dialog-body suite-code-body">' +
+        '<h2 class="suite-dialog-title">📱 ' + esc(t("liveJoinTitle")) + '</h2>' +
+        '<p class="suite-dialog-text">' + esc(t("liveJoinHelp")) + '</p>' +
+        '<div class="suite-code-big">' + esc(code) + '</div>' +
+        (qrSvg ? '<div class="suite-code-qr" aria-label="QR">' + qrSvg + '</div>' : '') +
+        '<p class="suite-code-url">' + esc(url) + '</p>' +
+        '<div class="suite-dialog-actions">' +
+          '<button type="button" data-r="copy" class="suite-btn suite-btn-ghost">' + esc(t("liveJoinCopy")) + '</button>' +
+          '<button type="button" data-r="close" class="suite-btn suite-btn-primary">' + esc(t("commonClose")) + '</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(dlg);
+    function close() { try { if (dlg.open) dlg.close(); } catch (e) {} dlg.remove(); }
+    dlg.querySelector('[data-r="close"]').onclick = close;
+    var copyBtn = dlg.querySelector('[data-r="copy"]'), copyLabel = copyBtn.textContent;
+    copyBtn.onclick = function () {
+      function ok() { copyBtn.textContent = "✓ " + copyLabel; setTimeout(function () { copyBtn.textContent = copyLabel; }, 1500); }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok, function () { window.prompt(copyLabel, url); });
+      else window.prompt(copyLabel, url);
+    };
+    dlg.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); close(); } });
+    if (typeof dlg.showModal === "function") { try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } } else dlg.setAttribute("open", "");
+    try { dlg.querySelector('[data-r="close"]').focus(); } catch (e) { /* keeps Escape working in the non-modal fallback */ }
   }
 
   /* ---------- étoiles (gold/silver/bronze) ---------- */
@@ -352,6 +422,7 @@
     var seg = curSeg();
     return {
       type: "snapshot", ts: Date.now(),
+      code: sess.joinCode || "",          // so a viewer can reject a leftover snap from another match
       title: sess.title || "",
       scoring: !!sess.scoring, showScores: !!sess.showScores,
       phase: phase,
@@ -399,6 +470,7 @@
     root = container; navigate = nav || navigate;
     sess = S.live.load();
     if (!sess) { navigate("#/"); return; }
+    if (!sess.joinCode) { sess.joinCode = genJoinCode(); S.live.save(sess); }   // viewing code for this run
     cursor = Math.min(sess.cursor || 0, Math.max(0, sess.setlist.length - 1));
     phase = "announce"; tk = null; tRunning = false; finished = false;
     var seg = curSeg(); tTotal = seg ? seg.durationSec : 0; tRemaining = tTotal;
@@ -472,26 +544,27 @@
       '<div class="live-scores">' + teamScore(0) + teamScore(1) + '</div>'
     ) : '';
 
-    var starsBlock = sess.scoring ? (
+    // End-of-match row: Étoiles (scoring only) + the single "Fin de match"
+    // (finish) action. This is now the ONLY way to end — no transport/top-bar
+    // "Terminer" duplicate.
+    var endRow =
       '<div class="live-stars-row">' +
-        '<button class="suite-btn suite-btn-ghost' + (phase === "stars" ? " is-on" : "") + '" data-act="stars">⭐ ' + esc(t("starsBtn")) + '</button>' +
-      '</div>'
-    ) : '';
+        (sess.scoring ? '<button class="suite-btn suite-btn-ghost' + (phase === "stars" ? " is-on" : "") + '" data-act="stars">⭐ ' + esc(t("starsBtn")) + '</button>' : '') +
+        '<button class="suite-btn suite-btn-primary" data-act="finish">🏁 ' + esc(t(sess.scoring ? "liveFinishMatch" : "liveFinish")) + '</button>' +
+      '</div>';
 
     var atLast = cursor >= sess.setlist.length - 1;
     var transport =
       '<div class="live-transport">' +
         '<button class="suite-btn suite-btn-ghost" data-act="prev"' + (cursor <= 0 ? ' disabled' : '') + '>‹ ' + esc(t("livePrev")) + '</button>' +
-        (atLast
-          // At the last impro there is no "add impro" in live — finish the match.
-          ? '<button class="suite-btn suite-btn-primary" data-act="finish">' + esc(t("liveFinish")) + '</button>'
-          : '<button class="suite-btn suite-btn-primary" data-act="next">' + esc(t("liveNext")) + ' ›</button>') +
+        '<button class="suite-btn suite-btn-primary" data-act="next"' + (atLast ? ' disabled' : '') + '>' + esc(t("liveNext")) + ' ›</button>' +
       '</div>';
 
     var footer =
       '<div class="live-foot">' +
         '<button class="suite-btn suite-btn-ghost" data-act="screen">🖥 ' + esc(t("liveOpenScreen")) + '</button>' +
         '<button class="suite-btn suite-btn-ghost" data-act="record">🎥 ' + esc(t("liveOpenRecord")) + '</button>' +
+        '<button class="suite-btn suite-btn-ghost" data-act="joincode">📱 ' + esc(t("liveJoinCode")) + '</button>' +
         '<button class="suite-btn suite-btn-ghost live-scores-toggle' + (sess.showScores ? " is-on" : "") + '" data-act="togglescores">' +
           (sess.showScores ? "👁 " + esc(t("liveScoresOn")) : "🚫 " + esc(t("liveScoresOff"))) +
         '</button>' +
@@ -503,10 +576,9 @@
       '<div class="live-bar-top">' +
         '<button class="suite-back" data-act="back">' + esc(t("liveBack")) + '</button>' +
         '<span class="live-title">' + esc(sess.title || t("matchTitle")) + '</span>' +
-        '<button class="suite-btn suite-btn-mini suite-btn-danger" data-act="finish">' + esc(t("liveFinish")) + '</button>' +
       '</div>' +
       doneBlock +
-      segBlock + chronoBlock + scoreBlock + starsBlock + transport + footer;
+      segBlock + chronoBlock + scoreBlock + endRow + transport + footer;
 
     wirePresenter();
   }
@@ -568,6 +640,7 @@
           case "stars": openStarsDialog(); break;
           case "screen": openPublicScreen(); break;
           case "record": openRecordScreen(); break;
+          case "joincode": openCodeDialog(); break;
         }
       };
     });
@@ -589,7 +662,17 @@
     // Seed from the local snapshot only if it's recent — otherwise a device
     // that once ran a presenter would flash an old match before the first
     // cross-device snapshot arrives.
-    try { var raw = localStorage.getItem(SNAP_KEY); if (raw) { var s = JSON.parse(raw); if (s && s.ts && (Date.now() - s.ts) < 300000) dSnap = s; } } catch (e) { /* ignore */ }
+    try {
+      var raw = localStorage.getItem(SNAP_KEY);
+      if (raw) {
+        var s = JSON.parse(raw);
+        // Recent AND (for a code viewer) belonging to the code being joined — a
+        // device that hosted a different match must not flash its leftover board.
+        var fresh = s && s.ts && (Date.now() - s.ts) < 300000;
+        var codeOk = !window.actoJoinCode || (s && String(s.code || "").toUpperCase() === String(window.actoJoinCode).toUpperCase());
+        if (fresh && codeOk) dSnap = s;
+      }
+    } catch (e) { /* ignore */ }
     var c = chan();
     if (c) {
       c.onmessage = function (ev) { applyIncoming(ev.data); };
@@ -734,7 +817,7 @@
   }
 
   /* ============================================================
-     RECORD device (#/record) — a 3rd role: camera + match-info overlay,
+     RECORD device (join.html?mode=record) — a 3rd role: camera + match overlay,
      synced from the same snapshots as the public display (Realtime +
      same-device). Lets a phone/PC film the match while staying in sync.
      ============================================================ */

@@ -39,13 +39,21 @@
   function render() {
     var r = parseHash();
     document.documentElement.lang = S.locale();
-    // tear down any live/display engine state before routing
+    // tear down any live/display engine + collab editing state before routing
     if (window.ActoLive && window.ActoLive.cleanup) window.ActoLive.cleanup();
+    if (window.ActoProgram && window.ActoProgram.cleanup) window.ActoProgram.cleanup();
 
-    // Live presenter / public display / record device hide all shell chrome.
-    if (r.section === "display") { syncSectionNav(null); window.ActoLive.mountDisplay(rootEl); return; }
-    if (r.section === "record") { syncSectionNav(null); window.ActoLive.mountRecord(rootEl, navigate); return; }
+    // Live presenter hides all shell chrome. The public display + record device
+    // now live on the standalone, code-joined join.html (no longer in-shell routes).
     if (PROGRAM_KIND[r.section] && r.sub === "live") { syncSectionNav(null); window.ActoLive.mountPresenter(rootEl, navigate); return; }
+
+    // Collaborative match editor reached by a share link (#/collab/<id>/<token>).
+    if (r.section === "collab") {
+      syncSectionNav("match");
+      window.ActoProgram.mountCollab(rootEl, navigate, r.sub);
+      window.scrollTo(0, 0);
+      return;
+    }
 
     if (r.section === "teams") {
       syncSectionNav("home");
@@ -112,7 +120,7 @@
         launchCard("train", "🏋️", t("sectionTrainTitle"), t("sectionTrainDesc"), false) +
       '</div>' +
       '<div class="suite-home-extra">' +
-        '<button class="suite-home-link" data-section="teams">👥 ' + esc(t("teamsLibTitle")) + '</button>' +
+        // "Mes équipes" now lives on the Match page (teams are match rosters).
         '<button class="suite-home-link" data-section="contribute">💡 ' + esc(t("contribTitle")) + '</button>' +
       '</div>';
     rootEl.querySelectorAll(".suite-launch-card").forEach(function (c) {

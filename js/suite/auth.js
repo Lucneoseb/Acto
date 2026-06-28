@@ -10,6 +10,12 @@
   "use strict";
 
   function go(url) { try { window.location.replace(url); } catch (e) { window.location.href = url; } }
+  // Carry the intended deep link (e.g. a #/collab/<id>/<token> share link) through
+  // login so an invited-but-logged-out collaborator lands back on the right match.
+  function loginUrl() {
+    var h = window.location.hash || "";
+    return "quickgame.html" + (h.length > 2 ? "?next=" + encodeURIComponent(h) : "");
+  }
   function reveal() { document.body.classList.remove("suite-auth-checking"); }
 
   var cfg = (window.actoConfig && window.actoConfig.supabase) || null;
@@ -33,7 +39,7 @@
       // Build the top-corner account menu now that we know who's logged in.
       try { if (window.ActoAccount) window.ActoAccount.init(); } catch (e) { /* ignore */ }
     } else {
-      go("quickgame.html");
+      go(loginUrl());
     }
   }
 

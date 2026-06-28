@@ -82,7 +82,7 @@
       '<p class="suite-section-sub">' + esc(t("teamsSub")) + '</p>' +
       body;
 
-    root.querySelector('[data-act="home"]').onclick = function () { navigate("#/"); };
+    root.querySelector('[data-act="home"]').onclick = function () { navigate("#/match"); };
     var nb = root.querySelector('[data-act="new"]');
     if (nb) nb.onclick = function () { openEditor(null); };
     root.querySelectorAll('[data-act="edit"]').forEach(function (b) {

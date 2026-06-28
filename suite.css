@@ -846,6 +846,47 @@
 .suite-acc-msg.is-ok { color: var(--troupe, #6dd3c5); }
 .suite-acc-stats { display: flex; flex-direction: column; gap: 0.25rem; color: var(--ink-muted); font-size: 0.9rem; }
 .suite-acc-del { align-self: flex-start; }
+
+/* prep: match name + date row, prominent Save, saved-list date chip */
+.suite-meta-row { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+.suite-meta-col { display: flex; flex-direction: column; gap: 0.3rem; flex: 1 1 200px; min-width: 0; }
+.suite-meta-date { flex: 0 0 auto; max-width: 220px; }
+.suite-list-date { font-weight: 400; color: var(--gold-soft); font-size: 0.76rem; margin-left: 0.45rem; white-space: nowrap; }
+.suite-btn-save { background: rgba(245,196,81,0.14); border: 1px solid rgba(245,196,81,0.5); color: var(--gold); font-weight: 700; }
+.suite-btn-save:hover:not(:disabled) { background: rgba(245,196,81,0.22); }
+
+/* ---- presenter code/QR dialog ---- */
+.suite-code-body { text-align: center; }
+.suite-code-big { font-family: "Bebas Neue", monospace; font-size: 2.6rem; letter-spacing: 0.5rem; color: var(--gold); margin: 0.4rem 0 0.8rem; }
+.suite-code-qr { display: block; margin: 0 auto 0.6rem; border-radius: 12px; background: #fff; padding: 8px; width: 180px; max-width: 70vw; }
+.suite-code-qr svg { display: block; width: 100%; height: auto; }
+.join-wait-hint { margin-top: 1.6rem; display: flex; flex-direction: column; align-items: center; gap: 0.7rem; }
+.join-wait-hint p { color: var(--ink-muted); margin: 0; max-width: 22rem; }
+
+/* ---- collaborative editing (shared match) ---- */
+.suite-collab-badge { display: inline-flex; align-items: center; gap: 0.3rem; margin-top: 0.5rem; padding: 0.2rem 0.65rem; border-radius: 999px; background: color-mix(in srgb, var(--gold) 16%, transparent); border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent); color: var(--gold-soft); font-size: 0.78rem; font-weight: 600; }
+.suite-collab-badge.is-solo { display: none; }   /* hide while editing alone (count includes yourself) */
+.suite-collab-dialog .suite-dialog-body { text-align: center; }
+.suite-collab-url { width: 100%; box-sizing: border-box; font-size: 0.82rem; margin: 0.4rem 0 0.9rem; text-align: center; }
+.suite-code-url { font-size: 0.78rem; color: var(--ink-muted); word-break: break-all; margin: 0 0 0.8rem; }
+
+/* ---- join.html (public viewing by code) ---- */
+.suite-join-body { min-height: 100svh; }
+.join-gate { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.1rem; padding: 2rem 1.2rem; text-align: center; }
+.join-gate[hidden] { display: none; }
+.join-logo { width: 76px; height: auto; opacity: 0.95; }
+.join-title { font-family: "Bebas Neue", sans-serif; font-size: 2rem; letter-spacing: 1px; margin: 0; color: var(--ink); }
+.join-sub { color: var(--ink-muted); margin: 0; max-width: 30rem; }
+.join-form { display: flex; gap: 0.6rem; align-items: stretch; flex-wrap: wrap; justify-content: center; }
+.join-code-in { font-family: "Bebas Neue", monospace; font-size: 2.1rem; letter-spacing: 0.45rem; text-align: center; text-transform: uppercase; width: 11rem; padding: 0.35rem 0.5rem; border-radius: 12px; border: 2px solid color-mix(in srgb, var(--gold) 40%, transparent); background: color-mix(in srgb, var(--bg-velvet) 70%, transparent); color: var(--gold-soft); }
+.join-code-in:focus { outline: none; border-color: var(--gold); }
+.join-err { color: #ff9a9a; margin: 0; min-height: 1rem; font-size: 0.9rem; }
+.join-code-shown { font-family: "Bebas Neue", monospace; font-size: 1.7rem; letter-spacing: 0.4rem; color: var(--gold); }
+.join-modes { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.join-mode { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; width: 150px; padding: 1.4rem 1rem; border-radius: 16px; border: 1px solid color-mix(in srgb, var(--gold) 25%, transparent); background: color-mix(in srgb, var(--bg-velvet) 60%, transparent); color: var(--ink); cursor: pointer; font-size: 1rem; font-weight: 600; transition: border-color .15s, transform .15s; }
+.join-mode:hover { border-color: var(--gold); transform: translateY(-2px); }
+.join-mode-ic { font-size: 2.4rem; }
+.join-change { margin-top: 0.3rem; }
 @media (max-width: 520px) { .suite-acc-grid { grid-template-columns: 1fr; } .suite-acc-menu { width: min(86vw, 260px); } }
 
 .suite-discover-card {

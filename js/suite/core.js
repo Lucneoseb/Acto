@@ -448,6 +448,7 @@
     var idx = readIndex();
     var entry = {
       id: session.id, kind: session.kind, title: session.title || "",
+      matchDate: session.matchDate || "",
       updatedAt: session.updatedAt,
       nbImpros: (session.setlist || []).length
     };
@@ -562,6 +563,7 @@
       id: uid(),
       kind: "match",
       title: "",
+      matchDate: opts.matchDate || "",   // YYYY-MM-DD, set in the prep form
       locale: _locale,
       level: opts.level || "debutant",
       createdAt: Date.now(),
@@ -586,7 +588,7 @@
   function newShowSession(opts) {
     opts = opts || {};
     return {
-      id: uid(), kind: "show", title: "", locale: _locale,
+      id: uid(), kind: "show", title: "", matchDate: opts.matchDate || "", locale: _locale,
       level: opts.level || "debutant",
       createdAt: Date.now(), updatedAt: Date.now(),
       scoring: false, showScores: false, filming: false,

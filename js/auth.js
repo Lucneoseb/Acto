@@ -25,6 +25,15 @@
   const { supabase: SB_CFG, site: SITE } = window.actoConfig;
   const { emailValid, withTimeout } = window.actoUtils;
 
+  // Did this page load from an OAuth/magic-link/recovery callback? Captured
+  // BEFORE the client (detectSessionInUrl) strips the hash. Used to decide
+  // whether a SIGNED_IN event is a *real* fresh login (→ redirect to the Studio)
+  // vs mere session re-hydration when an already-logged-in user opens this page
+  // — the latter must NOT bounce them away.
+  const URL_HAD_AUTH = /(?:[#&]access_token=|[#&]refresh_token=|[?&]code=|[#&?]type=(?:magiclink|recovery|signup|invite|email))/i
+    .test(window.location.hash + window.location.search);
+  let loginInitiated = false;   // set true when the user submits the login form
+
   // PKCE flow is the default and the right choice for email/password auth.
   // Don't override with "implicit" — that's an OAuth-only flow and combined
   // with detectSessionInUrl it makes refreshes flaky.
@@ -410,6 +419,7 @@
     showError("authLoginError", "");
     const btn = $("authLoginSubmitBtn");
     if (btn) btn.disabled = true;
+    loginInitiated = true;   // a real, user-initiated login → allow redirect to the Studio
     try {
       const { error } = await withTimeout(
         sb.auth.signInWithPassword({ email, password: pass }),
@@ -962,13 +972,24 @@
         try { window.applyTranslations(); } catch (e) {}
       }
       ensureProfile(session.user).catch(() => {});
-      if (event === "SIGNED_IN" && wasLoggedOut) {
+      // Redirect to the Studio ONLY after a genuine fresh login — i.e. the user
+      // submitted the login form (loginInitiated) or arrived via an OAuth/magic
+      // callback (URL_HAD_AUTH). A bare SIGNED_IN from re-hydration (an already
+      // logged-in user simply opening this page) must NOT bounce them away.
+      if (event === "SIGNED_IN" && wasLoggedOut && (loginInitiated || URL_HAD_AUTH)) {
         // PostgrestBuilder from sb.rpc() is thenable but lacks .catch — wrap.
         Promise.resolve(sb.rpc("bump_stats", { delta_login: 1 }))
           .catch((e) => console.warn("[auth] login bump failed", e));
-        // After a fresh login, send the user to the Studio (the main app).
-        // (Only on the quick-draw page, which is where this auth UI lives.)
-        setTimeout(() => { try { window.location.assign("welcome.html"); } catch (e) {} }, 150);
+        // After a fresh login, send the user to the Studio — honouring a ?next=#/…
+        // deep link (e.g. a collab share link) carried from the Studio gate.
+        setTimeout(() => {
+          try {
+            var n = null;
+            try { n = new URLSearchParams(window.location.search).get("next"); } catch (e) {}
+            var dest = (n && /^#\/[A-Za-z0-9/_-]*$/.test(n)) ? ("welcome.html" + n) : "welcome.html";
+            window.location.assign(dest);
+          } catch (e) {}
+        }, 150);
       }
     } else if (event === "SIGNED_OUT") {
       window.actoAuth.state.user = null;
