@@ -56,6 +56,10 @@
       '<p class="suite-discover-body">' + esc(body) + '</p>' +
     '</div>';
   }
+  function infoPopup(title, body) {
+    if (window.actoSuitePopup) { window.actoSuitePopup(title, body); return; }
+    try { window.alert(title + "\n\n" + body); } catch (e) { /* ignore */ }
+  }
 
   function simpleExercises() {
     var d = S.data();
@@ -81,11 +85,17 @@
       '<div class="suite-section-head">' +
         '<button class="suite-back" data-act="home">' + esc(t("backToHome")) + '</button>' +
         '<h1 class="suite-h1">✨ ' + esc(t("sectionDiscoverTitle")) + '</h1>' +
+        '<button class="suite-btn suite-btn-mini suite-btn-ghost" data-act="rules">📜 ' + esc(t("discoverRulesBtn")) + '</button>' +
       '</div>' +
       '<div class="suite-discover-grid">' +
         contentCard("🎭", t("discoverIntroTitle"), t("discoverIntroBody")) +
         contentCard("🛠️", t("discoverSetupTitle"), t("discoverSetupBody")) +
         contentCard("💡", t("discoverTipsTitle"), t("discoverTipsBody")) +
+        '<button class="suite-discover-card suite-discover-card-btn" data-act="concepts" type="button">' +
+          '<div class="suite-discover-h"><span aria-hidden="true">🌍</span>' + esc(t("discoverConceptsTitle")) + '</div>' +
+          '<p class="suite-discover-body">' + esc(t("discoverConceptsTeaser")) + '</p>' +
+          '<span class="suite-discover-more">' + esc(t("sectionMoreInfo")) + ' →</span>' +
+        '</button>' +
       '</div>' +
       '<div class="suite-discover-exos">' +
         '<h2 class="suite-h2">' + esc(t("discoverExercisesTitle")) + '</h2>' +
@@ -94,6 +104,10 @@
       '</div>';
 
     root.querySelector('[data-act="home"]').onclick = function () { navigate("#/"); };
+    var rulesBtn = root.querySelector('[data-act="rules"]');
+    if (rulesBtn) rulesBtn.onclick = function () { infoPopup(t("discoverRulesTitle"), t("discoverRulesBody")); };
+    var conceptsBtn = root.querySelector('[data-act="concepts"]');
+    if (conceptsBtn) conceptsBtn.onclick = function () { infoPopup(t("discoverConceptsTitle"), t("discoverConceptsBody")); };
     root.querySelectorAll('[data-act="launch-exo"]').forEach(function (b) {
       b.onclick = function () {
         var e = ex[parseInt(b.getAttribute("data-exo"), 10)];

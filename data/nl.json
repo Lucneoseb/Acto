@@ -303,7 +303,8 @@
         {
           "name": "Vergelijkend gezongen",
           "desc": "Elke ploeg bouwt minstens één gezongen passage in."
-        }
+        },
+        { "name": "Vergelijkend met rekwisiet", "desc": "Een opgelegd rekwisiet moet centraal staan. Elk team gebruikt het op zijn eigen manier." }
       ],
       "confirme": [
         {
@@ -329,7 +330,9 @@
         {
           "name": "Gemengd met personage",
           "desc": "Een opgelegd personagetype moet in de eerste minuut verschijnen."
-        }
+        },
+        { "name": "Vergelijkend met opdracht", "desc": "Elk team speelt het thema met een andere, gelote opdracht." },
+        { "name": "Gemengd in volzinnen", "desc": "Spelers mogen alleen in volledige, hele zinnen spreken — geen onderbrekingen." }
       ],
       "expert": [
         {
@@ -355,7 +358,9 @@
         {
           "name": "Tijdslus",
           "desc": "De scène gaat vooruit en terug elke 30 seconden. Duizelingwekkende lus."
-        }
+        },
+        { "name": "Vergelijkend stom + geluiden", "desc": "Eén team speelt stom, het andere alleen met geluidseffecten. Zelfde thema, tegengestelde lezingen." },
+        { "name": "In de stijl van Tsjechov", "desc": "Laat-19e-eeuwse Russische stijl: aristocratische verveling, samovars, geladen stiltes, monologen." }
       ]
     }
   },

@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Générateur d'exercices, contraintes et thèmes pour l'improvisation théâtrale" />
+<meta name="theme-color" content="#0c0814" />
+<title>Acto — The Impro Studio</title>
+<link rel="icon" type="image/png" href="./assets/logo.png?v=20260704" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css?v=20260704" />
+</head>
+<body>
+  <!-- Stage backdrop -->
+  <div class="stage-backdrop" aria-hidden="true">
+    <div class="spotlight spotlight-1"></div>
+    <div class="spotlight spotlight-2"></div>
+    <div class="spotlight spotlight-3"></div>
+    <div class="curtain curtain-left"></div>
+    <div class="curtain curtain-right"></div>
+  </div>
+
+  <!-- Top-right floating actions (Rules + Settings, side by side) -->
+  <div class="top-actions">
+    <button class="top-trigger rules-trigger" id="rulesBtn" type="button" aria-label="Rules">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <path fill="currentColor" d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
+      </svg>
+      <span id="rulesLabelText">Règles</span>
+    </button>
+    <!-- 🎭 Inspirations — always visible (logged-in or not). Links to the
+         standalone inspirations.html page. -->
+    <a class="top-trigger inspire-trigger" href="./inspirations.html" aria-label="Inspirations">
+      <span aria-hidden="true" style="font-size:1.1rem;">🎭</span>
+      <span id="inspireLabelText">Inspirations</span>
+    </a>
+    <!-- 🔥 Échauffement — gated behind authentication via body.is-signed-in,
+         same pattern as Settings. Links to the standalone warmups.html page. -->
+    <a class="top-trigger warmup-trigger" href="./warmups.html" aria-label="Échauffement">
+      <span aria-hidden="true" style="font-size:1.1rem;">🔥</span>
+      <span id="warmupsLabelText">Échauffement</span>
+    </a>
+    <button class="top-trigger settings-trigger" id="settingsBtn" type="button" aria-label="Settings">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <path fill="currentColor" d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm9.4 4-2 1.2.5 2.3-2.3.4-1 2-2.1-1L12 18l-2.5-1.1-2 1-1.2-2.1L4 15.4l.5-2.3-2-1.1V12l2-1.2-.5-2.3 2.3-.4 1-2 2.1 1L12 6l2.5 1.1 2-1 1.2 2.1L20 8.6l-.5 2.3 2 1.1Z"/>
+      </svg>
+      <span id="settingsLabelText">Réglages</span>
+    </button>
+  </div>
+
+  <header class="hero">
+    <a class="hero-logo-link" href="./welcome.html" aria-label="Acto - The Impro Studio">
+      <img class="hero-logo" src="./assets/logo.png?v=20260704" alt="Acto - The Impro Studio" />
+    </a>
+    <p class="subtitle">
+      <span id="subtitle"></span><br>
+      <span id="subtitle2"></span>
+    </p>
+  </header>
+
+  <!-- Auth screen — shown when no user is logged in -->
+  <section class="auth-screen" id="authScreen" hidden>
+    <div class="auth-card">
+      <h2 class="auth-title" id="authLoginTitle"></h2>
+      <form class="auth-form" id="authLoginForm" novalidate>
+        <label class="auth-field">
+          <span id="authEmailLabel"></span>
+          <input type="email" id="authLoginEmail" autocomplete="email" required />
+        </label>
+        <label class="auth-field">
+          <span id="authPasswordLabel"></span>
+          <input type="password" id="authLoginPassword" autocomplete="current-password" required />
+        </label>
+        <p class="auth-error" id="authLoginError" hidden></p>
+        <button type="submit" class="auth-btn auth-btn-primary" id="authLoginSubmitBtn"></button>
+        <button type="button" class="auth-link" id="authForgotBtn"></button>
+      </form>
+      <div class="auth-divider">
+        <span id="authNoAccountText"></span>
+        <button type="button" class="auth-btn auth-btn-secondary" id="authOpenSignupBtn"></button>
+      </div>
+    </div>
+
+    <!-- Email pending screen — replaces the form after a successful sign-up -->
+    <div class="auth-card auth-pending" id="authPendingCard" hidden>
+      <div class="auth-pending-icon" aria-hidden="true">📬</div>
+      <h2 class="auth-title" id="authPendingTitle"></h2>
+      <p class="auth-pending-msg" id="authPendingMsg"></p>
+      <div class="auth-pending-actions">
+        <button type="button" class="auth-btn auth-btn-secondary" id="authResendBtn"></button>
+        <button type="button" class="auth-link" id="authBackToLoginBtn"></button>
+      </div>
+      <p class="auth-error" id="authPendingError" hidden></p>
+    </div>
+  </section>
+
+  <!-- Signup dialog -->
+  <dialog class="signup-dialog themes-dialog" id="signupDialog" aria-labelledby="authSignupTitle">
+    <form method="dialog" class="dlg-head">
+      <h2 id="authSignupTitle"></h2>
+      <button type="button" class="dlg-close" id="authSignupCloseBtn" aria-label="Close">✕</button>
+    </form>
+    <form class="signup-form" id="authSignupForm" novalidate>
+      <div class="dlg-body">
+        <div class="form-row">
+          <label class="auth-field">
+            <span id="authSignupPrenomLabel"></span>
+            <input type="text" id="authSignupPrenom" autocomplete="given-name" required />
+          </label>
+          <label class="auth-field">
+            <span id="authSignupNomLabel"></span>
+            <input type="text" id="authSignupNom" autocomplete="family-name" required />
+          </label>
+        </div>
+        <fieldset class="auth-field auth-field-fieldset">
+          <legend id="authSignupDobLabel"></legend>
+          <div class="auth-dob-row">
+            <label for="authSignupDobDay" class="visually-hidden">Jour</label>
+            <input type="text" inputmode="numeric" autocomplete="bday-day"
+                   id="authSignupDobDay" maxlength="2" pattern="[0-9]*"
+                   placeholder="JJ" required />
+            <span class="auth-dob-sep" aria-hidden="true">/</span>
+            <label for="authSignupDobMonth" class="visually-hidden">Mois</label>
+            <input type="text" inputmode="numeric" autocomplete="bday-month"
+                   id="authSignupDobMonth" maxlength="2" pattern="[0-9]*"
+                   placeholder="MM" required />
+            <span class="auth-dob-sep" aria-hidden="true">/</span>
+            <label for="authSignupDobYear" class="visually-hidden">Année</label>
+            <input type="text" inputmode="numeric" autocomplete="bday-year"
+                   id="authSignupDobYear" maxlength="4" pattern="[0-9]*"
+                   placeholder="AAAA" required />
+          </div>
+        </fieldset>
+        <label class="auth-field">
+          <span id="authSignupStageNameLabel"></span>
+          <input type="text" id="authSignupStageName" autocomplete="nickname" maxlength="40" required />
+        </label>
+        <label class="auth-field">
+          <span id="authSignupEmailLabel"></span>
+          <input type="email" id="authSignupEmail" autocomplete="email" required />
+        </label>
+        <label class="auth-field">
+          <span id="authSignupPasswordLabel"></span>
+          <input type="password" id="authSignupPassword" autocomplete="new-password" minlength="8" required />
+        </label>
+        <label class="auth-field">
+          <span id="authSignupConfirmLabel"></span>
+          <input type="password" id="authSignupConfirm" autocomplete="new-password" minlength="8" required />
+        </label>
+        <p class="auth-error" id="authSignupError" hidden></p>
+      </div>
+      <div class="dlg-actions">
+        <button type="submit" class="auth-btn auth-btn-primary" id="authSignupSubmitBtn"></button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Set-new-password dialog. Shown after the user clicks the reset link in
+       the "mot de passe oublié" email (Supabase PASSWORD_RECOVERY event). -->
+  <dialog class="signup-dialog themes-dialog" id="resetPasswordDialog" aria-labelledby="authResetTitle">
+    <form method="dialog" class="dlg-head">
+      <h2 id="authResetTitle"></h2>
+    </form>
+    <form class="signup-form" id="resetPasswordForm" novalidate>
+      <div class="dlg-body">
+        <label class="auth-field">
+          <span id="authResetPasswordLabel"></span>
+          <input type="password" id="authResetPassword" autocomplete="new-password" minlength="8" required />
+        </label>
+        <label class="auth-field">
+          <span id="authResetConfirmLabel"></span>
+          <input type="password" id="authResetConfirm" autocomplete="new-password" minlength="8" required />
+        </label>
+        <p class="auth-error" id="authResetError" hidden></p>
+      </div>
+      <div class="dlg-actions">
+        <button type="submit" class="auth-btn auth-btn-primary" id="authResetSubmitBtn"></button>
+      </div>
+    </form>
+  </dialog>
+
+  <main class="container" id="mainApp">
+    <section class="config-panel">
+      <!-- Mode toggle -->
+      <div class="config-block">
+        <label class="config-label">
+          <span class="label-num">01</span>
+          <span class="label-text" id="label01"></span>
+        </label>
+        <div class="mode-toggle" role="tablist">
+          <button class="mode-btn active" data-mode="troupe" role="tab" aria-selected="true">
+            <span class="mode-icon" aria-hidden="true">🎪</span>
+            <span class="mode-content">
+              <span class="mode-title" id="modeTroupeTitle"></span>
+              <span class="mode-desc"  id="modeTroupeDesc"></span>
+            </span>
+          </button>
+          <button class="mode-btn" data-mode="match" role="tab" aria-selected="false">
+            <span class="mode-icon" aria-hidden="true">⚔️</span>
+            <span class="mode-content">
+              <span class="mode-title" id="modeMatchTitle"></span>
+              <span class="mode-desc"  id="modeMatchDesc"></span>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Match-only: each team gets its own name input + roster button.
+           Two separate rosters (rosterA, rosterB) so the launcher can
+           configure who plays for each side. -->
+      <div class="config-block match-only" id="matchOptions" hidden>
+        <label class="config-label">
+          <span class="label-num">★</span>
+          <span class="label-text" id="labelTeams"></span>
+        </label>
+        <div class="team-block" data-team="a">
+          <div class="team-block-row">
+            <div class="team team-a"><span class="team-color"></span><input type="text" id="teamA" maxlength="24" /></div>
+            <button class="roster-edit-btn roster-edit-btn-compact" id="rosterEditBtnA" type="button">
+              <span id="rosterEditBtnLabelA"></span>
+            </button>
+          </div>
+          <span class="roster-status" id="rosterStatusA"></span>
+        </div>
+        <div class="team-vs">VS</div>
+        <div class="team-block" data-team="b">
+          <div class="team-block-row">
+            <div class="team team-b"><span class="team-color"></span><input type="text" id="teamB" maxlength="24" /></div>
+            <button class="roster-edit-btn roster-edit-btn-compact" id="rosterEditBtnB" type="button">
+              <span id="rosterEditBtnLabelB"></span>
+            </button>
+          </div>
+          <span class="roster-status" id="rosterStatusB"></span>
+        </div>
+      </div>
+
+      <!-- Troupe-only roster (single composition for the troupe). Match mode
+           uses the per-team rosters defined inside #matchOptions above.
+           The team-name input mirrors the Match A/B layout so the troupe
+           can be named (e.g. "Les Improbables") and the name shows up in
+           the rosterStatus alongside the actor list. -->
+      <div class="config-block troupe-only">
+        <label class="config-label">
+          <span class="label-num">★</span>
+          <span class="label-text" id="labelRoster"></span>
+        </label>
+        <div class="team-block" data-team="troupe">
+          <div class="team-block-row">
+            <div class="team team-troupe"><span class="team-color"></span><input type="text" id="teamTroupe" maxlength="24" /></div>
+            <button class="roster-edit-btn" id="rosterEditBtn" type="button">
+              <span id="rosterEditBtnLabel"></span>
+            </button>
+          </div>
+          <span class="roster-status" id="rosterStatus"></span>
+        </div>
+      </div>
+
+      <!-- Level -->
+      <div class="config-block">
+        <label class="config-label">
+          <span class="label-num">02</span>
+          <span class="label-text" id="label02"></span>
+        </label>
+        <div class="level-selector" role="radiogroup">
+          <button class="level-btn active" data-level="debutant" role="radio" aria-checked="true">
+            <span class="level-stars" aria-hidden="true">★</span><span id="levelDebutant"></span>
+          </button>
+          <button class="level-btn" data-level="confirme" role="radio" aria-checked="false">
+            <span class="level-stars" aria-hidden="true">★★</span><span id="levelConfirme"></span>
+          </button>
+          <button class="level-btn" data-level="expert" role="radio" aria-checked="false">
+            <span class="level-stars" aria-hidden="true">★★★</span><span id="levelExpert"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Themes -->
+      <div class="config-block">
+        <label class="config-label">
+          <span class="label-num">03</span>
+          <span class="label-text" id="label03"></span>
+        </label>
+        <div class="themes-mode-toggle" role="tablist">
+          <button class="themes-mode-btn active" data-themes-mode="random" type="button" role="tab" aria-selected="true">
+            <span aria-hidden="true">🎲</span>
+            <span id="themesModeRandomLabel"></span>
+          </button>
+          <button class="themes-mode-btn" data-themes-mode="custom" type="button" role="tab" aria-selected="false">
+            <span aria-hidden="true">✏️</span>
+            <span id="themesModeCustomLabel"></span>
+          </button>
+        </div>
+        <div class="themes-custom-row" id="themesCustomRow" hidden>
+          <button class="themes-edit-btn" id="themesEditBtn" type="button">
+            <span id="themesEditBtnLabel"></span>
+          </button>
+          <span class="theme-status" id="themeStatus"></span>
+        </div>
+      </div>
+
+      <!-- Duration -->
+      <div class="config-block">
+        <label class="config-label">
+          <span class="label-num">04</span>
+          <span class="label-text" id="label04"></span>
+        </label>
+        <div class="duration-toggle-row">
+          <label class="checkbox-row">
+            <input type="checkbox" id="durationRandomChk" checked />
+            <span id="durationRandomLabel"></span>
+          </label>
+          <span class="duration-max-help" id="durationMaxHelp"></span>
+        </div>
+        <div class="duration-manual" id="durationManualWrap" hidden>
+          <input type="range" id="durationSlider" min="30" max="180" step="30" value="90" />
+          <span class="duration-value" id="durationValue">1 min 30</span>
+        </div>
+      </div>
+
+      <button class="generate-btn" id="generateBtn" type="button">
+        <span class="generate-icon" aria-hidden="true">✨</span>
+        <span class="generate-label" id="generateLabel"></span>
+        <span class="generate-shine"></span>
+      </button>
+    </section>
+
+    <!-- Results -->
+    <!-- MATCH MODE display order matches the official announcement of the
+         referee at a real match d'impro:
+           1. Nature (Mixte / Comparée) — small banner above the cards
+           2. Thème
+           3. Joueurs (number / "toute l'équipe")
+           4. Catégorie (style constraint — replaces the "exercise" slot)
+           5. Durée (silently driven into the chrono card)
+         TROUPE MODE keeps the existing exercise / constraint / theme cards. -->
+    <section class="results" aria-live="polite">
+      <!-- Nature banner (Mixte / Comparée) — Match-only, full-width strip -->
+      <div class="nature-banner match-only" id="card-nature" hidden>
+        <span class="nature-label" id="labelCardNature"></span>
+        <span class="nature-value" id="natureValue">—</span>
+        <button class="card-reroll nature-reroll" data-reroll="nature" type="button" aria-label="Re-tirer">🎲</button>
+      </div>
+
+      <!-- Random-draw banner: only shown when Nature is "Comparée" so
+           the troupes know which team gets to choose first (start or
+           pass). The 🔄 button flips the result if the chosen team
+           wants to pass. -->
+      <div class="tirage-banner match-only" id="card-tirage" hidden>
+        <span class="tirage-icon" aria-hidden="true">🎲</span>
+        <span class="tirage-text" id="tirageText"></span>
+        <button class="card-reroll tirage-flip" id="tirageFlipBtn" type="button"
+                aria-label="Inverser">🔄</button>
+      </div>
+
+      <article class="card card-theme" id="card-theme">
+        <header class="card-head"><span class="card-label" id="labelCardTheme"></span><button class="card-reroll" data-reroll="theme" type="button" aria-label="Re-tirer">🎲</button><button class="card-edit" data-edit="theme" type="button" aria-label="Ajouter">➕</button><span class="card-icon" aria-hidden="true">💭</span></header>
+        <div class="reel" data-target="theme"><div class="reel-window"><div class="reel-track" id="reel-theme"></div></div></div>
+        <p class="card-meta" id="meta-theme"></p>
+      </article>
+
+      <article class="card card-players match-only" id="card-players" hidden>
+        <header class="card-head"><span class="card-label" id="labelCardPlayers"></span><button class="card-reroll" data-reroll="players" type="button" aria-label="Re-tirer">🎲</button><span class="card-icon" aria-hidden="true">👥</span></header>
+        <div class="reel" data-target="players"><div class="reel-window"><div class="reel-track" id="reel-players"></div></div></div>
+        <p class="card-meta" id="meta-players"></p>
+      </article>
+
+      <article class="card card-category match-only" id="card-category" hidden>
+        <header class="card-head"><span class="card-label" id="labelCardCategory"></span><button class="card-reroll" data-reroll="category" type="button" aria-label="Re-tirer">🎲</button><button class="card-edit" data-edit="category" type="button" aria-label="Ajouter">➕</button><span class="card-icon" aria-hidden="true">🎯</span></header>
+        <div class="reel" data-target="category"><div class="reel-window"><div class="reel-track" id="reel-category"></div></div></div>
+        <p class="card-meta" id="meta-category"></p>
+      </article>
+
+      <article class="card card-exercise troupe-only" id="card-exercise">
+        <header class="card-head"><span class="card-label" id="labelCardExercise"></span><button class="card-reroll" data-reroll="exercise" type="button" aria-label="Re-tirer">🎲</button><button class="card-edit" data-edit="exercise" type="button" aria-label="Ajouter">➕</button><span class="card-icon" aria-hidden="true">🎬</span></header>
+        <div class="reel" data-target="exercise"><div class="reel-window"><div class="reel-track" id="reel-exercise"></div></div></div>
+        <p class="card-meta" id="meta-exercise"></p>
+      </article>
+
+      <article class="card card-constraint troupe-only" id="card-constraint">
+        <header class="card-head"><span class="card-label" id="labelCardConstraint"></span><button class="card-reroll" data-reroll="constraint" type="button" aria-label="Re-tirer">🎲</button><button class="card-edit" data-edit="constraint" type="button" aria-label="Ajouter">➕</button><span class="card-icon" aria-hidden="true">🔒</span></header>
+        <div class="reel" data-target="constraint"><div class="reel-window"><div class="reel-track" id="reel-constraint"></div></div></div>
+        <p class="card-meta" id="meta-constraint"></p>
+      </article>
+
+    </section>
+
+    <!-- Chrono section (timer + audience cue) — appears after first generation -->
+    <section class="chrono-section" id="chronoSection" hidden>
+      <article class="card card-chrono" id="card-chrono">
+        <header class="card-head">
+          <span class="card-label" id="labelCardChrono"></span>
+          <button class="card-reroll" data-reroll="chrono" type="button" aria-label="Re-tirer la durée">🎲</button>
+          <span class="card-icon" aria-hidden="true">⏱️</span>
+        </header>
+        <div class="chrono-display" id="chronoDisplay">00:00</div>
+        <div class="chrono-progress"><div class="chrono-progress-bar" id="chronoProgressBar"></div></div>
+        <div class="chrono-controls">
+          <button class="chrono-btn chrono-start" id="chronoStartBtn" type="button"></button>
+          <button class="chrono-btn chrono-pause" id="chronoPauseBtn" type="button" disabled></button>
+          <button class="chrono-btn chrono-reset" id="chronoResetBtn" type="button"></button>
+          <button class="record-open-btn" id="recordOpenBtn" type="button"></button>
+        </div>
+      </article>
+
+      <article class="card card-audience" id="card-audience" hidden>
+        <header class="card-head">
+          <span class="card-label" id="labelCardAudience"></span>
+          <span class="card-icon" aria-hidden="true">📣</span>
+        </header>
+        <p class="card-meta" id="audienceHint"></p>
+        <div class="audience-controls">
+          <label class="audience-toggle-row">
+            <span id="audienceToggleLabelText"></span>
+            <span class="switch">
+              <input type="checkbox" id="audienceToggle" />
+              <span class="switch-slider"></span>
+            </span>
+          </label>
+          <div class="audience-interval-row" id="audienceIntervalWrap" hidden>
+            <span class="audience-interval-label" id="audienceIntervalLabel"></span>
+            <input type="range" id="audienceIntervalSlider" min="15" max="180" step="15" value="45" />
+            <span class="audience-interval-value" id="audienceIntervalValue">45 s</span>
+          </div>
+        </div>
+        <div class="audience-flash" id="audienceFlash" hidden>
+          <span class="audience-flash-dot"></span>
+          <span id="audienceFlashMsg"></span>
+        </div>
+      </article>
+    </section>
+
+  </main>
+
+  <!-- Video recorder modal -->
+  <div class="recorder-modal" id="recorderModal" hidden aria-modal="true" role="dialog">
+    <div class="recorder-stage" id="recorderStage">
+      <canvas class="recorder-canvas" id="recorderCanvas"></canvas>
+      <video class="recorder-hidden-video" id="recorderVideo" playsinline muted></video>
+
+      <!-- Floating switch-camera button (top-right) -->
+      <button class="recorder-icon-btn recorder-floating-tr" id="recorderSwitchCamBtn" type="button" aria-label="Switch camera">🔄</button>
+
+      <!-- REC indicator (bottom-right, only while recording) -->
+      <div class="recorder-rec-indicator" id="recorderRecIndicator" hidden>
+        <span class="recorder-rec-dot"></span>
+        <span id="recorderRecLabel">REC</span>
+        <span class="recorder-rec-time" id="recorderRecTime">00:00</span>
+      </div>
+
+      <!-- Match Comparée: shows which team is being recorded right now,
+           so the room knows whose turn it is. Hidden in Mixte / Troupe. -->
+      <div class="recorder-team-indicator" id="recorderTeamIndicator" hidden>
+        <span id="recorderTeamLabel"></span>
+      </div>
+
+      <!-- Match Comparée team selector — visible ONLY in Match
+           Comparée + idle state. Lets the operator confirm/swap which
+           team is being recorded before pressing the big red button.
+           Auto-hides once recording starts. -->
+      <div class="recorder-team-selector" id="recorderTeamSelector" hidden>
+        <p class="recorder-team-selector-label" id="recorderTeamSelectorLabel"></p>
+        <div class="recorder-team-selector-chips">
+          <button type="button" class="recorder-team-chip" data-team="a"
+                  id="recorderTeamChipA"></button>
+          <button type="button" class="recorder-team-chip" data-team="b"
+                  id="recorderTeamChipB"></button>
+        </div>
+      </div>
+
+      <!-- Bottom controls — IDLE state: just the big record button -->
+      <div class="recorder-bottom-bar" id="recorderControlsIdle">
+        <button class="recorder-record" id="recorderRecordBtn" type="button" aria-label="Record">
+          <span class="recorder-record-inner" aria-hidden="true"></span>
+        </button>
+        <span class="recorder-record-label" id="recorderRecordLabel"></span>
+      </div>
+
+      <!-- Bottom controls — ACTIVE state: pause/resume on the left, stop on the right -->
+      <div class="recorder-bottom-bar recorder-controls-active" id="recorderControlsActive" hidden>
+        <button class="recorder-ctl-btn recorder-ctl-pause" id="recorderPauseBtn" type="button">
+          <span class="recorder-ctl-icon" id="recorderPauseIcon" aria-hidden="true">⏸</span>
+          <span class="recorder-ctl-label" id="recorderPauseLabel"></span>
+        </button>
+        <button class="recorder-ctl-btn recorder-ctl-stop" id="recorderStopBtn" type="button">
+          <span class="recorder-ctl-icon" aria-hidden="true">⏹</span>
+          <span class="recorder-ctl-label" id="recorderStopLabel"></span>
+        </button>
+      </div>
+
+      <!-- Stop confirmation overlay -->
+      <div class="recorder-confirm" id="recorderConfirm" hidden>
+        <div class="recorder-confirm-card">
+          <h3 class="recorder-confirm-title" id="recorderConfirmTitle"></h3>
+          <p class="recorder-confirm-msg" id="recorderConfirmMsg"></p>
+          <div class="recorder-confirm-actions">
+            <button class="recorder-confirm-btn recorder-confirm-no"  id="recorderConfirmNo"  type="button"></button>
+            <button class="recorder-confirm-btn recorder-confirm-yes" id="recorderConfirmYes" type="button"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview / download popup (shown after confirm-stop). The
+           participants block lets the user confirm or edit team + actor
+           names before downloading. The names go into the video's
+           filename and are also sent to the impro_participants table
+           so analytics reflect who was actually on stage. -->
+      <div class="recorder-preview-popup" id="recorderPreviewPopup" hidden>
+        <div class="recorder-preview-card">
+          <h3 class="recorder-preview-title" id="recorderPreviewTitle"></h3>
+          <video class="recorder-preview" id="recorderPreview" controls playsinline></video>
+          <div class="recorder-participants" id="recorderParticipants">
+            <p class="recorder-participants-hint" id="recorderParticipantsHint"></p>
+            <!-- Three rows: troupe / team A / team B. populateRecorderParticipants
+                 picks which one to show based on state.mode + state.currentRecordingTeam.
+                 Each row renders the team name as an editable input, plus a chip
+                 list of actors with × buttons so the user can remove anyone who
+                 didn't actually perform in this take. The "+ ajouter" mini-form
+                 lets them add an ad-hoc actor without going back to the main UI. -->
+            <div class="recorder-participant-row" data-team="troupe" hidden>
+              <label for="recParticipantsTroupeName" id="recParticipantsTroupeLabel"></label>
+              <input type="text" id="recParticipantsTroupeName" maxlength="40" autocomplete="off" />
+              <ul class="recorder-actors-list" id="recParticipantsActorsListTroupe" data-team="troupe"></ul>
+              <form class="recorder-actors-add" id="recParticipantsAddFormTroupe" data-team="troupe">
+                <input type="text" class="recorder-actors-add-input" maxlength="40" autocomplete="off" />
+                <button type="submit" class="recorder-actors-add-btn"></button>
+              </form>
+            </div>
+            <div class="recorder-participant-row" data-team="a" hidden>
+              <label for="recParticipantsTeamA" id="recParticipantsLabelA"></label>
+              <input type="text" id="recParticipantsTeamA" maxlength="40" autocomplete="off" />
+              <ul class="recorder-actors-list" id="recParticipantsActorsListA" data-team="a"></ul>
+              <form class="recorder-actors-add" id="recParticipantsAddFormA" data-team="a">
+                <input type="text" class="recorder-actors-add-input" maxlength="40" autocomplete="off" />
+                <button type="submit" class="recorder-actors-add-btn"></button>
+              </form>
+            </div>
+            <div class="recorder-participant-row" data-team="b" hidden>
+              <label for="recParticipantsTeamB" id="recParticipantsLabelB"></label>
+              <input type="text" id="recParticipantsTeamB" maxlength="40" autocomplete="off" />
+              <ul class="recorder-actors-list" id="recParticipantsActorsListB" data-team="b"></ul>
+              <form class="recorder-actors-add" id="recParticipantsAddFormB" data-team="b">
+                <input type="text" class="recorder-actors-add-input" maxlength="40" autocomplete="off" />
+                <button type="submit" class="recorder-actors-add-btn"></button>
+              </form>
+            </div>
+          </div>
+          <!-- Validate / Skip gate: shown right after recording stops. The
+               user must either confirm the participant list (which pushes
+               it to the impro_event analytics) OR explicitly skip before
+               the download / "record other team" buttons unlock. Skipping
+               keeps the launch-time roster on the server untouched. -->
+          <div class="recorder-participants-gate" id="recorderParticipantsGate">
+            <button class="recorder-action recorder-validate"
+                    id="recorderParticipantsValidateBtn" type="button"></button>
+            <button class="recorder-action recorder-skip"
+                    id="recorderParticipantsSkipBtn" type="button"></button>
+          </div>
+          <div class="recorder-preview-actions" id="recorderPreviewActions" hidden>
+            <a class="recorder-action recorder-download" id="recorderDownloadLink" download></a>
+            <!-- Match Comparée: 2nd-team record button. Only visible
+                 after the first team's video is finalized AND the
+                 second team hasn't been recorded yet. Click → resets
+                 the recorder for the other team while keeping the
+                 just-finished file accessible until the user closes
+                 the popup. -->
+            <button class="recorder-action recorder-record-other"
+                    id="recorderRecordOtherBtn" type="button" hidden></button>
+            <button class="recorder-action recorder-exit" id="recorderExitBtn" type="button"></button>
+          </div>
+          <!-- Always-visible exit button as a safety net in case the user
+               wants to bail without choosing Valider/Skip (the modal X
+               at the top is also wired to recClose). Clones the same
+               handler. Hidden once the gate clears (the main exit button
+               in .recorder-preview-actions takes over). -->
+          <div class="recorder-preview-actions recorder-preview-actions-fallback" id="recorderPreviewActionsFallback">
+            <button class="recorder-action recorder-exit" id="recorderExitBtnFallback" type="button"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3-2-1 pre-countdown overlay -->
+      <div class="recorder-pre-countdown" id="recorderPreCountdown" hidden aria-live="assertive"></div>
+
+      <!-- Audience interaction cue (centered, 5s) -->
+      <div class="recorder-audience-cue" id="recorderAudienceCue" hidden aria-live="polite">
+        <span class="recorder-audience-cue-icon" aria-hidden="true">📣</span>
+        <span class="recorder-audience-cue-text" id="recorderAudienceCueText"></span>
+      </div>
+
+      <!-- Exercise description popup (top-right, shown for 5s after countdown) -->
+      <div class="recorder-exercise-desc" id="recorderExerciseDesc" hidden aria-live="polite">
+        <p class="recorder-exercise-desc-text" id="recorderExerciseDescText"></p>
+      </div>
+
+      <div class="recorder-error" id="recorderError" hidden>
+        <p id="recorderErrorMsg"></p>
+        <p class="recorder-error-hint" id="recorderErrorHint"></p>
+      </div>
+    </div>
+  </div>
+
+
+  <footer class="footer">
+    <!-- Support button: above the "Made with ♥" line so it's the first
+         thing readers notice in the footer. Styled as a subtle outlined
+         button (not loud), but unambiguously clickable. -->
+    <p class="footer-support">
+      <a class="footer-support-btn" href="./support.html" id="footerSupportLink">
+        <span class="footer-support-heart" aria-hidden="true">♥</span>
+        <span id="footerSupportLabel"></span>
+      </a>
+    </p>
+    <p id="footerText"></p>
+  </footer>
+
+  <!-- ============ Themes dialog ============ -->
+  <dialog id="themesDialog" class="themes-dialog" aria-labelledby="themesDlgTitle">
+    <form method="dialog" class="dlg-head">
+      <h2 id="themesDlgTitle"></h2>
+      <button class="dlg-close" id="themesDlgClose" type="button" aria-label="Close">✕</button>
+    </form>
+    <div class="dlg-body">
+      <p class="dlg-help" id="themesDlgHint"></p>
+      <textarea id="themesInput" rows="10"></textarea>
+    </div>
+    <div class="dlg-actions">
+      <button class="ghost-btn" id="themesDlgClear" type="button"></button>
+      <button class="primary-btn" id="themesDlgSave" type="button"></button>
+    </div>
+  </dialog>
+
+  <!-- ============ Settings dialog (native <dialog>) ============ -->
+  <dialog id="settingsDialog" class="settings-dialog" aria-labelledby="dlgTitle">
+    <form method="dialog" class="dlg-head">
+      <h2 id="dlgTitle">Réglages</h2>
+      <button class="dlg-close" id="settingsClose" type="button" aria-label="Close">✕</button>
+    </form>
+
+    <div class="dlg-body">
+      <!-- Language -->
+      <div class="dlg-field">
+        <label for="langSelect" id="dlgLanguageLabel">Langue</label>
+        <select id="langSelect"></select>
+      </div>
+
+      <!-- Account section: read-only view of the signed-in user's
+           profile. Modifications happen in the dedicated "Modifier mes
+           infos" dialog (#editAccountDialog) — the buttons below open
+           that dialog or sign-out / delete the account. -->
+      <div class="dlg-field auth-account-section" id="authAccountSection" hidden>
+        <h3 id="authAccountTitle"></h3>
+        <dl class="auth-account-info" id="authAccountInfo">
+          <div class="account-row">
+            <dt id="accountLabelEmail"></dt>
+            <dd id="accountValEmail"></dd>
+          </div>
+          <div class="account-row">
+            <dt id="accountLabelPrenom"></dt>
+            <dd id="accountValPrenom"></dd>
+          </div>
+          <div class="account-row">
+            <dt id="accountLabelNom"></dt>
+            <dd id="accountValNom"></dd>
+          </div>
+          <div class="account-row">
+            <dt id="accountLabelDob"></dt>
+            <dd id="accountValDob"></dd>
+          </div>
+          <div class="account-row">
+            <dt id="accountLabelStage"></dt>
+            <dd id="accountValStage"></dd>
+          </div>
+        </dl>
+        <div class="auth-account-actions">
+          <button class="auth-btn auth-btn-secondary" id="authOpenEditBtn" type="button"></button>
+          <button class="auth-btn auth-btn-secondary" id="authLogoutBtn" type="button"></button>
+          <button class="auth-btn auth-btn-danger" id="authOpenDeleteBtn" type="button"></button>
+        </div>
+      </div>
+
+      <!-- Personal stats — read-only summary of how much the user has
+           played. Numbers come from public.profiles (already maintained
+           via the bump_stats RPC) plus a count from impro_participants
+           for the "impros I performed" line. -->
+      <div class="dlg-field auth-account-section auth-stats-section" id="authStatsSection" hidden>
+        <h3 id="authStatsTitle"></h3>
+        <dl class="auth-account-info" id="authStatsList">
+          <div class="account-row">
+            <dt id="statsLabelLaunched"></dt>
+            <dd id="statsValLaunched"></dd>
+          </div>
+          <div class="account-row">
+            <dt id="statsLabelPerformed"></dt>
+            <dd id="statsValPerformed"></dd>
+          </div>
+          <div class="account-row">
+            <dt id="statsLabelImproSec"></dt>
+            <dd id="statsValImproSec"></dd>
+          </div>
+          <div class="account-row">
+            <dt id="statsLabelRecordCount"></dt>
+            <dd id="statsValRecordCount"></dd>
+          </div>
+          <div class="account-row">
+            <dt id="statsLabelRecordSec"></dt>
+            <dd id="statsValRecordSec"></dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Match stats — per-player totals from acto_match_results
+           (get_my_stats RPC). Hidden until the stats migration is deployed
+           or the player has appeared in a recorded match. -->
+      <div class="dlg-field auth-account-section auth-stats-section" id="authMatchStatsSection" hidden>
+        <h3 id="authMatchStatsTitle"></h3>
+        <dl class="auth-account-info" id="authMatchStatsList">
+          <div class="account-row"><dt id="mstatLabelMatches"></dt><dd id="mstatValMatches"></dd></div>
+          <div class="account-row"><dt id="mstatLabelWins"></dt><dd id="mstatValWins"></dd></div>
+          <div class="account-row"><dt id="mstatLabelDraws"></dt><dd id="mstatValDraws"></dd></div>
+          <div class="account-row"><dt id="mstatLabelLosses"></dt><dd id="mstatValLosses"></dd></div>
+          <div class="account-row"><dt id="mstatLabelStars"></dt><dd id="mstatValStars"></dd></div>
+        </dl>
+      </div>
+
+      <!-- "Personnaliser" navigates to a dedicated page where the user
+           can toggle which themes/categories/constraints/exercises they
+           want to see and add their own — auto-saved per-device. The
+           old inline JSON editor used to live here; it was replaced by
+           the friendlier dedicated page. -->
+      <div class="dlg-field">
+        <a class="auth-btn auth-btn-secondary settings-personalize-link"
+           href="./mes-impros.html" id="settingsPersonalizeLink"></a>
+      </div>
+
+      <p class="dlg-status" id="settingsStatus"></p>
+    </div>
+  </dialog>
+
+  <!-- Edit value dialog — used by ✎ buttons on theme/constraint/category/exercise cards.
+       If the typed value isn't already in the bundled pool, it's submitted to the
+       admin via submit_user_text RPC for later review. -->
+  <dialog class="themes-dialog edit-value-dialog" id="editValueDialog" aria-labelledby="editValueTitle">
+    <form method="dialog" class="dlg-head">
+      <h2 id="editValueTitle">Modifier la valeur</h2>
+      <button type="button" class="dlg-close" id="editValueClose" aria-label="Close">✕</button>
+    </form>
+    <div class="dlg-body">
+      <label class="auth-field">
+        <span id="editValueLabel"></span>
+        <input type="text" id="editValueInput" maxlength="200" autocomplete="off" />
+      </label>
+      <!-- Description textarea: shown only for exercise/category targets so the
+           user can explain how the exercise/category works. Hidden by default;
+           openEditValueDialog() toggles it based on the active card. -->
+      <label class="auth-field" id="editValueDescWrap" hidden>
+        <span id="editValueDescLabel"></span>
+        <textarea id="editValueDescInput" rows="3" maxlength="500" autocomplete="off"></textarea>
+      </label>
+      <p class="dlg-help" id="editValueHelp"></p>
+      <p class="dlg-help edit-value-status" id="editValueStatus" hidden></p>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="auth-btn auth-btn-secondary" id="editValueCancel"></button>
+      <button type="button" class="primary-btn" id="editValueSave"></button>
+    </div>
+  </dialog>
+
+  <!-- Match d'impro rules dialog (content + title populated by JS based on locale) -->
+  <dialog class="themes-dialog rules-dialog" id="rulesDialog" aria-labelledby="rulesDialogTitle">
+    <form method="dialog" class="dlg-head">
+      <h2 id="rulesDialogTitle">📖</h2>
+      <button type="button" class="dlg-close" id="rulesDialogClose" aria-label="Close">✕</button>
+    </form>
+    <div class="dlg-body rules-body" id="rulesBody"></div>
+  </dialog>
+
+  <!-- Roster (team / troupe composition) dialog -->
+  <dialog class="signup-dialog themes-dialog roster-dialog" id="rosterDialog" aria-labelledby="rosterDialogTitle">
+    <form method="dialog" class="dlg-head">
+      <h2 id="rosterDialogTitle"></h2>
+      <button type="button" class="dlg-close" id="rosterDialogClose" aria-label="Close">✕</button>
+    </form>
+    <div class="dlg-body">
+      <p class="dlg-help" id="rosterDialogHint"></p>
+
+      <!-- Team name — used both for the saved-teams server key and as
+           the #teamA/#teamB display on the main page (Match mode). The
+           status line below shows whether the typed name collides with
+           an existing saved team. Own teams will be UPDATED on save,
+           other users' don't collide because the unique index is
+           (owner_id, lower(name)). -->
+      <div class="roster-team-name">
+        <label for="rosterTeamNameInput" id="rosterTeamNameLabel"></label>
+        <input type="text" id="rosterTeamNameInput" maxlength="40" autocomplete="off" />
+        <p class="roster-team-name-status" id="rosterTeamNameStatus" hidden></p>
+      </div>
+
+      <!-- Saved teams section: load/update/delete teams shared by all
+           authenticated users. The Save button at the bottom of the
+           dialog action bar (#savedTeamsSaveBtn) writes to Supabase
+           after a privacy confirmation. -->
+      <div class="saved-teams-row">
+        <label for="savedTeamsSelect" id="savedTeamsLabel"></label>
+        <select id="savedTeamsSelect"></select>
+        <button type="button" class="ghost-btn" id="savedTeamsLoadBtn" disabled></button>
+        <button type="button" class="ghost-btn" id="savedTeamsUpdateBtn" disabled hidden></button>
+        <button type="button" class="ghost-btn" id="savedTeamsDeleteBtn" disabled hidden></button>
+      </div>
+
+      <!-- Search-by-stage-name (registered users) -->
+      <div class="roster-search-row">
+        <input type="search" id="rosterSearchInput" autocomplete="off" />
+      </div>
+      <p class="roster-search-status" id="rosterSearchStatus"></p>
+      <ul class="roster-search-results" id="rosterSearchResults" hidden></ul>
+
+      <!-- Ad-hoc add (no account) -->
+      <div class="roster-adhoc-row">
+        <input type="text" id="rosterAdHocInput" maxlength="40" />
+        <button type="button" class="ghost-btn" id="rosterAdHocAddBtn"></button>
+      </div>
+
+      <!-- Currently-added participants -->
+      <ul class="roster-list" id="rosterList"></ul>
+      <p class="roster-empty" id="rosterEmpty" hidden></p>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="auth-btn auth-btn-secondary saved-teams-share-btn" id="savedTeamsSaveBtn"></button>
+      <button type="button" class="auth-btn auth-btn-secondary" id="rosterCancelBtn"></button>
+      <button type="button" class="primary-btn" id="rosterSaveBtn"></button>
+    </div>
+  </dialog>
+
+  <!-- Edit-account dialog (prenom / nom / date of birth — email is read-only) -->
+  <dialog class="signup-dialog themes-dialog" id="editAccountDialog" aria-labelledby="authEditTitle">
+    <form method="dialog" class="dlg-head">
+      <h2 id="authEditTitle"></h2>
+      <button type="button" class="dlg-close" id="authEditCloseBtn" aria-label="Close">✕</button>
+    </form>
+    <form class="signup-form" id="authEditForm" novalidate>
+      <div class="dlg-body">
+        <div class="form-row">
+          <label class="auth-field">
+            <span id="authEditPrenomLabel"></span>
+            <input type="text" id="authEditPrenom" autocomplete="given-name" required />
+          </label>
+          <label class="auth-field">
+            <span id="authEditNomLabel"></span>
+            <input type="text" id="authEditNom" autocomplete="family-name" required />
+          </label>
+        </div>
+        <fieldset class="auth-field auth-field-fieldset">
+          <legend id="authEditDobLabel"></legend>
+          <div class="auth-dob-row">
+            <label for="authEditDobDay" class="visually-hidden">Jour</label>
+            <input type="text" inputmode="numeric" autocomplete="bday-day"
+                   id="authEditDobDay" maxlength="2" pattern="[0-9]*"
+                   placeholder="JJ" required />
+            <span class="auth-dob-sep" aria-hidden="true">/</span>
+            <label for="authEditDobMonth" class="visually-hidden">Mois</label>
+            <input type="text" inputmode="numeric" autocomplete="bday-month"
+                   id="authEditDobMonth" maxlength="2" pattern="[0-9]*"
+                   placeholder="MM" required />
+            <span class="auth-dob-sep" aria-hidden="true">/</span>
+            <label for="authEditDobYear" class="visually-hidden">Année</label>
+            <input type="text" inputmode="numeric" autocomplete="bday-year"
+                   id="authEditDobYear" maxlength="4" pattern="[0-9]*"
+                   placeholder="AAAA" required />
+          </div>
+        </fieldset>
+        <label class="auth-field">
+          <span id="authEditStageNameLabel"></span>
+          <input type="text" id="authEditStageName" autocomplete="nickname" maxlength="40" required />
+        </label>
+        <p class="auth-error" id="authEditError" hidden></p>
+      </div>
+      <div class="dlg-actions">
+        <button type="button" class="auth-btn auth-btn-secondary" id="authEditCancelBtn"></button>
+        <button type="submit" class="auth-btn auth-btn-primary" id="authEditSaveBtn"></button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Delete-account confirmation dialog -->
+  <dialog class="themes-dialog" id="deleteAccountDialog" aria-labelledby="authDeleteTitle">
+    <form method="dialog" class="dlg-head">
+      <h2 id="authDeleteTitle"></h2>
+      <button type="button" class="dlg-close" id="authDeleteCloseBtn" aria-label="Close">✕</button>
+    </form>
+    <div class="dlg-body">
+      <p class="auth-delete-warning" id="authDeleteConfirmMsg"></p>
+      <input type="text" id="authDeleteInput" placeholder="" />
+      <p class="auth-error" id="authDeleteError" hidden></p>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="auth-btn auth-btn-secondary" id="authDeleteCancelBtn"></button>
+      <button type="button" class="auth-btn auth-btn-danger" id="authDeleteConfirmBtn" disabled></button>
+    </div>
+  </dialog>
+
+  <!-- Pinned + SRI: protects against a jsDelivr compromise or typosquat that
+       would otherwise execute attacker code with the user's session JWT in
+       reach. Bump both `@VERSION` and the integrity hash together. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
+          integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
+          crossorigin="anonymous"></script>
+  <!-- Bump v= on each deploy when you change one of these assets, so users
+       fetch the fresh version without needing Ctrl+Shift+R. -->
+  <script src="./js/config.js?v=20260704"></script>
+  <script src="./js/utils.js?v=20260704"></script>
+  <script src="./js/rules.js?v=20260704"></script>
+  <script src="./data/all.js?v=20260704"></script>
+  <script src="./js/auth.js?v=20260704"></script>
+  <script src="./js/app.js?v=20260704"></script>
+</body>
+</html>

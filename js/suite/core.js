@@ -478,6 +478,20 @@
   /* ---- Default teams (remembered across matches) ---- */
   var TEAMS_KEY = "acto-suite:teams:v1";
   var DEFAULT_TEAM_COLORS = ["#6dd3c5", "#ff6b8a"];
+  // Players can be plain name strings (manual entry) or rich objects from a
+  // saved team: { name, photo, user_id, present }. Normalize to objects so the
+  // live engine + stats can rely on user_id / present uniformly.
+  function normPlayer(p) {
+    if (p == null) return null;
+    if (typeof p === "string") { var nm = p.trim(); return nm ? { name: nm, photo: null, user_id: null, present: true } : null; }
+    var name = (p.name || "").trim();
+    if (!name && !p.photo && !p.user_id) return null;
+    return { name: name, photo: p.photo || null, user_id: p.user_id || null, present: p.present !== false };
+  }
+  function normPlayers(arr) { return (Array.isArray(arr) ? arr : []).map(normPlayer).filter(Boolean); }
+  function playerName(p) { return typeof p === "string" ? p : ((p && p.name) || ""); }
+  function playerUserId(p) { return typeof p === "string" ? null : ((p && p.user_id) || null); }
+  function playerPresent(p) { return typeof p === "string" ? true : !(p && p.present === false); }
   function blankTeams() {
     return [
       { name: "", color: DEFAULT_TEAM_COLORS[0], logo: null, players: [] },
@@ -495,7 +509,7 @@
               name: t.name || "",
               color: t.color || DEFAULT_TEAM_COLORS[i],
               logo: t.logo || null,
-              players: Array.isArray(t.players) ? t.players.slice() : []
+              players: normPlayers(t.players)
             };
           });
         }
@@ -511,7 +525,7 @@
           name: t.name || "",
           color: t.color || DEFAULT_TEAM_COLORS[i],
           logo: t.logo || null,
-          players: Array.isArray(t.players) ? t.players.slice() : []
+          players: normPlayers(t.players)
         };
       });
       localStorage.setItem(TEAMS_KEY, JSON.stringify(slim));
@@ -523,7 +537,7 @@
       name: (def && def.name) || "",
       color: (def && def.color) || DEFAULT_TEAM_COLORS[i],
       logo: (def && def.logo) || null,
-      players: (def && Array.isArray(def.players)) ? def.players.slice() : [],
+      players: normPlayers(def && def.players),
       score: 0,
       penalties: [false, false, false]
     };
@@ -553,8 +567,11 @@
       createdAt: Date.now(),
       updatedAt: Date.now(),
       scoring: true,
-      showScores: true,        // referee toggle: scores visible on public display
+      showScores: true,        // scores visible on the public display board
       filming: false,
+      caucusSec: 30,           // caucus timer default (referee-configurable)
+      voteSec: 20,             // audience-vote timer default
+      stars: { or: null, argent: null, bronze: null },  // {team,name} per medal
       display: { cointoss: "ask" },  // 'ask' | 'app' | 'screen'
       teams: [liveTeam(defs[0], 0), liveTeam(defs[1], 1)],
       meta: { totalSec: opts.totalSec || 0, nbCompare: opts.nbCompare || 0, nbCatLibre: opts.nbCatLibre || 0 },
@@ -573,6 +590,7 @@
       level: opts.level || "debutant",
       createdAt: Date.now(), updatedAt: Date.now(),
       scoring: false, showScores: false, filming: false,
+      caucusSec: 30, voteSec: 20,
       display: { cointoss: "ask" }, teams: [],
       meta: { totalSec: opts.totalSec || 0 },
       setlist: [], cursor: 0, journal: []
@@ -648,6 +666,14 @@
       newTraining: newTrainingSession,
       loadDefaultTeams: loadDefaultTeams,
       saveDefaultTeams: saveDefaultTeams
+    },
+    // player helpers (players may be strings or {name,photo,user_id,present})
+    players: {
+      norm: normPlayer,
+      normAll: normPlayers,
+      name: playerName,
+      userId: playerUserId,
+      present: playerPresent
     },
     // active live match
     live: {

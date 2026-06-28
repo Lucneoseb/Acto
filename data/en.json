@@ -303,7 +303,8 @@
         {
           "name": "Compared sung",
           "desc": "Each team includes at least one sung passage."
-        }
+        },
+        { "name": "Compared with prop", "desc": "An imposed prop must be central. Each team uses it in its own way." }
       ],
       "confirme": [
         {
@@ -329,7 +330,9 @@
         {
           "name": "Mixed with character",
           "desc": "An imposed character type must appear in the first minute."
-        }
+        },
+        { "name": "Compared with constraint", "desc": "Each team plays the theme with a different randomly-drawn constraint." },
+        { "name": "Mixed in full sentences", "desc": "Players may only speak in whole, complete sentences — no interrupting." }
       ],
       "expert": [
         {
@@ -355,7 +358,9 @@
         {
           "name": "Time loop",
           "desc": "Scene moves forward then rewinds 30 seconds, repeatedly. Vertiginous loop."
-        }
+        },
+        { "name": "Compared silent + sound effects", "desc": "One team plays silently, the other only with sound effects. Same theme, opposite readings." },
+        { "name": "In the manner of Chekhov", "desc": "Late-19th-century Russian style: aristocratic ennui, samovars, loaded silences, monologues." }
       ]
     }
   },

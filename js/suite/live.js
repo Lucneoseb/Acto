@@ -33,6 +33,62 @@
     return _bc;
   }
 
+  /* ---------- Supabase Realtime (cross-device, same account) ----------
+     The presenter publishes snapshots on a channel keyed by the logged-in
+     user id; the public display + record device (logged in as the SAME
+     account, on other devices) subscribe. BroadcastChannel/localStorage above
+     still cover same-device windows, so Realtime is purely additive and the
+     whole thing degrades to same-device if there's no session/network. */
+  var _rt = null, _rtRole = null;   // null | 'pub' | 'sub'
+  function rtClient() { return window.actoSuiteSb || null; }
+  function rtChannelName() { var u = window.actoUser && window.actoUser.id; return u ? ("acto-live:" + u) : null; }
+  function rtEnsurePublisher() {
+    if (_rt) return _rt;
+    var sb = rtClient(), name = rtChannelName(); if (!sb || !name) return null;
+    try {
+      _rt = sb.channel(name, { config: { broadcast: { self: false } } });
+      // A late-joining subscriber pings 'hello' → resend the current snapshot.
+      _rt.on("broadcast", { event: "hello" }, function () { broadcast(); });
+      _rt.subscribe();
+      _rtRole = "pub";
+    } catch (e) { _rt = null; }
+    return _rt;
+  }
+  // Strip heavy logo data-URLs when the snapshot would exceed Realtime's
+  // broadcast size cap (~256KB). Better to sync a logo-less board (the display
+  // falls back to a colour dot) cross-device than to silently drop everything.
+  function slimSnap(snap) {
+    var s;
+    try { s = JSON.parse(JSON.stringify(snap)); } catch (e) { return snap; }
+    if (s.teams) s.teams.forEach(function (t) { t.logo = null; });
+    if (s.stars) ["or", "argent", "bronze"].forEach(function (k) { if (s.stars[k]) s.stars[k].logo = null; });
+    return s;
+  }
+  function rtSend(snap) {
+    var ch = (_rtRole === "pub") ? _rt : rtEnsurePublisher();
+    if (!ch) return;
+    var payload = snap;
+    try { if (JSON.stringify(snap).length > 180000) payload = slimSnap(snap); } catch (e) { /* ignore */ }
+    try { ch.send({ type: "broadcast", event: "snap", payload: payload }); } catch (e) { /* ignore */ }
+  }
+  function rtSubscribe(onSnap) {
+    var sb = rtClient(), name = rtChannelName(); if (!sb || !name) return null;
+    try {
+      _rt = sb.channel(name, { config: { broadcast: { self: false } } });
+      _rt.on("broadcast", { event: "snap" }, function (msg) { if (msg && msg.payload) onSnap(msg.payload); });
+      _rt.subscribe(function (status) {
+        if (status === "SUBSCRIBED") { try { _rt.send({ type: "broadcast", event: "hello", payload: {} }); } catch (e) { /* ignore */ } }
+      });
+      _rtRole = "sub";
+    } catch (e) { _rt = null; }
+    return _rt;
+  }
+  function rtTeardown() {
+    if (!_rt) { _rtRole = null; return; }
+    try { var sb = rtClient(); if (sb && sb.removeChannel) sb.removeChannel(_rt); else if (_rt.unsubscribe) _rt.unsubscribe(); } catch (e) { /* ignore */ }
+    _rt = null; _rtRole = null;
+  }
+
   /* ---------- end-of-chrono sound (Web Audio, no asset) ---------- */
   var _ac = null;
   function audioCtx() {
@@ -79,7 +135,7 @@
   function tick() {
     if (!tRunning) return;
     var rem = Math.max(0, Math.round((tEndAt - Date.now()) / 1000));
-    if (rem !== tRemaining) { tRemaining = rem; renderChrono(); broadcast(); }
+    if (rem !== tRemaining) { tRemaining = rem; renderChrono(); broadcastLocal(); }
     if (rem <= 0) { tRunning = false; clearTick(); onTimerEnd(); }
   }
   function timerPause() {
@@ -109,8 +165,8 @@
   }
 
   function startImpro() { var seg = curSeg(); if (!seg) return; phase = "running"; timerStart(seg.durationSec || 90, "impro"); }
-  function doCaucus() { phase = "caucus"; timerStart(CAUCUS_SEC, "caucus"); }
-  function doVote() { phase = "vote"; timerStart(VOTE_SEC, "vote"); }
+  function doCaucus() { phase = "caucus"; timerStart((sess && sess.caucusSec) || CAUCUS_SEC, "caucus"); }
+  function doVote() { phase = "vote"; timerStart((sess && sess.voteSec) || VOTE_SEC, "vote"); }
   function primaryAction() {
     if (tRunning) { timerPause(); return; }
     if (tk && tRemaining > 0 && tRemaining < tTotal) { timerResume(); return; }
@@ -136,6 +192,7 @@
     if (!sess.scoring) return;
     var tm = sess.teams[team]; tm.score = Math.max(0, (tm.score || 0) + d);
     persist(); renderPresenter(); broadcast();
+    if (finished) recordResults();   // a post-finish score correction flips outcomes
   }
   function togglePenalty(team, i) {
     var tm = sess.teams[team]; tm.penalties = tm.penalties || [false, false, false];
@@ -145,16 +202,149 @@
       var opp = sess.teams[team === 0 ? 1 : 0]; opp.score = (opp.score || 0) + 1;
     }
     persist(); renderPresenter(); broadcast();
+    if (finished) recordResults();   // the 3rd penalty bumps the opponent score → outcome can change
   }
   function toggleScores() { sess.showScores = !sess.showScores; persist(); renderPresenter(); broadcast(); }
   function finish() {
     if (!window.confirm(t("liveConfirmFinish"))) return;
-    phase = "done"; clearTick(); tRunning = false; persist(); renderPresenter(); broadcast();
+    phase = "done"; finished = true; clearTick(); tRunning = false; persist(); renderPresenter(); broadcast();
+    recordResults();
   }
 
   function openPublicScreen() {
-    try { window.open("suite.html#/display", "acto-display", "width=1280,height=720"); } catch (e) { /* ignore */ }
+    try { window.open("welcome.html#/display", "acto-display", "width=1280,height=720"); } catch (e) { /* ignore */ }
     setTimeout(broadcast, 400);
+  }
+  function openRecordScreen() {
+    try { window.open("welcome.html#/record", "acto-record", "width=960,height=720"); } catch (e) { /* ignore */ }
+    setTimeout(broadcast, 400);
+  }
+
+  /* ---------- étoiles (gold/silver/bronze) ---------- */
+  function rosterPlayers() {
+    var P = S.players, out = [];
+    (sess.teams || []).forEach(function (tm, ti) {
+      (tm.players || []).forEach(function (p) {
+        if (!P.present(p)) return;                       // absent players don't play
+        out.push({ team: ti, name: P.name(p), user_id: P.userId(p) });
+      });
+    });
+    return out;
+  }
+  function resolveStars() {
+    if (!sess) return null;
+    var st = sess.stars || {};
+    function r(s) {
+      if (!s) return null;
+      var tm = (sess.teams && sess.teams[s.team]) || {};
+      return { name: s.name, team: s.team, color: tm.color || "#888", teamName: tm.name || "", logo: tm.logo || null };
+    }
+    return { or: r(st.or), argent: r(st.argent), bronze: r(st.bronze) };
+  }
+  function setStar(medal, val) {
+    if (!sess.stars) sess.stars = { or: null, argent: null, bronze: null };
+    sess.stars[medal] = val;   // {team,name,user_id} | null
+    persist(); broadcast();
+    if (finished) recordResults();   // re-submit so stars assigned post-match count
+  }
+  var finished = false;
+  var starsReturn = "announce";
+  function showStarsCeremony() { if (phase !== "stars") starsReturn = phase; phase = "stars"; renderPresenter(); broadcast(); }
+  function hideStarsCeremony() { phase = (starsReturn === "done" ? "done" : "announce"); renderPresenter(); broadcast(); }
+
+  function openStarsDialog() {
+    var medals = [
+      { key: "or", icon: "🥇", label: t("starGold") },
+      { key: "argent", icon: "🥈", label: t("starSilver") },
+      { key: "bronze", icon: "🥉", label: t("starBronze") }
+    ];
+    var roster = rosterPlayers();
+    function optsFor(medalKey) {
+      var cur = (sess.stars && sess.stars[medalKey]) || null;
+      var o = '<option value="">' + esc(t("starNone")) + '</option>';
+      roster.forEach(function (p, idx) {
+        var sel = (cur && cur.team === p.team && cur.name === p.name) ? " selected" : "";
+        var tmName = (sess.teams[p.team] && sess.teams[p.team].name) || (p.team === 0 ? t("teamA") : t("teamB"));
+        o += '<option value="' + idx + '"' + sel + '>' + esc(p.name + " · " + tmName) + '</option>';
+      });
+      return o;
+    }
+    var dlg = document.createElement("dialog");
+    dlg.className = "suite-dialog suite-stars-dialog";
+    dlg.innerHTML = '<div class="suite-dialog-body">' +
+      '<h2 class="suite-dialog-title">⭐ ' + esc(t("starsTitle")) + '</h2>' +
+      (roster.length === 0 ? '<p class="suite-dialog-text">' + esc(t("starsNoPlayers")) + '</p>' : "") +
+      medals.map(function (m) {
+        return '<label class="suite-set-field"><span>' + m.icon + " " + esc(m.label) + '</span>' +
+          '<select class="suite-edit-select" data-medal="' + m.key + '">' + optsFor(m.key) + '</select></label>';
+      }).join("") +
+      '<div class="suite-dialog-actions">' +
+        '<button type="button" data-r="cancel" class="suite-btn suite-btn-ghost">' + esc(t("commonClose")) + '</button>' +
+        (phase === "stars"
+          ? '<button type="button" data-r="hide" class="suite-btn suite-btn-ghost">' + esc(t("starsHide")) + '</button>'
+          : '') +
+        '<button type="button" data-r="show" class="suite-btn suite-btn-primary">' + esc(t("starsShow")) + '</button>' +
+      '</div>' +
+    '</div>';
+    document.body.appendChild(dlg);
+    function close() { try { if (dlg.open) dlg.close(); } catch (e) { /* ignore */ } dlg.remove(); }
+    dlg.querySelectorAll("select[data-medal]").forEach(function (sel) {
+      sel.onchange = function () {
+        var v = sel.value === "" ? null : roster[parseInt(sel.value, 10)];
+        setStar(sel.getAttribute("data-medal"), v ? { team: v.team, name: v.name, user_id: v.user_id || null } : null);
+      };
+    });
+    dlg.querySelector('[data-r="cancel"]').onclick = close;
+    var hideBtn = dlg.querySelector('[data-r="hide"]');
+    if (hideBtn) hideBtn.onclick = function () { close(); hideStarsCeremony(); };
+    dlg.querySelector('[data-r="show"]').onclick = function () { close(); showStarsCeremony(); };
+    dlg.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); close(); } });
+    if (typeof dlg.showModal === "function") { try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } }
+    else dlg.setAttribute("open", "");
+  }
+
+  /* ---------- per-player stats (record on match end) ---------- */
+  function teamOutcome(i) {
+    if (!sess.scoring) return "draw";
+    var a = sess.teams[0].score || 0, b = sess.teams[1].score || 0;
+    if (a === b) return "draw";
+    var team0Wins = a > b;
+    return ((i === 0) === team0Wins) ? "win" : "loss";
+  }
+  function starForPlayer(teamIdx, name, userId) {
+    var st = sess.stars || {}, keys = ["or", "argent", "bronze"];
+    for (var k = 0; k < keys.length; k++) {
+      var s = st[keys[k]]; if (!s) continue;
+      if (s.user_id) { if (s.user_id === userId) return keys[k]; continue; }   // linked star → match account only
+      // Unlinked star → match by name+team only for an unlinked player (avoids
+      // crediting a linked namesake on the same team).
+      if (!userId && s.team === teamIdx && s.name === name) return keys[k];
+    }
+    return null;
+  }
+  // Submit results for linked players to Supabase. Idempotent server-side
+  // (replaces this referee's rows for this match), so it's safe to call again
+  // whenever scores/stars change after the match ends.
+  function recordResults() {
+    if (!sess || sess.kind !== "match" || !sess.scoring) return;
+    var sb = window.actoSuiteSb;
+    if (!sb || !window.actoUser) return;
+    var P = S.players, results = [];
+    (sess.teams || []).forEach(function (tm, ti) {
+      var outcome = teamOutcome(ti);
+      (tm.players || []).forEach(function (p) {
+        if (!P.present(p)) return;
+        var uid = P.userId(p); if (!uid) return;   // only linked accounts accrue stats
+        var nm = P.name(p);
+        results.push({ user_id: uid, name: nm, team: tm.name || "", outcome: outcome, star: starForPlayer(ti, nm, uid) });
+      });
+    });
+    if (!results.length) return;
+    try {
+      Promise.resolve(sb.rpc("record_match_results", { p_match_uid: sess.runId || sess.id, p_results: results }))
+        .then(function (res) { if (res && res.error) console.warn("[live] record stats failed", res.error); })
+        .catch(function (e) { console.warn("[live] record stats error", e); });
+    } catch (e) { /* ignore */ }
   }
 
   /* ---------- snapshot + broadcast ---------- */
@@ -170,6 +360,7 @@
           score: tm.score || 0, penalties: (tm.penalties || [false, false, false]).slice() };
       }),
       kind: sess.kind || "match",
+      stars: resolveStars(),
       segIndex: cursor, segTotal: sess.setlist.length,
       seg: seg ? {
         type: seg.type || "impro",
@@ -184,11 +375,21 @@
       timer: { kind: tk, total: tTotal, remaining: tRemaining, running: tRunning, endAt: tRunning ? tEndAt : 0 }
     };
   }
-  function broadcast() {
-    if (!sess) return;
-    var snap = snapshot();
+  // Same-device fan-out (cheap; fine on every timer tick).
+  function broadcastLocal(snap) {
+    snap = snap || snapshot();
     var c = chan(); if (c) { try { c.postMessage(snap); } catch (e) { /* ignore */ } }
     try { localStorage.setItem(SNAP_KEY, JSON.stringify(snap)); } catch (e) { /* ignore */ }
+    return snap;
+  }
+  // Full fan-out incl. cross-device Realtime. Remote clients reconstruct the
+  // running clock from timer.endAt, so we deliberately do NOT push Realtime on
+  // every per-second tick — only on real state changes (start/pause/score/
+  // phase/segment/stars/finish), which all route through here.
+  function broadcast() {
+    if (!sess) return;
+    var snap = broadcastLocal();
+    rtSend(snap);
   }
 
   /* ============================================================
@@ -199,11 +400,12 @@
     sess = S.live.load();
     if (!sess) { navigate("#/"); return; }
     cursor = Math.min(sess.cursor || 0, Math.max(0, sess.setlist.length - 1));
-    phase = "announce"; tk = null; tRunning = false;
+    phase = "announce"; tk = null; tRunning = false; finished = false;
     var seg = curSeg(); tTotal = seg ? seg.durationSec : 0; tRemaining = tTotal;
     document.body.classList.add("suite-live-mode");
     var c = chan();
     if (c) c.onmessage = function (ev) { if (ev.data && ev.data.type === "hello") broadcast(); };
+    rtEnsurePublisher();   // start the cross-device channel (answers remote 'hello')
     renderPresenter(); broadcast();
   }
 
@@ -270,17 +472,26 @@
       '<div class="live-scores">' + teamScore(0) + teamScore(1) + '</div>'
     ) : '';
 
+    var starsBlock = sess.scoring ? (
+      '<div class="live-stars-row">' +
+        '<button class="suite-btn suite-btn-ghost' + (phase === "stars" ? " is-on" : "") + '" data-act="stars">⭐ ' + esc(t("starsBtn")) + '</button>' +
+      '</div>'
+    ) : '';
+
+    var atLast = cursor >= sess.setlist.length - 1;
     var transport =
       '<div class="live-transport">' +
         '<button class="suite-btn suite-btn-ghost" data-act="prev"' + (cursor <= 0 ? ' disabled' : '') + '>‹ ' + esc(t("livePrev")) + '</button>' +
-        (cursor >= sess.setlist.length - 1
-          ? '<button class="suite-btn suite-btn-ghost" data-act="new">' + esc(t("liveNewImpro")) + '</button>'
+        (atLast
+          // At the last impro there is no "add impro" in live — finish the match.
+          ? '<button class="suite-btn suite-btn-primary" data-act="finish">' + esc(t("liveFinish")) + '</button>'
           : '<button class="suite-btn suite-btn-primary" data-act="next">' + esc(t("liveNext")) + ' ›</button>') +
       '</div>';
 
     var footer =
       '<div class="live-foot">' +
         '<button class="suite-btn suite-btn-ghost" data-act="screen">🖥 ' + esc(t("liveOpenScreen")) + '</button>' +
+        '<button class="suite-btn suite-btn-ghost" data-act="record">🎥 ' + esc(t("liveOpenRecord")) + '</button>' +
         '<button class="suite-btn suite-btn-ghost live-scores-toggle' + (sess.showScores ? " is-on" : "") + '" data-act="togglescores">' +
           (sess.showScores ? "👁 " + esc(t("liveScoresOn")) : "🚫 " + esc(t("liveScoresOff"))) +
         '</button>' +
@@ -295,7 +506,7 @@
         '<button class="suite-btn suite-btn-mini suite-btn-danger" data-act="finish">' + esc(t("liveFinish")) + '</button>' +
       '</div>' +
       doneBlock +
-      segBlock + chronoBlock + scoreBlock + transport + footer;
+      segBlock + chronoBlock + scoreBlock + starsBlock + transport + footer;
 
     wirePresenter();
   }
@@ -350,12 +561,13 @@
           case "vote": doVote(); break;
           case "prev": prevSeg(); break;
           case "next": nextSeg(); break;
-          case "new": newImpro(); break;
           case "inc": scoreDelta(+btn.getAttribute("data-team"), 1); break;
           case "dec": scoreDelta(+btn.getAttribute("data-team"), -1); break;
           case "pen": togglePenalty(+btn.getAttribute("data-team"), +btn.getAttribute("data-i")); break;
           case "togglescores": toggleScores(); break;
+          case "stars": openStarsDialog(); break;
           case "screen": openPublicScreen(); break;
+          case "record": openRecordScreen(); break;
         }
       };
     });
@@ -364,23 +576,36 @@
   /* ============================================================
      DISPLAY (public board)
      ============================================================ */
-  var dRoot = null, dSnap = null, dTick = null;
+  var dRoot = null, dSnap = null, dTick = null, redraw = function () {};
+
+  // Shared snapshot inflow for any read-only role (display + record): same-device
+  // (BroadcastChannel + storage) AND cross-device (Realtime). Calls redraw() on
+  // each incoming snapshot. redraw is set by whichever role mounted.
+  function applyIncoming(snap) { if (snap && snap.type === "snapshot") { dSnap = snap; redraw(); } }
+  function onStorage(e) {
+    if (e.key === SNAP_KEY && e.newValue) { try { applyIncoming(JSON.parse(e.newValue)); } catch (err) { /* ignore */ } }
+  }
+  function startSubscriptions() {
+    // Seed from the local snapshot only if it's recent — otherwise a device
+    // that once ran a presenter would flash an old match before the first
+    // cross-device snapshot arrives.
+    try { var raw = localStorage.getItem(SNAP_KEY); if (raw) { var s = JSON.parse(raw); if (s && s.ts && (Date.now() - s.ts) < 300000) dSnap = s; } } catch (e) { /* ignore */ }
+    var c = chan();
+    if (c) {
+      c.onmessage = function (ev) { applyIncoming(ev.data); };
+      try { c.postMessage({ type: "hello" }); } catch (e) { /* ignore */ }
+    }
+    window.addEventListener("storage", onStorage);
+    rtSubscribe(function (snap) { applyIncoming(snap); });
+  }
 
   function mountDisplay(container) {
     dRoot = container;
     document.body.classList.add("suite-display-mode");
-    try { var raw = localStorage.getItem(SNAP_KEY); if (raw) dSnap = JSON.parse(raw); } catch (e) { /* ignore */ }
-    var c = chan();
-    if (c) {
-      c.onmessage = function (ev) { if (ev.data && ev.data.type === "snapshot") { dSnap = ev.data; renderDisplay(); } };
-      try { c.postMessage({ type: "hello" }); } catch (e) { /* ignore */ }
-    }
-    window.addEventListener("storage", onStorage);
+    redraw = renderDisplay;
+    startSubscriptions();
     dTick = setInterval(renderDisplayClock, 250);
     renderDisplay();
-  }
-  function onStorage(e) {
-    if (e.key === SNAP_KEY && e.newValue) { try { dSnap = JSON.parse(e.newValue); renderDisplay(); } catch (err) { /* ignore */ } }
   }
   function displayRemaining() {
     if (!dSnap || !dSnap.timer) return 0;
@@ -396,10 +621,19 @@
   function dispTeam(snap, i, showScore) {
     var tm = snap.teams[i];
     var nm = tm.name || (i === 0 ? t("teamA") : t("teamB"));
+    // Penalties (fautes) shown on the public board for matches.
+    var pens = "";
+    if (snap.scoring) {
+      var p = tm.penalties || [false, false, false];
+      pens = '<div class="disp-pens">' +
+        p.map(function (on) { return '<span class="disp-pen-dot' + (on ? " is-on" : "") + '"></span>'; }).join("") +
+      '</div>';
+    }
     return '<div class="disp-team disp-team-' + (i === 0 ? "a" : "b") + '" style="--team:' + esc(tm.color || "#888") + '">' +
       (tm.logo ? '<img class="disp-logo" src="' + esc(tm.logo) + '" alt="" />' : '<div class="disp-logo disp-logo-ph"></div>') +
       '<div class="disp-team-nm">' + esc(nm) + '</div>' +
       (showScore ? '<div class="disp-score">' + (tm.score || 0) + '</div>' : '') +
+      pens +
     '</div>';
   }
 
@@ -415,6 +649,30 @@
         '<div class="disp-overlay">' +
           '<div class="disp-overlay-label">' + esc(lbl) + '</div>' +
           '<div id="dispClock" class="disp-clock disp-clock-big">' + esc(S.formatSec(displayRemaining())) + '</div>' +
+        '</div>';
+      return;
+    }
+    if (snap.phase === "stars") {
+      var st = snap.stars || {};
+      var starRow = function (medal, label, s) {
+        var who = s
+          ? '<span class="disp-star-name">' + esc(s.name) + '</span>' +
+            (s.teamName ? '<span class="disp-star-team" style="--team:' + esc(s.color || "#888") + '">' + esc(s.teamName) + '</span>' : '')
+          : '<span class="disp-star-empty">—</span>';
+        return '<div class="disp-star-row">' +
+          '<span class="disp-star-medal">' + medal + '</span>' +
+          '<span class="disp-star-label">' + esc(label) + '</span>' +
+          who +
+        '</div>';
+      };
+      dRoot.innerHTML =
+        '<div class="disp-overlay disp-stars">' +
+          '<div class="disp-overlay-label">⭐ ' + esc(t("starsTitle")) + '</div>' +
+          '<div class="disp-stars-list">' +
+            starRow("🥇", t("starGold"), st.or) +
+            starRow("🥈", t("starSilver"), st.argent) +
+            starRow("🥉", t("starBronze"), st.bronze) +
+          '</div>' +
         '</div>';
       return;
     }
@@ -476,19 +734,153 @@
   }
 
   /* ============================================================
+     RECORD device (#/record) — a 3rd role: camera + match-info overlay,
+     synced from the same snapshots as the public display (Realtime +
+     same-device). Lets a phone/PC film the match while staying in sync.
+     ============================================================ */
+  var recStream = null, recRecorder = null, recChunks = [], recState = "idle", recStartAt = 0, recMounted = false;
+
+  function mountRecord(container, nav) {
+    dRoot = container; navigate = nav || navigate;
+    document.body.classList.add("suite-record-mode");
+    // Static shell rendered ONCE (re-rendering would kill the <video> stream).
+    dRoot.innerHTML =
+      '<div class="rec-stage">' +
+        '<div class="rec-videowrap">' +
+          '<video id="recVideo" class="rec-video" autoplay muted playsinline></video>' +
+          '<div class="rec-dot" id="recDot" hidden></div>' +
+          '<div class="rec-overlay"><div class="rec-info" id="recInfo"></div></div>' +
+        '</div>' +
+        '<div class="rec-controls">' +
+          '<button class="suite-btn suite-btn-primary rec-toggle" id="recToggle" data-act="rec-toggle">⏺ ' + esc(t("recStart")) + '</button>' +
+          '<span class="rec-status" id="recStatus"></span>' +
+          '<button class="suite-btn suite-btn-ghost" data-act="rec-fs">⛶</button>' +
+          '<button class="suite-back" data-act="rec-back">' + esc(t("liveBack")) + '</button>' +
+        '</div>' +
+        '<div class="rec-msg" id="recMsg" hidden></div>' +
+      '</div>';
+    redraw = updateRecordInfo;
+    recMounted = true;
+    startSubscriptions();
+    dTick = setInterval(function () {
+      var el = dRoot && dRoot.querySelector("#recClock"); if (el && dSnap) el.textContent = S.formatSec(displayRemaining());
+      if (recState === "recording") updateRecStatus();   // keep the elapsed-time readout live
+    }, 250);
+    updateRecordInfo();
+    wireRecord();
+    startCamera();
+  }
+
+  function recTeam(snap, i, showScore) {
+    var tm = snap.teams[i], nm = tm.name || (i === 0 ? t("teamA") : t("teamB"));
+    return '<div class="rec-team" style="--team:' + esc(tm.color || "#888") + '">' +
+      (tm.logo ? '<img class="rec-team-logo" src="' + esc(tm.logo) + '" alt="" />' : '<span class="rec-team-dot" style="background:' + esc(tm.color || "#888") + '"></span>') +
+      '<span class="rec-team-nm">' + esc(nm) + '</span>' +
+      (showScore ? '<span class="rec-team-sc">' + (tm.score || 0) + '</span>' : '') +
+    '</div>';
+  }
+  function updateRecordInfo() {
+    var box = dRoot && dRoot.querySelector("#recInfo"); if (!box) return;
+    var snap = dSnap;
+    if (!snap) { box.innerHTML = '<div class="rec-cat">' + esc(t("liveWaiting")) + '</div>'; return; }
+    var showScore = snap.scoring && snap.showScores;
+    var clock = '<div id="recClock" class="rec-clock">' + esc(S.formatSec(displayRemaining())) + '</div>';
+    var seg = snap.seg;
+    var headline = (snap.phase === "done") ? t("liveDoneTitle") : (seg ? (seg.title || "") : t("liveGetReady"));
+    var subline = (snap.phase === "done") ? "" : (seg ? (seg.subtitle || "") : "");
+    var teamsRow = (snap.teams && snap.teams.length >= 2)
+      ? '<div class="rec-teams">' + recTeam(snap, 0, showScore) + clock + recTeam(snap, 1, showScore) + '</div>'
+      : '<div class="rec-teams rec-teams-solo">' + clock + '</div>';
+    box.innerHTML = teamsRow +
+      '<div class="rec-cat">' + esc(headline) + '</div>' +
+      (subline ? '<div class="rec-theme">' + esc(subline) + '</div>' : '');
+  }
+
+  function showRecMsg(m) { var el = dRoot && dRoot.querySelector("#recMsg"); if (el) { el.textContent = m; el.hidden = !m; } }
+  function updateRecStatus() {
+    var btn = dRoot && dRoot.querySelector("#recToggle"), st = dRoot && dRoot.querySelector("#recStatus"), dot = dRoot && dRoot.querySelector("#recDot");
+    var rec = recState === "recording";
+    if (btn) { btn.classList.toggle("is-recording", rec); btn.innerHTML = rec ? ("⏹ " + esc(t("recStop"))) : ("⏺ " + esc(t("recStart"))); }
+    if (dot) dot.hidden = !rec;
+    if (st) st.textContent = rec ? ("● " + S.formatSec(Math.round((Date.now() - recStartAt) / 1000))) : (recStream ? t("recReady") : "");
+  }
+
+  function startCamera() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { showRecMsg(t("recNoCamera")); return; }
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(function (stream) {
+      // If the user navigated away before the prompt resolved, don't keep the
+      // camera/mic alive on an unmounted view — release it immediately.
+      if (!recMounted) { stream.getTracks().forEach(function (tr) { try { tr.stop(); } catch (e) { /* ignore */ } }); return; }
+      recStream = stream;
+      var v = dRoot && dRoot.querySelector("#recVideo"); if (v) v.srcObject = stream;
+      showRecMsg(""); updateRecStatus();
+    }).catch(function () { if (recMounted) showRecMsg(t("recCameraDenied")); });
+  }
+  function stopCamera() {
+    // If a take is in progress, let recRecorder.stop() flush + onstop save it
+    // BEFORE we clear chunks (otherwise the whole recording is silently lost).
+    var wasRecording = recRecorder && recState === "recording";
+    try { if (wasRecording) recRecorder.stop(); } catch (e) { /* ignore */ }
+    if (recStream) { recStream.getTracks().forEach(function (tr) { try { tr.stop(); } catch (e) { /* ignore */ } }); recStream = null; }
+    if (!wasRecording) { recRecorder = null; recChunks = []; }
+    recState = "idle";
+  }
+  function toggleRecord() {
+    if (!recStream) { startCamera(); return; }
+    if (recState === "recording") { try { recRecorder.stop(); } catch (e) { /* ignore */ } return; }
+    try {
+      recChunks = [];
+      recRecorder = new MediaRecorder(recStream);
+      recRecorder.ondataavailable = function (e) { if (e.data && e.data.size) recChunks.push(e.data); };
+      recRecorder.onstop = function () { saveRecording(); recState = "idle"; updateRecStatus(); };
+      recRecorder.start();
+      recState = "recording"; recStartAt = Date.now(); updateRecStatus();
+    } catch (e) { showRecMsg(t("recError")); }
+  }
+  function saveRecording() {
+    if (!recChunks.length) return;
+    try {
+      var blob = new Blob(recChunks, { type: recChunks[0].type || "video/webm" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      var cat = (dSnap && dSnap.seg && dSnap.seg.title) ? String(dSnap.seg.title).replace(/[^a-z0-9]+/gi, "-").slice(0, 40) : "impro";
+      a.href = url; a.download = "acto-" + cat + ".webm";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { try { URL.revokeObjectURL(url); } catch (e) { /* ignore */ } }, 1500);
+    } catch (e) { /* ignore */ }
+    recChunks = [];
+  }
+  function wireRecord() {
+    dRoot.querySelectorAll("[data-act]").forEach(function (b) {
+      var act = b.getAttribute("data-act");
+      b.onclick = function () {
+        if (act === "rec-toggle") toggleRecord();
+        else if (act === "rec-back") { cleanup(); navigate("#/match"); }
+        else if (act === "rec-fs") { try { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); } catch (e) { /* ignore */ } }
+      };
+    });
+  }
+
+  /* ============================================================
      cleanup (called by the router before every navigation)
      ============================================================ */
   function cleanup() {
-    document.body.classList.remove("suite-live-mode", "suite-display-mode");
+    document.body.classList.remove("suite-live-mode", "suite-display-mode", "suite-record-mode");
     clearTick();
     if (dTick) { clearInterval(dTick); dTick = null; }
+    recMounted = false;          // any late getUserMedia resolve now self-releases
+    stopCamera();
     var c = chan(); if (c) c.onmessage = null;
     window.removeEventListener("storage", onStorage);
+    rtTeardown();
+    redraw = function () {};
+    dSnap = null;                // don't carry one role's snapshot into the next
   }
 
   window.ActoLive = {
     mountPresenter: mountPresenter,
     mountDisplay: mountDisplay,
+    mountRecord: mountRecord,
     cleanup: cleanup
   };
 })();

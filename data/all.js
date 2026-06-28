@@ -3295,6 +3295,10 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Compared sung",
               "desc": "Each team includes at least one sung passage."
+            },
+            {
+              "name": "Compared with prop",
+              "desc": "An imposed prop must be central. Each team uses it in its own way."
             }
           ],
           "confirme": [
@@ -3321,6 +3325,14 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Mixed with character",
               "desc": "An imposed character type must appear in the first minute."
+            },
+            {
+              "name": "Compared with constraint",
+              "desc": "Each team plays the theme with a different randomly-drawn constraint."
+            },
+            {
+              "name": "Mixed in full sentences",
+              "desc": "Players may only speak in whole, complete sentences — no interrupting."
             }
           ],
           "expert": [
@@ -3347,6 +3359,14 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Time loop",
               "desc": "Scene moves forward then rewinds 30 seconds, repeatedly. Vertiginous loop."
+            },
+            {
+              "name": "Compared silent + sound effects",
+              "desc": "One team plays silently, the other only with sound effects. Same theme, opposite readings."
+            },
+            {
+              "name": "In the manner of Chekhov",
+              "desc": "Late-19th-century Russian style: aristocratic ennui, samovars, loaded silences, monologues."
             }
           ]
         }
@@ -3946,6 +3966,10 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Vergleich gesungen",
               "desc": "Jede Mannschaft baut mindestens eine gesungene Passage ein."
+            },
+            {
+              "name": "Vergleich mit Requisit",
+              "desc": "Ein vorgegebenes Requisit muss zentral sein. Jedes Team nutzt es auf seine Weise."
             }
           ],
           "confirme": [
@@ -3972,6 +3996,14 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Mit vorgegebener Figur",
               "desc": "Ein vorgegebener Figurentyp muss in der ersten Minute erscheinen."
+            },
+            {
+              "name": "Vergleich mit Auflage",
+              "desc": "Jedes Team spielt das Thema mit einer anders ausgelosten Auflage."
+            },
+            {
+              "name": "Gemischt in ganzen Sätzen",
+              "desc": "Die Spieler dürfen nur in vollständigen Sätzen sprechen – keine Unterbrechung."
             }
           ],
           "expert": [
@@ -3998,6 +4030,14 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Zeitschleife",
               "desc": "Die Szene geht vor und springt alle 30 Sekunden zurück. Schwindelerregender Loop."
+            },
+            {
+              "name": "Vergleich stumm + Geräusche",
+              "desc": "Ein Team spielt stumm, das andere nur mit Geräuschen. Gleiches Thema, gegensätzliche Lesarten."
+            },
+            {
+              "name": "In der Art von Tschechow",
+              "desc": "Russischer Stil des späten 19. Jh.: aristokratische Langeweile, Samoware, schwere Stille, Monologe."
             }
           ]
         }
@@ -4597,6 +4637,10 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Comparada cantada",
               "desc": "Cada equipo incluye al menos un pasaje cantado."
+            },
+            {
+              "name": "Comparada con utilería",
+              "desc": "Un objeto impuesto debe ser central. Cada equipo lo usa a su manera."
             }
           ],
           "confirme": [
@@ -4623,6 +4667,14 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Mixta con personaje",
               "desc": "Un tipo de personaje impuesto debe aparecer en el primer minuto."
+            },
+            {
+              "name": "Comparada con restricción",
+              "desc": "Cada equipo juega el tema con una restricción sorteada distinta."
+            },
+            {
+              "name": "Mixta por frases",
+              "desc": "Los jugadores solo pueden hablar con frases enteras y completas, sin interrumpir."
             }
           ],
           "expert": [
@@ -4649,6 +4701,14 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Bucle temporal",
               "desc": "La escena avanza y retrocede 30 segundos repetidamente. Bucle vertiginoso."
+            },
+            {
+              "name": "Comparada muda + efectos",
+              "desc": "Un equipo juega en silencio, el otro solo con efectos sonoros. Mismo tema, lecturas opuestas."
+            },
+            {
+              "name": "A la manera de Chéjov",
+              "desc": "Estilo ruso de finales del s. XIX: hastío aristocrático, samovares, silencios cargados, monólogos."
             }
           ]
         }
@@ -5248,6 +5308,10 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Comparada cantada",
               "desc": "Cada equipa inclui pelo menos uma passagem cantada."
+            },
+            {
+              "name": "Comparada com adereço",
+              "desc": "Um adereço imposto deve ser central. Cada equipa usa-o à sua maneira."
             }
           ],
           "confirme": [
@@ -5274,6 +5338,14 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Mista com personagem",
               "desc": "Um tipo de personagem imposto deve aparecer no primeiro minuto."
+            },
+            {
+              "name": "Comparada com restrição",
+              "desc": "Cada equipa joga o tema com uma restrição sorteada diferente."
+            },
+            {
+              "name": "Mista por frases",
+              "desc": "Os jogadores só podem falar em frases inteiras e completas — sem interrupções."
             }
           ],
           "expert": [
@@ -5300,6 +5372,14 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Ciclo temporal",
               "desc": "A cena avança e recua 30 segundos repetidamente. Ciclo vertiginoso."
+            },
+            {
+              "name": "Comparada muda + sonoplastia",
+              "desc": "Uma equipa joga em silêncio, a outra só com efeitos sonoros. Mesmo tema, leituras opostas."
+            },
+            {
+              "name": "À maneira de Tchékhov",
+              "desc": "Estilo russo do fim do séc. XIX: tédio aristocrático, samovares, silêncios carregados, monólogos."
             }
           ]
         }
@@ -5899,6 +5979,10 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Vergelijkend gezongen",
               "desc": "Elke ploeg bouwt minstens één gezongen passage in."
+            },
+            {
+              "name": "Vergelijkend met rekwisiet",
+              "desc": "Een opgelegd rekwisiet moet centraal staan. Elk team gebruikt het op zijn eigen manier."
             }
           ],
           "confirme": [
@@ -5925,6 +6009,14 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Gemengd met personage",
               "desc": "Een opgelegd personagetype moet in de eerste minuut verschijnen."
+            },
+            {
+              "name": "Vergelijkend met opdracht",
+              "desc": "Elk team speelt het thema met een andere, gelote opdracht."
+            },
+            {
+              "name": "Gemengd in volzinnen",
+              "desc": "Spelers mogen alleen in volledige, hele zinnen spreken — geen onderbrekingen."
             }
           ],
           "expert": [
@@ -5951,6 +6043,14 @@ window.IMPRO_BUNDLE = {
             {
               "name": "Tijdslus",
               "desc": "De scène gaat vooruit en terug elke 30 seconden. Duizelingwekkende lus."
+            },
+            {
+              "name": "Vergelijkend stom + geluiden",
+              "desc": "Eén team speelt stom, het andere alleen met geluidseffecten. Zelfde thema, tegengestelde lezingen."
+            },
+            {
+              "name": "In de stijl van Tsjechov",
+              "desc": "Laat-19e-eeuwse Russische stijl: aristocratische verveling, samovars, geladen stiltes, monologen."
             }
           ]
         }

@@ -149,6 +149,47 @@
     setText("accountValStage",  p.nom_scene || "");
     setText("accountValDob",    formatDobForLocale(p.date_naissance));
     refreshAccountStats();
+    refreshMatchStats();
+  }
+
+  /** Match stats (matches / W-D-L / étoiles) for the logged-in player, from
+   *  the get_my_stats RPC. The section stays hidden if the migration isn't
+   *  deployed yet or the RPC errors, so it degrades gracefully. */
+  const MATCH_STAT_I18N = {
+    fr: { title: "🎭 Mes stats de match", matches: "Matchs joués", wins: "Victoires", draws: "Matchs nuls", losses: "Défaites", stars: "Étoiles (or/argent/bronze)" },
+    en: { title: "🎭 My match stats", matches: "Matches played", wins: "Wins", draws: "Draws", losses: "Losses", stars: "Stars (gold/silver/bronze)" },
+    de: { title: "🎭 Meine Match-Statistik", matches: "Gespielte Matches", wins: "Siege", draws: "Unentschieden", losses: "Niederlagen", stars: "Sterne (Gold/Silber/Bronze)" },
+    es: { title: "🎭 Mis estadísticas de partido", matches: "Partidos jugados", wins: "Victorias", draws: "Empates", losses: "Derrotas", stars: "Estrellas (oro/plata/bronce)" },
+    pt: { title: "🎭 As minhas estatísticas", matches: "Jogos disputados", wins: "Vitórias", draws: "Empates", losses: "Derrotas", stars: "Estrelas (ouro/prata/bronze)" },
+    nl: { title: "🎭 Mijn matchstatistieken", matches: "Gespeelde matches", wins: "Overwinningen", draws: "Gelijkspelen", losses: "Nederlagen", stars: "Sterren (goud/zilver/brons)" },
+    it: { title: "🎭 Le mie statistiche", matches: "Match giocati", wins: "Vittorie", draws: "Pareggi", losses: "Sconfitte", stars: "Stelle (oro/argento/bronzo)" }
+  };
+  async function refreshMatchStats() {
+    const sect = $("authMatchStatsSection");
+    if (!sect) return;
+    const u = window.actoAuth.state.user;
+    if (!u) { sect.hidden = true; return; }
+    const L = MATCH_STAT_I18N[currentLocale && currentLocale()] || MATCH_STAT_I18N.fr;
+    setText("authMatchStatsTitle", L.title);
+    setText("mstatLabelMatches", L.matches);
+    setText("mstatLabelWins",    L.wins);
+    setText("mstatLabelDraws",   L.draws);
+    setText("mstatLabelLosses",  L.losses);
+    setText("mstatLabelStars",   L.stars);
+    try {
+      const { data, error } = await sb.rpc("get_my_stats");
+      if (error) throw error;
+      const r = (Array.isArray(data) ? data[0] : data) || {};
+      setText("mstatValMatches", String(r.matches || 0));
+      setText("mstatValWins",    String(r.wins    || 0));
+      setText("mstatValDraws",   String(r.draws   || 0));
+      setText("mstatValLosses",  String(r.losses  || 0));
+      setText("mstatValStars",   (r.gold || 0) + " 🥇 · " + (r.silver || 0) + " 🥈 · " + (r.bronze || 0) + " 🥉");
+      sect.hidden = false;
+    } catch (e) {
+      // RPC not deployed (or failed) → keep the section hidden silently.
+      sect.hidden = true;
+    }
   }
 
   /** Populate the "📊 Mes statistiques" section in Settings from the
@@ -832,6 +873,9 @@
         // PostgrestBuilder from sb.rpc() is thenable but lacks .catch — wrap.
         Promise.resolve(sb.rpc("bump_stats", { delta_login: 1 }))
           .catch((e) => console.warn("[auth] login bump failed", e));
+        // After a fresh login, send the user to the Studio (the main app).
+        // (Only on the quick-draw page, which is where this auth UI lives.)
+        setTimeout(() => { try { window.location.assign("welcome.html"); } catch (e) {} }, 150);
       }
     } else if (event === "SIGNED_OUT") {
       window.actoAuth.state.user = null;

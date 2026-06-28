@@ -42,9 +42,24 @@
     // tear down any live/display engine state before routing
     if (window.ActoLive && window.ActoLive.cleanup) window.ActoLive.cleanup();
 
-    // Live presenter / public display hide all shell chrome.
+    // Live presenter / public display / record device hide all shell chrome.
     if (r.section === "display") { syncSectionNav(null); window.ActoLive.mountDisplay(rootEl); return; }
+    if (r.section === "record") { syncSectionNav(null); window.ActoLive.mountRecord(rootEl, navigate); return; }
     if (PROGRAM_KIND[r.section] && r.sub === "live") { syncSectionNav(null); window.ActoLive.mountPresenter(rootEl, navigate); return; }
+
+    if (r.section === "teams") {
+      syncSectionNav("home");
+      window.ActoTeams.mount(rootEl, navigate);
+      window.scrollTo(0, 0);
+      return;
+    }
+
+    if (r.section === "contribute") {
+      syncSectionNav("home");
+      window.ActoContribute.mount(rootEl, r.sub, navigate);
+      window.scrollTo(0, 0);
+      return;
+    }
 
     if (PROGRAM_KIND[r.section]) {
       syncSectionNav(r.section);
@@ -95,19 +110,54 @@
         launchCard("match", "🏆", t("sectionMatchTitle"), t("sectionMatchDesc"), false) +
         launchCard("show", "🎪", t("sectionShowTitle"), t("sectionShowDesc"), false) +
         launchCard("train", "🏋️", t("sectionTrainTitle"), t("sectionTrainDesc"), false) +
+      '</div>' +
+      '<div class="suite-home-extra">' +
+        '<button class="suite-home-link" data-section="teams">👥 ' + esc(t("teamsLibTitle")) + '</button>' +
+        '<button class="suite-home-link" data-section="contribute">💡 ' + esc(t("contribTitle")) + '</button>' +
       '</div>';
     rootEl.querySelectorAll(".suite-launch-card").forEach(function (c) {
+      var go = function () { navigate("#/" + c.getAttribute("data-section")); };
+      c.onclick = go;
+      c.onkeydown = function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } };
+    });
+    var TITLE_KEY = { discover: "sectionDiscoverTitle", match: "sectionMatchTitle", show: "sectionShowTitle", train: "sectionTrainTitle" };
+    var INFO_KEY = { discover: "sectionDiscoverInfo", match: "sectionMatchInfo", show: "sectionShowInfo", train: "sectionTrainInfo" };
+    rootEl.querySelectorAll(".suite-launch-info").forEach(function (b) {
+      b.onclick = function (e) {
+        e.stopPropagation();
+        var sec = b.getAttribute("data-info");
+        openInfoPopup(t(TITLE_KEY[sec]), t(INFO_KEY[sec]));
+      };
+    });
+    rootEl.querySelectorAll(".suite-home-link").forEach(function (c) {
       c.onclick = function () { navigate("#/" + c.getAttribute("data-section")); };
     });
   }
-  function launchCard(section, icon, title, desc, soon) {
-    return '<button class="suite-launch-card" data-section="' + section + '">' +
-      (soon ? '<span class="suite-soon-tag">' + esc(t("sectionSoon")) + '</span>' : "") +
+  function launchCard(section, icon, title, desc) {
+    return '<div class="suite-launch-card" data-section="' + section + '" role="button" tabindex="0">' +
+      '<button class="suite-launch-info" type="button" data-info="' + section + '" aria-label="' + esc(t("sectionMoreInfo")) + '">ⓘ</button>' +
       '<span class="suite-launch-icon" aria-hidden="true">' + icon + '</span>' +
       '<span class="suite-launch-title">' + esc(title) + '</span>' +
       '<span class="suite-launch-desc">' + esc(desc) + '</span>' +
-    '</button>';
+    '</div>';
   }
+
+  /* ---------- reusable info popup (sections, rules, concepts) ---------- */
+  function openInfoPopup(title, body) {
+    var dlg = document.createElement("dialog");
+    dlg.className = "suite-dialog suite-info-dialog";
+    dlg.innerHTML = '<div class="suite-dialog-body">' +
+      '<h2 class="suite-dialog-title">' + esc(title) + '</h2>' +
+      '<div class="suite-info-text">' + String(body || "").split("\n").filter(Boolean).map(function (p) { return '<p>' + esc(p) + '</p>'; }).join("") + '</div>' +
+      '<div class="suite-dialog-actions"><button type="button" data-r="close" class="suite-btn suite-btn-primary">' + esc(t("commonClose")) + '</button></div>' +
+    '</div>';
+    document.body.appendChild(dlg);
+    function close() { try { if (dlg.open) dlg.close(); } catch (e) { /* ignore */ } dlg.remove(); }
+    dlg.querySelector('[data-r="close"]').onclick = close;
+    dlg.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); close(); } });
+    if (typeof dlg.showModal === "function") { try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } } else dlg.setAttribute("open", "");
+  }
+  window.actoSuitePopup = openInfoPopup;   // reused by discover.js (rules / concepts)
 
   /* ---------- locale chrome ---------- */
   function buildLocalePicker() {

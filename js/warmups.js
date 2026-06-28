@@ -455,7 +455,7 @@
     const client = getSb();
     const { data } = client ? await client.auth.getSession() : { data: { session: null } };
     if (!data || !data.session || !data.session.user) {
-      alert("Connecte-toi sur l'app pour proposer un exercice : " + window.location.origin + "/index.html");
+      alert("Connecte-toi sur l'app pour proposer un exercice : " + window.location.origin + "/quickgame.html");
       return;
     }
     const dlg = $("#warmupSubmitDialog");

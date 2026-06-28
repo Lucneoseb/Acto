@@ -323,6 +323,7 @@
         '<p class="suite-sub">' + esc(summary) + '</p>' +
       '</div>' +
       (K.hasTeams ? teamsCard(current.teams) : "") +
+      (kind !== "training" ? settingsCard() : "") +
       '<div class="suite-setlist">' + cards + addBtns + '</div>' +
       '<div class="suite-sticky-actions">' +
         '<button class="suite-btn suite-btn-ghost" data-act="regen">' + esc(t("setlistRegenerate")) + '</button>' +
@@ -358,6 +359,31 @@
       var labelKey = { category: "fieldCategory", theme: "fieldTheme", players: "fieldPlayers", duration: "fieldDuration" }[f];
       return { field: f, label: t(labelKey), value: value };
     });
+  }
+
+  // Match/Spectacle settings: caucus + vote timer durations, and (Match only)
+  // whether scores are shown on the public display board.
+  function durSelect(act, cur, secs) {
+    return '<select class="suite-edit-select" data-act="' + act + '">' +
+      secs.map(function (s) {
+        var label = s === 0 ? t("valueNone") : S.formatSec(s);
+        return '<option value="' + s + '"' + ((cur || 0) === s ? " selected" : "") + '>' + esc(label) + '</option>';
+      }).join("") + '</select>';
+  }
+  function settingsCard() {
+    var scoresToggle = K.scoring
+      ? '<label class="suite-set-toggle"><input type="checkbox" data-act="set-scores"' + (current.showScores ? " checked" : "") + ' />' +
+          '<span>' + esc(t("showScoresPublicLabel")) + '</span></label>'
+      : "";
+    return '<div class="suite-settings-card">' +
+      '<div class="suite-settings-title">⚙️ ' + esc(t("matchSettingsTitle")) + '</div>' +
+      '<div class="suite-settings-grid">' +
+        '<label class="suite-set-field"><span>' + esc(t("liveCaucusSet")) + '</span>' +
+          durSelect("set-caucus", current.caucusSec == null ? 30 : current.caucusSec, [0, 15, 20, 30, 45, 60, 90]) + '</label>' +
+        '<label class="suite-set-field"><span>' + esc(t("liveVoteSet")) + '</span>' +
+          durSelect("set-vote", current.voteSec == null ? 20 : current.voteSec, [0, 10, 15, 20, 30, 45]) + '</label>' +
+      '</div>' + scoresToggle +
+    '</div>';
   }
 
   function segIndexLabel(seg, i) {
@@ -461,6 +487,9 @@
         btn.onchange = function () { applyEdit(btn.getAttribute("data-seg"), btn.getAttribute("data-field"), btn.value); };
         return;
       }
+      if (act === "set-caucus") { btn.onchange = function () { current.caucusSec = parseInt(btn.value, 10) || 0; }; return; }
+      if (act === "set-vote")   { btn.onchange = function () { current.voteSec = parseInt(btn.value, 10) || 0; }; return; }
+      if (act === "set-scores") { btn.onchange = function () { current.showScores = !!btn.checked; }; return; }
       btn.onclick = function () { onEditorAction(act, btn); };
     });
     var openSel = root.querySelector(".suite-edit-select");
@@ -512,6 +541,9 @@
         break;
       case "launch":
         current.cursor = 0;
+        // Fresh per-run id so replaying a saved match counts as a distinct
+        // match in stats (the dedup key is per match_uid + referee).
+        current.runId = S.gen.uid();
         S.live.save(current);
         navigate(homeRoute() + "/live");
         break;
@@ -689,8 +721,8 @@
     var badge = team.logo
       ? '<img class="suite-tc-logo" src="' + esc(team.logo) + '" alt="" />'
       : '<span class="suite-tc-dot" style="background:' + esc(team.color || "#888") + '"></span>';
-    var pc = (team.players && team.players.length)
-      ? '<span class="suite-tc-pc">' + team.players.length + '</span>' : '';
+    var present = (team.players || []).filter(function (p) { return S.players.present(p); }).length;
+    var pc = present ? '<span class="suite-tc-pc">' + present + '</span>' : '';
     return '<span class="suite-tc">' + badge + '<span class="suite-tc-nm">' + esc(nm) + '</span>' + pc + '</span>';
   }
 
@@ -709,7 +741,9 @@
           canvas.width = cw; canvas.height = ch;
           canvas.getContext("2d").drawImage(img, 0, 0, cw, ch);
           cb(canvas.toDataURL("image/png"));
-        } catch (e) { cb(reader.result); }
+          // NB: do NOT fall back to reader.result on error — that's the raw
+          // (possibly multi-MB) file, which would blow the Realtime payload cap.
+        } catch (e) { cb(null); }
       };
       img.onerror = function () { cb(null); };
       img.src = reader.result;
@@ -719,13 +753,15 @@
   }
 
   function openTeamsEditor(teams, onSave) {
+    var P = S.players;
     var work = JSON.parse(JSON.stringify(teams || []));
     while (work.length < 2) work.push({ name: "", color: "#cccccc", logo: null, players: [] });
     work.forEach(function (tm) {
-      if (!tm.players) tm.players = [];
       if (tm.logo === undefined) tm.logo = null;
       if (!tm.color) tm.color = "#cccccc";
+      tm.players = P.normAll(tm.players);     // strings or objects → {name,photo,user_id,present}
     });
+    function libAvailable() { return !!(window.ActoTeamsDB && window.ActoTeamsDB.available()); }
 
     var dlg = document.createElement("dialog");
     dlg.className = "suite-dialog suite-teams-dialog";
@@ -738,19 +774,40 @@
       dlg.remove();
       if (save && onSave) onSave(work);
     }
+    // Pull live field values into `work` without re-rendering (preserves focus).
     function readInputs() {
       dlg.querySelectorAll(".suite-team-name").forEach(function (inp) { work[+inp.getAttribute("data-ti")].name = inp.value; });
       dlg.querySelectorAll(".suite-color-in").forEach(function (inp) { work[+inp.getAttribute("data-ti")].color = inp.value; });
-      dlg.querySelectorAll(".suite-team-players").forEach(function (ta) {
-        work[+ta.getAttribute("data-ti")].players = ta.value.split(/\r?\n/).map(function (s) { return s.trim(); }).filter(Boolean);
+      dlg.querySelectorAll(".suite-pl-name").forEach(function (inp) {
+        var p = work[+inp.getAttribute("data-ti")].players[+inp.getAttribute("data-pi")];
+        if (p) p.name = inp.value;
+      });
+      dlg.querySelectorAll(".suite-pl-present").forEach(function (cb) {
+        var p = work[+cb.getAttribute("data-ti")].players[+cb.getAttribute("data-pi")];
+        if (p) p.present = cb.checked;
       });
     }
     function logoPrev(logo) {
       return '<div class="suite-logo-prev' + (logo ? " has" : "") + '">' + (logo ? '<img src="' + esc(logo) + '" alt="" />' : "") + '</div>';
     }
+    function playerRows(idx) {
+      var tm = work[idx];
+      if (!tm.players.length) return '<div class="suite-pl-none">' + esc(t("teamPlayersPlaceholder")) + '</div>';
+      return tm.players.map(function (p, pi) {
+        var badge = p.user_id ? '<span class="suite-pl-badge" title="' + esc(t("teamsLinked")) + '">🔗</span>'
+          : (p.photo ? '<img class="suite-pl-mini" src="' + esc(p.photo) + '" alt="" />' : '');
+        return '<div class="suite-pl-row' + (p.present === false ? " is-absent" : "") + '">' +
+          '<label class="suite-pl-present-l" title="' + esc(t("teamPresentLabel")) + '"><input type="checkbox" class="suite-pl-present" data-ti="' + idx + '" data-pi="' + pi + '"' + (p.present !== false ? " checked" : "") + ' /></label>' +
+          '<input type="text" class="suite-input suite-pl-name" data-ti="' + idx + '" data-pi="' + pi + '" value="' + esc(p.name || "") + '" placeholder="' + esc(t("teamsPlayerName")) + '" />' +
+          badge +
+          '<button type="button" class="suite-pl-del2" data-act="pl-del" data-ti="' + idx + '" data-pi="' + pi + '" aria-label="' + esc(t("commonDelete")) + '">✕</button>' +
+        '</div>';
+      }).join("");
+    }
     function panel(idx) {
       var tm = work[idx];
       var label = idx === 0 ? t("teamA") : t("teamB");
+      var present = tm.players.filter(function (p) { return p.present !== false; }).length;
       return '<div class="suite-team-panel">' +
         '<div class="suite-team-h"><span class="suite-tc-dot" style="background:' + esc(tm.color || "#888") + '"></span>' + esc(label) + '</div>' +
         '<input class="suite-input suite-team-name" data-ti="' + idx + '" type="text" placeholder="' + esc(t("teamNamePlaceholder")) + '" value="' + esc(tm.name || "") + '" />' +
@@ -763,8 +820,13 @@
           '</div>' +
           '<input type="file" accept="image/*" class="suite-logo-file" data-ti="' + idx + '" hidden />' +
         '</div>' +
-        '<label class="suite-label">' + esc(t("teamPlayersLabel")) + '</label>' +
-        '<textarea class="suite-input suite-team-players" data-ti="' + idx + '" rows="4" placeholder="' + esc(t("teamPlayersPlaceholder")) + '">' + esc((tm.players || []).join("\n")) + '</textarea>' +
+        '<div class="suite-pl-headrow"><span class="suite-label">' + esc(t("teamPlayersLabel")) + '</span>' +
+          '<span class="suite-pl-present-n">' + tf("teamPresentCount", { present: present, total: tm.players.length }) + '</span></div>' +
+        '<div class="suite-pl-list">' + playerRows(idx) + '</div>' +
+        '<div class="suite-pl-tools">' +
+          '<button type="button" class="suite-btn suite-btn-mini suite-btn-ghost" data-act="pl-add" data-ti="' + idx + '">+ ' + esc(t("teamsAddPlayer")) + '</button>' +
+          (libAvailable() ? '<button type="button" class="suite-btn suite-btn-mini suite-btn-ghost" data-act="pl-load" data-ti="' + idx + '">📋 ' + esc(t("teamsLoadSaved")) + '</button>' : '') +
+        '</div>' +
       '</div>';
     }
     function render() {
@@ -779,12 +841,16 @@
       wire();
     }
     function wire() {
-      dlg.querySelectorAll(".suite-team-name, .suite-color-in, .suite-team-players").forEach(function (inp) {
-        inp.oninput = function () {
-          var i = +inp.getAttribute("data-ti");
-          if (inp.classList.contains("suite-team-name")) work[i].name = inp.value;
-          else if (inp.classList.contains("suite-color-in")) work[i].color = inp.value;
-          else work[i].players = inp.value.split(/\r?\n/).map(function (s) { return s.trim(); }).filter(Boolean);
+      // Text/color/checkbox updates mutate `work` directly (no re-render → focus kept).
+      dlg.querySelectorAll(".suite-team-name").forEach(function (inp) { inp.oninput = function () { work[+inp.getAttribute("data-ti")].name = inp.value; }; });
+      dlg.querySelectorAll(".suite-color-in").forEach(function (inp) { inp.oninput = function () { work[+inp.getAttribute("data-ti")].color = inp.value; }; });
+      dlg.querySelectorAll(".suite-pl-name").forEach(function (inp) {
+        inp.oninput = function () { var p = work[+inp.getAttribute("data-ti")].players[+inp.getAttribute("data-pi")]; if (p) p.name = inp.value; };
+      });
+      dlg.querySelectorAll(".suite-pl-present").forEach(function (cb) {
+        cb.onchange = function () {
+          var p = work[+cb.getAttribute("data-ti")].players[+cb.getAttribute("data-pi")];
+          if (p) { p.present = cb.checked; readInputs(); render(); }
         };
       });
       dlg.querySelectorAll('[data-act="logo-pick"]').forEach(function (b) {
@@ -792,8 +858,7 @@
       });
       dlg.querySelectorAll(".suite-logo-file").forEach(function (f) {
         f.onchange = function () {
-          var i = +f.getAttribute("data-ti");
-          var file = f.files && f.files[0];
+          var i = +f.getAttribute("data-ti"), file = f.files && f.files[0];
           readInputs();
           fileToLogo(file, function (dataUrl) { if (dataUrl) work[i].logo = dataUrl; render(); });
         };
@@ -801,9 +866,58 @@
       dlg.querySelectorAll('[data-act="logo-clear"]').forEach(function (b) {
         b.onclick = function () { var i = +b.getAttribute("data-ti"); readInputs(); work[i].logo = null; render(); };
       });
+      dlg.querySelectorAll('[data-act="pl-add"]').forEach(function (b) {
+        b.onclick = function () { readInputs(); work[+b.getAttribute("data-ti")].players.push({ name: "", photo: null, user_id: null, present: true }); render(); };
+      });
+      dlg.querySelectorAll('[data-act="pl-del"]').forEach(function (b) {
+        b.onclick = function () { readInputs(); work[+b.getAttribute("data-ti")].players.splice(+b.getAttribute("data-pi"), 1); render(); };
+      });
+      dlg.querySelectorAll('[data-act="pl-load"]').forEach(function (b) {
+        b.onclick = function () { readInputs(); openLoadPicker(+b.getAttribute("data-ti")); };
+      });
       var ok = dlg.querySelector('[data-r="ok"]'); if (ok) ok.onclick = function () { readInputs(); done(true); };
       var cancel = dlg.querySelector('[data-r="cancel"]'); if (cancel) cancel.onclick = function () { done(false); };
     }
+
+    // Load a saved team from the library into match side `idx`.
+    function openLoadPicker(idx) {
+      var pop = document.createElement("dialog");
+      pop.className = "suite-dialog suite-load-dialog";
+      pop.innerHTML = '<div class="suite-dialog-body">' +
+        '<h2 class="suite-dialog-title">' + esc(t("teamsLoadTitle")) + '</h2>' +
+        '<div class="suite-load-list">' + esc(t("commonLoading")) + '</div>' +
+        '<div class="suite-dialog-actions"><button type="button" data-r="close" class="suite-btn suite-btn-ghost">' + esc(t("commonClose")) + '</button></div>' +
+      '</div>';
+      document.body.appendChild(pop);
+      function closePop() { try { if (pop.open) pop.close(); } catch (e) {} pop.remove(); }
+      pop.querySelector('[data-r="close"]').onclick = closePop;
+      var list = pop.querySelector(".suite-load-list");
+      window.ActoTeamsDB.list().then(function (res) {
+        var rows = (res && res.data) || [];
+        if (res && res.error) { list.innerHTML = '<div class="suite-pl-none">' + esc(t("teamsLoadError")) + '</div>'; return; }
+        if (!rows.length) { list.innerHTML = '<div class="suite-pl-none">' + esc(t("teamsEmpty")) + '</div>'; return; }
+        list.innerHTML = rows.map(function (tm, i) {
+          var logo = tm.logo ? '<img class="suite-load-logo" src="' + esc(tm.logo) + '" alt="" />'
+            : '<span class="suite-load-logo suite-load-logo-ph" style="background:' + esc(tm.color || "#888") + '"></span>';
+          return '<button type="button" class="suite-load-item" data-i="' + i + '">' + logo +
+            '<span class="suite-load-nm">' + esc(tm.name || t("teamsUnnamed")) + '</span>' +
+            '<span class="suite-load-c">' + tf("teamsPlayerCount", { n: (tm.players || []).length }) + '</span>' +
+          '</button>';
+        }).join("");
+        list.querySelectorAll(".suite-load-item").forEach(function (b) {
+          b.onclick = function () {
+            var src = rows[+b.getAttribute("data-i")];
+            work[idx].name = src.name || "";
+            work[idx].color = src.color || work[idx].color;
+            work[idx].logo = src.logo || null;
+            work[idx].players = P.normAll(src.players).map(function (p) { p.present = true; return p; });
+            closePop(); render();
+          };
+        });
+      });
+      if (typeof pop.showModal === "function") { try { pop.showModal(); } catch (e) { pop.setAttribute("open", ""); } } else pop.setAttribute("open", "");
+    }
+
     dlg.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); done(false); } });
     render();
     if (typeof dlg.showModal === "function") { try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } }

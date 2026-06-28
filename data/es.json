@@ -303,7 +303,8 @@
         {
           "name": "Comparada cantada",
           "desc": "Cada equipo incluye al menos un pasaje cantado."
-        }
+        },
+        { "name": "Comparada con utilería", "desc": "Un objeto impuesto debe ser central. Cada equipo lo usa a su manera." }
       ],
       "confirme": [
         {
@@ -329,7 +330,9 @@
         {
           "name": "Mixta con personaje",
           "desc": "Un tipo de personaje impuesto debe aparecer en el primer minuto."
-        }
+        },
+        { "name": "Comparada con restricción", "desc": "Cada equipo juega el tema con una restricción sorteada distinta." },
+        { "name": "Mixta por frases", "desc": "Los jugadores solo pueden hablar con frases enteras y completas, sin interrumpir." }
       ],
       "expert": [
         {
@@ -355,7 +358,9 @@
         {
           "name": "Bucle temporal",
           "desc": "La escena avanza y retrocede 30 segundos repetidamente. Bucle vertiginoso."
-        }
+        },
+        { "name": "Comparada muda + efectos", "desc": "Un equipo juega en silencio, el otro solo con efectos sonoros. Mismo tema, lecturas opuestas." },
+        { "name": "A la manera de Chéjov", "desc": "Estilo ruso de finales del s. XIX: hastío aristocrático, samovares, silencios cargados, monólogos." }
       ]
     }
   },
