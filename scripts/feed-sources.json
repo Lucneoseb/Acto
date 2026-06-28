@@ -1,0 +1,14 @@
+{
+  "_readme": "Impro YouTube channels the auto-feed pulls from (scripts/feed.mjs). Each channel_id was verified to return videos from https://www.youtube.com/feeds/videos.xml?channel_id=<id>. To add a channel: open its YouTube page → View Source → search for \"channelId\":\"UC...\" (or visit a video, the page HTML has it) → add an entry below. Only ids matching ^UC[\\w-]{20,}$ are used. The feed only proposes videos newer than FEED_DAYS (default 120) days, so dormant channels are harmless.",
+  "channels": [
+    { "name": "LNI — Ligue Nationale d'Improvisation (Québec)", "channel_id": "UCRqIt6RhKXV_aNE8Og6MnsA", "lang": "fr" },
+    { "name": "La Ligue d'Impro (LIB — Belgique)", "channel_id": "UCBVGWCTHLpXVkBXskOlx6rw", "lang": "fr" },
+    { "name": "Impro Suisse", "channel_id": "UCERU1_M9Z6SoKqSAXZYgAuQ", "lang": "fr" },
+    { "name": "Ligue Majeure d'Improvisation", "channel_id": "UCCjCVmhksjWfqyu-HllX-mw", "lang": "fr" },
+    { "name": "FBIA — Fédération Belge d'Improvisation Amateur", "channel_id": "UCmSoGQU9hytVeZzEWC1qpmw", "lang": "fr" },
+    { "name": "The iO Theater", "channel_id": "UCbR6EWcvnTLKTPIpt39c55w", "lang": "en" },
+    { "name": "Upright Citizens Brigade", "channel_id": "UC33mB2wpioTCG4_nICJ3upQ", "lang": "en" },
+    { "name": "The Second City", "channel_id": "UCzkcuUgsMln4y_aSxhE0H-g", "lang": "en" },
+    { "name": "ComedySportz (CSz Worldwide)", "channel_id": "UC2fnjTifsNCI39kfrHsGp5g", "lang": "en" }
+  ]
+}

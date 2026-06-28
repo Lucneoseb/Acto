@@ -309,7 +309,7 @@
   }
 
   // Flag emojis for quick visual scan in the language column.
-  const LOC_FLAG = { fr: "🇫🇷", en: "🇬🇧", de: "🇩🇪", es: "🇪🇸", pt: "🇵🇹", nl: "🇳🇱" };
+  const LOC_FLAG = { fr: "🇫🇷", en: "🇬🇧", de: "🇩🇪", es: "🇪🇸", pt: "🇵🇹", nl: "🇳🇱", it: "🇮🇹" };
 
   function renderRow(v) {
     const typeLbl = v.content_type ? L(v.content_type, LABEL_TYPE_FR, LABEL_TYPE_EN) : "";

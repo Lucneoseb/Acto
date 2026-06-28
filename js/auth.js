@@ -82,6 +82,11 @@
     setText("authPasswordLabel",       t.authPassword);
     setText("authLoginSubmitBtn",      t.authLoginBtn);
     setText("authForgotBtn",           t.authForgotPassword);
+    // Set-new-password dialog (PASSWORD_RECOVERY)
+    setText("authResetTitle",          t.authResetTitle);
+    setText("authResetPasswordLabel",  t.authPassword);
+    setText("authResetConfirmLabel",   t.authConfirmPassword);
+    setText("authResetSubmitBtn",      t.authResetSave);
     setText("authNoAccountText",       t.authNoAccount);
     setText("authOpenSignupBtn",       t.authCreateAccount);
     setText("authPendingTitle",        t.authPendingTitle);
@@ -435,6 +440,51 @@
     }
   }
 
+  // Shown when the user returns from the reset email link (PASSWORD_RECOVERY).
+  function openResetPasswordDialog() {
+    applyAuthTranslations();
+    showError("authResetError", "");
+    const dlg = $("resetPasswordDialog");
+    if (!dlg) return;
+    const p = $("authResetPassword"); if (p) p.value = "";
+    const c = $("authResetConfirm"); if (c) c.value = "";
+    if (typeof dlg.showModal === "function") {
+      try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); }
+    } else dlg.setAttribute("open", "");
+    if (p) setTimeout(() => p.focus(), 50);
+  }
+
+  async function submitNewPassword() {
+    const t = ui();
+    const pass    = $("authResetPassword").value;
+    const confirm = $("authResetConfirm").value;
+    showError("authResetError", "");
+    if (pass.length < 8)  return showError("authResetError", t.authErrorPasswordShort);
+    if (pass !== confirm) return showError("authResetError", t.authErrorPasswordMismatch);
+    const btn = $("authResetSubmitBtn");
+    if (btn) btn.disabled = true;
+    try {
+      const { error } = await sb.auth.updateUser({ password: pass });
+      if (error) throw error;
+      recoveryActive = false;
+      const dlg = $("resetPasswordDialog");
+      if (dlg && dlg.open) dlg.close();
+      // Password changed — the user is authenticated, so enter the app.
+      try {
+        const { data } = await sb.auth.getUser();
+        if (data && data.user) {
+          window.actoAuth.state.user = data.user;
+          showApp(data.user);
+          ensureProfile(data.user).catch(() => {});
+        }
+      } catch (e) { /* getUser failed; app will recover on next load */ }
+    } catch (e) {
+      showError("authResetError", e.message || String(e));
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
   /* ------------------------------------------------------------------
      6. PROFILE
      ------------------------------------------------------------------ */
@@ -649,6 +699,12 @@
     const forgot = $("authForgotBtn");
     if (forgot) forgot.addEventListener("click", forgotPassword);
 
+    const resetForm = $("resetPasswordForm");
+    if (resetForm) resetForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      submitNewPassword();
+    });
+
     const openSignup = $("authOpenSignupBtn");
     const signupDlg  = $("signupDialog");
     if (openSignup && signupDlg) {
@@ -744,7 +800,23 @@
   /* ------------------------------------------------------------------
      9. AUTH STATE LISTENER + INITIAL CHECK
      ------------------------------------------------------------------ */
+  // True while the user is mid password-reset (clicked the email link) so the
+  // accompanying SIGNED_IN/INITIAL_SESSION doesn't whisk them into the app
+  // before they've actually chosen a new password.
+  let recoveryActive = false;
+
   sb.auth.onAuthStateChange((event, session) => {
+    if (event === "PASSWORD_RECOVERY") {
+      recoveryActive = true;
+      showAuthScreen();
+      openResetPasswordDialog();
+      return;
+    }
+    if (recoveryActive &&
+        (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED")) {
+      // Stay on the reset dialog until the new password is submitted.
+      return;
+    }
     if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION")
         && session && session.user) {
       const wasLoggedOut = !window.actoAuth.state.user;

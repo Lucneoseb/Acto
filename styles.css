@@ -2218,9 +2218,9 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
 @media (max-width: 480px) {
   .card-reroll {
     font-size: 0.85rem;
-    padding: 3px 6px;
-    min-height: 26px;
-    min-width: 28px;
+    padding: 6px 8px;
+    min-height: 38px;
+    min-width: 38px;
   }
 }
 
@@ -2252,7 +2252,7 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   transform: translateY(-1px);
 }
 @media (max-width: 480px) {
-  .card-edit { font-size: 0.85rem; padding: 3px 6px; min-height: 26px; min-width: 28px; }
+  .card-edit { font-size: 0.85rem; padding: 6px 8px; min-height: 38px; min-width: 38px; }
 }
 .edit-value-dialog .dlg-body { padding: 1rem 1.25rem; }
 .edit-value-dialog input[type="text"] {
@@ -3309,6 +3309,7 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   gap: 0.85rem;
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.7), 0 0 60px rgba(245, 196, 81, 0.18);
   max-height: 92vh;
+  overflow-y: auto;   /* scroll within the cap on short/landscape viewports so the action buttons stay reachable */
 }
 .recorder-preview-title {
   margin: 0;
@@ -4341,13 +4342,32 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   grid-template-columns: 1fr 1fr;
   gap: 0.7rem;
 }
+/* Flex-column layout so the scrollable body is bounded by the real space
+   between the pinned header and footer — keeps the submit button visible even
+   on short / landscape viewports (was clipped before). Applies to signup,
+   edit-account and roster dialogs (all share .signup-dialog). */
+.signup-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.signup-dialog .signup-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
 .signup-dialog .signup-form .dlg-body {
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  max-height: none;   /* override the generic .dlg-body 88vh-8rem cap */
 }
 .signup-dialog .dlg-actions {
   justify-content: stretch;
+  flex: 0 0 auto;
 }
 .signup-dialog .dlg-actions .auth-btn {
   flex: 1;

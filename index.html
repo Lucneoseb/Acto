@@ -6,11 +6,11 @@
 <meta name="description" content="Générateur d'exercices, contraintes et thèmes pour l'improvisation théâtrale" />
 <meta name="theme-color" content="#0c0814" />
 <title>Acto — The Impro Studio</title>
-<link rel="icon" type="image/png" href="./assets/logo.png?v=20260578" />
+<link rel="icon" type="image/png" href="./assets/logo.png?v=20260625" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=20260578" />
+<link rel="stylesheet" href="styles.css?v=20260625" />
 </head>
 <body>
   <!-- Stage backdrop -->
@@ -51,8 +51,8 @@
   </div>
 
   <header class="hero">
-    <a class="hero-logo-link" href="#" aria-label="Acto - The Impro Studio">
-      <img class="hero-logo" src="./assets/logo.png?v=20260578" alt="Acto - The Impro Studio" />
+    <a class="hero-logo-link" href="./index.html" aria-label="Acto - The Impro Studio">
+      <img class="hero-logo" src="./assets/logo.png?v=20260625" alt="Acto - The Impro Studio" />
     </a>
     <p class="subtitle">
       <span id="subtitle"></span><br>
@@ -153,6 +153,30 @@
       </div>
       <div class="dlg-actions">
         <button type="submit" class="auth-btn auth-btn-primary" id="authSignupSubmitBtn"></button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Set-new-password dialog. Shown after the user clicks the reset link in
+       the "mot de passe oublié" email (Supabase PASSWORD_RECOVERY event). -->
+  <dialog class="signup-dialog themes-dialog" id="resetPasswordDialog" aria-labelledby="authResetTitle">
+    <form method="dialog" class="dlg-head">
+      <h2 id="authResetTitle"></h2>
+    </form>
+    <form class="signup-form" id="resetPasswordForm" novalidate>
+      <div class="dlg-body">
+        <label class="auth-field">
+          <span id="authResetPasswordLabel"></span>
+          <input type="password" id="authResetPassword" autocomplete="new-password" minlength="8" required />
+        </label>
+        <label class="auth-field">
+          <span id="authResetConfirmLabel"></span>
+          <input type="password" id="authResetConfirm" autocomplete="new-password" minlength="8" required />
+        </label>
+        <p class="auth-error" id="authResetError" hidden></p>
+      </div>
+      <div class="dlg-actions">
+        <button type="submit" class="auth-btn auth-btn-primary" id="authResetSubmitBtn"></button>
       </div>
     </form>
   </dialog>
@@ -870,11 +894,11 @@
           crossorigin="anonymous"></script>
   <!-- Bump v= on each deploy when you change one of these assets, so users
        fetch the fresh version without needing Ctrl+Shift+R. -->
-  <script src="./js/config.js?v=20260578"></script>
-  <script src="./js/utils.js?v=20260578"></script>
-  <script src="./js/rules.js?v=20260578"></script>
-  <script src="./data/all.js?v=20260578"></script>
-  <script src="./js/auth.js?v=20260578"></script>
-  <script src="./js/app.js?v=20260578"></script>
+  <script src="./js/config.js?v=20260625"></script>
+  <script src="./js/utils.js?v=20260625"></script>
+  <script src="./js/rules.js?v=20260625"></script>
+  <script src="./data/all.js?v=20260625"></script>
+  <script src="./js/auth.js?v=20260625"></script>
+  <script src="./js/app.js?v=20260625"></script>
 </body>
 </html>

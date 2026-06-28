@@ -248,7 +248,12 @@
     border-radius: 6px;
   }
   .bundle-add-dialog .dlg-close:hover { color: var(--ink); background: rgba(255,255,255,0.05); }
-  .bundle-add-dialog .dlg-body { padding: 1.2rem; display: flex; flex-direction: column; gap: 0.9rem; }
+  /* Flex column so the field list scrolls within the dialog instead of pushing
+     the action buttons off short / landscape viewports. */
+  .bundle-add-dialog[open] { display: flex; flex-direction: column; }
+  .bundle-add-dialog > form { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+  .bundle-add-dialog .dlg-body { padding: 1.2rem; display: flex; flex-direction: column; gap: 0.9rem; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+  .bundle-add-dialog .dlg-actions { flex: 0 0 auto; }
   .bundle-add-dialog .dlg-actions {
     display: flex; gap: 0.6rem; justify-content: flex-end;
     padding: 0.9rem 1.2rem; border-top: 1px solid var(--row-border);
@@ -283,6 +288,10 @@
   @media (max-width: 640px) {
     .stat-card .v { font-size: 1.25rem; }
     table.profiles th, table.profiles td { font-size: 0.78rem; padding: 0.45rem 0.55rem; }
+    /* Wide tables: fit the phone width and let action buttons wrap so they
+       aren't stranded off-screen in a no-wrap row. */
+    table.events, table.submissions { min-width: 0; }
+    table.submissions td.actions { flex-wrap: wrap; justify-content: flex-start; }
   }
 
   /* ─── Inspirations admin table — DESKTOP fix for clipped action buttons ───
@@ -1383,12 +1392,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
         integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
         crossorigin="anonymous"></script>
-<script src="./js/config.js?v=20260578"></script>
-<script src="./js/utils.js?v=20260578"></script>
+<script src="./js/config.js?v=20260625"></script>
+<script src="./js/utils.js?v=20260625"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=20260578"></script>
+<script src="./data/all.js?v=20260625"></script>
 <script>
 (function () {
   "use strict";
@@ -1565,6 +1574,10 @@
     await loadSubmissions();
     await loadHiddenItems();
     renderBundled();
+    // Refresh must also reload the Inspirations + Échauffement views, else those
+    // two tabs show stale data until a full page reload.
+    await loadInspirations();
+    await loadWarmups();
   });
   $("exportBtn").addEventListener("click", exportCSV);
   $("logoutBtn").addEventListener("click", logout);
@@ -2155,7 +2168,7 @@
         ? '<a href="' + escapeHtml(v.video_url) + '" target="_blank" rel="noopener noreferrer">lien</a>'
         : '<span style="color:var(--ink-faint);">—</span>';
       // Flag emoji for the language column (visual scan-ability).
-      const LOC_FLAG = { fr: "🇫🇷", en: "🇬🇧", de: "🇩🇪", es: "🇪🇸", pt: "🇵🇹", nl: "🇳🇱" };
+      const LOC_FLAG = { fr: "🇫🇷", en: "🇬🇧", de: "🇩🇪", es: "🇪🇸", pt: "🇵🇹", nl: "🇳🇱", it: "🇮🇹" };
       const localeCell = v.locale
         ? (LOC_FLAG[v.locale] || "") + " " + escapeHtml(v.locale.toUpperCase())
         : "—";
@@ -2555,7 +2568,7 @@
       actions +=
         '<button class="btn" data-warmup-act="edit"   data-id="' + escapeHtml(v.id) + '">✎ Éditer</button>' +
         '<button class="btn btn-reject" data-warmup-act="delete" data-id="' + escapeHtml(v.id) + '">🗑 Supprimer</button>';
-      const LOC_FLAG = { fr: "🇫🇷", en: "🇬🇧", de: "🇩🇪", es: "🇪🇸", pt: "🇵🇹", nl: "🇳🇱" };
+      const LOC_FLAG = { fr: "🇫🇷", en: "🇬🇧", de: "🇩🇪", es: "🇪🇸", pt: "🇵🇹", nl: "🇳🇱", it: "🇮🇹" };
       const localeCell = v.locale
         ? (LOC_FLAG[v.locale] || "") + " " + escapeHtml(v.locale.toUpperCase())
         : "—";

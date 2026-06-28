@@ -1,0 +1,37 @@
+name: Supabase keep-alive + inspiration feed
+
+# Runs twice a week (Mon + Thu) so the free Supabase project never hits the
+# 7-day inactivity pause, and tops up the admin "pending inspirations" queue
+# with fresh impro videos. Also runnable on demand from the Actions tab.
+on:
+  schedule:
+    - cron: "17 9 * * 1,4"   # 09:17 UTC, Mondays and Thursdays
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+# Avoid overlapping runs.
+concurrency:
+  group: keepalive-feed
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Keep-alive + feed
+        env:
+          # URL + publishable key are public-by-design (served to every browser).
+          SUPABASE_URL: https://gssotstyevehbzydzhlq.supabase.co
+          SUPABASE_KEY: sb_publishable_Xf7VpU-g-01tErkZSeMZSg_rqPhvFNx
+          # Shared secret that gates the feed RPC — add it as a repo secret named
+          # FEED_TOKEN (Settings → Secrets and variables → Actions). Without it the
+          # job still runs the keep-alive; the feed simply stays off.
+          FEED_TOKEN: ${{ secrets.FEED_TOKEN }}
+          FEED_MAX: "12"
+        run: node scripts/feed.mjs

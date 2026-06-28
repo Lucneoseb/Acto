@@ -6,11 +6,11 @@
 <meta name="description" content="Inspirations vidéo · Acto The Impro Studio" />
 <meta name="theme-color" content="#0c0814" />
 <title>Acto — Inspirations</title>
-<link rel="icon" type="image/png" href="./assets/logo.png?v=20260578" />
+<link rel="icon" type="image/png" href="./assets/logo.png?v=20260625" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=20260578" />
+<link rel="stylesheet" href="styles.css?v=20260625" />
 <style>
   /* Page wrapper — wider than support.html since this is a data table. */
   .inspire-screen {
@@ -191,7 +191,6 @@
     letter-spacing: 0.06em;
     font-size: 0.7rem;
     border-bottom: 1px solid rgba(245,196,81,0.2);
-    position: sticky; top: 0; z-index: 1;
   }
   /* Sortable header cells — click to cycle asc/desc, indicator arrow
      appears via the data-sort-active attribute set from JS. */
@@ -262,7 +261,10 @@
      stacked card per row: rounded gold-outlined card, with the chip
      metadata wrapping inline below the title/channel, and empty (—)
      cells hidden so the chip row stays clean. */
-  @media (max-width: 900px) {
+  /* Breakpoint = the 9-column grid's intrinsic min width (~1190px); below it
+     the columns would overflow the overflow:hidden table and clip, so we stack
+     into cards instead. */
+  @media (max-width: 1200px) {
     .inspire-table {
       background: transparent;
       border: 0;
@@ -513,7 +515,7 @@
 
   <header class="hero">
     <a class="hero-logo-link" href="./index.html" aria-label="Acto - The Impro Studio">
-      <img class="hero-logo" src="./assets/logo.png?v=20260578" alt="Acto - The Impro Studio" />
+      <img class="hero-logo" src="./assets/logo.png?v=20260625" alt="Acto - The Impro Studio" />
     </a>
   </header>
 
@@ -675,9 +677,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
           integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
           crossorigin="anonymous"></script>
-  <script src="./js/config.js?v=20260578"></script>
-  <script src="./js/utils.js?v=20260578"></script>
-  <script src="./data/all.js?v=20260578"></script>
-  <script src="./js/inspirations.js?v=20260578"></script>
+  <script src="./js/config.js?v=20260625"></script>
+  <script src="./js/utils.js?v=20260625"></script>
+  <script src="./data/all.js?v=20260625"></script>
+  <script src="./js/inspirations.js?v=20260625"></script>
 </body>
 </html>
