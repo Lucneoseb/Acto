@@ -707,6 +707,9 @@
 .suite-pl-row .suite-pl-name { flex: 1 1 auto; min-width: 0; }
 .suite-pl-badge { flex: 0 0 auto; font-size: 0.95rem; }
 .suite-pl-mini { flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
+.suite-pl-linkbtn { flex: 0 0 auto; appearance: none; cursor: pointer; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.16); color: var(--ink-muted); border-radius: 8px; padding: 0.25rem 0.45rem; font-size: 0.85rem; line-height: 1; }
+.suite-pl-linkbtn:hover { border-color: var(--gold); color: var(--ink); }
+.suite-pl-linkbtn.is-linked { border-color: color-mix(in srgb, var(--gold) 55%, transparent); color: var(--gold-soft); background: color-mix(in srgb, var(--gold) 12%, transparent); }
 .suite-pl-del2 { flex: 0 0 auto; appearance: none; cursor: pointer; background: none; border: 0; color: var(--ink-faint); font-size: 0.95rem; padding: 0.15rem 0.35rem; border-radius: 6px; }
 .suite-pl-del2:hover { color: #e4534f; background: rgba(228,83,79,0.12); }
 .suite-pl-tools { display: flex; gap: 0.4rem; flex-wrap: wrap; }
@@ -861,6 +864,30 @@
 .suite-code-big { font-family: "Bebas Neue", monospace; font-size: 2.6rem; letter-spacing: 0.5rem; color: var(--gold); margin: 0.4rem 0 0.8rem; }
 .suite-code-qr { display: block; margin: 0 auto 0.6rem; border-radius: 12px; background: #fff; padding: 8px; width: 180px; max-width: 70vw; }
 .suite-code-qr svg { display: block; width: 100%; height: auto; }
+/* code dialog: two QRs (spectator screen + public vote) side by side, wrapping on narrow screens */
+.suite-code-qrs { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.suite-code-qrcol { flex: 0 1 auto; max-width: 100%; }
+.suite-code-qrlabel { font: 600 0.78rem/1 "Inter", sans-serif; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 0.4rem; }
+/* presenter: inline reveal confirmation under the phase buttons */
+.live-vote-result { margin-top: 0.5rem; text-align: center; font: 600 0.9rem/1.3 "Inter", sans-serif; color: var(--gold-soft); }
+.live-vote-result b { color: var(--ink); font-size: 1.05em; }
+/* public board: revealed audience-vote result */
+.disp-vote-result { gap: 0.4rem; }
+.disp-vote-main { font: 400 clamp(2rem, 9vw, 6rem)/1 "Bebas Neue", sans-serif; letter-spacing: .03em; color: var(--gold); text-align: center; max-width: 90vw; }
+.disp-vote-hint { margin-top: 0.8rem; font: 600 clamp(0.9rem, 2.4vw, 1.4rem)/1.2 "Inter", sans-serif; color: var(--ink-muted); }
+/* referee stars dialog: public ranking */
+.suite-star-ranking { margin: 0.4rem 0 0.2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.7rem; }
+.suite-star-rank-h { font: 600 0.82rem/1 "Inter", sans-serif; letter-spacing: .03em; color: var(--ink-muted); margin-bottom: 0.5rem; }
+.suite-star-rank-body { display: flex; flex-direction: column; gap: 0.3rem; color: var(--ink-faint); font-size: 0.88rem; }
+.suite-star-rank-row { display: flex; align-items: center; gap: 0.55rem; appearance: none; cursor: pointer; text-align: left;
+  border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); border-radius: 10px; padding: 0.4rem 0.6rem; color: var(--ink); font: 600 0.9rem/1 "Inter", sans-serif; }
+.suite-star-rank-row:hover:not([disabled]) { border-color: var(--gold); }
+.suite-star-rank-row[disabled] { opacity: 0.5; cursor: default; }
+.suite-star-rank-pos { flex: 0 0 auto; width: 1.3rem; color: var(--gold-soft); font-weight: 800; }
+.suite-star-rank-nm { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.suite-star-rank-bar { flex: 0 0 28%; height: 7px; border-radius: 99px; background: rgba(255,255,255,0.1); overflow: hidden; }
+.suite-star-rank-bar > span { display: block; height: 100%; background: var(--gold); border-radius: 99px; }
+.suite-star-rank-n { flex: 0 0 auto; min-width: 1.4rem; text-align: right; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
 .join-wait-hint { margin-top: 1.6rem; display: flex; flex-direction: column; align-items: center; gap: 0.7rem; }
 .join-wait-hint p { color: var(--ink-muted); margin: 0; max-width: 22rem; }
 

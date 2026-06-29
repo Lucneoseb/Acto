@@ -143,6 +143,7 @@
   var sess = null, cursor = 0, phase = "announce";
   var tk = null, tTotal = 0, tRemaining = 0, tRunning = false, tEndAt = 0, tInterval = null;
   var CAUCUS_SEC = 30, VOTE_SEC = 20;
+  var voteResult = null;            // {round, a, b} once the referee reveals the public tally
 
   function curSeg() { return (sess && sess.setlist && sess.setlist[cursor]) || null; }
   function persist() { if (sess) S.live.save(sess); }
@@ -188,7 +189,17 @@
 
   function startImpro() { var seg = curSeg(); if (!seg) return; phase = "running"; timerStart(seg.durationSec || 90, "impro"); }
   function doCaucus() { phase = "caucus"; timerStart((sess && sess.caucusSec) || CAUCUS_SEC, "caucus"); }
-  function doVote() { phase = "vote"; timerStart((sess && sess.voteSec) || VOTE_SEC, "vote"); }
+  function doVote() { voteResult = null; phase = "vote"; timerStart((sess && sess.voteSec) || VOTE_SEC, "vote"); }
+  // Pull the public tally (anon RPC) for the current impro and reveal it on the board.
+  function revealVote() {
+    var sb = window.actoSuiteSb, code = sess && sess.joinCode, round = cursor;
+    if (!sb || !code) { voteResult = { round: round, a: 0, b: 0 }; renderPresenter(); broadcast(); return; }
+    Promise.resolve(sb.rpc("get_live_vote_tally", { p_code: code, p_round: round })).then(function (res) {
+      var row = (res && res.data && res.data[0]) || { a: 0, b: 0 };
+      voteResult = { round: round, a: +row.a || 0, b: +row.b || 0 };
+      renderPresenter(); broadcast();
+    }, function () { voteResult = { round: round, a: 0, b: 0 }; renderPresenter(); broadcast(); });
+  }
   function primaryAction() {
     if (tRunning) { timerPause(); return; }
     if (tk && tRemaining > 0 && tRemaining < tTotal) { timerResume(); return; }
@@ -198,7 +209,7 @@
 
   function gotoSeg(i) {
     if (i < 0 || i >= sess.setlist.length) return;
-    cursor = i; sess.cursor = i; phase = "announce"; clearTick(); tRunning = false; tk = null;
+    cursor = i; sess.cursor = i; phase = "announce"; voteResult = null; clearTick(); tRunning = false; tk = null;
     var seg = curSeg(); timerReset(seg ? seg.durationSec : 0);
     persist();
   }
@@ -261,7 +272,16 @@
     var code = sess && sess.joinCode; if (!code) return;
     var base = window.location.origin + window.location.pathname.replace(/[^/]*$/, "");
     var url = base + "join.html?code=" + encodeURIComponent(code);
+    var voteUrl = base + "vote.html?code=" + encodeURIComponent(code);
     var qrSvg = buildQrSvg(url);
+    var voteQr = (sess && sess.scoring) ? buildQrSvg(voteUrl) : null;   // public vote is match-only
+    function qrCol(icon, label, qr, u) {
+      return '<div class="suite-code-qrcol">' +
+        '<div class="suite-code-qrlabel">' + icon + ' ' + esc(label) + '</div>' +
+        (qr ? '<div class="suite-code-qr" aria-label="QR">' + qr + '</div>' : '') +
+        '<p class="suite-code-url">' + esc(u) + '</p>' +
+      '</div>';
+    }
     var dlg = document.createElement("dialog");
     dlg.className = "suite-dialog suite-code-dialog";
     dlg.innerHTML =
@@ -269,22 +289,30 @@
         '<h2 class="suite-dialog-title">📱 ' + esc(t("liveJoinTitle")) + '</h2>' +
         '<p class="suite-dialog-text">' + esc(t("liveJoinHelp")) + '</p>' +
         '<div class="suite-code-big">' + esc(code) + '</div>' +
-        (qrSvg ? '<div class="suite-code-qr" aria-label="QR">' + qrSvg + '</div>' : '') +
-        '<p class="suite-code-url">' + esc(url) + '</p>' +
+        '<div class="suite-code-qrs">' +
+          qrCol("🖥", t("liveJoinQrLabel"), qrSvg, url) +
+          (voteQr ? qrCol("🗳", t("liveVoteQrLabel"), voteQr, voteUrl) : "") +
+        '</div>' +
         '<div class="suite-dialog-actions">' +
           '<button type="button" data-r="copy" class="suite-btn suite-btn-ghost">' + esc(t("liveJoinCopy")) + '</button>' +
+          (voteQr ? '<button type="button" data-r="copyvote" class="suite-btn suite-btn-ghost">🗳 ' + esc(t("liveCopyVote")) + '</button>' : '') +
           '<button type="button" data-r="close" class="suite-btn suite-btn-primary">' + esc(t("commonClose")) + '</button>' +
         '</div>' +
       '</div>';
     document.body.appendChild(dlg);
     function close() { try { if (dlg.open) dlg.close(); } catch (e) {} dlg.remove(); }
     dlg.querySelector('[data-r="close"]').onclick = close;
-    var copyBtn = dlg.querySelector('[data-r="copy"]'), copyLabel = copyBtn.textContent;
-    copyBtn.onclick = function () {
-      function ok() { copyBtn.textContent = "✓ " + copyLabel; setTimeout(function () { copyBtn.textContent = copyLabel; }, 1500); }
-      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok, function () { window.prompt(copyLabel, url); });
-      else window.prompt(copyLabel, url);
-    };
+    function wireCopy(sel, copyUrl) {
+      var btn = dlg.querySelector(sel); if (!btn) return;
+      var label = btn.textContent;
+      btn.onclick = function () {
+        function ok() { btn.textContent = "✓"; setTimeout(function () { btn.textContent = label; }, 1500); }
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(copyUrl).then(ok, function () { window.prompt(label, copyUrl); });
+        else window.prompt(label, copyUrl);
+      };
+    }
+    wireCopy('[data-r="copy"]', url);
+    wireCopy('[data-r="copyvote"]', voteUrl);
     dlg.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); close(); } });
     if (typeof dlg.showModal === "function") { try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } } else dlg.setAttribute("open", "");
     try { dlg.querySelector('[data-r="close"]').focus(); } catch (e) { /* keeps Escape working in the non-modal fallback */ }
@@ -301,6 +329,18 @@
     });
     return out;
   }
+  // Light present-player list for the public star vote (names + team colour only).
+  function rosterForVote() {
+    var P = S.players, out = [];
+    (sess.teams || []).forEach(function (tm, ti) {
+      (tm.players || []).forEach(function (p) {
+        if (!P.present(p)) return;
+        var nm = P.name(p); if (nm) out.push({ name: nm, team: ti, color: tm.color || "#888" });
+      });
+    });
+    return out;
+  }
+
   function resolveStars() {
     if (!sess) return null;
     var st = sess.stars || {};
@@ -348,6 +388,8 @@
         return '<label class="suite-set-field"><span>' + m.icon + " " + esc(m.label) + '</span>' +
           '<select class="suite-edit-select" data-medal="' + m.key + '">' + optsFor(m.key) + '</select></label>';
       }).join("") +
+      '<div class="suite-star-ranking"><div class="suite-star-rank-h">📊 ' + esc(t("starsPublicRanking")) + '</div>' +
+        '<div class="suite-star-rank-body">' + esc(t("commonLoading")) + '</div></div>' +
       '<div class="suite-dialog-actions">' +
         '<button type="button" data-r="cancel" class="suite-btn suite-btn-ghost">' + esc(t("commonClose")) + '</button>' +
         (phase === "stars"
@@ -368,6 +410,42 @@
     var hideBtn = dlg.querySelector('[data-r="hide"]');
     if (hideBtn) hideBtn.onclick = function () { close(); hideStarsCeremony(); };
     dlg.querySelector('[data-r="show"]').onclick = function () { close(); showStarsCeremony(); };
+
+    // Public ranking — informational; the referee still assigns the medals.
+    // Clicking a ranked jouteur fills the next empty medal (or → argent → bronze).
+    (function () {
+      var box = dlg.querySelector(".suite-star-rank-body");
+      var sb = window.actoSuiteSb, code = sess && sess.joinCode;
+      if (!box) return;
+      if (!sb || !code) { box.textContent = t("starsPublicNone"); return; }
+      Promise.resolve(sb.rpc("get_star_tally", { p_code: code })).then(function (res) {
+        var rows = (res && res.data) || [];
+        if (!rows.length) { box.textContent = t("starsPublicNone"); return; }
+        var max = rows[0].votes || 1;
+        box.innerHTML = rows.slice(0, 8).map(function (r, i) {
+          var idx = -1; roster.forEach(function (p, k) { if (p.name === r.player) idx = k; });
+          return '<button type="button" class="suite-star-rank-row" data-idx="' + idx + '"' + (idx < 0 ? " disabled" : "") + '>' +
+            '<span class="suite-star-rank-pos">' + (i + 1) + '</span>' +
+            '<span class="suite-star-rank-nm">' + esc(r.player) + '</span>' +
+            '<span class="suite-star-rank-bar"><span style="width:' + Math.round(100 * (r.votes / max)) + '%"></span></span>' +
+            '<span class="suite-star-rank-n">' + r.votes + '</span>' +
+          '</button>';
+        }).join("");
+        box.querySelectorAll(".suite-star-rank-row").forEach(function (b) {
+          b.onclick = function () {
+            var idx = parseInt(b.getAttribute("data-idx"), 10);
+            if (isNaN(idx) || idx < 0 || !roster[idx]) return;
+            var order = ["or", "argent", "bronze"];
+            var slot = order.filter(function (k) { return !(sess.stars && sess.stars[k]); })[0] || "bronze";
+            var v = roster[idx];
+            setStar(slot, { team: v.team, name: v.name, user_id: v.user_id || null });
+            var sel = dlg.querySelector('select[data-medal="' + slot + '"]');
+            if (sel) sel.value = String(idx);
+          };
+        });
+      }, function () { box.textContent = t("starsPublicNone"); });
+    })();
+
     dlg.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); close(); } });
     if (typeof dlg.showModal === "function") { try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } }
     else dlg.setAttribute("open", "");
@@ -432,6 +510,8 @@
       }),
       kind: sess.kind || "match",
       stars: resolveStars(),
+      voteResult: voteResult,                                  // public tally once revealed (else null)
+      roster: (phase === "stars") ? rosterForVote() : null,    // present players, for the public star vote
       segIndex: cursor, segTotal: sess.setlist.length,
       seg: seg ? {
         type: seg.type || "impro",
@@ -537,7 +617,12 @@
         '<div class="live-phase-btns">' +
           '<button class="suite-btn suite-btn-ghost' + (phase === "caucus" ? " is-on" : "") + '" data-act="caucus">⏸ ' + esc(t("liveCaucus")) + '</button>' +
           (sess.scoring ? '<button class="suite-btn suite-btn-ghost' + (phase === "vote" ? " is-on" : "") + '" data-act="vote">🗳 ' + esc(t("liveVote")) + '</button>' : '') +
+          (sess.scoring && phase === "vote" ? '<button class="suite-btn suite-btn-primary" data-act="reveal">📊 ' + esc(t("liveReveal")) + '</button>' : '') +
         '</div>' +
+        (sess.scoring && voteResult && voteResult.round === cursor
+          ? '<div class="live-vote-result">📊 ' + esc(t("voteResultTitle")) + ' — ' +
+              '<b>' + voteResult.a + '</b> ' + esc(teamLabel(0)) + ' · <b>' + voteResult.b + '</b> ' + esc(teamLabel(1)) + '</div>'
+          : '') +
       '</div>';
 
     var scoreBlock = sess.scoring ? (
@@ -584,6 +669,7 @@
     wirePresenter();
   }
 
+  function teamLabel(i) { var tm = sess.teams[i]; return (tm && tm.name) || (i === 0 ? t("teamA") : t("teamB")); }
   function teamScore(i) {
     var tm = sess.teams[i];
     var nm = tm.name || (i === 0 ? t("teamA") : t("teamB"));
@@ -632,6 +718,7 @@
           case "add30": timerAdd(30); break;
           case "caucus": doCaucus(); break;
           case "vote": doVote(); break;
+          case "reveal": revealVote(); break;
           case "prev": prevSeg(); break;
           case "next": nextSeg(); break;
           case "inc": scoreDelta(+btn.getAttribute("data-team"), 1); break;
@@ -727,12 +814,31 @@
     var snap = dSnap;
     var showScore = snap.scoring && snap.showScores;
 
+    // Revealed public vote takes priority over the plain "vote in progress" overlay.
+    if (snap.voteResult && snap.voteResult.round === snap.segIndex) {
+      var vr = snap.voteResult;
+      var win = vr.a > vr.b ? 0 : (vr.b > vr.a ? 1 : -1);
+      var teams = snap.teams || [];
+      var nm = function (i) { return (teams[i] && teams[i].name) || (i === 0 ? t("teamA") : t("teamB")); };
+      var col = function (i) { return (teams[i] && teams[i].color) || "#888"; };
+      var main = (win < 0)
+        ? tf("voteTie", { a: vr.a, b: vr.b })
+        : tf("voteWinsBy", { team: nm(win), a: Math.max(vr.a, vr.b), b: Math.min(vr.a, vr.b) });
+      dRoot.innerHTML =
+        '<div class="disp-overlay disp-vote-result">' +
+          '<div class="disp-overlay-label">🗳 ' + esc(t("voteResultTitle")) + '</div>' +
+          '<div class="disp-vote-main"' + (win >= 0 ? ' style="color:' + esc(col(win)) + '"' : '') + '>' + esc(main) + '</div>' +
+          '<div class="disp-final">' + vr.a + ' – ' + vr.b + '</div>' +
+        '</div>';
+      return;
+    }
     if (snap.phase === "caucus" || snap.phase === "vote") {
       var lbl = snap.phase === "caucus" ? t("liveCaucusScreen") : t("liveVoteScreen");
       dRoot.innerHTML =
         '<div class="disp-overlay">' +
           '<div class="disp-overlay-label">' + esc(lbl) + '</div>' +
           '<div id="dispClock" class="disp-clock disp-clock-big">' + esc(S.formatSec(displayRemaining())) + '</div>' +
+          (snap.phase === "vote" ? '<div class="disp-vote-hint">🗳 ' + esc(t("liveVoteScanHint")) + '</div>' : '') +
         '</div>';
       return;
     }

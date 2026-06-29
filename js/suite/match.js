@@ -851,12 +851,15 @@
       var tm = work[idx];
       if (!tm.players.length) return '<div class="suite-pl-none">' + esc(t("teamPlayersPlaceholder")) + '</div>';
       return tm.players.map(function (p, pi) {
-        var badge = p.user_id ? '<span class="suite-pl-badge" title="' + esc(t("teamsLinked")) + '">🔗</span>'
-          : (p.photo ? '<img class="suite-pl-mini" src="' + esc(p.photo) + '" alt="" />' : '');
+        var mini = p.photo ? '<img class="suite-pl-mini" src="' + esc(p.photo) + '" alt="" />' : '';
+        // Link the player to a registered account (so their stats accrue), or unlink.
+        var linkBtn = p.user_id
+          ? '<button type="button" class="suite-pl-linkbtn is-linked" data-act="pl-unlink" data-ti="' + idx + '" data-pi="' + pi + '" title="' + esc(t("teamsUnlink")) + '">🔗</button>'
+          : (libAvailable() ? '<button type="button" class="suite-pl-linkbtn" data-act="pl-link" data-ti="' + idx + '" data-pi="' + pi + '" title="' + esc(t("teamsLinkAccount")) + '">🔗+</button>' : '');
         return '<div class="suite-pl-row' + (p.present === false ? " is-absent" : "") + '">' +
           '<label class="suite-pl-present-l" title="' + esc(t("teamPresentLabel")) + '"><input type="checkbox" class="suite-pl-present" data-ti="' + idx + '" data-pi="' + pi + '"' + (p.present !== false ? " checked" : "") + ' /></label>' +
           '<input type="text" class="suite-input suite-pl-name" data-ti="' + idx + '" data-pi="' + pi + '" value="' + esc(p.name || "") + '" placeholder="' + esc(t("teamsPlayerName")) + '" />' +
-          badge +
+          mini + linkBtn +
           '<button type="button" class="suite-pl-del2" data-act="pl-del" data-ti="' + idx + '" data-pi="' + pi + '" aria-label="' + esc(t("commonDelete")) + '">✕</button>' +
         '</div>';
       }).join("");
@@ -883,6 +886,7 @@
         '<div class="suite-pl-tools">' +
           '<button type="button" class="suite-btn suite-btn-mini suite-btn-ghost" data-act="pl-add" data-ti="' + idx + '">+ ' + esc(t("teamsAddPlayer")) + '</button>' +
           (libAvailable() ? '<button type="button" class="suite-btn suite-btn-mini suite-btn-ghost" data-act="pl-load" data-ti="' + idx + '">📋 ' + esc(t("teamsLoadSaved")) + '</button>' : '') +
+          (libAvailable() ? '<button type="button" class="suite-btn suite-btn-mini suite-btn-save" data-act="pl-savelib" data-ti="' + idx + '">💾 ' + esc(t("teamsSaveToLib")) + '</button>' : '') +
         '</div>' +
       '</div>';
     }
@@ -932,6 +936,15 @@
       dlg.querySelectorAll('[data-act="pl-load"]').forEach(function (b) {
         b.onclick = function () { readInputs(); openLoadPicker(+b.getAttribute("data-ti")); };
       });
+      dlg.querySelectorAll('[data-act="pl-link"]').forEach(function (b) {
+        b.onclick = function () { readInputs(); openPlayerLink(+b.getAttribute("data-ti"), +b.getAttribute("data-pi")); };
+      });
+      dlg.querySelectorAll('[data-act="pl-unlink"]').forEach(function (b) {
+        b.onclick = function () { readInputs(); var p = work[+b.getAttribute("data-ti")].players[+b.getAttribute("data-pi")]; if (p) p.user_id = null; render(); };
+      });
+      dlg.querySelectorAll('[data-act="pl-savelib"]').forEach(function (b) {
+        b.onclick = function () { readInputs(); saveTeamToLib(+b.getAttribute("data-ti"), b); };
+      });
       var ok = dlg.querySelector('[data-r="ok"]'); if (ok) ok.onclick = function () { readInputs(); done(true); };
       var cancel = dlg.querySelector('[data-r="cancel"]'); if (cancel) cancel.onclick = function () { done(false); };
     }
@@ -968,11 +981,79 @@
             work[idx].color = src.color || work[idx].color;
             work[idx].logo = src.logo || null;
             work[idx].players = P.normAll(src.players).map(function (p) { p.present = true; return p; });
+            work[idx].libId = src.id;   // remember the library team so "💾 Enregistrer" updates it
             closePop(); render();
           };
         });
       });
       if (typeof pop.showModal === "function") { try { pop.showModal(); } catch (e) { pop.setAttribute("open", ""); } } else pop.setAttribute("open", "");
+    }
+
+    // Link a match player to a registered Acto account (so their stats accrue).
+    function openPlayerLink(ti, pi) {
+      if (!libAvailable()) return;
+      var pop = document.createElement("dialog");
+      pop.className = "suite-dialog suite-link-dialog";
+      pop.innerHTML = '<div class="suite-dialog-body">' +
+          '<h2 class="suite-dialog-title">' + esc(t("teamsLinkAccount")) + '</h2>' +
+          '<input type="search" class="suite-input link-q" placeholder="' + esc(t("teamsSearchPlaceholder")) + '" autocomplete="off" />' +
+          '<div class="link-results"></div>' +
+          '<div class="suite-dialog-actions"><button type="button" class="suite-btn suite-btn-ghost" data-r="close">' + esc(t("commonClose")) + '</button></div>' +
+        '</div>';
+      document.body.appendChild(pop);
+      function closePop() { try { if (pop.open) pop.close(); } catch (e) { /* ignore */ } pop.remove(); }
+      pop.querySelector('[data-r="close"]').onclick = closePop;
+      var q = pop.querySelector(".link-q"), out = pop.querySelector(".link-results"), tmr = null;
+      function search() {
+        var val = q.value.trim();
+        if (val.length < 2) { out.innerHTML = '<div class="link-hint">' + esc(t("teamsSearchHint")) + '</div>'; return; }
+        out.innerHTML = '<div class="link-hint">' + esc(t("commonLoading")) + '</div>';
+        window.ActoTeamsDB.searchUsers(val).then(function (res) {
+          if (res.error) { out.innerHTML = '<div class="link-hint">' + esc(t("teamsSearchError")) + '</div>'; return; }
+          var rows = res.data || [];
+          if (!rows.length) { out.innerHTML = '<div class="link-hint">' + esc(t("teamsSearchNone")) + '</div>'; return; }
+          out.innerHTML = rows.map(function (r) {
+            return '<button type="button" class="link-res" data-id="' + esc(r.id) + '" data-nm="' + esc(r.nom_scene || r.prenom || "") + '">' +
+              '<span class="link-res-nm">' + esc(r.nom_scene || "—") + '</span>' +
+              (r.prenom ? '<span class="link-res-pn">' + esc(r.prenom) + '</span>' : '') +
+            '</button>';
+          }).join("");
+          out.querySelectorAll(".link-res").forEach(function (b) {
+            b.onclick = function () {
+              var p = work[ti].players[pi]; if (!p) { closePop(); return; }
+              p.user_id = b.getAttribute("data-id");
+              if (!p.name) p.name = b.getAttribute("data-nm");
+              closePop(); render();
+            };
+          });
+        });
+      }
+      q.oninput = function () { clearTimeout(tmr); tmr = setTimeout(search, 250); };
+      q.onkeydown = function (e) { if (e.key === "Enter") { e.preventDefault(); clearTimeout(tmr); search(); } };
+      out.innerHTML = '<div class="link-hint">' + esc(t("teamsSearchHint")) + '</div>';
+      if (typeof pop.showModal === "function") { try { pop.showModal(); } catch (e) { pop.setAttribute("open", ""); } } else pop.setAttribute("open", "");
+      setTimeout(function () { try { q.focus(); } catch (e) { /* ignore */ } }, 30);
+    }
+
+    // Save this match team into the "Mes équipes" library (create, or update if
+    // it was loaded from there). Lets the user reuse the roster + keep linked players.
+    function saveTeamToLib(idx, btn) {
+      if (!libAvailable()) return;
+      var tm = work[idx];
+      var name = (tm.name || "").trim();
+      if (!name) { toast(t("teamsNeedName")); return; }
+      var players = (tm.players || []).map(function (p) {
+        return { name: (p.name || "").trim(), photo: p.photo || null, user_id: p.user_id || null };
+      }).filter(function (p) { return p.name || p.photo || p.user_id; });
+      var payload = { name: name, color: tm.color, logo: tm.logo || null, players: players };
+      if (btn) btn.disabled = true;
+      var op = tm.libId ? window.ActoTeamsDB.update(tm.libId, payload) : window.ActoTeamsDB.create(payload);
+      Promise.resolve(op).then(function (res) {
+        if (btn) btn.disabled = false;
+        if (!res || res.error) { toast(t("teamsSaveError")); return; }
+        if (!tm.libId && res.data && res.data.id) tm.libId = res.data.id;   // future saves update this team
+        toast(t("teamsSavedToLib"));
+      });
     }
 
     dlg.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); done(false); } });

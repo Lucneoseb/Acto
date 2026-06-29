@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<meta name="theme-color" content="#0c0814" />
+<title>Acto — Vote du public</title>
+<link rel="icon" type="image/png" href="./assets/logo.png?v=20260716" />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css?v=20260716" />
+<link rel="stylesheet" href="suite.css?v=20260716" />
+<style>
+  .suite-vote-body { min-height: 100svh; }
+  .vote-wrap { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.1rem; padding: 1.6rem 1.1rem; text-align: center; }
+  .vote-logo { width: 64px; height: auto; opacity: 0.9; }
+  .vote-title { font-family: "Bebas Neue", sans-serif; font-size: 1.7rem; letter-spacing: 1px; margin: 0; color: var(--ink); }
+  .vote-sub { color: var(--ink-muted); margin: 0; max-width: 26rem; }
+  .vote-clock { font-family: "Bebas Neue", monospace; font-size: 2.6rem; color: var(--gold); font-variant-numeric: tabular-nums; line-height: 1; }
+  .vote-teams { display: flex; gap: 0.9rem; width: 100%; max-width: 30rem; }
+  .vote-team { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; cursor: pointer; appearance: none;
+    border: 2px solid color-mix(in srgb, var(--team, #888) 55%, transparent); background: color-mix(in srgb, var(--team, #888) 12%, transparent);
+    border-radius: 18px; padding: 1.3rem 0.8rem; color: var(--ink); font: 700 1.05rem/1.1 "Inter", sans-serif; transition: transform .12s, box-shadow .15s, border-color .15s; }
+  .vote-team:hover { transform: translateY(-2px); }
+  .vote-team.is-chosen { border-color: var(--team, var(--gold)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--team, var(--gold)) 35%, transparent); background: color-mix(in srgb, var(--team, #888) 24%, transparent); }
+  .vote-team-logo { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; background: rgba(255,255,255,0.08); }
+  .vote-team-dot { width: 56px; height: 56px; border-radius: 50%; background: var(--team, #888); }
+  .vote-team-nm { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .vote-thanks { color: var(--gold-soft); font-weight: 700; }
+  .vote-result-label { font: 700 0.9rem/1 "Inter"; letter-spacing: .12em; color: var(--gold-soft); text-transform: uppercase; }
+  .vote-result-main { font-family: "Bebas Neue", sans-serif; font-size: clamp(1.6rem,7vw,2.6rem); color: var(--gold); letter-spacing: .02em; line-height: 1.05; max-width: 32rem; }
+  .vote-result-score { font-family: "Bebas Neue", monospace; font-size: 2.2rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .vote-stars { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 26rem; }
+  .vote-star { display: flex; align-items: center; gap: 0.7rem; appearance: none; cursor: pointer; text-align: left;
+    border: 1px solid color-mix(in srgb, var(--team,#888) 40%, transparent); background: color-mix(in srgb, var(--team,#888) 8%, transparent);
+    border-radius: 12px; padding: 0.7rem 0.9rem; color: var(--ink); font: 600 1rem/1.1 "Inter", sans-serif; }
+  .vote-star:hover { border-color: var(--gold); }
+  .vote-star.is-chosen { border-color: var(--gold); box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold) 35%, transparent); }
+  .vote-star-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--team,#888); flex: 0 0 auto; }
+  .vote-code-in { font-family: "Bebas Neue", monospace; font-size: 2rem; letter-spacing: .4rem; text-align: center; text-transform: uppercase; width: 10rem; padding: .35rem .5rem; border-radius: 12px; border: 2px solid color-mix(in srgb, var(--gold) 40%, transparent); background: color-mix(in srgb, var(--bg-velvet) 70%, transparent); color: var(--gold-soft); }
+</style>
+</head>
+<body class="suite-body suite-vote-body">
+  <div class="vote-wrap">
+    <img class="vote-logo" src="./assets/logo.png?v=20260716" alt="Acto" />
+    <div id="voteRoot"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
+          integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
+          crossorigin="anonymous"></script>
+  <script src="./js/config.js?v=20260716"></script>
+  <script src="./data/all.js?v=20260716"></script>
+  <script src="./js/suite/i18n.js?v=20260716"></script>
+  <script src="./js/suite/core.js?v=20260716"></script>
+  <script>
+  (function () {
+    "use strict";
+    var S = window.ActoSuite;
+    function t(k) { return S ? S.t(k) : k; }
+    function tf(k, v) { return S ? S.tf(k, v) : k; }
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+    function fmtSec(s) { return S ? S.formatSec(s) : (s + "s"); }
+
+    try {
+      var CFG = window.actoConfig.supabase;
+      window.actoSuiteSb = window.supabase.createClient(CFG.url, CFG.key, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
+    } catch (e) { /* ignore */ }
+    var sb = window.actoSuiteSb;
+
+    var root = document.getElementById("voteRoot");
+    var params = new URLSearchParams(location.search);
+    var CODE = (params.get("code") || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+
+    // Stable anonymous per-device voter key.
+    var VOTER = "";
+    try {
+      VOTER = localStorage.getItem("acto-voter:v1") || "";
+      if (!VOTER) { VOTER = "v_" + Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem("acto-voter:v1", VOTER); }
+    } catch (e) { VOTER = "v_" + Math.random().toString(36).slice(2); }
+
+    var snap = null;            // latest live snapshot from the presenter
+    var myChoice = { round: -1, choice: null };   // remembered impro vote for the current round
+    var myStar = null;          // remembered star pick (player name)
+    var clockTimer = null;
+
+    /* ---------- snapshot inflow (same channels as the public display) ---------- */
+    var SNAP_KEY = "acto-live:snap:v1", CHANNEL = "acto-live";
+    function applyIncoming(s) { if (s && s.type === "snapshot" && String(s.code || "").toUpperCase() === CODE) { snap = s; render(); } }
+    try { var raw = localStorage.getItem(SNAP_KEY); if (raw) { var s0 = JSON.parse(raw); if (s0 && s0.ts && (Date.now() - s0.ts) < 300000 && String(s0.code || "").toUpperCase() === CODE) snap = s0; } } catch (e) {}
+    try { var bc = new BroadcastChannel(CHANNEL); bc.onmessage = function (ev) { applyIncoming(ev.data); }; } catch (e) {}
+    window.addEventListener("storage", function (e) { if (e.key === SNAP_KEY && e.newValue) { try { applyIncoming(JSON.parse(e.newValue)); } catch (err) {} } });
+    if (sb && CODE) {
+      try {
+        var ch = sb.channel("acto-live:" + CODE, { config: { broadcast: { self: false } } });
+        ch.on("broadcast", { event: "snap" }, function (m) { if (m && m.payload) applyIncoming(m.payload); });
+        ch.subscribe(function (st) { if (st === "SUBSCRIBED") { try { ch.send({ type: "broadcast", event: "hello", payload: {} }); } catch (e) {} } });
+      } catch (e) {}
+    }
+
+    /* ---------- voting actions ---------- */
+    function castImpro(choice) {
+      myChoice = { round: snap ? snap.segIndex : -1, choice: choice };
+      render();
+      if (sb && CODE && snap) {
+        try { sb.rpc("cast_live_vote", { p_code: CODE, p_round: snap.segIndex, p_voter: VOTER, p_choice: choice }); } catch (e) {}
+      }
+    }
+    function castStar(player) {
+      myStar = player; render();
+      if (sb && CODE) { try { sb.rpc("cast_star_vote", { p_code: CODE, p_voter: VOTER, p_player: player }); } catch (e) {} }
+    }
+
+    /* ---------- render ---------- */
+    function teamName(i) { var tm = snap && snap.teams && snap.teams[i]; return (tm && tm.name) || (i === 0 ? t("teamA") : t("teamB")); }
+    function teamColor(i) { var tm = snap && snap.teams && snap.teams[i]; return (tm && tm.color) || "#888"; }
+
+    function remaining() {
+      if (!snap || !snap.timer) return 0;
+      var tm = snap.timer;
+      if (tm.running && tm.endAt) return Math.max(0, Math.round((tm.endAt - Date.now()) / 1000));
+      return tm.remaining || 0;
+    }
+    function tickClock() { var el = document.getElementById("voteClock"); if (el) el.textContent = fmtSec(remaining()); }
+
+    function teamBtn(i) {
+      var tm = snap.teams[i] || {};
+      var chosen = (myChoice.round === snap.segIndex && myChoice.choice === i);
+      var logo = tm.logo ? '<img class="vote-team-logo" src="' + esc(tm.logo) + '" alt="" />' : '<span class="vote-team-dot"></span>';
+      return '<button type="button" class="vote-team' + (chosen ? " is-chosen" : "") + '" data-choice="' + i + '" style="--team:' + esc(teamColor(i)) + '">' +
+        logo + '<span class="vote-team-nm">' + esc(teamName(i)) + '</span>' + '</button>';
+    }
+
+    function render() {
+      if (clockTimer) { clearInterval(clockTimer); clockTimer = null; }
+      if (!CODE) { return renderCodeEntry(); }
+      if (!snap) { return wait(t("voteWaiting")); }
+
+      var vr = snap.voteResult;
+      // 1) Result revealed for the current impro → show it.
+      if (vr && vr.round === snap.segIndex) {
+        var win = vr.a > vr.b ? 0 : (vr.b > vr.a ? 1 : -1);
+        var main = (win < 0)
+          ? tf("voteTie", { a: vr.a, b: vr.b })
+          : tf("voteWinsBy", { team: teamName(win), a: Math.max(vr.a, vr.b), b: Math.min(vr.a, vr.b) });
+        root.innerHTML =
+          '<div class="vote-result-label">' + esc(t("voteResultTitle")) + '</div>' +
+          '<div class="vote-result-main" style="' + (win >= 0 ? "color:" + esc(teamColor(win)) : "") + '">' + esc(main) + '</div>' +
+          '<div class="vote-result-score">' + vr.a + ' — ' + vr.b + '</div>';
+        return;
+      }
+      // 2) Star ranking open (end of match) → vote for a jouteur.
+      if (snap.phase === "stars" && snap.roster && snap.roster.length) {
+        return renderStars();
+      }
+      // 3) Impro vote open.
+      if (snap.phase === "vote") {
+        var thanks = (myChoice.round === snap.segIndex && myChoice.choice != null);
+        root.innerHTML =
+          '<div id="voteClock" class="vote-clock">' + esc(fmtSec(remaining())) + '</div>' +
+          '<h1 class="vote-title">' + esc(t("votePrompt")) + '</h1>' +
+          '<div class="vote-teams">' + teamBtn(0) + teamBtn(1) + '</div>' +
+          (thanks ? '<p class="vote-thanks">' + esc(t("voteThanks")) + ' ' + esc(t("voteChangeHint")) + '</p>' : '<p class="vote-sub">' + esc(t("voteTapTeam")) + '</p>');
+        root.querySelectorAll(".vote-team").forEach(function (b) { b.onclick = function () { castImpro(+b.getAttribute("data-choice")); }; });
+        clockTimer = setInterval(tickClock, 250);
+        return;
+      }
+      // 4) Otherwise → waiting between impros.
+      wait(t("voteWaiting"));
+    }
+
+    function renderStars() {
+      var chosen = myStar;
+      var rows = snap.roster.map(function (p) {
+        return '<button type="button" class="vote-star' + (chosen === p.name ? " is-chosen" : "") + '" data-nm="' + esc(p.name) + '" style="--team:' + esc(p.color || "#888") + '">' +
+          '<span class="vote-star-dot"></span><span>' + esc(p.name) + '</span></button>';
+      }).join("");
+      root.innerHTML =
+        '<h1 class="vote-title">⭐ ' + esc(t("voteStarTitle")) + '</h1>' +
+        '<p class="vote-sub">' + esc(chosen ? (t("voteThanks") + " " + t("voteChangeHint")) : t("voteStarPrompt")) + '</p>' +
+        '<div class="vote-stars">' + rows + '</div>';
+      root.querySelectorAll(".vote-star").forEach(function (b) { b.onclick = function () { castStar(b.getAttribute("data-nm")); }; });
+    }
+
+    function wait(msg) {
+      root.innerHTML = '<div class="suite-auth-spinner" style="margin:0 auto 1rem"></div>' +
+        '<h1 class="vote-title">' + esc(t("voteTitleWaiting")) + '</h1>' +
+        '<p class="vote-sub">' + esc(msg) + '</p>' +
+        (CODE ? '<p class="vote-sub" style="opacity:.6">' + esc(t("voteCodeLabel")) + ' ' + esc(CODE) + '</p>' : '');
+    }
+
+    function renderCodeEntry() {
+      root.innerHTML =
+        '<h1 class="vote-title">🗳 ' + esc(t("voteTitleWaiting")) + '</h1>' +
+        '<p class="vote-sub">' + esc(t("voteEnterCode")) + '</p>' +
+        '<div style="display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center">' +
+          '<input id="vCode" class="vote-code-in" maxlength="6" placeholder="______" autocomplete="off" autocapitalize="characters" />' +
+          '<button id="vGo" class="suite-btn suite-btn-primary">' + esc(t("voteGo")) + '</button>' +
+        '</div>';
+      var inp = document.getElementById("vCode");
+      inp.oninput = function () { inp.value = inp.value.toUpperCase().replace(/[^A-Z0-9]/g, ""); };
+      inp.onkeydown = function (e) { if (e.key === "Enter") go(); };
+      document.getElementById("vGo").onclick = go;
+      function go() { var v = (inp.value || "").trim().toUpperCase(); if (v.length >= 4) location.search = "?code=" + encodeURIComponent(v); }
+      setTimeout(function () { try { inp.focus(); } catch (e) {} }, 40);
+    }
+
+    if (!S) { root.textContent = "⚠"; return; }
+    render();
+  })();
+  </script>
+</body>
+</html>
