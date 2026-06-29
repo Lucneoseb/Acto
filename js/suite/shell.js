@@ -39,6 +39,10 @@
   function render() {
     var r = parseHash();
     document.documentElement.lang = S.locale();
+    // Top-bar "🏠 Accueil" → the launcher (#/). Redundant on the home page itself,
+    // so hide it there; visible on every section so the user always has a way back.
+    var homeBtn = document.getElementById("suiteHomeBtn");
+    if (homeBtn) homeBtn.style.display = (r.section === "home") ? "none" : "";
     // tear down any live/display engine + collab editing state before routing
     if (window.ActoLive && window.ActoLive.cleanup) window.ActoLive.cleanup();
     if (window.ActoProgram && window.ActoProgram.cleanup) window.ActoProgram.cleanup();

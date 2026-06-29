@@ -111,7 +111,6 @@
     var savedCount = S.sessions.list(kind).length;
     root.innerHTML =
       '<div class="suite-section-head">' +
-        '<button class="suite-back" data-act="home">' + esc(t("backToHome")) + '</button>' +
         '<h1 class="suite-h1">' + K.icon + ' ' + esc(t(K.titleKey)) + '</h1>' +
       '</div>' +
       '<div class="suite-choice-grid">' +
@@ -124,7 +123,6 @@
         // Entraînement → quick warm-up draw (the standalone warmups page).
         (kind === "training" ? choiceCard("warmup-quick", "🔥", t("quickWarmup"), t("quickWarmupSub")) : "") +
       '</div>';
-    root.querySelector('[data-act="home"]').onclick = function () { navigate("#/"); };
     var wqBtn = root.querySelector('[data-go="warmup-quick"]');
     if (wqBtn) wqBtn.onclick = function () { window.location.href = "warmups.html?draw=1"; };
     root.querySelector('[data-go="prep"]').onclick = function () { navigate(homeRoute() + "/prepare"); };

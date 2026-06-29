@@ -83,7 +83,6 @@
 
     root.innerHTML =
       '<div class="suite-section-head">' +
-        '<button class="suite-back" data-act="home">' + esc(t("backToHome")) + '</button>' +
         '<h1 class="suite-h1">✨ ' + esc(t("sectionDiscoverTitle")) + '</h1>' +
         '<button class="suite-btn suite-btn-mini suite-btn-ghost" data-act="rules">📜 ' + esc(t("discoverRulesBtn")) + '</button>' +
       '</div>' +
@@ -103,7 +102,6 @@
         '<div class="suite-exo-list">' + exCards + '</div>' +
       '</div>';
 
-    root.querySelector('[data-act="home"]').onclick = function () { navigate("#/"); };
     var rulesBtn = root.querySelector('[data-act="rules"]');
     if (rulesBtn) rulesBtn.onclick = function () { infoPopup(t("discoverRulesTitle"), t("discoverRulesBody")); };
     var conceptsBtn = root.querySelector('[data-act="concepts"]');
