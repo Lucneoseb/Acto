@@ -27,6 +27,8 @@
       blankBtnKey: "matchBlankBtn", blankDescKey: "matchBlankDesc",
       listBtnKey: "matchListBtn", listDescKey: "matchListDesc",
       prepTitleKey: "prepTitle", setlistTitleKey: "setlistTitle", launchKey: "setlistLaunch", generateKey: "prepGenerate",
+      nameKey: "prepMatchName", namePhKey: "prepMatchNamePh", dateKey: "prepMatchDate", hasCatLibre: true,
+      totalTimeKey: "prepTotalTime", totalTimeHelpKey: "prepTotalTimeHelp",
       listTitleKey: "matchListTitle", listEmptyKey: "matchListEmpty",
       confirmDeleteKey: "confirmDeleteMatch",
       improFields: ["category", "theme", "players", "duration"],
@@ -38,6 +40,8 @@
       blankBtnKey: "showBlankBtn", blankDescKey: "showBlankDesc",
       listBtnKey: "showListBtn", listDescKey: "showListDesc",
       prepTitleKey: "showPrepTitle", setlistTitleKey: "showSetlistTitle", launchKey: "showLaunch", generateKey: "showGenerate",
+      nameKey: "prepShowName", namePhKey: "prepShowNamePh", dateKey: "prepShowDate", hasCatLibre: true,
+      totalTimeKey: "prepShowTime", totalTimeHelpKey: "prepShowTimeHelp",
       listTitleKey: "showListTitle", listEmptyKey: "showListEmpty",
       confirmDeleteKey: "confirmDeleteShow",
       improFields: ["category", "theme", "duration"],
@@ -175,9 +179,9 @@
     // Name + date of the match (match + show only — a training is a quick rehearsal).
     var metaField = (kind !== "training")
       ? '<div class="suite-field suite-meta-row">' +
-          '<label class="suite-meta-col"><span class="suite-label">' + esc(t("prepMatchName")) + '</span>' +
-            '<input type="text" class="suite-input" id="prepTitle" value="' + esc(prep.title || "") + '" placeholder="' + esc(t("prepMatchNamePh")) + '" maxlength="120" /></label>' +
-          '<label class="suite-meta-col suite-meta-date"><span class="suite-label">' + esc(t("prepMatchDate")) + '</span>' +
+          '<label class="suite-meta-col"><span class="suite-label">' + esc(t(K.nameKey)) + '</span>' +
+            '<input type="text" class="suite-input" id="prepTitle" value="' + esc(prep.title || "") + '" placeholder="' + esc(t(K.namePhKey)) + '" maxlength="120" /></label>' +
+          '<label class="suite-meta-col suite-meta-date"><span class="suite-label">' + esc(t(K.dateKey)) + '</span>' +
             '<input type="date" class="suite-input" id="prepDate" value="' + esc(prep.matchDate || "") + '" /></label>' +
         '</div>'
       : "";
@@ -196,27 +200,32 @@
       // match + show share the time → derived-count form
       body +=
         '<div class="suite-field">' +
-          '<label class="suite-label">' + esc(t("prepTotalTime")) + '</label>' +
+          '<label class="suite-label">' + esc(t(K.totalTimeKey)) + '</label>' +
           '<div class="suite-seg" data-seg="total">' +
             PRESETS.map(function (p) {
               return '<button type="button" class="suite-seg-opt' + (prep.totalSec === p.sec ? " is-on" : "") +
                 '" data-sec="' + p.sec + '">' + esc(presetLabel(p.sec)) + '</button>';
             }).join("") +
           '</div>' +
-          '<p class="suite-help">' + esc(t("prepTotalTimeHelp")) + '</p>' +
+          '<p class="suite-help">' + esc(t(K.totalTimeHelpKey)) + '</p>' +
         '</div>' +
         '<div class="suite-field">' +
           '<label class="suite-label">' + esc(t("prepNbImpros")) +
             ' <span class="suite-auto">(' + esc(t("prepNbImprosAuto")) + ')</span></label>' +
           stepperHTML("nbImpros", nbImpros, 1, 40) +
         '</div>';
+      // Comparée is a match-only concept (it needs nature/teams).
       if (K.prepVariant === "match") {
         body +=
           '<div class="suite-field">' +
             '<label class="suite-label">' + esc(t("prepNbCompare")) + '</label>' +
             stepperHTML("nbCompare", prep.nbCompare, 0, nbImpros) +
             '<p class="suite-help">' + esc(t("prepNbCompareHelp")) + '</p>' +
-          '</div>' +
+          '</div>';
+      }
+      // Free-category count applies to match AND show.
+      if (K.hasCatLibre) {
+        body +=
           '<div class="suite-field">' +
             '<label class="suite-label">' + esc(t("prepNbCatLibre")) + '</label>' +
             stepperHTML("nbCatLibre", prep.nbCatLibre, 0, nbImpros) +
@@ -284,8 +293,8 @@
     }
     var res, session;
     if (kind === "show") {
-      res = S.gen.buildShowSetlist({ level: prep.level, nbImpros: prep.nbImpros });
-      session = K.newSession({ level: prep.level, totalSec: prep.totalSec });
+      res = S.gen.buildShowSetlist({ level: prep.level, nbImpros: prep.nbImpros, nbCatLibre: prep.nbCatLibre });
+      session = K.newSession({ level: prep.level, totalSec: prep.totalSec, nbCatLibre: prep.nbCatLibre });
     } else {
       res = S.gen.buildMatchSetlist({
         level: prep.level, nbImpros: prep.nbImpros,
@@ -413,13 +422,17 @@
       ? '<label class="suite-set-toggle"><input type="checkbox" data-act="set-scores"' + (current.showScores ? " checked" : "") + ' />' +
           '<span>' + esc(t("showScoresPublicLabel")) + '</span></label>'
       : "";
+    // The audience vote is a match-only mechanic — a Spectacle has no vote.
+    var voteField = K.scoring
+      ? '<label class="suite-set-field"><span>' + esc(t("liveVoteSet")) + '</span>' +
+          durSelect("set-vote", current.voteSec == null ? 20 : current.voteSec, [0, 10, 15, 20, 30, 45]) + '</label>'
+      : "";
     return '<div class="suite-settings-card">' +
       '<div class="suite-settings-title">⚙️ ' + esc(t("matchSettingsTitle")) + '</div>' +
       '<div class="suite-settings-grid">' +
         '<label class="suite-set-field"><span>' + esc(t("liveCaucusSet")) + '</span>' +
           durSelect("set-caucus", current.caucusSec == null ? 30 : current.caucusSec, [0, 15, 20, 30, 45, 60, 90]) + '</label>' +
-        '<label class="suite-set-field"><span>' + esc(t("liveVoteSet")) + '</span>' +
-          durSelect("set-vote", current.voteSec == null ? 20 : current.voteSec, [0, 10, 15, 20, 30, 45]) + '</label>' +
+        voteField +
       '</div>' + scoresToggle +
     '</div>';
   }

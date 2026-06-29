@@ -536,7 +536,7 @@
         '</div>' +
         '<div class="live-phase-btns">' +
           '<button class="suite-btn suite-btn-ghost' + (phase === "caucus" ? " is-on" : "") + '" data-act="caucus">⏸ ' + esc(t("liveCaucus")) + '</button>' +
-          '<button class="suite-btn suite-btn-ghost' + (phase === "vote" ? " is-on" : "") + '" data-act="vote">🗳 ' + esc(t("liveVote")) + '</button>' +
+          (sess.scoring ? '<button class="suite-btn suite-btn-ghost' + (phase === "vote" ? " is-on" : "") + '" data-act="vote">🗳 ' + esc(t("liveVote")) + '</button>' : '') +
         '</div>' +
       '</div>';
 
@@ -565,9 +565,10 @@
         '<button class="suite-btn suite-btn-ghost" data-act="screen">🖥 ' + esc(t("liveOpenScreen")) + '</button>' +
         '<button class="suite-btn suite-btn-ghost" data-act="record">🎥 ' + esc(t("liveOpenRecord")) + '</button>' +
         '<button class="suite-btn suite-btn-ghost" data-act="joincode">📱 ' + esc(t("liveJoinCode")) + '</button>' +
-        '<button class="suite-btn suite-btn-ghost live-scores-toggle' + (sess.showScores ? " is-on" : "") + '" data-act="togglescores">' +
+        // Scores visibility toggle is meaningless without scoring (Spectacle).
+        (sess.scoring ? '<button class="suite-btn suite-btn-ghost live-scores-toggle' + (sess.showScores ? " is-on" : "") + '" data-act="togglescores">' +
           (sess.showScores ? "👁 " + esc(t("liveScoresOn")) : "🚫 " + esc(t("liveScoresOff"))) +
-        '</button>' +
+        '</button>' : '') +
       '</div>';
 
     var doneBlock = phase === "done" ? doneScreen() : "";
@@ -575,7 +576,7 @@
     root.innerHTML =
       '<div class="live-bar-top">' +
         '<button class="suite-back" data-act="back">' + esc(t("liveBack")) + '</button>' +
-        '<span class="live-title">' + esc(sess.title || t("matchTitle")) + '</span>' +
+        '<span class="live-title">' + esc(sess.title || t(sess.kind === "show" ? "showTitle" : sess.kind === "training" ? "trainTitle" : "matchTitle")) + '</span>' +
       '</div>' +
       doneBlock +
       segBlock + chronoBlock + scoreBlock + endRow + transport + footer;
@@ -871,9 +872,13 @@
     var seg = snap.seg;
     var headline = (snap.phase === "done") ? t("liveDoneTitle") : (seg ? (seg.title || "") : t("liveGetReady"));
     var subline = (snap.phase === "done") ? "" : (seg ? (seg.subtitle || "") : "");
+    // Solo layout (Spectacle / no teams): the show title identifies the recording.
     var teamsRow = (snap.teams && snap.teams.length >= 2)
       ? '<div class="rec-teams">' + recTeam(snap, 0, showScore) + clock + recTeam(snap, 1, showScore) + '</div>'
-      : '<div class="rec-teams rec-teams-solo">' + clock + '</div>';
+      : '<div class="rec-teams rec-teams-solo">' +
+          (snap.title ? '<div class="rec-showtitle">' + esc(snap.title) + '</div>' : '') +
+          clock +
+        '</div>';
     box.innerHTML = teamsRow +
       '<div class="rec-cat">' + esc(headline) + '</div>' +
       (subline ? '<div class="rec-theme">' + esc(subline) + '</div>' : '');

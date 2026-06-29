@@ -526,6 +526,22 @@
   // ─────────────────────────────────────────────────────────────────
   //   Wiring
   // ─────────────────────────────────────────────────────────────────
+  // Match d'impro rules popup — same content (window.actoRules from rules.js)
+  // and behaviour as the quickgame page, shown inline instead of navigating away.
+  function openRulesDialog() {
+    const dlg = $("#rulesDialog"); if (!dlg) return;
+    const RULES = window.actoRules || { fr: "" };
+    const loc = (localStorage.getItem("impro-studio:locale:v1") || "fr").trim();
+    const lang = RULES[loc] ? loc : "fr";
+    const body = $("#rulesBody"); if (body) body.innerHTML = RULES[lang] || RULES.fr || "";
+    const title = $("#rulesDialogTitle"); if (title) title.textContent = "📖 " + t("rulesTitle", "Règles du match d'impro");
+    if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+  }
+  function closeRulesDialog() {
+    const dlg = $("#rulesDialog"); if (!dlg) return;
+    if (typeof dlg.close === "function") dlg.close(); else dlg.removeAttribute("open");
+  }
+
   function wire() {
     const query = $("#warmupQuery");
     if (query) query.addEventListener("input", () => {
@@ -539,6 +555,13 @@
     });
     const rand = $("#warmupRandomBtn");
     if (rand) rand.addEventListener("click", pickRandom);
+    // Rules popup (replaces the old navigate-to-quickgame#rules behaviour)
+    const rulesBtn = $("#rulesBtn");
+    if (rulesBtn) rulesBtn.addEventListener("click", openRulesDialog);
+    const rulesClose = $("#rulesDialogClose");
+    if (rulesClose) rulesClose.addEventListener("click", closeRulesDialog);
+    const rulesDlg = $("#rulesDialog");
+    if (rulesDlg) rulesDlg.addEventListener("click", (e) => { if (e.target === rulesDlg) closeRulesDialog(); });
     // Submit dialog wiring
     const addBtn = $("#warmupAddBtn");
     if (addBtn) addBtn.addEventListener("click", openSubmitDialog);

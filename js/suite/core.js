@@ -386,16 +386,24 @@
   /* ============================================================
      SETLIST GENERATION (Show + Training)
      ============================================================ */
-  // Show: like Match but no nature, no scoring, no free-category constraint.
-  // opts: { level, nbImpros } → { setlist, warnings }
+  // Show: like Match but no nature, no scoring. Supports a free-category count.
+  // opts: { level, nbImpros, nbCatLibre } → { setlist, warnings }
   function buildShowSetlist(opts) {
     resetBags();
     var level = opts.level || "debutant";
     var nbImpros = Math.max(1, Math.min(40, opts.nbImpros | 0));
+    var warnings = [];
+    var nbCatLibre = Math.max(0, opts.nbCatLibre | 0);
+    if (nbCatLibre > nbImpros) {
+      warnings.push({ key: "warnCatLibreClamp", vars: { n: nbCatLibre, applied: nbImpros } });
+      nbCatLibre = nbImpros;
+    }
     var segs = [];
     for (var i = 0; i < nbImpros; i++) { var s = newSegment(level); s.nature = null; segs.push(s); }
+    var freeIdx = spreadIndices(nbImpros, nbCatLibre);
+    for (var f = 0; f < freeIdx.length; f++) segs[freeIdx[f]].freeCategory = true;
     for (var j = 0; j < segs.length; j++) fillSegment(segs[j], level);
-    return { setlist: segs, warnings: [] };
+    return { setlist: segs, warnings: warnings };
   }
   // Training: N warm-ups then N exercises. REQUIRES ensureWarmups() resolved first.
   // opts: { level, nbWarmups, nbExercises } → { setlist, warnings }
@@ -592,9 +600,9 @@
       level: opts.level || "debutant",
       createdAt: Date.now(), updatedAt: Date.now(),
       scoring: false, showScores: false, filming: false,
-      caucusSec: 30, voteSec: 20,
+      caucusSec: 30, voteSec: 0,                  // a show has no audience vote
       display: { cointoss: "ask" }, teams: [],
-      meta: { totalSec: opts.totalSec || 0 },
+      meta: { totalSec: opts.totalSec || 0, nbCatLibre: opts.nbCatLibre || 0 },
       setlist: [], cursor: 0, journal: []
     };
   }

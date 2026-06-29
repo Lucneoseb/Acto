@@ -6,11 +6,11 @@
 <meta name="description" content="Échauffement · Acto The Impro Studio" />
 <meta name="theme-color" content="#0c0814" />
 <title>Acto — Échauffement</title>
-<link rel="icon" type="image/png" href="./assets/logo.png?v=20260712" />
+<link rel="icon" type="image/png" href="./assets/logo.png?v=20260714" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=20260712" />
+<link rel="stylesheet" href="styles.css?v=20260714" />
 <style>
   .warmup-screen {
     position: relative;
@@ -458,8 +458,7 @@
       <span aria-hidden="true" style="font-size:1.1rem;">🏠</span>
       <span>Accueil</span>
     </a>
-    <button class="top-trigger rules-trigger" type="button" aria-label="Rules"
-            onclick="window.location.href='./quickgame.html#rules'">
+    <button class="top-trigger rules-trigger" id="rulesBtn" type="button" aria-label="Rules">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
         <path fill="currentColor" d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
       </svg>
@@ -484,7 +483,7 @@
 
   <header class="hero">
     <a class="hero-logo-link" href="./welcome.html" aria-label="Acto - The Impro Studio">
-      <img class="hero-logo" src="./assets/logo.png?v=20260712" alt="Acto - The Impro Studio" />
+      <img class="hero-logo" src="./assets/logo.png?v=20260714" alt="Acto - The Impro Studio" />
     </a>
   </header>
 
@@ -635,14 +634,24 @@
     </div>
   </div>
 
+  <!-- Match d'impro rules dialog (content + title populated by warmups.js from window.actoRules). -->
+  <dialog class="themes-dialog rules-dialog" id="rulesDialog" aria-labelledby="rulesDialogTitle">
+    <form method="dialog" class="dlg-head">
+      <h2 id="rulesDialogTitle">📖</h2>
+      <button type="button" class="dlg-close" id="rulesDialogClose" aria-label="Close">✕</button>
+    </form>
+    <div class="dlg-body rules-body" id="rulesBody"></div>
+  </dialog>
+
   <!-- Pinned + SRI Supabase SDK (same as the other pages) so the page can
        read approved community warmups + submit new ones. -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
           integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
           crossorigin="anonymous"></script>
-  <script src="./js/config.js?v=20260712"></script>
-  <script src="./js/utils.js?v=20260712"></script>
-  <script src="./data/all.js?v=20260712"></script>
-  <script src="./js/warmups.js?v=20260712"></script>
+  <script src="./js/config.js?v=20260714"></script>
+  <script src="./js/utils.js?v=20260714"></script>
+  <script src="./data/all.js?v=20260714"></script>
+  <script src="./js/rules.js?v=20260714"></script>
+  <script src="./js/warmups.js?v=20260714"></script>
 </body>
 </html>
