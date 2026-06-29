@@ -183,7 +183,9 @@
   }
   function onTimerEnd() {
     playEndSound();
-    phase = (tk === "impro") ? "between" : "announce";
+    // Vote timer ending must NOT drop the phase — the referee still needs to reveal
+    // the tally (the Reveal button is gated on phase==="vote").
+    phase = (tk === "impro") ? "between" : (tk === "vote") ? "vote" : "announce";
     renderPresenter(); broadcast();
   }
 
@@ -329,13 +331,16 @@
     });
     return out;
   }
-  // Light present-player list for the public star vote (names + team colour only).
+  // Stable per-player key so same-named players on different teams never collide
+  // in the public star vote (keyed on team+name, not the bare display name).
+  function starKey(team, name) { return String(team) + "\x1f" + String(name); }
+  // Light present-player list for the public star vote (names + team colour + key).
   function rosterForVote() {
     var P = S.players, out = [];
     (sess.teams || []).forEach(function (tm, ti) {
       (tm.players || []).forEach(function (p) {
         if (!P.present(p)) return;
-        var nm = P.name(p); if (nm) out.push({ name: nm, team: ti, color: tm.color || "#888" });
+        var nm = P.name(p); if (nm) out.push({ name: nm, team: ti, color: tm.color || "#888", key: starKey(ti, nm) });
       });
     });
     return out;
@@ -423,10 +428,13 @@
         if (!rows.length) { box.textContent = t("starsPublicNone"); return; }
         var max = rows[0].votes || 1;
         box.innerHTML = rows.slice(0, 8).map(function (r, i) {
-          var idx = -1; roster.forEach(function (p, k) { if (p.name === r.player) idx = k; });
+          // r.player is the team-qualified key (starKey); match it exactly so same-named
+          // players on different teams stay distinct, and display only the name part.
+          var idx = -1; roster.forEach(function (p, k) { if (starKey(p.team, p.name) === r.player) idx = k; });
+          var dispName = (idx >= 0) ? roster[idx].name : String(r.player || "").split("\x1f").pop();
           return '<button type="button" class="suite-star-rank-row" data-idx="' + idx + '"' + (idx < 0 ? " disabled" : "") + '>' +
             '<span class="suite-star-rank-pos">' + (i + 1) + '</span>' +
-            '<span class="suite-star-rank-nm">' + esc(r.player) + '</span>' +
+            '<span class="suite-star-rank-nm">' + esc(dispName) + '</span>' +
             '<span class="suite-star-rank-bar"><span style="width:' + Math.round(100 * (r.votes / max)) + '%"></span></span>' +
             '<span class="suite-star-rank-n">' + r.votes + '</span>' +
           '</button>';
@@ -552,7 +560,7 @@
     if (!sess) { navigate("#/"); return; }
     if (!sess.joinCode) { sess.joinCode = genJoinCode(); S.live.save(sess); }   // viewing code for this run
     cursor = Math.min(sess.cursor || 0, Math.max(0, sess.setlist.length - 1));
-    phase = "announce"; tk = null; tRunning = false; finished = false;
+    phase = "announce"; tk = null; tRunning = false; finished = false; voteResult = null;
     var seg = curSeg(); tTotal = seg ? seg.durationSec : 0; tRemaining = tTotal;
     document.body.classList.add("suite-live-mode");
     var c = chan();
@@ -619,7 +627,7 @@
           (sess.scoring ? '<button class="suite-btn suite-btn-ghost' + (phase === "vote" ? " is-on" : "") + '" data-act="vote">🗳 ' + esc(t("liveVote")) + '</button>' : '') +
           (sess.scoring && phase === "vote" ? '<button class="suite-btn suite-btn-primary" data-act="reveal">📊 ' + esc(t("liveReveal")) + '</button>' : '') +
         '</div>' +
-        (sess.scoring && voteResult && voteResult.round === cursor
+        (sess.scoring && phase === "vote" && voteResult && voteResult.round === cursor
           ? '<div class="live-vote-result">📊 ' + esc(t("voteResultTitle")) + ' — ' +
               '<b>' + voteResult.a + '</b> ' + esc(teamLabel(0)) + ' · <b>' + voteResult.b + '</b> ' + esc(teamLabel(1)) + '</div>'
           : '') +
@@ -815,7 +823,8 @@
     var showScore = snap.scoring && snap.showScores;
 
     // Revealed public vote takes priority over the plain "vote in progress" overlay.
-    if (snap.voteResult && snap.voteResult.round === snap.segIndex) {
+    // Phase-gated so a revealed tally never shadows the done / stars / next-impro screens.
+    if (snap.phase === "vote" && snap.voteResult && snap.voteResult.round === snap.segIndex) {
       var vr = snap.voteResult;
       var win = vr.a > vr.b ? 0 : (vr.b > vr.a ? 1 : -1);
       var teams = snap.teams || [];
@@ -1069,6 +1078,7 @@
     rtTeardown();
     redraw = function () {};
     dSnap = null;                // don't carry one role's snapshot into the next
+    voteResult = null;           // never leak a revealed tally into the next mount/run
   }
 
   window.ActoLive = {

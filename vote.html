@@ -137,8 +137,9 @@
       if (!snap) { return wait(t("voteWaiting")); }
 
       var vr = snap.voteResult;
-      // 1) Result revealed for the current impro → show it.
-      if (vr && vr.round === snap.segIndex) {
+      // 1) Result revealed for the current impro → show it (only during the vote phase,
+      //    so a stale tally never shadows the stars vote or the waiting screen).
+      if (snap.phase === "vote" && vr && vr.round === snap.segIndex) {
         var win = vr.a > vr.b ? 0 : (vr.b > vr.a ? 1 : -1);
         var main = (win < 0)
           ? tf("voteTie", { a: vr.a, b: vr.b })
@@ -172,7 +173,8 @@
     function renderStars() {
       var chosen = myStar;
       var rows = snap.roster.map(function (p) {
-        return '<button type="button" class="vote-star' + (chosen === p.name ? " is-chosen" : "") + '" data-nm="' + esc(p.name) + '" style="--team:' + esc(p.color || "#888") + '">' +
+        var key = p.key || p.name;   // team-qualified key so same-named players don't collide
+        return '<button type="button" class="vote-star' + (chosen === key ? " is-chosen" : "") + '" data-nm="' + esc(key) + '" style="--team:' + esc(p.color || "#888") + '">' +
           '<span class="vote-star-dot"></span><span>' + esc(p.name) + '</span></button>';
       }).join("");
       root.innerHTML =
