@@ -650,7 +650,8 @@
     setPh("#warmupQuery", "warmupsSearchPlaceholder", "");
     setText("#warmupRandomBtn", "warmupsRandomBtn", "🎲 Tirage aléatoire");
     setText("#warmupAddBtn", "warmupsAddBtn", "+ Proposer un exercice");
-    const back = $(".warmup-back a"); if (back) back.textContent = t("warmupsBackToApp", "← Retour à l'app");
+    const back = $(".warmup-back a"); if (back) back.textContent = t("warmupsBackHome", "🏠 Accueil");
+    const home = $("#warmupHomeBtn span:last-child"); if (home) home.textContent = t("warmupsHome", "Accueil");
     // Draw popup
     setText("#drawBadge", "warmupsDrawBadge", "🎲 Tirage");
     setText("#drawChronoBtn", "warmupsDrawChrono", "⏱ Lancer le chrono");
@@ -692,6 +693,8 @@
     populateTypeFilter();
     renderList();
     wire();
+    // "Échauffement rapide" deep-link: ?draw=1 → open a random draw immediately.
+    try { if (new URLSearchParams(location.search).get("draw")) pickRandom(); } catch (e) { /* ignore */ }
   }
 
   if (document.readyState === "loading") {

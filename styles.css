@@ -1362,6 +1362,10 @@ body.mode-troupe #card-theme      { order: 3; }
    since it's public match d'impro content. */
 .settings-trigger { display: none !important; }
 body.is-signed-in .settings-trigger { display: inline-flex !important; }
+/* 🏠 Accueil button → the Studio (welcome). Only useful once signed in, since
+   the Studio is login-gated; hidden otherwise (same pattern as Settings). */
+.home-trigger { display: none !important; }
+body.is-signed-in .home-trigger { display: inline-flex !important; }
 /* Échauffement button — same auth gating as Settings: only visible once
    the user is signed in (the warmup exercise library is a member perk). */
 .warmup-trigger { display: none !important; }

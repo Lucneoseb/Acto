@@ -26,7 +26,7 @@
       titleKey: "matchTitle", newBtnKey: "matchNewBtn", newDescKey: "matchNewDesc",
       blankBtnKey: "matchBlankBtn", blankDescKey: "matchBlankDesc",
       listBtnKey: "matchListBtn", listDescKey: "matchListDesc",
-      prepTitleKey: "prepTitle", setlistTitleKey: "setlistTitle", launchKey: "setlistLaunch",
+      prepTitleKey: "prepTitle", setlistTitleKey: "setlistTitle", launchKey: "setlistLaunch", generateKey: "prepGenerate",
       listTitleKey: "matchListTitle", listEmptyKey: "matchListEmpty",
       confirmDeleteKey: "confirmDeleteMatch",
       improFields: ["category", "theme", "players", "duration"],
@@ -37,7 +37,7 @@
       titleKey: "showTitle", newBtnKey: "showNewBtn", newDescKey: "showNewDesc",
       blankBtnKey: "showBlankBtn", blankDescKey: "showBlankDesc",
       listBtnKey: "showListBtn", listDescKey: "showListDesc",
-      prepTitleKey: "showPrepTitle", setlistTitleKey: "showSetlistTitle", launchKey: "showLaunch",
+      prepTitleKey: "showPrepTitle", setlistTitleKey: "showSetlistTitle", launchKey: "showLaunch", generateKey: "showGenerate",
       listTitleKey: "showListTitle", listEmptyKey: "showListEmpty",
       confirmDeleteKey: "confirmDeleteShow",
       improFields: ["category", "theme", "duration"],
@@ -48,7 +48,7 @@
       titleKey: "trainTitle", newBtnKey: "trainNewBtn", newDescKey: "trainNewDesc",
       blankBtnKey: "trainBlankBtn", blankDescKey: "trainBlankDesc",
       listBtnKey: "trainListBtn", listDescKey: "trainListDesc",
-      prepTitleKey: "trainPrepTitle", setlistTitleKey: "trainSetlistTitle", launchKey: "trainLaunch",
+      prepTitleKey: "trainPrepTitle", setlistTitleKey: "trainSetlistTitle", launchKey: "trainLaunch", generateKey: "trainGenerate",
       listTitleKey: "trainListTitle", listEmptyKey: "trainListEmpty",
       confirmDeleteKey: "confirmDeleteTrain",
       improFields: null,    // training fields depend on segment type
@@ -117,8 +117,12 @@
           t(K.listDescKey) + (savedCount ? " · " + savedCount : "")) +
         // "Mes équipes" lives on the Match page (teams are match rosters).
         (K.hasTeams ? choiceCard("teams", "👥", t("teamsLibTitle"), t("teamsSub")) : "") +
+        // Entraînement → quick warm-up draw (the standalone warmups page).
+        (kind === "training" ? choiceCard("warmup-quick", "🔥", t("quickWarmup"), t("quickWarmupSub")) : "") +
       '</div>';
     root.querySelector('[data-act="home"]').onclick = function () { navigate("#/"); };
+    var wqBtn = root.querySelector('[data-go="warmup-quick"]');
+    if (wqBtn) wqBtn.onclick = function () { window.location.href = "warmups.html?draw=1"; };
     root.querySelector('[data-go="prep"]').onclick = function () { navigate(homeRoute() + "/prepare"); };
     root.querySelector('[data-go="list"]').onclick = function () { navigate(homeRoute() + "/list"); };
     root.querySelector('[data-go="blank"]').onclick = function () {
@@ -230,7 +234,7 @@
       '<form class="suite-form" id="prepForm">' + body +
         '<div class="suite-form-actions">' +
           '<button type="button" class="suite-btn suite-btn-ghost" data-act="back">' + esc(t("prepCancel")) + '</button>' +
-          '<button type="submit" class="suite-btn suite-btn-primary">' + esc(t("prepGenerate")) + '</button>' +
+          '<button type="submit" class="suite-btn suite-btn-primary">' + esc(t(K.generateKey)) + '</button>' +
         '</div>' +
       '</form>';
 

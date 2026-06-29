@@ -6,11 +6,11 @@
 <meta name="description" content="Générateur d'exercices, contraintes et thèmes pour l'improvisation théâtrale" />
 <meta name="theme-color" content="#0c0814" />
 <title>Acto — The Impro Studio</title>
-<link rel="icon" type="image/png" href="./assets/logo.png?v=20260711" />
+<link rel="icon" type="image/png" href="./assets/logo.png?v=20260712" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=20260711" />
+<link rel="stylesheet" href="styles.css?v=20260712" />
 </head>
 <body>
   <!-- Stage backdrop -->
@@ -24,6 +24,12 @@
 
   <!-- Top-right floating actions (Rules + Settings, side by side) -->
   <div class="top-actions">
+    <!-- 🏠 Accueil — back to the Studio (welcome). Gated to signed-in, since
+         the Studio requires a login (same pattern as Échauffement/Settings). -->
+    <a class="top-trigger home-trigger" href="./welcome.html" aria-label="Accueil">
+      <span aria-hidden="true" style="font-size:1.1rem;">🏠</span>
+      <span id="homeLabelText">Accueil</span>
+    </a>
     <button class="top-trigger rules-trigger" id="rulesBtn" type="button" aria-label="Rules">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
         <path fill="currentColor" d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
@@ -52,7 +58,7 @@
 
   <header class="hero">
     <a class="hero-logo-link" href="./welcome.html" aria-label="Acto - The Impro Studio">
-      <img class="hero-logo" src="./assets/logo.png?v=20260711" alt="Acto - The Impro Studio" />
+      <img class="hero-logo" src="./assets/logo.png?v=20260712" alt="Acto - The Impro Studio" />
     </a>
     <p class="subtitle">
       <span id="subtitle"></span><br>
@@ -928,11 +934,11 @@
           crossorigin="anonymous"></script>
   <!-- Bump v= on each deploy when you change one of these assets, so users
        fetch the fresh version without needing Ctrl+Shift+R. -->
-  <script src="./js/config.js?v=20260711"></script>
-  <script src="./js/utils.js?v=20260711"></script>
-  <script src="./js/rules.js?v=20260711"></script>
-  <script src="./data/all.js?v=20260711"></script>
-  <script src="./js/auth.js?v=20260711"></script>
-  <script src="./js/app.js?v=20260711"></script>
+  <script src="./js/config.js?v=20260712"></script>
+  <script src="./js/utils.js?v=20260712"></script>
+  <script src="./js/rules.js?v=20260712"></script>
+  <script src="./data/all.js?v=20260712"></script>
+  <script src="./js/auth.js?v=20260712"></script>
+  <script src="./js/app.js?v=20260712"></script>
 </body>
 </html>
