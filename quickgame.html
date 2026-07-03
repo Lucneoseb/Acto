@@ -48,6 +48,11 @@
       <span aria-hidden="true" style="font-size:1.1rem;">🔥</span>
       <span id="warmupsLabelText">Échauffement</span>
     </a>
+    <!-- 🎯 Mes défis — gated behind authentication (body.is-signed-in). -->
+    <button class="top-trigger defi-nav-trigger" id="challengesNavBtn" type="button" aria-label="Mes défis">
+      <span aria-hidden="true" style="font-size:1.1rem;">🎯</span>
+      <span id="challengesNavText">Défis</span>
+    </button>
     <button class="top-trigger settings-trigger" id="settingsBtn" type="button" aria-label="Settings">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
         <path fill="currentColor" d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm9.4 4-2 1.2.5 2.3-2.3.4-1 2-2.1-1L12 18l-2.5-1.1-2 1-1.2-2.1L4 15.4l.5-2.3-2-1.1V12l2-1.2-.5-2.3 2.3-.4 1-2 2.1 1L12 6l2.5 1.1 2-1 1.2 2.1L20 8.6l-.5 2.3 2 1.1Z"/>
@@ -427,6 +432,7 @@
           <button class="chrono-btn chrono-pause" id="chronoPauseBtn" type="button" disabled></button>
           <button class="chrono-btn chrono-reset" id="chronoResetBtn" type="button"></button>
           <button class="record-open-btn" id="recordOpenBtn" type="button"></button>
+          <button class="record-open-btn defi-open-btn" id="challengeSendBtn" type="button">🎯 Envoyer comme défi</button>
         </div>
       </article>
 
@@ -940,5 +946,46 @@
   <script src="./data/all.js?v=20260712"></script>
   <script src="./js/auth.js?v=20260712"></script>
   <script src="./js/app.js?v=20260712"></script>
+
+  <!-- Défis à relever (F1) — "Envoyer comme défi" on the current draw -->
+  <style>
+    #challengeSendBtn { display: none; }
+    body.is-signed-in #challengeSendBtn { display: inline-flex; }
+    .defi-nav-trigger { display: none; }
+    body.is-signed-in .defi-nav-trigger { display: inline-flex; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"
+          integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k"
+          crossorigin="anonymous"></script>
+  <script src="./js/suite/i18n.js?v=20260717"></script>
+  <script src="./js/suite/core.js?v=20260717"></script>
+  <script src="./js/challenge.js?v=20260717"></script>
+  <script>
+  (function () {
+    function syncLocale() {
+      try { var lc = localStorage.getItem("impro-studio:locale:v1"); if (lc && window.ActoSuite && window.ActoSuite.setLocale) window.ActoSuite.setLocale(lc); } catch (e) {}
+    }
+    function ready() {
+      syncLocale();
+      var btn = document.getElementById("challengeSendBtn");
+      if (btn) {
+        if (window.ActoChallenge) btn.textContent = "🎯 " + window.ActoChallenge.label();
+        btn.addEventListener("click", function () {
+          if (!window.ActoChallenge || !window.actoApp) return;
+          if (window.actoApp.challengeReady && !window.actoApp.challengeReady()) return;
+          syncLocale();
+          window.ActoChallenge.open(window.actoApp.challengeSnapshot());
+        });
+      }
+      var nav = document.getElementById("challengesNavBtn");
+      if (nav) {
+        var txt = document.getElementById("challengesNavText");
+        if (txt && window.ActoSuite) txt.textContent = window.ActoSuite.t("myChallengesTitle");
+        nav.addEventListener("click", function () { if (window.ActoChallenge) { syncLocale(); window.ActoChallenge.openMine(); } });
+      }
+    }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", ready); else ready();
+  })();
+  </script>
 </body>
 </html>

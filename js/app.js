@@ -553,6 +553,31 @@
     } catch (e) { /* localStorage may be full or disabled; ignore */ }
   }
 
+  // Snapshot of the CURRENT draw for "Envoyer comme défi" (F1). Shape consumed by
+  // window.ActoChallenge (the modal) + defi.html (the recipient realization screen).
+  function challengeSnapshot() {
+    const ex = state.currentExercise || null;
+    const cat = state.currentCategory || null;
+    const isTroupe = state.mode === "troupe";
+    return {
+      kind:        isTroupe ? "exercise" : "impro",
+      title:       (isTroupe ? (ex && ex.name) : (cat && cat.name)) || state.currentTheme || "",
+      subtitle:    (isTroupe ? (ex && ex.desc) : (cat && cat.desc)) || "",
+      theme:       state.currentTheme || "",
+      category:    (cat && cat.name) || "",
+      nature:      state.currentNature || "",
+      players:     state.currentPlayers != null ? String(state.currentPlayers) : "",
+      durationSec: state.currentDurationSec || 0,
+      level:       state.level || "",
+      constraint:  state.currentConstraint || ""
+    };
+  }
+  function challengeReady() {
+    return !!(state.currentTheme || (state.currentExercise && state.currentExercise.name) ||
+              (state.currentCategory && state.currentCategory.name));
+  }
+  window.actoApp = Object.assign(window.actoApp || {}, { challengeSnapshot: challengeSnapshot, challengeReady: challengeReady });
+
   function loadLastImpro() {
     try {
       const raw = localStorage.getItem(LAST_IMPRO_KEY);
