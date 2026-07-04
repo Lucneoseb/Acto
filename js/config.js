@@ -30,7 +30,7 @@
       // clicking it lands the user on Supabase's raw "provider is not enabled"
       // error page. Empty = e-mail/password + magic link only.
       //   e.g. oauthProviders: ["google"]   or   ["google", "apple"]
-      oauthProviders: Object.freeze([])
+      oauthProviders: Object.freeze(["google"])
     })
   });
 
