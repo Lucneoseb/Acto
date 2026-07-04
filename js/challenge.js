@@ -20,12 +20,13 @@
     challengeCreate: "Créer le lien du défi", challengeCreating: "Création…",
     challengeNeedLogin: "Connecte-toi pour envoyer un défi.", challengeErr: "Impossible de créer le défi.",
     challengePlayersLabel: "Nombre d'improvisateurs",
+    challengeTimeLabel: "Minutage du défi", challengePlayTime: "Temps de jeu", challengeCaucus: "Caucus",
     challengeRedrawBtn: "Re-tirer le défi",
     receivedMasked: "Défi surprise",
     challengeReadyTitle: "Défi prêt !",
     challengeReadySub: "Partage ce lien : il ouvre le défi et l'enregistrement vidéo. La vidéo te reviendra par le canal que le destinataire choisira.",
     challengeCopy: "Copier le lien", challengeShareBtn: "Partager",
-    challengeShareText: "Je te lance un défi d'impro : « {title} ». Relève-le ici :",
+    challengeShareText: "Je te lance un défi d'impro surprise 🎁 Relève-le ici :",
     myChallengesTitle: "Mes défis", myChallengesEmpty: "Tu n'as pas encore envoyé de défi.",
     receivedTitle: "Défis reçus", receivedEmpty: "Aucun défi reçu pour l'instant.",
     challengeStatusSent: "Envoyé", challengeStatusOpened: "Ouvert", challengeStatusDone: "Relevé",
@@ -78,6 +79,12 @@
     ".chg-playersrow{display:flex;gap:.45rem;align-items:center;}" +
     ".chg-players{width:5.2rem;flex:0 0 auto;text-align:center;font-weight:700;}" +
     ".chg-playersrow .chg-btn{flex:1 1 auto;}" +
+    ".chg-timerow{display:flex;gap:.5rem;align-items:center;justify-content:space-between;margin-top:.35rem;}" +
+    ".chg-tlab{display:flex;gap:.4rem;align-items:center;font:600 .9rem/1 'Inter',sans-serif;color:var(--ink,#f4f0e6);flex:1 1 auto;}" +
+    ".chg-tsel{flex:0 0 auto;width:auto;min-width:6.5rem;padding:.4rem .5rem;}" +
+    ".chg-check{display:flex;gap:.45rem;align-items:center;font:600 .9rem/1 'Inter',sans-serif;color:var(--ink,#f4f0e6);cursor:pointer;flex:1 1 auto;}" +
+    ".chg-check input{width:1.05rem;height:1.05rem;accent-color:var(--gold,#d4af37);}" +
+    ".chg-tsel:disabled{opacity:.4;}" +
     ".chg-linkbox{display:flex;align-items:center;gap:.4rem;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.16);border-radius:10px;padding:.45rem .55rem;}" +
     ".chg-linkbox input{flex:1 1 auto;background:none;border:none;color:var(--ink,#f4f0e6);font:500 .82rem/1.2 'Inter',monospace;min-width:0;}" +
     ".chg-qr{margin:.2rem auto 0;background:#fff;border-radius:12px;padding:8px;width:160px;max-width:60vw;}" +
@@ -139,6 +146,13 @@
       return '<div class="chg-ep-t">' + esc(s.title || "") + "</div>" +
         (s.subtitle ? '<p class="chg-sub">' + esc(s.subtitle) + "</p>" : "") + chips(s);
     }
+    // Timing controls the sender sets: play time (impro) + optional caucus.
+    var DUR_OPTS = [30, 45, 60, 90, 120, 150, 180, 240, 300], CAUCUS_OPTS = [10, 15, 20, 30, 45, 60, 90];
+    function fmtDurLabel(s) { var m = Math.floor(s / 60), sec = s % 60; return (m ? (m + " min" + (sec ? " " + sec : "")) : (sec + " s")); }
+    function optList(vals, sel) { return vals.map(function (v) { return '<option value="' + v + '"' + (v === sel ? " selected" : "") + ">" + esc(fmtDurLabel(v)) + "</option>"; }).join(""); }
+    var initDur = parseInt(snapshot.durationSec, 10); if (DUR_OPTS.indexOf(initDur) < 0) initDur = 90;
+    var initCau = (snapshot.caucusSec != null && snapshot.caucusSec !== "") ? parseInt(snapshot.caucusSec, 10) : 20;
+    var initCauOn = initCau > 0; if (!initCauOn) initCau = 20;
     var canRedraw = !!(window.actoApp && window.actoApp.challengeRedraw);
     var h = '<h2 class="chg-h">📣 ' + esc(T("challengeModalTitle")) + "</h2>" +
       '<div class="chg-ep" data-rc="ep">' + epCardHtml(snapshot) + "</div>" +
@@ -146,6 +160,13 @@
         '<div class="chg-playersrow">' +
           '<input class="chg-in chg-players" data-rc="players" type="number" min="1" max="12" inputmode="numeric" value="' + esc(String(parseInt(snapshot.players, 10) || "")) + '" />' +
           (canRedraw ? '<button type="button" class="chg-btn" data-rc="redraw">🎲 ' + esc(T("challengeRedrawBtn")) + "</button>" : "") +
+        "</div></div>" +
+      '<div class="chg-field"><span class="chg-label">' + esc(T("challengeTimeLabel")) + "</span>" +
+        '<label class="chg-timerow"><span class="chg-tlab">🎬 ' + esc(T("challengePlayTime")) + "</span>" +
+          '<select class="chg-in chg-tsel" data-rc="playtime">' + optList(DUR_OPTS, initDur) + "</select></label>" +
+        '<div class="chg-timerow">' +
+          '<label class="chg-check"><input type="checkbox" data-rc="caucuson"' + (initCauOn ? " checked" : "") + " /> <span>⏸ " + esc(T("challengeCaucus")) + "</span></label>" +
+          '<select class="chg-in chg-tsel" data-rc="caucustime"' + (initCauOn ? "" : " disabled") + ">" + optList(CAUCUS_OPTS, initCau) + "</select>" +
         "</div></div>" +
       '<div class="chg-field"><span class="chg-label">' + esc(T("challengeRecipientLabel")) + "</span>" +
         '<div data-rc="slot"></div>' +
@@ -164,19 +185,29 @@
     var hint = ui.card.querySelector('[data-rc="hint"]');
     var createBtn = ui.card.querySelector('[data-rc="create"]');
     var playersIn = ui.card.querySelector('[data-rc="players"]');
+    var playTimeSel = ui.card.querySelector('[data-rc="playtime"]');
+    var caucusChk = ui.card.querySelector('[data-rc="caucuson"]');
+    var caucusSel = ui.card.querySelector('[data-rc="caucustime"]');
     var epEl = ui.card.querySelector('[data-rc="ep"]');
     ui.card.querySelector('[data-rc="cancel"]').onclick = ui.close;
 
-    // The improviser-count filter: it overrides the snapshot, and the 🎲 redraw
-    // pulls a fresh theme + catégorie/exercice honouring that count.
+    // Fold the sender's overrides (improviser count, play time, caucus) into the
+    // snapshot. The 🎲 redraw pulls a fresh theme + catégorie/exercice honouring
+    // the improviser count.
     function applyPlayersOverride() {
       var n = playersIn ? parseInt(playersIn.value, 10) : NaN;
       if (!isNaN(n) && n > 0) snapshot.players = String(n);
+      if (playTimeSel) snapshot.durationSec = parseInt(playTimeSel.value, 10) || snapshot.durationSec;
+      if (caucusChk && caucusSel) snapshot.caucusSec = caucusChk.checked ? (parseInt(caucusSel.value, 10) || 20) : 0;
     }
     if (playersIn) playersIn.addEventListener("change", function () {
       applyPlayersOverride();
       if (epEl) epEl.innerHTML = epCardHtml(snapshot);
     });
+    if (playTimeSel) playTimeSel.addEventListener("change", function () { applyPlayersOverride(); if (epEl) epEl.innerHTML = epCardHtml(snapshot); });
+    if (caucusChk) caucusChk.addEventListener("change", function () { if (caucusSel) caucusSel.disabled = !caucusChk.checked; applyPlayersOverride(); });
+    if (caucusSel) caucusSel.addEventListener("change", applyPlayersOverride);
+    applyPlayersOverride();   // seed the snapshot with the initial timing values
     var redrawBtn = ui.card.querySelector('[data-rc="redraw"]');
     if (redrawBtn) redrawBtn.onclick = function () {
       try {
@@ -225,13 +256,15 @@
         if (res && res.error) { createBtn.disabled = false; createBtn.textContent = "🔗 " + T("challengeCreate"); toast(T("challengeErr")); return; }
         var token = res && res.data; if (!token) { createBtn.disabled = false; createBtn.textContent = "🔗 " + T("challengeCreate"); toast(T("challengeErr")); return; }
         ui.close();
-        renderShare(String(token), snapshot.title || "");
+        renderShare(String(token));
       }, function () { createBtn.disabled = false; createBtn.textContent = "🔗 " + T("challengeCreate"); toast(T("challengeErr")); });
     };
   }
 
   /* ---- share-link screen ------------------------------------------------- */
-  function renderShare(token, title) {
+  // NO SPOILER: the share message never carries the épreuve title — the recipient
+  // must discover it in the video announce.
+  function renderShare(token) {
     var link = baseUrl() + "defi.html?token=" + encodeURIComponent(token);
     var qr = buildQr(link);
     var h = '<h2 class="chg-h">🎉 ' + esc(T("challengeReadyTitle")) + "</h2>" +
@@ -254,7 +287,7 @@
     };
     var shareBtn = ui.card.querySelector('[data-rc="share"]');
     if (shareBtn) shareBtn.onclick = function () {
-      try { navigator.share({ title: T("challengeModalTitle"), text: TF("challengeShareText", { title: title || "" }), url: link }).catch(function () {}); } catch (e) {}
+      try { navigator.share({ title: T("challengeModalTitle"), text: T("challengeShareText"), url: link }).catch(function () {}); } catch (e) {}
     };
   }
 
@@ -280,7 +313,7 @@
           '<button type="button" class="chg-btn" data-tk="' + esc(r.token) + '">' + esc(T("challengeRelink")) + "</button></div>";
       }).join("");
       [].forEach.call(list.querySelectorAll("[data-tk]"), function (b) {
-        b.onclick = function () { ui.close(); renderShare(b.getAttribute("data-tk"), ""); };
+        b.onclick = function () { ui.close(); renderShare(b.getAttribute("data-tk")); };
       });
     }, function () { list.innerHTML = '<p class="chg-empty">' + esc(T("challengeErr")) + "</p>"; });
   }

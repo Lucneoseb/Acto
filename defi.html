@@ -61,6 +61,26 @@
     .defi-video { aspect-ratio: 16/10; max-height: 52svh; }
     .defi-clock { font-size: clamp(2.2rem, 10vh, 3.4rem); }
   }
+  /* ── Full-bleed recording stage: the camera + baked overlay fill the whole
+       screen and honour the orientation locked at launch (portrait / paysage). ── */
+  body.defi-recording { overflow: hidden; background: #000; }
+  .defi-record-full { position: fixed; inset: 0; z-index: 60; background: #000; display: flex; align-items: center; justify-content: center; }
+  .defi-record-full .defi-stage { position: absolute; inset: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+  .defi-record-full .defi-video { width: 100%; height: 100%; max-width: none; max-height: none; aspect-ratio: auto;
+    border: none; border-radius: 0; background: #000; object-fit: contain; }
+  .defi-stop-fab { position: fixed; left: 50%; bottom: max(1.1rem, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 70;
+    width: 4.2rem; height: 4.2rem; border-radius: 50%; border: 2px solid rgba(255,255,255,0.85); background: rgba(239,91,91,0.94); color: #fff;
+    font-size: 1.4rem; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer;
+    box-shadow: 0 6px 22px rgba(0,0,0,0.5); -webkit-tap-highlight-color: transparent; }
+  .defi-stop-fab:active { transform: translateX(-50%) scale(0.93); }
+  .defi-stop-fab[hidden] { display: none !important; }   /* flex container: the hidden attr needs the !important override */
+  /* No-canvas fallback: DOM HUD painted over the raw <video> (overlay isn't baked there) */
+  .defi-record-full .defi-fallback-hud { position: absolute; inset: 0; z-index: 65; pointer-events: none; text-align: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 0.5rem;
+    padding: max(1rem, env(safe-area-inset-top)) 1rem 6rem; }
+  .defi-brand-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem; height: 55vh; }
+  .defi-brand-mark { font-family: "Bebas Neue", sans-serif; font-size: clamp(3rem, 16vw, 6rem); letter-spacing: .12em; color: var(--gold); line-height: 1; }
+  .defi-brand-sub { font: 600 clamp(0.9rem, 3.5vw, 1.3rem)/1 "Inter", sans-serif; color: var(--ink); letter-spacing: .04em; }
 </style>
 </head>
 <body class="suite-body defi-body">
@@ -100,15 +120,26 @@
     var stream = null, recorder = null, chunks = [], recMime = "", recExt = "webm";
     var blob = null, blobUrl = null;
     var tk = null, tEnd = 0, tDur = 0;
-    // Phased, info-in-video recording: 10s annonce → 20s caucus → impro.
-    var ANNOUNCE_SEC = 10, CAUCUS_SEC = 20, PREROLL_SEC = 3;
+    // Baked-in recording sequence: logo intro → 10s annonce → caucus (sender-set,
+    // may be 0) → impro (sender-set) → logo outro. Intro/outro fade in+out ≈2s.
+    var ANNOUNCE_SEC = 10, PREROLL_SEC = 3, LOGO_SEC = 2;
     var canvas = null, cctx = null, rafId = 0, camVideo = null, compStream = null, usingCanvas = false;
     var phase = "", phaseEnd = 0, phaseStart = 0;
     var preTk = null, recActive = false, startLandscape = null;
+    var logoImg = null, logoReady = false;
 
     function durSec() { var d = data && data.snapshot ? parseInt(data.snapshot.durationSec, 10) : 0; return (d > 0 && d < 3600) ? d : 0; }
+    // Caucus length the sender chose: an explicit 0 means "no caucus"; unset → 20s (legacy default).
+    function caucusSec() {
+      var c = data && data.snapshot ? data.snapshot.caucusSec : null;
+      if (c === 0 || c === "0") return 0;
+      var n = parseInt(c, 10); return (n > 0 && n < 600) ? n : 20;
+    }
     function epTitle() { return (data && data.snapshot && data.snapshot.title) || t("defiTitle"); }
     function playersN() { var n = data && data.snapshot ? parseInt(data.snapshot.players, 10) : 0; return (n > 0 && n < 99) ? n : 0; }
+
+    // Preload the Acto logo for the baked-in intro/outro (drawn on the canvas).
+    try { logoImg = new Image(); logoImg.onload = function () { logoReady = true; }; logoImg.src = "./assets/logo.png?v=20260716"; } catch (e) { /* fallback: text-only intro */ }
 
     // Preload the display fonts so the canvas overlay renders in Bebas/Inter,
     // not a fallback — they're what makes the baked-in panels look designed.
@@ -174,7 +205,7 @@
     // with a freshly-created blob URL and revoking it before load would break the
     // <video>/<a download>. Blob URLs are freed only when LEAVING a blob screen
     // (startRealize / renderDownloadFallback / markDoneAndThank).
-    function view(html) { root.innerHTML = html; }
+    function view(html) { document.body.classList.remove("defi-recording"); root.innerHTML = html; }
 
     function renderLoading() { view('<div class="suite-auth-spinner" style="margin:0 auto"></div><p class="defi-sub">' + esc(t("defiLoading")) + '</p>'); }
 
@@ -245,11 +276,13 @@
         '<h1 class="defi-title">' + esc(t("defiCamDenied")) + '</h1>' +
         '<p class="defi-sub">' + esc(t("defiCamDeniedSub")) + '</p>' +
         '<button type="button" class="suite-btn suite-btn-primary" data-act="retry">↻ ' + esc(t("defiCamRetry")) + '</button>');
-      root.querySelector('[data-act="retry"]').onclick = startRealize;
+      // Retry is a real click gesture → re-enter fullscreen + orientation lock too.
+      root.querySelector('[data-act="retry"]').onclick = function () { tryImmersive(); startRealize(); };
     }
 
     function startRealize() {
       revoke(); stopStream();   // free a prior preview blob + any leftover stream (Refaire / retry)
+      clearTimer();             // a redo must never inherit a live sequence timer
       if (preTk) { clearInterval(preTk); preTk = null; }
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { renderCamError(); return; }
       renderLoading();
@@ -323,16 +356,26 @@
       try { recorder = recMime ? new MediaRecorder(recStream, { mimeType: recMime }) : new MediaRecorder(recStream); }
       catch (e) { try { recorder = new MediaRecorder(recStream); } catch (e2) { renderCamError(); return; } }
       recorder.ondataavailable = function (ev) { if (ev.data && ev.data.size) chunks.push(ev.data); };
-      recorder.onstop = function () { blob = new Blob(chunks, { type: recMime || "video/webm" }); renderPreview(); };
+      recorder.onstop = function () {
+        blob = new Blob(chunks, { type: recMime || "video/webm" });
+        // A MediaRecorder can stop WITHOUT stopRecording() (track ended, phone call,
+        // permission revoked, recorder error) — run the full, idempotent cleanup so
+        // no timer keeps ticking and the camera light goes off before the preview.
+        clearTimer(); recActive = false; startLandscape = null;
+        releaseImmersive(); stopStream();
+        renderPreview();
+      };
 
-      view('<span class="defi-badge-rec">' + esc(t("defiRecording")) + '</span>' +
-        (usingCanvas ? '' :
-          '<div class="defi-phase" id="defiPhase">' + esc(t("defiPhaseAnnounce")) + '</div>' +
-          '<div class="defi-clock" id="defiClock">' + esc(fmtSec(ANNOUNCE_SEC)) + '</div>') +
+      // Full-bleed recording stage: the camera (with its baked overlay) fills the
+      // screen and matches the orientation the recipient locked at launch.
+      view('<div class="defi-record-full" id="defiRec">' +
         '<div class="defi-stage" id="defiStage"></div>' +
-        (usingCanvas ? '' : '<div class="defi-fallback-info" id="defiFbInfo"></div>') +
-        '<div class="defi-actions solo"><button type="button" class="suite-btn suite-btn-primary" data-act="stop">⏹ ' + esc(t("defiStop")) + '</button></div>' +
-        '<div class="defi-rotate-warn" id="defiRotateWarn" hidden>🔄 ' + esc(t("defiKeepOrient")) + '</div>');
+        (usingCanvas ? '' :
+          '<div class="defi-fallback-hud"><div class="defi-phase" id="defiPhase"></div><div class="defi-clock" id="defiClock"></div><div class="defi-fallback-info" id="defiFbInfo"></div></div>') +
+        '<button type="button" class="defi-stop-fab" data-act="stop" hidden aria-label="' + esc(t("defiStop")) + '">⏹</button>' +
+        '<div class="defi-rotate-warn" id="defiRotateWarn" hidden>🔄<br>' + esc(t("defiKeepOrient")) + '</div>' +
+      '</div>');
+      document.body.classList.add("defi-recording");
       var stage = document.getElementById("defiStage");
       if (usingCanvas) { canvas.className = "defi-video is-live"; canvas.setAttribute("aria-label", "record"); stage.appendChild(canvas); }
       else {
@@ -340,7 +383,7 @@
         v.setAttribute("playsinline", ""); v.setAttribute("autoplay", "");
         try { v.srcObject = stream; } catch (e) {} stage.appendChild(v);
       }
-      root.querySelector('[data-act="stop"]').onclick = stopRecording;
+      root.querySelector('[data-act="stop"]').onclick = finishNow;   // outro logo, then stop
 
       try { recorder.start(); } catch (e) { renderCamError(); return; }
       recActive = true;
@@ -353,7 +396,10 @@
     function updateFallbackInfo() {
       var box = document.getElementById("defiFbInfo"); if (!box) return;
       var s = data.snapshot || {};
-      if (phase === "announce") {
+      if (phase === "intro" || phase === "outro") {
+        box.innerHTML = '<div class="defi-brand-card"><div class="defi-brand-mark">ACTO</div>' +
+          '<div class="defi-brand-sub">The Impro Studio</div></div>';
+      } else if (phase === "announce") {
         box.innerHTML = '<div class="defi-card"><div class="defi-kicker">' + esc(t("defiCategoryLabel")) + '</div>' +
           '<h2 class="defi-card-title">' + esc(s.title || "") + '</h2>' +
           (s.subtitle ? '<p class="defi-card-desc">' + esc(s.subtitle) + '</p>' : "") +
@@ -367,21 +413,28 @@
     }
 
     function phaseLabel() {
+      if (phase === "intro" || phase === "outro") return "";
       return phase === "caucus" ? t("defiPhaseCaucus") : phase === "impro" ? t("defiPhaseImpro") : t("defiPhaseAnnounce");
     }
     function paintClock(n, up) {
-      var el = document.getElementById("defiClock"); if (el) { el.textContent = fmtSec(n); el.classList.toggle("is-low", !up && n <= 5); }
+      var logo = phase === "intro" || phase === "outro";
+      var el = document.getElementById("defiClock"); if (el) { el.textContent = logo ? "" : fmtSec(n); el.classList.toggle("is-low", !up && !logo && n <= 5); }
       var pl = document.getElementById("defiPhase"); if (pl) pl.textContent = phaseLabel();
       if (!usingCanvas) updateFallbackInfo();
     }
-    // Sequence: 10s annonce → 20s caucus → impro (fixed duration, or count-up if none).
+    // Sequence: logo intro → 10s annonce → caucus (if any) → impro → (finish) → logo outro.
     function runSequence() {
-      var seq = [{ name: "announce", sec: ANNOUNCE_SEC }, { name: "caucus", sec: CAUCUS_SEC }, { name: "impro", sec: durSec() }];
+      var seq = [{ name: "intro", sec: LOGO_SEC }, { name: "announce", sec: ANNOUNCE_SEC }];
+      if (caucusSec() > 0) seq.push({ name: "caucus", sec: caucusSec() });
+      seq.push({ name: "impro", sec: durSec() });
       var i = 0;
       function step() {
         clearTimer();
-        if (i >= seq.length) { stopRecording(); return; }
+        if (i >= seq.length) { finishNow(); return; }   // impro done → outro logo → stop
         var ph = seq[i++]; phase = ph.name; phaseEnd = 0; phaseStart = 0;
+        // The stop control only appears once the impro itself starts, so an
+        // accidental tap during the intro/announce/caucus can't discard the take.
+        var fab = root.querySelector(".defi-stop-fab"); if (fab) fab.hidden = (phase !== "impro");
         if (ph.sec > 0) {
           phaseEnd = Date.now() + ph.sec * 1000; paintClock(ph.sec);
           tk = setInterval(function () {
@@ -390,11 +443,22 @@
             if (rem <= 0) step();
           }, 200);
         } else {
+          // open-ended impro (no fixed duration): count up until the recipient stops
           phaseStart = Date.now(); paintClock(0, true);
           tk = setInterval(function () { paintClock(Math.round((Date.now() - phaseStart) / 1000), true); }, 250);
         }
       }
       step();
+    }
+    // Stop / natural end → play the outro logo (≈2s) then really stop, so every
+    // recording ends on the branded card.
+    function finishNow() {
+      if (phase === "outro") { stopRecording(); return; }
+      if (phase !== "impro") return;   // stop only ends the performance — never the intro/announce/caucus
+      clearTimer();
+      phase = "outro"; phaseStart = 0; phaseEnd = Date.now() + LOGO_SEC * 1000;
+      paintClock(0);                   // clear the fallback HUD's stale "IMPRO"/red 0:00 before the outro card
+      tk = setInterval(function () { if (Date.now() >= phaseEnd) { clearTimer(); stopRecording(); } }, 100);
     }
 
     function drawLoop() {
@@ -469,6 +533,27 @@
       return chips;
     }
 
+    // Branded intro/outro card: solid background (hides the camera) + Acto logo +
+    // "The Impro Studio", drawn at the given alpha (fade in→out).
+    function drawLogo(g, w, h, alpha) {
+      var u = Math.min(w, h) / 100, cx = w / 2, cy = h / 2;
+      g.fillStyle = "#0c0814"; g.fillRect(0, 0, w, h);
+      g.save(); g.globalAlpha = Math.max(0, Math.min(1, alpha));
+      g.textAlign = "center";
+      if (logoReady && logoImg && logoImg.width) {
+        var lw = Math.min(w * 0.5, 46 * u), lh = lw * (logoImg.height / logoImg.width);
+        try { g.drawImage(logoImg, cx - lw / 2, cy - lh - 2 * u, lw, lh); } catch (e) {}
+        g.textBaseline = "top";
+        g.fillStyle = "#e8c766"; g.font = FB(8 * u); g.fillText("ACTO", cx, cy + 1.5 * u);
+        g.fillStyle = "rgba(244,240,230,0.88)"; g.font = FI(600, 3.1 * u); g.fillText("The Impro Studio", cx, cy + 10 * u);
+      } else {
+        g.textBaseline = "middle";
+        g.fillStyle = "#e8c766"; g.font = FB(15 * u); g.fillText("ACTO", cx, cy - 3 * u);
+        g.fillStyle = "rgba(244,240,230,0.9)"; g.font = FI(600, 3.6 * u); g.fillText("The Impro Studio", cx, cy + 7 * u);
+      }
+      g.textAlign = "left"; g.textBaseline = "top"; g.restore();
+    }
+
     function drawOverlay(g, w, h) {
       var s = data.snapshot || {}, now = Date.now();
       var u = Math.min(w, h) / 100;                      // orientation-neutral unit
@@ -478,7 +563,31 @@
       var num = remaining >= 0 ? fmtSec(remaining) : (phaseStart > 0 ? fmtSec(Math.round((now - phaseStart) / 1000)) : "");
       var low = remaining >= 0 && remaining <= 5 && phase === "impro";
 
-      // ── top band: REC · PHASE (left) + chrono (right) ──────────────────
+      // ── intro / outro: logo with a quick fade in + out (≈2s total) ──────
+      if (phase === "intro" || phase === "outro") {
+        var Tl = LOGO_SEC, tsec = phaseEnd > 0 ? (Tl - Math.max(0, (phaseEnd - now) / 1000)) : 0, FADE = 0.28;
+        drawLogo(g, w, h, Math.min(tsec / FADE, (Tl - tsec) / FADE));
+        return;
+      }
+
+      // ── impro: MINIMAL — no "REC · IMPRO"; catégorie + thème in the corner,
+      //    a discreet chrono top-right. The performance stays unobstructed. ──
+      if (phase === "impro") {
+        var tH = 10 * u;
+        var gg = g.createLinearGradient(0, 0, 0, tH); gg.addColorStop(0, "rgba(6,4,12,0.66)"); gg.addColorStop(1, "rgba(6,4,12,0)");
+        g.fillStyle = gg; g.fillRect(0, 0, w, tH);
+        g.textBaseline = "top"; g.textAlign = "left";
+        g.fillStyle = "#ef5b5b"; g.beginPath(); g.arc(pad + 1.2 * u, pad + 1.7 * u, 1.1 * u, 0, 7); g.fill();
+        var parts = [];
+        if (s.category) parts.push("🏷 " + s.category);
+        if (s.theme) parts.push("🎭 " + s.theme);
+        g.fillStyle = "rgba(255,255,255,0.94)"; g.font = FI(600, 3 * u);
+        g.fillText(ellipsize(g, parts.join("   ·   "), w - 20 * u), pad + 3.2 * u, pad + 0.1 * u);
+        if (num) { g.textAlign = "right"; g.fillStyle = low ? "#ef6b6b" : "#f4d06a"; g.font = FB(6.5 * u); g.fillText(num, w - pad, pad - 0.6 * u); g.textAlign = "left"; }
+        return;
+      }
+
+      // ── announce / caucus: top band REC · PHASE (left) + chrono (right) ─
       var topH = 15 * u;
       var grd = g.createLinearGradient(0, 0, 0, topH);
       grd.addColorStop(0, "rgba(6,4,12,0.88)"); grd.addColorStop(1, "rgba(6,4,12,0)");
@@ -489,11 +598,11 @@
       g.fillText("REC", pad + 3.4 * u, pad + 0.4 * u);
       g.fillStyle = "#e8c766"; g.font = FI(700, 3.4 * u);
       g.fillText("·  " + phaseLabel().toUpperCase(), pad + 3.4 * u + g.measureText("REC").width + 1.2 * u, pad + 0.4 * u);
-      g.textAlign = "right"; g.fillStyle = low ? "#ef6b6b" : "#f4d06a"; g.font = FB(9 * u);
+      g.textAlign = "right"; g.fillStyle = "#f4d06a"; g.font = FB(9 * u);
       g.fillText(num, w - pad, pad - 0.8 * u);
       g.textAlign = "left";
 
-      // ── bottom band: info chips (always present in the recording) ──────
+      // ── bottom band: info chips ─────────────────────────────────────────
       var botH = 12 * u;
       var grd2 = g.createLinearGradient(0, h - botH, 0, h);
       grd2.addColorStop(0, "rgba(6,4,12,0)"); grd2.addColorStop(1, "rgba(6,4,12,0.85)");
@@ -569,7 +678,8 @@
           '<button type="button" class="suite-btn suite-btn-primary" data-act="send">📤 ' + esc(t("defiSend")) + '</button>' +
         '</div>' +
         '<p class="defi-note">' + esc(t("defiPrivacyShort")) + '</p>');
-      root.querySelector('[data-act="redo"]').onclick = startRealize;
+      // Redo is a real click gesture → the retake gets the same lock as the first take.
+      root.querySelector('[data-act="redo"]').onclick = function () { tryImmersive(); startRealize(); };
       root.querySelector('[data-act="send"]').onclick = doSend;
     }
 
@@ -631,7 +741,13 @@
       }, function () { renderError(); });
     }
 
-    window.addEventListener("pagehide", function () { clearTimer(); stopStream(); });
+    window.addEventListener("pagehide", function () {
+      clearTimer();
+      if (preTk) { clearInterval(preTk); preTk = null; }   // a bfcache restore must not resume the pre-roll
+      recActive = false; startLandscape = null;
+      try { if (recorder && recorder.state !== "inactive") recorder.stop(); } catch (e) {}
+      stopStream();
+    });
     if (S && S.applyLocale) { try { S.applyLocale(); } catch (e) {} }
     boot();
   })();

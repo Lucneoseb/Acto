@@ -583,6 +583,9 @@
   // by the time we snapshot — the reel animation just finishes in the background.
   function challengeRedraw(playersCount) {
     if (state.isGenerating) return challengeSnapshot();
+    // Mirror generateAll's guard: custom-themes mode with an empty list would fill
+    // the reel with "undefined" and strip the theme — keep the current draw instead.
+    if (state.useCustom && state.customThemes.length === 0) return challengeSnapshot();
     try { spinTarget("theme", 0); } catch (e) { try { pickFor("theme"); } catch (e2) {} }
     const slot = state.mode === "match" ? "category" : "exercise";
     try { spinTarget(slot, 0); } catch (e) { try { pickFor(slot); } catch (e2) {} }
