@@ -576,7 +576,26 @@
     return !!(state.currentTheme || (state.currentExercise && state.currentExercise.name) ||
               (state.currentCategory && state.currentCategory.name));
   }
-  window.actoApp = Object.assign(window.actoApp || {}, { challengeSnapshot: challengeSnapshot, challengeReady: challengeReady });
+  // Redraw the challenge from inside the "Envoyer comme défi" modal: fresh theme +
+  // catégorie/exercice (the on-page reels spin along), with an optional FORCED
+  // improviser count (the modal's filter) instead of a random players draw.
+  // pickFor runs synchronously on spinTarget's first line, so the state is fresh
+  // by the time we snapshot — the reel animation just finishes in the background.
+  function challengeRedraw(playersCount) {
+    if (state.isGenerating) return challengeSnapshot();
+    try { spinTarget("theme", 0); } catch (e) { try { pickFor("theme"); } catch (e2) {} }
+    const slot = state.mode === "match" ? "category" : "exercise";
+    try { spinTarget(slot, 0); } catch (e) { try { pickFor(slot); } catch (e2) {} }
+    const n = parseInt(playersCount, 10);
+    if (!isNaN(n) && n > 0) {
+      state.currentPlayers = n;
+      const trk = $("#reel-players");
+      if (trk) { trk.style.transition = "none"; trk.style.transform = "translateY(0)"; trk.innerHTML = '<div class="reel-item final">' + escapeHtml(String(n)) + "</div>"; }
+    }
+    saveLastImpro();
+    return challengeSnapshot();
+  }
+  window.actoApp = Object.assign(window.actoApp || {}, { challengeSnapshot: challengeSnapshot, challengeReady: challengeReady, challengeRedraw: challengeRedraw });
 
   function loadLastImpro() {
     try {

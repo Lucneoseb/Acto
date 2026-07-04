@@ -19,6 +19,9 @@
     challengeMsgLabel: "Petit mot (optionnel)", challengeMsgPh: "Relève ce défi 😄",
     challengeCreate: "Créer le lien du défi", challengeCreating: "Création…",
     challengeNeedLogin: "Connecte-toi pour envoyer un défi.", challengeErr: "Impossible de créer le défi.",
+    challengePlayersLabel: "Nombre d'improvisateurs",
+    challengeRedrawBtn: "Re-tirer le défi",
+    receivedMasked: "Défi surprise",
     challengeReadyTitle: "Défi prêt !",
     challengeReadySub: "Partage ce lien : il ouvre le défi et l'enregistrement vidéo. La vidéo te reviendra par le canal que le destinataire choisira.",
     challengeCopy: "Copier le lien", challengeShareBtn: "Partager",
@@ -72,6 +75,9 @@
     ".chg-btn.pri{background:linear-gradient(180deg,var(--gold,#d4af37),#b9932c);border-color:transparent;color:#1a1206;}" +
     ".chg-btn:disabled{opacity:.55;cursor:default;}" +
     ".chg-btn.grow{flex:1 1 auto;}" +
+    ".chg-playersrow{display:flex;gap:.45rem;align-items:center;}" +
+    ".chg-players{width:5.2rem;flex:0 0 auto;text-align:center;font-weight:700;}" +
+    ".chg-playersrow .chg-btn{flex:1 1 auto;}" +
     ".chg-linkbox{display:flex;align-items:center;gap:.4rem;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.16);border-radius:10px;padding:.45rem .55rem;}" +
     ".chg-linkbox input{flex:1 1 auto;background:none;border:none;color:var(--ink,#f4f0e6);font:500 .82rem/1.2 'Inter',monospace;min-width:0;}" +
     ".chg-qr{margin:.2rem auto 0;background:#fff;border-radius:12px;padding:8px;width:160px;max-width:60vw;}" +
@@ -129,9 +135,18 @@
     if (!sbc()) { toast(T("challengeNeedLogin")); return; }
     var recipient = null;   // {id, label}
 
+    function epCardHtml(s) {
+      return '<div class="chg-ep-t">' + esc(s.title || "") + "</div>" +
+        (s.subtitle ? '<p class="chg-sub">' + esc(s.subtitle) + "</p>" : "") + chips(s);
+    }
+    var canRedraw = !!(window.actoApp && window.actoApp.challengeRedraw);
     var h = '<h2 class="chg-h">📣 ' + esc(T("challengeModalTitle")) + "</h2>" +
-      '<div class="chg-ep"><div class="chg-ep-t">' + esc(snapshot.title || "") + "</div>" +
-        (snapshot.subtitle ? '<p class="chg-sub">' + esc(snapshot.subtitle) + "</p>" : "") + chips(snapshot) + "</div>" +
+      '<div class="chg-ep" data-rc="ep">' + epCardHtml(snapshot) + "</div>" +
+      '<div class="chg-field"><span class="chg-label">' + esc(T("challengePlayersLabel")) + "</span>" +
+        '<div class="chg-playersrow">' +
+          '<input class="chg-in chg-players" data-rc="players" type="number" min="1" max="12" inputmode="numeric" value="' + esc(String(parseInt(snapshot.players, 10) || "")) + '" />' +
+          (canRedraw ? '<button type="button" class="chg-btn" data-rc="redraw">🎲 ' + esc(T("challengeRedrawBtn")) + "</button>" : "") +
+        "</div></div>" +
       '<div class="chg-field"><span class="chg-label">' + esc(T("challengeRecipientLabel")) + "</span>" +
         '<div data-rc="slot"></div>' +
         '<input class="chg-in" data-rc="search" type="text" placeholder="' + esc(T("challengeSearchPh")) + '" autocomplete="off" />' +
@@ -148,7 +163,29 @@
     var slot = ui.card.querySelector('[data-rc="slot"]');
     var hint = ui.card.querySelector('[data-rc="hint"]');
     var createBtn = ui.card.querySelector('[data-rc="create"]');
+    var playersIn = ui.card.querySelector('[data-rc="players"]');
+    var epEl = ui.card.querySelector('[data-rc="ep"]');
     ui.card.querySelector('[data-rc="cancel"]').onclick = ui.close;
+
+    // The improviser-count filter: it overrides the snapshot, and the 🎲 redraw
+    // pulls a fresh theme + catégorie/exercice honouring that count.
+    function applyPlayersOverride() {
+      var n = playersIn ? parseInt(playersIn.value, 10) : NaN;
+      if (!isNaN(n) && n > 0) snapshot.players = String(n);
+    }
+    if (playersIn) playersIn.addEventListener("change", function () {
+      applyPlayersOverride();
+      if (epEl) epEl.innerHTML = epCardHtml(snapshot);
+    });
+    var redrawBtn = ui.card.querySelector('[data-rc="redraw"]');
+    if (redrawBtn) redrawBtn.onclick = function () {
+      try {
+        var fresh = window.actoApp.challengeRedraw(playersIn ? playersIn.value : null);
+        if (fresh) snapshot = fresh;
+      } catch (e) { /* keep the current snapshot */ }
+      applyPlayersOverride();
+      if (epEl) epEl.innerHTML = epCardHtml(snapshot);
+    };
 
     function showChosen() {
       slot.innerHTML = '<div class="chg-chosen">✅ ' + esc(TF("challengeChosen", { name: recipient.label })) + ' <button type="button" class="chg-link-link" data-rc="clear">' + esc(T("challengeClear")) + "</button></div>";
@@ -176,6 +213,7 @@
 
     createBtn.onclick = function () {
       var sb = sbc(); if (!sb) { toast(T("challengeNeedLogin")); return; }
+      applyPlayersOverride();
       var msg = ui.card.querySelector('[data-rc="msg"]').value.trim();
       createBtn.disabled = true; createBtn.textContent = T("challengeCreating");
       Promise.resolve(sb.rpc("create_challenge", {
@@ -256,7 +294,9 @@
       if (res && res.error) { list.innerHTML = '<p class="chg-empty">' + esc(T("challengeErr")) + "</p>"; return; }
       if (!rows.length) { list.innerHTML = '<p class="chg-empty">' + esc(T("receivedEmpty")) + "</p>"; return; }
       list.innerHTML = rows.map(function (r) {
-        return '<div class="chg-row"><div class="chg-row-main"><div class="chg-row-t">' + esc(r.title || "—") + "</div>" +
+        // NO SPOILER: the épreuve stays a surprise until the in-video announce —
+        // never show the challenge title to its recipient.
+        return '<div class="chg-row"><div class="chg-row-main"><div class="chg-row-t">🎁 ' + esc(T("receivedMasked")) + "</div>" +
           '<div class="chg-row-sub">' + esc(TF("challengeFromName", { name: r.sender_name || "Acto" })) + "</div></div>" +
           statusBadge(r.status) +
           '<a class="chg-btn pri" href="' + esc(baseUrl() + "defi.html?token=" + encodeURIComponent(r.token)) + '">' + esc(T("challengeRelever")) + "</a></div>";

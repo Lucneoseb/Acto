@@ -30,6 +30,19 @@
   .defi-phase { font: 700 0.82rem/1 "Inter", sans-serif; letter-spacing: .16em; text-transform: uppercase; color: var(--gold-soft); }
   .defi-stage { width: 100%; display: flex; justify-content: center; }
   .defi-stage canvas.defi-video, .defi-stage video.defi-video { aspect-ratio: auto; }
+  /* The mystery card — the épreuve stays a surprise until the in-video announce */
+  .defi-card-mystery { align-items: center; text-align: center; border-color: color-mix(in srgb, var(--gold) 35%, transparent); background: color-mix(in srgb, var(--gold) 6%, transparent); }
+  .defi-card-mystery .defi-meta { justify-content: center; }
+  .defi-mystery-icon { font-size: 2.4rem; line-height: 1; filter: drop-shadow(0 4px 14px rgba(212,175,55,0.35)); }
+  /* 3-2-1 pre-roll */
+  .defi-preroll-n { font-family: "Bebas Neue", sans-serif; font-size: clamp(4rem, 18vw, 7rem); color: var(--gold); line-height: 1; }
+  .defi-preroll-n.pop { animation: defiPop .45s ease-out; }
+  @keyframes defiPop { 0% { transform: scale(1.55); opacity: .3; } 100% { transform: scale(1); opacity: 1; } }
+  /* Soft orientation lock: full-screen warning if the device is rotated mid-record */
+  .defi-rotate-warn { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; text-align: center; padding: 2rem;
+    background: rgba(6,4,12,0.92); color: var(--gold); font: 700 clamp(1.2rem, 4.5vw, 2rem)/1.35 "Inter", sans-serif; }
+  .defi-rotate-warn[hidden] { display: none; }
+  .defi-fallback-info { width: 100%; }
   .defi-video { width: 100%; max-width: 30rem; aspect-ratio: 3/4; background: #000; border-radius: 16px; object-fit: cover; border: 1px solid rgba(255,255,255,0.12); }
   .defi-video.is-preview { aspect-ratio: auto; max-height: 60svh; }
   .defi-badge-rec { display: inline-flex; align-items: center; gap: 0.4rem; color: #ef6b6b; font: 700 0.9rem/1 "Inter", sans-serif; letter-spacing: .05em; text-transform: uppercase; }
@@ -88,12 +101,52 @@
     var blob = null, blobUrl = null;
     var tk = null, tEnd = 0, tDur = 0;
     // Phased, info-in-video recording: 10s annonce → 20s caucus → impro.
-    var ANNOUNCE_SEC = 10, CAUCUS_SEC = 20;
+    var ANNOUNCE_SEC = 10, CAUCUS_SEC = 20, PREROLL_SEC = 3;
     var canvas = null, cctx = null, rafId = 0, camVideo = null, compStream = null, usingCanvas = false;
     var phase = "", phaseEnd = 0, phaseStart = 0;
+    var preTk = null, recActive = false, startLandscape = null;
 
     function durSec() { var d = data && data.snapshot ? parseInt(data.snapshot.durationSec, 10) : 0; return (d > 0 && d < 3600) ? d : 0; }
     function epTitle() { return (data && data.snapshot && data.snapshot.title) || t("defiTitle"); }
+    function playersN() { var n = data && data.snapshot ? parseInt(data.snapshot.players, 10) : 0; return (n > 0 && n < 99) ? n : 0; }
+
+    // Preload the display fonts so the canvas overlay renders in Bebas/Inter,
+    // not a fallback — they're what makes the baked-in panels look designed.
+    try {
+      if (document.fonts && document.fonts.load) {
+        document.fonts.load('400 40px "Bebas Neue"');
+        document.fonts.load('600 20px Inter'); document.fonts.load('700 20px Inter');
+      }
+    } catch (e) { /* ignore */ }
+    function FB(px) { return "400 " + Math.round(px) + 'px "Bebas Neue", Arial, sans-serif'; }
+    function FI(wght, px) { return wght + " " + Math.round(px) + "px Inter, Arial, sans-serif"; }
+
+    // ── orientation lock (best effort) + soft guard ─────────────────────
+    function tryImmersive() {
+      // Must be called synchronously from a user gesture (the consent click).
+      try {
+        var el = document.documentElement;
+        var p = el.requestFullscreen ? el.requestFullscreen() : Promise.reject();
+        Promise.resolve(p).then(function () {
+          try {
+            if (screen.orientation && screen.orientation.lock)
+              screen.orientation.lock(innerWidth >= innerHeight ? "landscape" : "portrait").catch(function () {});
+          } catch (e) {}
+        }).catch(function () {});
+      } catch (e) { /* iOS etc. — the soft guard below still warns */ }
+    }
+    function releaseImmersive() {
+      try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {}
+      try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(function () {}); } catch (e) {}
+    }
+    function orientGuard() {
+      var warn = document.getElementById("defiRotateWarn");
+      if (!recActive || startLandscape === null) { if (warn) warn.hidden = true; return; }
+      var nowLandscape = innerWidth >= innerHeight;
+      if (warn) warn.hidden = (nowLandscape === startLandscape);
+    }
+    window.addEventListener("resize", orientGuard);
+    try { window.addEventListener("orientationchange", orientGuard); } catch (e) {}
 
     // ── helpers ─────────────────────────────────────────────────────────
     function clearTimer() { if (tk) { clearInterval(tk); tk = null; } }
@@ -142,20 +195,26 @@
       return out ? '<div class="defi-meta">' + out + '</div>' : "";
     }
 
-    function epreuveCard(s) {
-      return '<div class="defi-card">' +
-        '<h2 class="defi-card-title">' + esc(s.title || t("defiTitle")) + '</h2>' +
-        (s.subtitle ? '<p class="defi-card-desc">' + esc(s.subtitle) + '</p>' : "") +
-        metaChips(s) +
+    // NO SPOILER: the épreuve (title / catégorie / thème) is revealed ONLY by the
+    // in-video announce. Before that, the recipient sees just the practical facts:
+    // how many improvisers and how long.
+    function mysteryCard() {
+      var chips = "";
+      if (playersN()) chips += '<span class="defi-chip">👥 ' + esc(tf("defiPlayersChip", { n: playersN() })) + '</span>';
+      if (durSec()) chips += '<span class="defi-chip">⏱ ' + esc(fmtSec(durSec())) + '</span>';
+      return '<div class="defi-card defi-card-mystery">' +
+        '<div class="defi-mystery-icon">🎁</div>' +
+        '<h2 class="defi-card-title">' + esc(t("defiMysteryTitle")) + '</h2>' +
+        '<p class="defi-card-desc">' + esc(t("defiMysteryBody")) + '</p>' +
+        (chips ? '<div class="defi-meta">' + chips + '</div>' : "") +
       '</div>';
     }
 
     function renderWelcome() {
-      var s = data.snapshot || {};
       var done = data.status === "done";
       view('<div class="defi-kicker">🎬 ' + esc(t("defiTitle")) + '</div>' +
         '<h1 class="defi-title">' + esc(tf("defiFrom", { name: data.sender_name || "Acto" })) + '</h1>' +
-        epreuveCard(s) +
+        mysteryCard() +
         (data.message ? '<div class="defi-msg">« ' + esc(data.message) + ' »</div>' : "") +
         (done ? '<p class="defi-sub">✅ ' + esc(t("defiAlreadyDone")) + '</p>' : "") +
         '<button type="button" class="suite-btn suite-btn-primary" data-act="go">🎥 ' + esc(t("defiStart")) + '</button>' +
@@ -164,20 +223,25 @@
     }
 
     function renderConsent() {
-      view('<div class="defi-kicker">🎬 ' + esc(epTitle()) + '</div>' +
+      view('<div class="defi-kicker">🎁 ' + esc(t("defiTitle")) + '</div>' +
         '<h1 class="defi-title">' + esc(t("defiConsentTitle")) + '</h1>' +
         '<p class="defi-sub">' + esc(t("defiConsentBody")) + '</p>' +
+        '<p class="defi-note">🔒 ' + esc(t("defiKeepOrientHint")) + '</p>' +
         '<div class="defi-actions solo">' +
           '<button type="button" class="suite-btn suite-btn-primary" data-act="start">🎥 ' + esc(t("defiConsentBtn")) + '</button>' +
         '</div>' +
         '<button type="button" class="suite-btn suite-btn-ghost" data-act="back">‹ ' + esc(t("commonBack") || "Retour") + '</button>');
-      root.querySelector('[data-act="start"]').onclick = startRealize;
+      root.querySelector('[data-act="start"]').onclick = function () {
+        tryImmersive();   // fullscreen + orientation lock — must run inside the click gesture
+        startRealize();
+      };
       root.querySelector('[data-act="back"]').onclick = renderWelcome;
     }
 
     function renderCamError() {
       stopStream();   // guarantee the camera/mic are released on every error path
-      view('<div class="defi-kicker">🎬 ' + esc(epTitle()) + '</div>' +
+      recActive = false; releaseImmersive();
+      view('<div class="defi-kicker">🎁 ' + esc(t("defiTitle")) + '</div>' +
         '<h1 class="defi-title">' + esc(t("defiCamDenied")) + '</h1>' +
         '<p class="defi-sub">' + esc(t("defiCamDeniedSub")) + '</p>' +
         '<button type="button" class="suite-btn suite-btn-primary" data-act="retry">↻ ' + esc(t("defiCamRetry")) + '</button>');
@@ -186,23 +250,20 @@
 
     function startRealize() {
       revoke(); stopStream();   // free a prior preview blob + any leftover stream (Refaire / retry)
+      if (preTk) { clearInterval(preTk); preTk = null; }
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { renderCamError(); return; }
       renderLoading();
       navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true }).then(function (st) {
         stream = st;
-        beginRecording();
+        prepareCompositor();   // camVideo + canvas sizing settle during the pre-roll
+        renderPreRoll();
       }, function () { renderCamError(); });
     }
 
-    function beginRecording() {
-      pickMime();
-      chunks = []; blob = null; phase = ""; phaseEnd = 0; phaseStart = 0;
-      var s = data.snapshot || {};
-
-      // A hidden <video> feeds the camera into a <canvas> that composites an info
-      // overlay, so the catégorie / thème / phase / chrono are BAKED INTO the
-      // recorded video. Falls back to the raw camera where canvas capture is
-      // unavailable (info then shows on-screen only).
+    // Camera → hidden <video> → sized <canvas>. Done BEFORE recording starts so the
+    // canvas dimensions are locked when MediaRecorder attaches (a mid-record resize
+    // corrupts the capture stream in several browsers).
+    function prepareCompositor() {
       camVideo = document.createElement("video");
       camVideo.muted = true; camVideo.setAttribute("playsinline", ""); camVideo.setAttribute("autoplay", "");
       try { camVideo.srcObject = stream; } catch (e) {}
@@ -210,11 +271,44 @@
       canvas = document.createElement("canvas"); cctx = canvas.getContext("2d");
       canvas.width = 720; canvas.height = 960;
       camVideo.addEventListener("loadedmetadata", function () {
+        if (recActive) return;   // never resize once recording — dims are locked
         var vw = camVideo.videoWidth || 720, vh = camVideo.videoHeight || 960;
-        var sc = Math.min(1, 960 / Math.max(vw, vh));
+        var sc = Math.min(1, 1080 / Math.max(vw, vh));
         canvas.width = Math.max(160, Math.round(vw * sc)); canvas.height = Math.max(160, Math.round(vh * sc));
       });
+    }
 
+    // 3-2-1 pre-roll: camera live, NOT recording yet — time to get in position.
+    function renderPreRoll() {
+      view('<div class="defi-kicker">🎬 ' + esc(t("defiGetReady")) + '</div>' +
+        '<div class="defi-preroll-n" id="defiPreN">' + PREROLL_SEC + '</div>' +
+        '<div class="defi-stage" id="defiStage"></div>' +
+        '<button type="button" class="suite-btn suite-btn-ghost" data-act="cancel">✕ ' + esc(t("commonBack") || "Retour") + '</button>');
+      var v = document.createElement("video"); v.className = "defi-video"; v.muted = true;
+      v.setAttribute("playsinline", ""); v.setAttribute("autoplay", "");
+      try { v.srcObject = stream; } catch (e) {}
+      document.getElementById("defiStage").appendChild(v);
+      root.querySelector('[data-act="cancel"]').onclick = function () {
+        if (preTk) { clearInterval(preTk); preTk = null; }
+        stopStream(); releaseImmersive(); renderWelcome();
+      };
+      var n = PREROLL_SEC;
+      preTk = setInterval(function () {
+        n--;
+        var el = document.getElementById("defiPreN");
+        if (el) { el.textContent = n > 0 ? String(n) : "🎬"; el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); }
+        if (n <= 0) { clearInterval(preTk); preTk = null; beginRecording(); }
+      }, 1000);
+    }
+
+    function beginRecording() {
+      pickMime();
+      chunks = []; blob = null; phase = ""; phaseEnd = 0; phaseStart = 0;
+      if (!stream || !canvas) { renderCamError(); return; }
+
+      // The canvas (camera + baked info overlay) IS what gets recorded. Fallback to
+      // the raw camera where canvas capture is unavailable — the info then shows in
+      // DOM panels on screen only.
       var recStream = null;
       try {
         if (cctx && canvas.captureStream) {
@@ -232,13 +326,15 @@
       recorder.onstop = function () { blob = new Blob(chunks, { type: recMime || "video/webm" }); renderPreview(); };
 
       view('<span class="defi-badge-rec">' + esc(t("defiRecording")) + '</span>' +
-        '<div class="defi-phase" id="defiPhase">' + esc(t("defiPhaseAnnounce")) + '</div>' +
-        '<div class="defi-clock" id="defiClock">' + esc(fmtSec(ANNOUNCE_SEC)) + '</div>' +
+        (usingCanvas ? '' :
+          '<div class="defi-phase" id="defiPhase">' + esc(t("defiPhaseAnnounce")) + '</div>' +
+          '<div class="defi-clock" id="defiClock">' + esc(fmtSec(ANNOUNCE_SEC)) + '</div>') +
         '<div class="defi-stage" id="defiStage"></div>' +
-        metaChips(s) +
-        '<div class="defi-actions solo"><button type="button" class="suite-btn suite-btn-primary" data-act="stop">⏹ ' + esc(t("defiStop")) + '</button></div>');
+        (usingCanvas ? '' : '<div class="defi-fallback-info" id="defiFbInfo"></div>') +
+        '<div class="defi-actions solo"><button type="button" class="suite-btn suite-btn-primary" data-act="stop">⏹ ' + esc(t("defiStop")) + '</button></div>' +
+        '<div class="defi-rotate-warn" id="defiRotateWarn" hidden>🔄 ' + esc(t("defiKeepOrient")) + '</div>');
       var stage = document.getElementById("defiStage");
-      if (usingCanvas) { canvas.className = "defi-video"; canvas.setAttribute("aria-label", "record"); stage.appendChild(canvas); }
+      if (usingCanvas) { canvas.className = "defi-video is-live"; canvas.setAttribute("aria-label", "record"); stage.appendChild(canvas); }
       else {
         var v = document.createElement("video"); v.className = "defi-video"; v.muted = true;
         v.setAttribute("playsinline", ""); v.setAttribute("autoplay", "");
@@ -247,8 +343,27 @@
       root.querySelector('[data-act="stop"]').onclick = stopRecording;
 
       try { recorder.start(); } catch (e) { renderCamError(); return; }
+      recActive = true;
+      startLandscape = innerWidth >= innerHeight;   // soft orientation lock reference
       if (usingCanvas) rafId = requestAnimationFrame(drawLoop);
-      runSequence(s);
+      runSequence();
+    }
+
+    // DOM info panels for the no-canvas fallback — mirrors what the overlay bakes.
+    function updateFallbackInfo() {
+      var box = document.getElementById("defiFbInfo"); if (!box) return;
+      var s = data.snapshot || {};
+      if (phase === "announce") {
+        box.innerHTML = '<div class="defi-card"><div class="defi-kicker">' + esc(t("defiCategoryLabel")) + '</div>' +
+          '<h2 class="defi-card-title">' + esc(s.title || "") + '</h2>' +
+          (s.subtitle ? '<p class="defi-card-desc">' + esc(s.subtitle) + '</p>' : "") +
+          (s.theme ? '<p class="defi-card-desc"><b>' + esc(t("defiThemeLabel")) + ' :</b> ' + esc(s.theme) + '</p>' : "") + '</div>';
+      } else if (phase === "caucus") {
+        box.innerHTML = '<div class="defi-card"><h2 class="defi-card-title">' + esc(t("defiPhaseCaucus")) + '</h2>' +
+          '<p class="defi-card-desc">' + esc(t("defiCaucusHint")) + '</p>' + metaChips(s) + '</div>';
+      } else {
+        box.innerHTML = metaChips(s);
+      }
     }
 
     function phaseLabel() {
@@ -257,6 +372,7 @@
     function paintClock(n, up) {
       var el = document.getElementById("defiClock"); if (el) { el.textContent = fmtSec(n); el.classList.toggle("is-low", !up && n <= 5); }
       var pl = document.getElementById("defiPhase"); if (pl) pl.textContent = phaseLabel();
+      if (!usingCanvas) updateFallbackInfo();
     }
     // Sequence: 10s annonce → 20s caucus → impro (fixed duration, or count-up if none).
     function runSequence() {
@@ -296,54 +412,148 @@
       var scale = Math.max(w / vw, h / vh), dw = vw * scale, dh = vh * scale;
       g.drawImage(v, (w - dw) / 2, (h - dh) / 2, dw, dh);
     }
-    function wrapLines(g, text, maxW) {
+    /* ── overlay drawing toolkit ─────────────────────────────────────────
+       All sizes derive from u = min(w,h)/100, so the design keeps the same
+       visual weight whether the record was started in portrait or landscape.
+       Text is ALWAYS wrapped or ellipsized via measureText — never squeezed
+       with a maxWidth (that's what cropped/distorted the first version). */
+    function wrapLines(g, text, maxW, maxLines) {
       var words = String(text || "").split(/\s+/), lines = [], line = "";
       for (var i = 0; i < words.length; i++) {
         var test = line ? line + " " + words[i] : words[i];
         if (g.measureText(test).width > maxW && line) { lines.push(line); line = words[i]; } else line = test;
       }
       if (line) lines.push(line);
-      return lines.slice(0, 3);
+      maxLines = maxLines || 3;
+      if (lines.length > maxLines) { lines = lines.slice(0, maxLines); lines[maxLines - 1] = ellipsize(g, lines[maxLines - 1] + "…", maxW); }
+      return lines;
     }
+    function ellipsize(g, text, maxW) {
+      text = String(text || "");
+      if (g.measureText(text).width <= maxW) return text;
+      while (text.length > 1 && g.measureText(text + "…").width > maxW) text = text.slice(0, -1);
+      return text + "…";
+    }
+    function rrect(g, x, y, w2, h2, r) {
+      r = Math.min(r, w2 / 2, h2 / 2);
+      g.beginPath();
+      g.moveTo(x + r, y); g.arcTo(x + w2, y, x + w2, y + h2, r); g.arcTo(x + w2, y + h2, x, y + h2, r);
+      g.arcTo(x, y + h2, x, y, r); g.arcTo(x, y, x + w2, y, r); g.closePath();
+    }
+    // A row of pill chips, centered at cy — drops trailing chips that don't fit.
+    function drawChips(g, chips, w, cy, u) {
+      var fpx = 3.1 * u, padX = 1.8 * u, gap = 1.4 * u, hgt = 5.6 * u, maxRow = w - 8 * u;
+      g.font = FI(600, fpx);
+      var widths = [], total = 0;
+      for (var i = 0; i < chips.length; i++) {
+        var tw = g.measureText(chips[i]).width + padX * 2;
+        if (total + tw + (i ? gap : 0) > maxRow) break;
+        widths.push(tw); total += tw + (i ? gap : 0);
+      }
+      var x = (w - total) / 2;
+      for (var k = 0; k < widths.length; k++) {
+        g.fillStyle = "rgba(8,5,16,0.72)"; rrect(g, x, cy - hgt / 2, widths[k], hgt, hgt / 2); g.fill();
+        g.strokeStyle = "rgba(232,199,102,0.55)"; g.lineWidth = Math.max(1, 0.22 * u); g.stroke();
+        g.fillStyle = "#f4f0e6"; g.textAlign = "left"; g.textBaseline = "middle";
+        g.fillText(chips[k], x + padX, cy + 0.2 * u);
+        x += widths[k] + gap;
+      }
+      g.textBaseline = "top";
+    }
+    function infoChips(s) {
+      var chips = [];
+      if (s.category) chips.push("🏷 " + s.category);
+      if (s.theme) chips.push("🎭 " + s.theme);
+      if (playersN()) chips.push("👥 " + playersN());
+      if (durSec()) chips.push("⏱ " + fmtSec(durSec()));
+      return chips;
+    }
+
     function drawOverlay(g, w, h) {
       var s = data.snapshot || {}, now = Date.now();
-      var num = phaseEnd > 0 ? fmtSec(Math.max(0, Math.round((phaseEnd - now) / 1000)))
-              : phaseStart > 0 ? fmtSec(Math.round((now - phaseStart) / 1000)) : "";
-      var pad = Math.round(w * 0.04), barH = Math.round(h * 0.2), f1 = Math.round(h * 0.04);
-      var grd = g.createLinearGradient(0, 0, 0, barH);
-      grd.addColorStop(0, "rgba(8,5,16,0.85)"); grd.addColorStop(1, "rgba(8,5,16,0)");
-      g.fillStyle = grd; g.fillRect(0, 0, w, barH);
+      var u = Math.min(w, h) / 100;                      // orientation-neutral unit
+      var landscape = w >= h;
+      var pad = 4 * u;
+      var remaining = phaseEnd > 0 ? Math.max(0, Math.round((phaseEnd - now) / 1000)) : -1;
+      var num = remaining >= 0 ? fmtSec(remaining) : (phaseStart > 0 ? fmtSec(Math.round((now - phaseStart) / 1000)) : "");
+      var low = remaining >= 0 && remaining <= 5 && phase === "impro";
+
+      // ── top band: REC · PHASE (left) + chrono (right) ──────────────────
+      var topH = 15 * u;
+      var grd = g.createLinearGradient(0, 0, 0, topH);
+      grd.addColorStop(0, "rgba(6,4,12,0.88)"); grd.addColorStop(1, "rgba(6,4,12,0)");
+      g.fillStyle = grd; g.fillRect(0, 0, w, topH);
       g.textBaseline = "top"; g.textAlign = "left";
-      g.fillStyle = "#ef5b5b"; g.beginPath(); g.arc(pad + f1 * 0.4, pad + f1 * 0.55, f1 * 0.38, 0, 7); g.fill();
-      g.fillStyle = "#fff"; g.font = "700 " + f1 + "px Arial, sans-serif";
-      g.fillText("REC · " + phaseLabel().toUpperCase(), pad + f1 * 1.1, pad);
-      g.textAlign = "right"; g.fillStyle = "#e8c766"; g.font = "700 " + Math.round(h * 0.055) + "px Arial, sans-serif";
-      g.fillText(num, w - pad, pad - Math.round(f1 * 0.1));
+      g.fillStyle = "#ef5b5b"; g.beginPath(); g.arc(pad + 1.4 * u, pad + 2 * u, 1.3 * u, 0, 7); g.fill();
+      g.fillStyle = "rgba(255,255,255,0.92)"; g.font = FI(700, 3.4 * u);
+      g.fillText("REC", pad + 3.4 * u, pad + 0.4 * u);
+      g.fillStyle = "#e8c766"; g.font = FI(700, 3.4 * u);
+      g.fillText("·  " + phaseLabel().toUpperCase(), pad + 3.4 * u + g.measureText("REC").width + 1.2 * u, pad + 0.4 * u);
+      g.textAlign = "right"; g.fillStyle = low ? "#ef6b6b" : "#f4d06a"; g.font = FB(9 * u);
+      g.fillText(num, w - pad, pad - 0.8 * u);
       g.textAlign = "left";
-      var info = [];
-      if (s.category) info.push(s.category);
-      if (s.theme) info.push(s.theme);
-      if (durSec()) info.push("⏱ " + fmtSec(durSec()));
-      if (s.players) info.push("👥 " + s.players);
-      g.fillStyle = "rgba(255,255,255,0.94)"; g.font = "600 " + Math.round(h * 0.03) + "px Arial, sans-serif";
-      g.fillText(info.join("   ·   "), pad, pad + Math.round(f1 * 1.5), w - pad * 2);
-      if (phase === "announce" || phase === "caucus") {
-        g.fillStyle = "rgba(0,0,0,0.4)"; g.fillRect(0, Math.round(h * 0.34), w, Math.round(h * 0.32));
-        g.textAlign = "center"; g.textBaseline = "middle";
-        var title = phase === "caucus" ? t("defiPhaseCaucus") : (s.title || "");
-        g.fillStyle = "#f4d06a"; g.font = "700 " + Math.round(h * 0.08) + "px Arial, sans-serif";
-        var ls = wrapLines(g, title, w * 0.86), ly = h * (phase === "caucus" ? 0.5 : 0.44), lh = Math.round(h * 0.085);
-        for (var k = 0; k < ls.length; k++) g.fillText(ls[k], w / 2, ly + k * lh);
-        if (phase === "announce" && s.theme) {
-          g.fillStyle = "#fff"; g.font = "600 " + Math.round(h * 0.05) + "px Arial, sans-serif";
-          g.fillText(s.theme, w / 2, ly + ls.length * lh + Math.round(h * 0.02), w * 0.86);
+
+      // ── bottom band: info chips (always present in the recording) ──────
+      var botH = 12 * u;
+      var grd2 = g.createLinearGradient(0, h - botH, 0, h);
+      grd2.addColorStop(0, "rgba(6,4,12,0)"); grd2.addColorStop(1, "rgba(6,4,12,0.85)");
+      g.fillStyle = grd2; g.fillRect(0, h - botH, w, botH);
+      drawChips(g, infoChips(s), w, h - 5.4 * u, u);
+
+      // ── announce: the REVEAL — category + explanation + theme, centered ─
+      if (phase === "announce") {
+        g.fillStyle = "rgba(6,4,12,0.5)"; g.fillRect(0, 0, w, h);   // dim for readability
+        var pw = landscape ? Math.min(w * 0.72, 150 * u) : w - 10 * u;
+        var px = (w - pw) / 2, maxTw = pw - 8 * u;
+
+        g.font = FB(9.5 * u);  var titleLines = wrapLines(g, s.title || "", maxTw, 2);
+        g.font = FI(400, 3.4 * u); var descLines = wrapLines(g, s.subtitle || "", maxTw, landscape ? 3 : 4);
+        var lhT = 10 * u, lhD = 4.6 * u;
+        var blocks = 6 * u + titleLines.length * lhT + (descLines.length ? 2 * u + descLines.length * lhD : 0) + (s.theme ? 8.5 * u : 0) + 6 * u;
+        var ph2 = blocks + 4 * u, py = (h - ph2) / 2;
+
+        g.fillStyle = "rgba(8,5,16,0.82)"; rrect(g, px, py, pw, ph2, 3 * u); g.fill();
+        g.strokeStyle = "rgba(232,199,102,0.5)"; g.lineWidth = Math.max(1, 0.28 * u); g.stroke();
+
+        var y = py + 5 * u; g.textAlign = "center";
+        g.fillStyle = "#e8c766"; g.font = FI(700, 2.8 * u);
+        g.fillText(t("defiCategoryLabel").toUpperCase(), w / 2, y); y += 5 * u;
+        g.fillStyle = "#f4d06a"; g.font = FB(9.5 * u);
+        for (var i = 0; i < titleLines.length; i++) { g.fillText(titleLines[i], w / 2, y); y += lhT; }
+        if (descLines.length) {
+          y += 1 * u;
+          g.fillStyle = "rgba(244,240,230,0.92)"; g.font = FI(400, 3.4 * u);
+          for (var j = 0; j < descLines.length; j++) { g.fillText(descLines[j], w / 2, y); y += lhD; }
         }
-        g.textAlign = "left"; g.textBaseline = "top";
+        if (s.theme) {
+          y += 2 * u;
+          g.fillStyle = "#e8c766"; g.font = FI(700, 2.8 * u);
+          g.fillText(t("defiThemeLabel").toUpperCase(), w / 2, y); y += 4.2 * u;
+          g.fillStyle = "#ffffff"; g.font = FI(600, 4.4 * u);
+          g.fillText(ellipsize(g, s.theme, maxTw), w / 2, y);
+        }
+        g.textAlign = "left";
+      }
+
+      // ── caucus: big centered countdown + gentle hint ────────────────────
+      if (phase === "caucus") {
+        g.fillStyle = "rgba(6,4,12,0.45)"; g.fillRect(0, 0, w, h);
+        g.textAlign = "center";
+        g.fillStyle = "#e8c766"; g.font = FI(700, 3.2 * u);
+        g.fillText(t("defiPhaseCaucus").toUpperCase(), w / 2, h / 2 - 17 * u);
+        g.fillStyle = "#f4d06a"; g.font = FB(24 * u); g.textBaseline = "middle";
+        g.fillText(num, w / 2, h / 2 + 1 * u);
+        g.textBaseline = "top";
+        g.fillStyle = "rgba(244,240,230,0.85)"; g.font = FI(500, 3.2 * u);
+        g.fillText(t("defiCaucusHint"), w / 2, h / 2 + 13 * u);
+        g.textAlign = "left";
       }
     }
 
     function stopRecording() {
       clearTimer();
+      recActive = false; startLandscape = null;
+      releaseImmersive();
       try { if (recorder && recorder.state !== "inactive") recorder.stop(); } catch (e) {}
       stopStream();   // release the camera/mic as soon as we stop
     }
