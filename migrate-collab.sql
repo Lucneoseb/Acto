@@ -39,7 +39,9 @@ create table if not exists public.resource_collaborators (
   invited_by    uuid references auth.users(id) on delete set null,
   created_at    timestamptz not null default now(),
   unique (resource_id, user_id),
-  unique (resource_id, lower(invited_email))
+  -- email is stored lower-cased (see add_collaborator), so a plain-column unique is
+  -- enough — Postgres does NOT allow an expression like lower(...) in a table constraint.
+  unique (resource_id, invited_email)
 );
 create index if not exists rc_user_idx  on public.resource_collaborators(user_id) where user_id is not null;
 create index if not exists rc_email_idx on public.resource_collaborators(lower(invited_email)) where invited_email is not null;
@@ -183,7 +185,7 @@ begin
   elsif v_email is not null then
     insert into public.resource_collaborators(resource_id, invited_email, invited_label, role, status, invited_by)
       values (p_res, v_email, nullif(btrim(coalesce(p_label, '')), ''), v_role, 'pending', auth.uid())
-      on conflict (resource_id, lower(invited_email)) do update set role = excluded.role
+      on conflict (resource_id, invited_email) do update set role = excluded.role
       returning id into v_id;
   else
     raise exception 'need a user or an email';
