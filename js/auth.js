@@ -832,11 +832,22 @@
     const forgot = $("authForgotBtn");
     if (forgot) forgot.addEventListener("click", forgotPassword);
 
-    // OAuth (Google / Apple) + passwordless magic link.
-    const gBtn = $("authGoogleBtn");
-    if (gBtn) gBtn.addEventListener("click", () => signInWithProvider("google"));
-    const aBtn = $("authAppleBtn");
-    if (aBtn) aBtn.addEventListener("click", () => signInWithProvider("apple"));
+    // OAuth (Google / Apple): a button is wired only when its provider is listed
+    // in config.auth.oauthProviders (i.e. actually enabled in Supabase). Otherwise
+    // it's hidden, so nobody lands on Supabase's "provider is not enabled" page.
+    const enabledProviders = (window.actoConfig && window.actoConfig.auth &&
+      window.actoConfig.auth.oauthProviders) || [];
+    function wireProvider(id, provider) {
+      const btn = $(id); if (!btn) return;
+      if (Array.prototype.indexOf.call(enabledProviders, provider) === -1) {
+        btn.style.display = "none"; return;   // inline style beats the flex-button CSS
+      }
+      btn.addEventListener("click", () => signInWithProvider(provider));
+    }
+    wireProvider("authGoogleBtn", "google");
+    wireProvider("authAppleBtn", "apple");
+
+    // Passwordless magic link (no provider config needed — always available).
     const mBtn = $("authMagicBtn");
     if (mBtn) mBtn.addEventListener("click", sendMagicLink);
 
