@@ -97,7 +97,7 @@
   document.addEventListener("keydown", function (e) { if (menuOpen && e.key === "Escape") { menuOpen = false; renderButton(); } });
 
   function doLogout() {
-    function go() { try { window.location.replace("quickgame.html"); } catch (e) { window.location.href = "quickgame.html"; } }
+    function go() { try { window.location.replace("login.html"); } catch (e) { window.location.href = "login.html"; } }
     try { Promise.resolve(sb().auth.signOut()).then(go).catch(go); } catch (e) { go(); }
   }
 
@@ -168,7 +168,7 @@
       Promise.resolve(sb().rpc("delete_my_account")).then(function (res) {
         if (res && res.error) { b.disabled = false; msg("del", (res.error.message || t("accountDeleteError")), false); return; }
         try { sb().auth.signOut(); } catch (e) {}
-        try { window.location.replace("quickgame.html"); } catch (e) { window.location.href = "quickgame.html"; }
+        try { window.location.replace("login.html"); } catch (e) { window.location.href = "login.html"; }
       }).catch(function () { b.disabled = false; msg("del", t("accountDeleteError"), false); });
     };
     // stats

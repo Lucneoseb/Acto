@@ -366,7 +366,7 @@
     if (!session || !session.user) {
       alert(t("inspireSubmitNeedsAuth",
         "Connecte-toi sur l'app pour proposer une vidéo. Le lien : "
-      ) + window.location.origin + "/quickgame.html");
+      ) + window.location.origin + "/login.html");
       return;
     }
     const dlg = $("#inspireSubmitDialog");

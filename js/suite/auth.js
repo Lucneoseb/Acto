@@ -4,7 +4,7 @@
  * The Studio requires a logged-in account. This runs early: if there's a
  * Supabase session it reveals the page (and exposes window.actoUser /
  * window.actoSuiteSb for the collaborative features); otherwise it redirects
- * to the login page (/quickgame). Fail-closed: any error → login.
+ * to the login page (/login). Fail-closed: any error → login.
  */
 (function () {
   "use strict";
@@ -14,19 +14,19 @@
   // login so an invited-but-logged-out collaborator lands back on the right match.
   function loginUrl() {
     var h = window.location.hash || "";
-    return "quickgame.html" + (h.length > 2 ? "?next=" + encodeURIComponent(h) : "");
+    return "login.html" + (h.length > 2 ? "?next=" + encodeURIComponent(h) : "");
   }
   function reveal() { document.body.classList.remove("suite-auth-checking"); }
 
   var cfg = (window.actoConfig && window.actoConfig.supabase) || null;
-  if (!window.supabase || !cfg) { go("quickgame.html"); return; }
+  if (!window.supabase || !cfg) { go("login.html"); return; }
 
   var sb;
   try {
     sb = window.supabase.createClient(cfg.url, cfg.key, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
     });
-  } catch (e) { go("quickgame.html"); return; }
+  } catch (e) { go("login.html"); return; }
   window.actoSuiteSb = sb;
 
   var settled = false;
@@ -50,5 +50,5 @@
     .catch(function () { clearTimeout(to); decide(null); });
 
   // Bounce to login if the user signs out (e.g. in another tab).
-  sb.auth.onAuthStateChange(function (ev) { if (ev === "SIGNED_OUT") go("quickgame.html"); });
+  sb.auth.onAuthStateChange(function (ev) { if (ev === "SIGNED_OUT") go("login.html"); });
 })();

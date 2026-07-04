@@ -276,9 +276,35 @@
   /* ------------------------------------------------------------------
      3. SCREEN STATE
      ------------------------------------------------------------------ */
+  // Login now lives on its own page (login.html). This controller is loaded both
+  // there AND on the gated app pages (quickgame.html), so it decides by element:
+  //   • #authScreen present  → this IS the login page (render the form).
+  //   • #authScreen absent    → a gated page whose signed-out visitor goes to /login.
+  //   • #mainApp absent + signed in → the login page, already logged in → the Studio.
+  function goToLogin() {
+    var h = window.location.hash || "";
+    var dest = "login.html" + (h.length > 2 ? "?next=" + encodeURIComponent(h) : "");
+    try { window.location.replace(dest); } catch (e) { window.location.href = dest; }
+  }
+  function goToStudio() {
+    var n = null;
+    try { n = new URLSearchParams(window.location.search).get("next"); } catch (e) {}
+    var dest = (n && /^#\/[A-Za-z0-9/_-]*$/.test(n)) ? ("welcome.html" + n) : "welcome.html";
+    try { window.location.replace(dest); } catch (e) { window.location.href = dest; }
+  }
+  // Where the OAuth / magic-link round-trip returns: the login page, carrying any
+  // ?next deep-link so goToStudio() can honour it once the session lands back here.
+  function loginReturnUrl() {
+    var next = "";
+    try { next = new URLSearchParams(window.location.search).get("next") || ""; } catch (e) {}
+    return window.location.origin + "/login" + (next ? "?next=" + encodeURIComponent(next) : "");
+  }
+
   function showAuthScreen() {
+    const scr  = $("authScreen");
+    if (!scr) { goToLogin(); return; }   // gated page, signed out → the dedicated login page
     const main = $("mainApp"); if (main) main.hidden = true;
-    const scr  = $("authScreen"); if (scr)  scr.hidden = false;
+    scr.hidden = false;
     const card = $("authPendingCard"); if (card) card.hidden = true;
     const form = $("authLoginForm"); if (form) form.parentElement.hidden = false;
     // Account actions (logout / delete account) only make sense when signed in.
@@ -300,7 +326,9 @@
   }
   function showApp(user) {
     window.actoAuth.state.user = user;
-    const main = $("mainApp"); if (main) main.hidden = false;
+    const main = $("mainApp");
+    if (!main) { goToStudio(); return; }   // dedicated login page, now signed in → the Studio
+    main.hidden = false;
     const scr  = $("authScreen"); if (scr)  scr.hidden = true;
     const accSec = $("authAccountSection"); if (accSec) accSec.hidden = false;
     refreshAccountInfo();
@@ -747,15 +775,15 @@
   /* ------------------------------------------------------------------
      7b. SOCIAL AUTH (Google / Apple) + MAGIC LINK + auth-screen language
      ------------------------------------------------------------------ */
-  // After the provider/email round-trip the browser returns to /quickgame,
+  // After the provider/email round-trip the browser returns to /login,
   // where detectSessionInUrl:true turns the callback into a SIGNED_IN event →
-  // the existing handler redirects to /welcome.
+  // the handler forwards the (now signed-in) user to /welcome.
   async function signInWithProvider(provider) {
     showError("authLoginError", "");
     try {
       const { error } = await sb.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: window.location.origin + "/quickgame" }
+        options: { redirectTo: loginReturnUrl() }
       });
       if (error) throw error;
     } catch (e) {
@@ -776,7 +804,7 @@
     try {
       const { error } = await sb.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: window.location.origin + "/quickgame" }
+        options: { emailRedirectTo: loginReturnUrl() }
       });
       if (error) throw error;
       // Reuse the "check your email" pending card.
@@ -993,14 +1021,7 @@
           .catch((e) => console.warn("[auth] login bump failed", e));
         // After a fresh login, send the user to the Studio — honouring a ?next=#/…
         // deep link (e.g. a collab share link) carried from the Studio gate.
-        setTimeout(() => {
-          try {
-            var n = null;
-            try { n = new URLSearchParams(window.location.search).get("next"); } catch (e) {}
-            var dest = (n && /^#\/[A-Za-z0-9/_-]*$/.test(n)) ? ("welcome.html" + n) : "welcome.html";
-            window.location.assign(dest);
-          } catch (e) {}
-        }, 150);
+        setTimeout(goToStudio, 150);
       }
     } else if (event === "SIGNED_OUT") {
       window.actoAuth.state.user = null;
@@ -1045,6 +1066,12 @@
       if (error) throw error;
       const session = data && data.session;
       if (session && session.user) {
+        // A password-recovery link ALSO yields a valid session, but it must not be
+        // treated as a normal login: the PASSWORD_RECOVERY handler (which fires
+        // before getSession resolves) is showing the reset dialog. On the login
+        // page showApp() would navigate to the Studio and strand the user before
+        // they set a new password — so stay put until the reset form finishes.
+        if (recoveryActive) return;
         // Same rule as onAuthStateChange: show the app first, load the profile
         // in the background. Never block UI on the database.
         showApp(session.user);

@@ -127,7 +127,7 @@
   function renderRating() {
     var box = document.getElementById("insp1Rate"); if (!box) return;
     if (!me) {
-      box.innerHTML = '<div class="insp1-rate"><p class="insp1-login-hint">' + esc(s("loginHint")) + ' <a href="./quickgame.html">→</a></p></div>';
+      box.innerHTML = '<div class="insp1-rate"><p class="insp1-login-hint">' + esc(s("loginHint")) + ' <a href="./login.html">→</a></p></div>';
       return;
     }
     var grades = ["A", "B", "C", "D", "E", "F"];
