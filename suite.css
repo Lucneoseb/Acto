@@ -896,6 +896,24 @@
 .suite-collab-badge.is-solo { display: none; }   /* hide while editing alone (count includes yourself) */
 .suite-collab-dialog .suite-dialog-body { text-align: center; }
 .suite-collab-url { width: 100%; box-sizing: border-box; font-size: 0.82rem; margin: 0.4rem 0 0.9rem; text-align: center; }
+.suite-collab-viewer { display: inline-flex; margin-top: 0.4rem; padding: 0.2rem 0.6rem; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); color: var(--ink-muted); font-size: 0.76rem; font-weight: 600; }
+/* Collaborators modal (F2) — left-aligned, overriding the centered #80 dialog rule */
+.suite-collab-dialog .suite-dialog-body, .suite-collab-dialog .suite-dialog-title { text-align: left; }
+.suite-collab-list { display: flex; flex-direction: column; gap: 0.35rem; margin: 0.3rem 0 0.7rem; }
+.suite-collab-row { display: flex; align-items: center; gap: 0.5rem; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); border-radius: 10px; padding: 0.4rem 0.6rem; }
+.suite-collab-row.is-owner { border-color: color-mix(in srgb, var(--gold) 35%, transparent); background: color-mix(in srgb, var(--gold) 8%, transparent); }
+.suite-collab-nm { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; font-size: 0.9rem; color: var(--ink); }
+.suite-collab-owner { flex: 0 0 auto; font-size: 0.78rem; font-weight: 700; color: var(--gold-soft); }
+.suite-collab-pending { font-size: 0.72rem; font-weight: 600; color: var(--ink-faint); font-style: italic; }
+.suite-collab-empty { margin: 0.2rem 0; }
+.suite-collab-rolesel { flex: 0 0 auto; padding: 0.3rem 0.4rem; font-size: 0.82rem; }
+.suite-collab-results { display: flex; flex-direction: column; gap: 0.25rem; }
+.suite-collab-res { display: block; width: 100%; box-sizing: border-box; text-align: left; appearance: none; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); border-radius: 10px; padding: 0.4rem 0.6rem; color: var(--ink); font: 600 0.88rem/1 "Inter", sans-serif; }
+.suite-collab-res:hover { border-color: var(--gold); }
+.suite-collab-res-sub { color: var(--ink-faint); font-weight: 400; }
+.suite-collab-emailrow { display: flex; gap: 0.4rem; }
+.suite-collab-emailrow .suite-input { flex: 1 1 auto; }
+.suite-shared-h { margin: 1.6rem 0 0.6rem; font: 600 0.82rem/1 "Inter", sans-serif; letter-spacing: .06em; text-transform: uppercase; color: var(--gold-soft); }
 .suite-code-url { font-size: 0.78rem; color: var(--ink-muted); word-break: break-all; margin: 0 0 0.8rem; }
 
 /* ---- join.html (public viewing by code) ---- */

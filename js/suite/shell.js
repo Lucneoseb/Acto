@@ -51,7 +51,7 @@
     // now live on the standalone, code-joined join.html (no longer in-shell routes).
     if (PROGRAM_KIND[r.section] && r.sub === "live") { syncSectionNav(null); window.ActoLive.mountPresenter(rootEl, navigate); return; }
 
-    // Collaborative match editor reached by a share link (#/collab/<id>/<token>).
+    // Account-based collaborative editor reached from "Partagés avec moi" (#/collab/<id>).
     if (r.section === "collab") {
       syncSectionNav("match");
       window.ActoProgram.mountCollab(rootEl, navigate, r.sub);

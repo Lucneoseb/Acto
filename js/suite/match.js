@@ -97,9 +97,9 @@
     else if (sub === "list") renderList();
     else if (sub === "edit") {
       if (!current || current.kind !== kind) { navigate(homeRoute() + "/prepare"); return; }
-      // Re-subscribe if this is a shared match (e.g. after a locale-change re-render
-      // tore the channel down) so the host doesn't silently leave the collab session.
-      if (current.collabId && current.collabToken && !collab) collabStart(current.collabId, current.collabToken);
+      // Re-subscribe if this is a shared resource (e.g. after a locale-change re-render
+      // tore the channel down) so the owner doesn't silently leave the collab session.
+      if (current.collabId && !collab) collabStart(current.collabId, "owner");
       renderEditor();
     } else renderLanding();
   }
@@ -363,14 +363,14 @@
         '<button class="suite-back" data-act="back">← ' + esc(t(K.titleKey)) + '</button>' +
         '<h1 class="suite-h1">' + esc(current.title || t(K.setlistTitleKey)) + '</h1>' +
         '<p class="suite-sub">' + esc(summary) + (current.matchDate ? ' · 📅 ' + esc(fmtMatchDate(current.matchDate)) : '') + '</p>' +
-        (collab ? '<div class="suite-collab-badge' + (collabPeerCount() > 1 ? '' : ' is-solo') + '">👥 ' + esc(tf("collabActive", { n: collabPeerCount() })) + '</div>' : '') +
+        (collab ? '<div class="suite-collab-badge' + (collabPeerCount() > 1 ? '' : ' is-solo') + '">👥 ' + esc(tf("collabActive", { n: collabPeerCount() })) + '</div>' + (collab.role === "viewer" ? '<div class="suite-collab-viewer">👁 ' + esc(t("collabViewerNote")) + '</div>' : '') : '') +
       '</div>' +
       (K.hasTeams ? teamsCard(current.teams) : "") +
       (kind !== "training" ? settingsCard() : "") +
       '<div class="suite-setlist">' + cards + addBtns + '</div>' +
       '<div class="suite-sticky-actions">' +
         '<button class="suite-btn suite-btn-ghost" data-act="regen">' + esc(t("setlistRegenerate")) + '</button>' +
-        (K.hasTeams ? '<button class="suite-btn suite-btn-ghost" data-act="collab">👥 ' + esc(collab ? t("collabShareAgain") : t("collabBtn")) + '</button>' : '') +
+        ((!collab || collab.role === "owner") ? '<button class="suite-btn suite-btn-ghost" data-act="collab">👥 ' + esc(t("collabBtn")) + '</button>' : '') +
         '<button class="suite-btn suite-btn-save" data-act="save">💾 ' + esc(t("setlistSave")) + '</button>' +
         '<button class="suite-btn suite-btn-primary" data-act="launch">' + esc(t(K.launchKey)) + '</button>' +
       '</div>';
@@ -680,9 +680,11 @@
         '<button class="suite-back" data-act="back">← ' + esc(t(K.titleKey)) + '</button>' +
         '<h1 class="suite-h1">' + esc(t(K.listTitleKey)) + '</h1>' +
       '</div>' +
-      '<div class="suite-list">' + rows + '</div>';
+      '<div class="suite-list">' + rows + '</div>' +
+      '<div id="sharedWrap"></div>';
     root.querySelector('[data-act="back"]').onclick = function () { navigate(homeRoute()); };
-    root.querySelectorAll(".suite-list-item").forEach(function (row) {
+    var localList = root.querySelector(".suite-list");
+    localList.querySelectorAll(".suite-list-item").forEach(function (row) {
       var id = row.getAttribute("data-id");
       row.querySelector('[data-act="open"]').onclick = function () {
         var s = S.sessions.get(id);
@@ -693,6 +695,29 @@
         if (window.confirm(t(K.confirmDeleteKey))) { S.sessions.remove(id); renderList(); }
       };
     });
+    renderSharedWithMe();
+  }
+
+  // "Partagés avec moi" — resources I collaborate on (owned by others), same kind.
+  function renderSharedWithMe() {
+    var wrap = root.querySelector("#sharedWrap"); if (!wrap || !sbClient()) return;
+    var wantKind = kind;   // match / show / training — the fine-grained kind, not the coarse resource_type
+    Promise.resolve(sbClient().rpc("list_shared_with_me")).then(function (r) {
+      if (!wrap.isConnected || !r || r.error) return;
+      var rows = (r.data || []).filter(function (x) { return (x.kind || x.resource_type) === wantKind; });
+      if (!rows.length) return;
+      wrap.innerHTML = '<h2 class="suite-shared-h">🤝 ' + esc(t("sharedWithMe")) + '</h2>' +
+        '<div class="suite-list">' + rows.map(function (x) {
+          var roleLbl = x.role === "viewer" ? t("collabRoleViewer") : t("collabRoleEditor");
+          return '<div class="suite-list-item suite-shared-item" data-sid="' + esc(x.id) + '">' +
+            '<div class="suite-list-main"><span class="suite-list-title">' + esc(x.title || "—") + '</span>' +
+            '<span class="suite-list-meta">' + esc(tf("sharedBy", { name: x.owner_name || "Acto" })) + ' · ' + esc(roleLbl) + '</span></div>' +
+            '<div class="suite-list-actions"><button class="suite-btn suite-btn-mini" data-act="open">' + esc(t("listOpen")) + '</button></div></div>';
+        }).join("") + '</div>';
+      [].forEach.call(wrap.querySelectorAll(".suite-shared-item"), function (row) {
+        row.querySelector('[data-act="open"]').onclick = function () { navigate("#/collab/" + row.getAttribute("data-sid")); };
+      });
+    }, function () { /* ignore */ });
   }
 
   function listRow(e) {
@@ -1063,12 +1088,13 @@
   }
 
   /* ============================================================
-     COLLABORATIVE EDITING (shared match via Supabase + Realtime)
-     A prepared match is pushed to public.shared_matches; anyone holding the
-     share link (match id + capability token) co-edits the same setlist live.
-     Durable source of truth = shared_match_save RPC; the Realtime broadcast on
-     acto-collab:<id> carries edits for low latency + presence ("N en édition").
-     Last-write-wins — fine for a small invited crew.
+     COLLABORATIVE EDITING (F2 — account-based, shared_resources + RLS)
+     A match/entraînement is pushed to public.shared_resources; the owner adds
+     named COLLABORATORS (by nom de scène → direct access, or by email → pending
+     invite claimed on signup) with roles (owner/editor/viewer). Durable store =
+     save_shared_resource RPC (RLS + role gated); the Realtime broadcast on
+     acto-resource:<id> carries edits for low latency + presence ("N en édition").
+     Last-write-wins. Replaces the #80 token-link model (shared_matches, dormant).
      ============================================================ */
   var collab = null;   // { id, token, channel, applyingRemote, pushTimer, peers }
   var collabReq = null;   // identity token → ignore stale async resolutions after navigation
@@ -1085,9 +1111,12 @@
     return u.nom_scene || u.prenom || u.email || t("collabSomeone");
   }
   function collabPeerCount() { return collab ? Math.max(1, Object.keys(collab.peers || {}).length) : 0; }
-  function collabLink(id, token) {
-    return window.location.origin + window.location.pathname + "#/collab/" + id + "/" + token;
+  function collabLink(id) {
+    return window.location.origin + window.location.pathname + "#/collab/" + id;
   }
+  function collabCanEdit() { return collab && collab.role !== "viewer"; }
+  function resourceType() { return kind === "training" ? "entrainement" : "match"; }
+  function debounceC(fn, ms) { var h; return function () { var a = arguments, self = this; clearTimeout(h); h = setTimeout(function () { fn.apply(self, a); }, ms); }; }
 
   function collabTeardown() {
     collabReq = {};   // invalidate any in-flight mount/create resolution (even before collab exists)
@@ -1098,12 +1127,13 @@
   }
   function collabPushNow() {
     if (!collab || !current) return;
-    var data = collabClean(current), id = collab.id, tok = collab.token, c = sbClient();
-    if (c) { try { Promise.resolve(c.rpc("shared_match_save", { p_id: id, p_token: tok, p_title: data.title || "", p_data: data })).then(function (r) { if (r && r.error) console.warn("[collab] save", r.error); }); } catch (e) { /* ignore */ } }
-    try { if (collab.channel) collab.channel.send({ type: "broadcast", event: "edit", payload: { data: data } }); } catch (e) { /* ignore */ }
+    var data = collabClean(current), id = collab.id, c = sbClient();
+    // Durable save is RLS + role gated server-side; viewers never write.
+    if (c && collabCanEdit()) { try { Promise.resolve(c.rpc("save_shared_resource", { p_id: id, p_title: data.title || "", p_data: data })).then(function (r) { if (r && r.error) console.warn("[collab] save", r.error); }); } catch (e) { /* ignore */ } }
+    try { if (collab.channel && collabCanEdit()) collab.channel.send({ type: "broadcast", event: "edit", payload: { data: data } }); } catch (e) { /* ignore */ }
   }
   function collabPush() {
-    if (!collab || collab.applyingRemote) return;
+    if (!collab || collab.applyingRemote || !collabCanEdit()) return;
     if (collab.pushTimer) clearTimeout(collab.pushTimer);
     collab.pushTimer = setTimeout(function () { collab.pushTimer = null; collabPushNow(); }, 700);
   }
@@ -1112,7 +1142,7 @@
     if (collab.pushTimer) { clearTimeout(collab.pushTimer); collab.pushTimer = null; }  // remote edit supersedes a not-yet-sent local push
     collab.applyingRemote = true;
     current = data;
-    current.collabId = collab.id; current.collabToken = collab.token;
+    current.collabId = collab.id;
     if (current.kind && KINDS[current.kind]) { kind = current.kind; K = KINDS[kind]; }
     renderEditor();
     collab.applyingRemote = false;
@@ -1121,16 +1151,14 @@
     var el = root && root.querySelector(".suite-collab-badge");
     if (el && collab) { var n = collabPeerCount(); el.textContent = "👥 " + tf("collabActive", { n: n }); el.classList.toggle("is-solo", n <= 1); }
   }
-  function collabStart(id, token) {
+  function collabStart(id, role) {
     collabTeardown();
     var c = sbClient(); if (!c) return;
-    collab = { id: id, token: token, channel: null, applyingRemote: false, pushTimer: null, peers: {} };
-    // Public broadcast channel keyed by the match id. The capability TOKEN is never
-    // put on the wire (collabClean), so an id-only snooper cannot escalate to durable
-    // write; durable saves are token-gated server-side. Residual: a logged-in user who
-    // learns the id (without the token) could still read/inject transient edits. Full
-    // lock-down = a private channel + RLS on realtime.messages (deploy-coupled; deferred).
-    var ch = c.channel("acto-collab:" + id, { config: { broadcast: { self: false }, presence: { key: id } } });
+    collab = { id: id, role: role || "editor", channel: null, applyingRemote: false, pushTimer: null, peers: {} };
+    // Public broadcast channel keyed by the resource id (low-latency live edits +
+    // presence). The DURABLE store is RLS + role gated server-side (save_shared_resource),
+    // so an id-only snooper can at most inject transient edits, never persist them.
+    var ch = c.channel("acto-resource:" + id, { config: { broadcast: { self: false }, presence: { key: id } } });
     ch.on("broadcast", { event: "edit" }, function (msg) { if (msg && msg.payload && msg.payload.data) collabApplyRemote(msg.payload.data); });
     ch.on("broadcast", { event: "hello" }, function () { if (collab && !collab.applyingRemote) collabPushNow(); });
     ch.on("presence", { event: "sync" }, function () { if (collab) { collab.peers = ch.presenceState(); updateCollabBadge(); } });
@@ -1143,58 +1171,103 @@
     collab.channel = ch;
   }
 
-  function openCollabDialog() {
+  // Ensure the current session exists server-side (share_resource_create once), then onReady(id).
+  function collabEnsureShared(onReady) {
     if (!sbClient()) { toast(t("collabNeedAuth")); return; }
-    if (current.collabId && current.collabToken) {
-      if (!collab) collabStart(current.collabId, current.collabToken);
-      showCollabLink(current.collabId, current.collabToken);
+    if (current.collabId) {
+      if (!collab) collabStart(current.collabId, "owner");
+      onReady(current.collabId);
       return;
     }
     toast(t("collabCreating"));
     var myReq = (collabReq = {});
-    Promise.resolve(sbClient().rpc("shared_match_create", { p_title: current.title || "", p_data: collabClean(current) }))
+    Promise.resolve(sbClient().rpc("share_resource_create", { p_type: resourceType(), p_title: current.title || "", p_data: collabClean(current) }))
       .then(function (r) {
-        if (collabReq !== myReq) return;          // navigated away mid-create
-        if (r.error || !r.data || !r.data[0]) { toast(t("collabError")); return; }
-        var row = r.data[0];
-        current.collabId = row.id; current.collabToken = row.share_token;
-        S.sessions.save(current);                 // remember the link locally
-        collabStart(row.id, row.share_token);
+        if (collabReq !== myReq) return;                  // navigated away mid-create
+        if (r.error || !r.data) { toast(t("collabError")); return; }
+        var id = r.data;                                  // scalar uuid
+        current.collabId = id; S.sessions.save(current);  // remember it's shared
+        collabStart(id, "owner");
         collab.applyingRemote = true; renderEditor(); collab.applyingRemote = false;
-        showCollabLink(row.id, row.share_token);
+        onReady(id);
       })
       .catch(function () { if (collabReq === myReq) toast(t("collabError")); });
   }
-  function showCollabLink(id, token) {
-    var url = collabLink(id, token);
+  function openCollabDialog() { collabEnsureShared(function (id) { showCollaborators(id); }); }
+
+  // The Collaborators modal (owner-facing): who's on it + add by nom de scène
+  // (direct access) or by email (pending invite) + role + remove.
+  function showCollaborators(id) {
     var dlg = document.createElement("dialog");
     dlg.className = "suite-dialog suite-collab-dialog";
     dlg.innerHTML =
       '<div class="suite-dialog-body">' +
         '<h2 class="suite-dialog-title">👥 ' + esc(t("collabTitle")) + '</h2>' +
-        '<p class="suite-dialog-text">' + esc(t("collabHelp")) + '</p>' +
-        '<input class="suite-input suite-collab-url" readonly value="' + esc(url) + '" />' +
+        '<p class="suite-dialog-text">' + esc(t("collabHelp2")) + '</p>' +
+        '<div class="suite-collab-list" data-r="list"><p class="suite-sub">…</p></div>' +
+        '<div class="suite-field"><span class="suite-label">' + esc(t("collabAddByName")) + '</span>' +
+          '<input class="suite-input" data-r="search" type="text" placeholder="' + esc(t("collabSearchPh")) + '" autocomplete="off" />' +
+          '<div class="suite-collab-results" data-r="results"></div></div>' +
+        '<div class="suite-field"><span class="suite-label">' + esc(t("collabAddByEmail")) + '</span>' +
+          '<div class="suite-collab-emailrow"><input class="suite-input" data-r="email" type="email" placeholder="' + esc(t("collabEmailPh")) + '" />' +
+          '<button type="button" class="suite-btn suite-btn-ghost" data-r="addemail">' + esc(t("collabInvite")) + '</button></div></div>' +
         '<div class="suite-dialog-actions">' +
-          '<button type="button" data-r="copy" class="suite-btn suite-btn-ghost">' + esc(t("collabCopy")) + '</button>' +
           '<button type="button" data-r="close" class="suite-btn suite-btn-primary">' + esc(t("commonClose")) + '</button>' +
         '</div>' +
       '</div>';
     document.body.appendChild(dlg);
     function close() { try { if (dlg.open) dlg.close(); } catch (e) { /* ignore */ } dlg.remove(); }
-    var urlIn = dlg.querySelector(".suite-collab-url");
+    var listEl = dlg.querySelector('[data-r="list"]'), search = dlg.querySelector('[data-r="search"]'), results = dlg.querySelector('[data-r="results"]');
     dlg.querySelector('[data-r="close"]').onclick = close;
-    var cp = dlg.querySelector('[data-r="copy"]'), cpLabel = cp.textContent;
-    cp.onclick = function () {
-      function ok() { cp.textContent = "✓ " + cpLabel; setTimeout(function () { cp.textContent = cpLabel; }, 1500); }
-      function legacy() {   // insecure context / no Clipboard API: select + try execCommand, leave selected for manual copy
-        try { urlIn.focus(); urlIn.select(); if (document.execCommand && document.execCommand("copy")) ok(); } catch (e) { /* selection remains */ }
-      }
-      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok, legacy);
-      else legacy();
+
+    function refresh() {
+      Promise.resolve(sbClient().rpc("list_collaborators", { p_res: id })).then(function (r) {
+        if (r && r.error) { listEl.innerHTML = '<p class="suite-sub">' + esc(t("collabError")) + '</p>'; return; }
+        var rows = (r && r.data) || [];
+        var html = '<div class="suite-collab-row is-owner"><span class="suite-collab-nm">' + esc(collabMe()) + '</span><span class="suite-collab-owner">' + esc(t("collabRoleOwner")) + '</span></div>';
+        if (!rows.length) html += '<p class="suite-sub suite-collab-empty">' + esc(t("collabNone")) + '</p>';
+        html += rows.map(function (c) {
+          var pend = c.status === "pending" ? ' <span class="suite-collab-pending">' + esc(t("collabPending")) + '</span>' : '';
+          return '<div class="suite-collab-row"><span class="suite-collab-nm">' + esc(c.name) + pend + '</span>' +
+            '<select class="suite-edit-select suite-collab-rolesel" data-cid="' + esc(c.id) + '">' +
+              '<option value="editor"' + (c.role !== "viewer" ? " selected" : "") + '>' + esc(t("collabRoleEditor")) + '</option>' +
+              '<option value="viewer"' + (c.role === "viewer" ? " selected" : "") + '>' + esc(t("collabRoleViewer")) + '</option></select>' +
+            '<button type="button" class="suite-btn suite-btn-mini" data-rm="' + esc(c.id) + '" aria-label="' + esc(t("commonDelete")) + '">✕</button></div>';
+        }).join("");
+        listEl.innerHTML = html;
+        [].forEach.call(listEl.querySelectorAll("[data-rm]"), function (b) { b.onclick = function () { Promise.resolve(sbClient().rpc("remove_collaborator", { p_res: id, p_collab: b.getAttribute("data-rm") })).then(refresh); }; });
+        [].forEach.call(listEl.querySelectorAll(".suite-collab-rolesel"), function (sel) { sel.onchange = function () { Promise.resolve(sbClient().rpc("set_collaborator_role", { p_res: id, p_collab: sel.getAttribute("data-cid"), p_role: sel.value })); }; });
+      }, function () { listEl.innerHTML = '<p class="suite-sub">' + esc(t("collabError")) + '</p>'; });
+    }
+    refresh();
+
+    search.addEventListener("input", debounceC(function () {
+      var q = search.value.trim();
+      if (q.length < 2) { results.innerHTML = ""; return; }
+      Promise.resolve(sbClient().rpc("search_users_by_stage_name", { p_query: q })).then(function (r) {
+        var rows = (r && r.data) || [];
+        if (!rows.length) { results.innerHTML = '<div class="suite-sub">' + esc(t("collabSearchNone")) + '</div>'; return; }
+        results.innerHTML = rows.slice(0, 6).map(function (u) {
+          return '<button type="button" class="suite-collab-res" data-id="' + esc(u.id) + '" data-nm="' + esc(u.nom_scene || "") + '">🎭 ' + esc(u.nom_scene || "") + (u.prenom ? ' <span class="suite-collab-res-sub">· ' + esc(u.prenom) + '</span>' : '') + '</button>';
+        }).join("");
+        [].forEach.call(results.querySelectorAll(".suite-collab-res"), function (b) {
+          b.onclick = function () {
+            Promise.resolve(sbClient().rpc("add_collaborator", { p_res: id, p_user_id: b.getAttribute("data-id"), p_email: null, p_label: b.getAttribute("data-nm"), p_role: "editor" }))
+              .then(function () { search.value = ""; results.innerHTML = ""; refresh(); });
+          };
+        });
+      }, function () { results.innerHTML = ""; });
+    }, 260));
+
+    dlg.querySelector('[data-r="addemail"]').onclick = function () {
+      var em = dlg.querySelector('[data-r="email"]').value.trim();
+      if (!em || em.indexOf("@") < 1) return;
+      Promise.resolve(sbClient().rpc("add_collaborator", { p_res: id, p_user_id: null, p_email: em, p_label: null, p_role: "editor" }))
+        .then(function () { dlg.querySelector('[data-r="email"]').value = ""; refresh(); });
     };
+
     dlg.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); close(); } });
     if (typeof dlg.showModal === "function") { try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } } else dlg.setAttribute("open", "");
-    try { urlIn.focus(); urlIn.select(); } catch (e) { /* ignore */ }
   }
 
   function renderCollabError() {
@@ -1211,29 +1284,28 @@
     root = container; navigate = nav || navigate;
     editing = null; current = null;
     collabTeardown();
-    var parts = String(sub || "").split("/");
-    var id = parts[0], token = parts[1];
-    if (!id || !token) { navigate("#/match"); return; }
+    var id = String(sub || "").split("/")[0];
+    if (!id) { navigate("#/match"); return; }
     kind = "match"; K = KINDS.match;
     root.innerHTML = '<div class="suite-section-head"><h1 class="suite-h1">' + esc(t("collabLoading")) + '</h1></div>';
     var c = sbClient();
     if (!c) { renderCollabError(); return; }
     var myReq = (collabReq = {});
-    // Await session restore first — a cold deep-link load races the async
-    // getSession(), and the token-gated RPC needs the user JWT (else auth.uid()
-    // is null → a misleading "match not found" dead-end).
+    // Await session restore first — a cold deep-link load races the async getSession(),
+    // and the RLS-gated RPC needs the user JWT (else auth.uid() is null → "not allowed").
     Promise.resolve(c.auth.getSession())
       .then(function () {
         if (collabReq !== myReq) return null;     // navigated away while restoring
-        return c.rpc("shared_match_get", { p_id: id, p_token: token });
+        return c.rpc("get_shared_resource", { p_id: id });
       })
       .then(function (r) {
         if (collabReq !== myReq || !r) return;    // stale resolution → ignore
         if (r.error || !r.data || !r.data[0] || !r.data[0].data) { renderCollabError(); return; }
-        current = r.data[0].data;
-        current.collabId = id; current.collabToken = token;
-        kind = (current.kind && KINDS[current.kind]) ? current.kind : "match"; K = KINDS[kind];
-        collabStart(id, token);
+        var row = r.data[0];
+        current = row.data;
+        current.collabId = id;
+        kind = (current.kind && KINDS[current.kind]) ? current.kind : (row.resource_type === "entrainement" ? "training" : "match"); K = KINDS[kind];
+        collabStart(id, row.my_role || "editor");
         collab.applyingRemote = true; renderEditor(); collab.applyingRemote = false;
       })
       .catch(function () { if (collabReq === myReq) renderCollabError(); });

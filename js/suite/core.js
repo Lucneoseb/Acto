@@ -479,6 +479,9 @@
     copy.id = uid();
     copy.createdAt = Date.now();
     copy.title = (src.title || "") + " (copie)";
+    // The duplicate MUST start un-shared — never alias the source's server resource,
+    // else edits to the copy would overwrite the original shared_resources row.
+    delete copy.collabId; delete copy.collabToken;
     // fresh ids for segments
     (copy.setlist || []).forEach(function (s) { s.id = uid(); });
     return saveSession(copy);
