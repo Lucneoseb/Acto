@@ -742,10 +742,49 @@
     });
   }
 
+  /* ---- Miroir de compte (C6) --------------------------------------------
+     Les sessions ne vivaient que dans le localStorage : changer de téléphone ou
+     vider son cache effaçait tout, alors que l'utilisateur EST connecté. On
+     double donc la sauvegarde locale d'un miroir serveur (shared_resources, la
+     table déjà utilisée par la collaboration).
+
+     Champ `cloudId` et NON `collabId` : ce dernier active la session
+     collaborative temps réel (présence, canal Realtime). Marquer chaque match
+     enregistré comme « collaboratif » ouvrirait un canal par match.
+
+     Best-effort et jamais bloquant : hors ligne, ou tant que la migration C6
+     n'est pas passée, la sauvegarde locale reste la référence. */
+  function cloudMirror(session) {
+    var sb = sbClient();
+    if (!sb || !session) return;
+    var payload = collabClean(session);
+    var title = session.title || "";
+    try {
+      if (session.cloudId) {
+        Promise.resolve(sb.rpc("save_shared_resource", { p_id: session.cloudId, p_title: title, p_data: payload }))
+          .then(function (r) { if (r && r.error) console.warn("[cloud] save", r.error.message || r.error); },
+                function () { /* hors ligne : le local fait foi */ });
+      } else {
+        Promise.resolve(sb.rpc("share_resource_create", { p_type: resourceType(), p_title: title, p_data: payload }))
+          .then(function (r) {
+            if (r && r.error) { console.warn("[cloud] create", r.error.message || r.error); return; }
+            if (!r || !r.data) return;
+            session.cloudId = r.data;
+            S.sessions.save(session);      // retenir l'id du miroir
+          }, function () { /* hors ligne */ });
+      }
+    } catch (e) { /* jamais bloquant */ }
+  }
+  // Sauvegarde unique : local (référence) + miroir de compte (best-effort).
+  function persistSession(session) {
+    S.sessions.save(session);
+    cloudMirror(session);
+  }
+
   function openSaveDialog() {
     // Already named (in the prep form)? Save straight away. Otherwise ask.
     if (current.title && current.title.trim()) {
-      S.sessions.save(current);
+      persistSession(current);
       toast(t("savedToast"));
       return;
     }
@@ -753,7 +792,7 @@
     askText(t("saveTitleLabel"), def).then(function (name) {
       if (name == null) return;
       current.title = (name || def).trim();
-      S.sessions.save(current);
+      persistSession(current);
       toast(t("savedToast"));
     });
   }
@@ -769,6 +808,7 @@
         '<h1 class="suite-h1">' + esc(t(K.listTitleKey)) + '</h1>' +
       '</div>' +
       '<div class="suite-list">' + rows + '</div>' +
+      '<div id="cloudWrap"></div>' +
       '<div id="sharedWrap"></div>';
     root.querySelector('[data-act="back"]').onclick = function () { navigate(homeRoute()); };
     var localList = root.querySelector(".suite-list");
@@ -783,7 +823,53 @@
         if (window.confirm(t(K.confirmDeleteKey))) { S.sessions.remove(id); renderList(); }
       };
     });
+    renderMyCloud();
     renderSharedWithMe();
+  }
+
+  /* « Sur mon compte » — mes sessions présentes sur le serveur mais ABSENTES de
+     cet appareil (nouveau téléphone, cache vidé, autre navigateur). Sans ça, le
+     miroir d'écriture ne servirait à rien : l'utilisateur ne verrait rien.
+     Purement additif : on n'efface jamais une session locale, et une session
+     déjà présente localement n'est pas dupliquée ici. */
+  function renderMyCloud() {
+    var wrap = root.querySelector("#cloudWrap"); if (!wrap || !sbClient()) return;
+    var locaux = {};
+    S.sessions.list().forEach(function (e) {
+      var full = S.sessions.get(e.id);
+      if (full && full.cloudId) locaux[full.cloudId] = true;
+    });
+    Promise.resolve(sbClient().rpc("list_my_resources")).then(function (r) {
+      // migration C6 pas encore passée → r.error : on n'affiche simplement rien
+      if (!wrap.isConnected || !r || r.error) return;
+      var rows = (r.data || []).filter(function (x) {
+        return (x.kind || x.resource_type) === kind && !locaux[x.id];
+      });
+      if (!rows.length) return;
+      wrap.innerHTML = '<h2 class="suite-shared-h">☁️ ' + esc(t("cloudMine")) + '</h2>' +
+        '<div class="suite-list">' + rows.map(function (x) {
+          var maj = x.updated_at ? new Date(x.updated_at).toLocaleDateString(S.locale()) : "";
+          return '<div class="suite-list-item suite-cloud-item" data-cid="' + esc(x.id) + '">' +
+            '<div class="suite-list-main"><span class="suite-list-title">' + esc(x.title || "—") + '</span>' +
+            '<span class="suite-list-meta">' + esc(tf("listUpdated", { date: maj })) +
+              ' · ' + esc(tf("listMetaCount", { n: x.nb_impros || 0 })) + '</span></div>' +
+            '<div class="suite-list-actions"><button class="suite-btn suite-btn-mini" data-act="pull">' +
+              esc(t("cloudRestore")) + '</button></div></div>';
+        }).join("") + '</div>';
+      [].forEach.call(wrap.querySelectorAll(".suite-cloud-item"), function (row) {
+        row.querySelector('[data-act="pull"]').onclick = function () {
+          var id = row.getAttribute("data-cid");
+          Promise.resolve(sbClient().rpc("get_shared_resource", { p_id: id })).then(function (g) {
+            if (!g || g.error || !g.data) { toast(t("collabError")); return; }
+            var d = g.data.data || g.data;               // { data: {...} } ou l'objet direct
+            if (!d || typeof d !== "object") { toast(t("collabError")); return; }
+            d.cloudId = id;                              // rattacher au miroir existant
+            S.sessions.save(d);                          // local uniquement : pas de ré-écriture serveur
+            current = d; navigate(homeRoute() + "/edit");
+          }, function () { toast(t("collabError")); });
+        };
+      });
+    }, function () { /* hors ligne : la liste locale suffit */ });
   }
 
   // "Partagés avec moi" — resources I collaborate on (owned by others), same kind.
@@ -1267,6 +1353,16 @@
       onReady(current.collabId);
       return;
     }
+    // Le miroir de compte (C6) a peut-être déjà créé la ligne serveur : on la
+    // réutilise au lieu d'en créer une seconde pour la même session, ce qui
+    // laisserait un doublon orphelin dans shared_resources.
+    if (current.cloudId) {
+      current.collabId = current.cloudId;
+      S.sessions.save(current);
+      collabStart(current.collabId, "owner");
+      onReady(current.collabId);
+      return;
+    }
     toast(t("collabCreating"));
     var myReq = (collabReq = {});
     Promise.resolve(sbClient().rpc("share_resource_create", { p_type: resourceType(), p_title: current.title || "", p_data: collabClean(current) }))
@@ -1274,7 +1370,9 @@
         if (collabReq !== myReq) return;                  // navigated away mid-create
         if (r.error || !r.data) { toast(t("collabError")); return; }
         var id = r.data;                                  // scalar uuid
-        current.collabId = id; S.sessions.save(current);  // remember it's shared
+        // collabId ET cloudId pointent la MÊME ligne : une session partagée est
+        // aussi le miroir de compte, on ne duplique jamais.
+        current.collabId = id; current.cloudId = id; S.sessions.save(current);
         collabStart(id, "owner");
         collab.applyingRemote = true; renderEditor(); collab.applyingRemote = false;
         onReady(id);
