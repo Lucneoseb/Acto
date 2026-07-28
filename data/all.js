@@ -2353,285 +2353,421 @@ window.IMPRO_BUNDLE = {
           "debutant": [
             {
               "name": "Le miroir",
-              "desc": "Deux joueurs face à face. L'un fait des mouvements lents, l'autre l'imite en miroir parfait. On accélère progressivement. (Tadam Impro)"
+              "desc": "Deux joueurs face à face. L'un fait des mouvements lents, l'autre l'imite en miroir parfait. On accélère progressivement. (Tadam Impro)",
+              "minPlayers": 2,
+              "maxPlayers": 2
             },
             {
               "name": "Les chaises",
-              "desc": "Une équipe a 30s pour bâtir une structure avec des chaises. Une autre équipe a 40s pour préparer une impro à partir de cette structure. (Tadam Impro)"
+              "desc": "Une équipe a 30s pour bâtir une structure avec des chaises. Une autre équipe a 40s pour préparer une impro à partir de cette structure. (Tadam Impro)",
+              "minPlayers": 4,
+              "maxPlayers": 99
             },
             {
               "name": "Le discours funéraire",
-              "desc": "Chacun improvise un discours d'hommage à son animal de compagnie. Ton solennel, drôle, ou les deux. (Tadam Impro)"
+              "desc": "Chacun improvise un discours d'hommage à son animal de compagnie. Ton solennel, drôle, ou les deux. (Tadam Impro)",
+              "minPlayers": 1,
+              "maxPlayers": 99
             },
             {
               "name": "Histoire collective",
-              "desc": "En cercle, un mot chacun. L'histoire se construit collectivement, sans hésiter ni reprendre."
+              "desc": "En cercle, un mot chacun. L'histoire se construit collectivement, sans hésiter ni reprendre.",
+              "minPlayers": 3,
+              "maxPlayers": 99
             },
             {
               "name": "Le thème à incarner",
-              "desc": "Le groupe est en mouvement, un meneur lance un thème (musée, pyramides...). Le groupe le recrée immédiatement. (Tadam Impro)"
+              "desc": "Le groupe est en mouvement, un meneur lance un thème (musée, pyramides...). Le groupe le recrée immédiatement. (Tadam Impro)",
+              "minPlayers": 4,
+              "maxPlayers": 99
             },
             {
               "name": "Conversation bizarre",
-              "desc": "Deux joueurs improvisent une situation décalée : oiseau qui explique l'arbre à un autre oiseau, puce qui se dispute avec un chien. (Tadam Impro)"
+              "desc": "Deux joueurs improvisent une situation décalée : oiseau qui explique l'arbre à un autre oiseau, puce qui se dispute avec un chien. (Tadam Impro)",
+              "minPlayers": 2,
+              "maxPlayers": 2
             },
             {
               "name": "Yes, and...",
-              "desc": "Toute proposition est acceptée et enrichie. Règle d'or de l'impro selon InFamily : ne jamais bloquer."
+              "desc": "Toute proposition est acceptée et enrichie. Règle d'or de l'impro selon InFamily : ne jamais bloquer.",
+              "minPlayers": 2,
+              "maxPlayers": 99
             },
             {
               "name": "L'objet imaginaire",
-              "desc": "Un joueur manipule un objet invisible. Les autres devinent et le relancent en y ajoutant un usage."
+              "desc": "Un joueur manipule un objet invisible. Les autres devinent et le relancent en y ajoutant un usage.",
+              "minPlayers": 2,
+              "maxPlayers": 99
             },
             {
               "name": "Le gars bourré",
               "desc": "Un membre du public (ou un comédien) joue le « gars bourré » qui interrompt la scène avec des suggestions absurdes que les improvisateurs doivent intégrer pour faire évoluer l'histoire.",
-              "needsAudience": true
+              "needsAudience": true,
+              "minPlayers": 2,
+              "maxPlayers": 99
             },
             {
               "name": "Cercle de questions",
               "desc": "Un joueur au centre du cercle. Les autres lui posent des questions en rafale. Il répond précisément à chacune. (Dramaction)",
-              "needsAudience": true
+              "needsAudience": true,
+              "minPlayers": 4,
+              "maxPlayers": 99
             },
             {
               "name": "Émotions sur commande",
-              "desc": "Le meneur lance une émotion. Les joueurs basculent immédiatement et la justifient en scène."
+              "desc": "Le meneur lance une émotion. Les joueurs basculent immédiatement et la justifient en scène.",
+              "minPlayers": 3,
+              "maxPlayers": 99
             },
             {
               "name": "La machine humaine",
-              "desc": "Un par un, les joueurs entrent et ajoutent un geste/son répétitif. La machine se construit organiquement."
+              "desc": "Un par un, les joueurs entrent et ajoutent un geste/son répétitif. La machine se construit organiquement.",
+              "minPlayers": 3,
+              "maxPlayers": 99
             },
             {
               "name": "ABC",
-              "desc": "Une scène où chaque réplique commence par la lettre suivante de l'alphabet. À, B, C... jusqu'à Z."
+              "desc": "Une scène où chaque réplique commence par la lettre suivante de l'alphabet. À, B, C... jusqu'à Z.",
+              "minPlayers": 2,
+              "maxPlayers": 4
             },
             {
               "name": "Le bus",
-              "desc": "Un arrêt de bus. À chaque arrivée, un nouveau personnage monte avec son univers. La scène mute à chaque fois."
+              "desc": "Un arrêt de bus. À chaque arrivée, un nouveau personnage monte avec son univers. La scène mute à chaque fois.",
+              "minPlayers": 2,
+              "maxPlayers": 99
             },
             {
               "name": "Pantomime",
-              "desc": "Une scène entièrement mimée à partir d'un thème. (Dramaction)"
+              "desc": "Une scène entièrement mimée à partir d'un thème. (Dramaction)",
+              "minPlayers": 1,
+              "maxPlayers": 99
             },
             {
               "name": "Trois personnages",
-              "desc": "Trois joueurs entrent et campent leur personnage en moins de 30 secondes, juste par la posture et la voix."
+              "desc": "Trois joueurs entrent et campent leur personnage en moins de 30 secondes, juste par la posture et la voix.",
+              "minPlayers": 3,
+              "maxPlayers": 3
             },
             {
               "name": "Émotion qui passe",
-              "desc": "Un joueur transmet une émotion en silence à son voisin par un geste, qui la transmet à son tour. (Dramaction)"
+              "desc": "Un joueur transmet une émotion en silence à son voisin par un geste, qui la transmet à son tour. (Dramaction)",
+              "minPlayers": 3,
+              "maxPlayers": 99
             },
             {
               "name": "Le Freeze",
-              "desc": "Deux joueurs improvisent depuis une posture. À tout moment, un autre tape dans ses mains pour figer la scène et remplacer un joueur. (Impro-Exo)"
+              "desc": "Deux joueurs improvisent depuis une posture. À tout moment, un autre tape dans ses mains pour figer la scène et remplacer un joueur. (Impro-Exo)",
+              "minPlayers": 3,
+              "maxPlayers": 99
             },
             {
               "name": "Début-milieu-fin en 30s",
-              "desc": "Commencer une impro, faire bouger l'enjeu, et conclure — le tout en 30 secondes chrono. (Impro-Exo)"
+              "desc": "Commencer une impro, faire bouger l'enjeu, et conclure — le tout en 30 secondes chrono. (Impro-Exo)",
+              "minPlayers": 2,
+              "maxPlayers": 3
             },
             {
               "name": "Conversation à émotion changeante",
               "desc": "Une conversation en duo. Toutes les 1-2 minutes, un meneur crie une émotion. Les joueurs basculent. (MentorShow)",
-              "needsAudience": true
+              "needsAudience": true,
+              "minPlayers": 2,
+              "maxPlayers": 2
             },
             {
               "name": "Mixte",
-              "desc": "Tous les joueurs de la troupe entrent ensemble et jouent le thème sans découpage en équipes. (Catégorie match adaptée)"
+              "desc": "Tous les joueurs de la troupe entrent ensemble et jouent le thème sans découpage en équipes. (Catégorie match adaptée)",
+              "minPlayers": 4,
+              "maxPlayers": 99
             },
             {
               "name": "Comparée",
-              "desc": "Deux sous-groupes de la troupe jouent successivement la même proposition. La 2e version doit se distinguer de la 1ʳᵉ. (Catégorie match adaptée)"
+              "desc": "Deux sous-groupes de la troupe jouent successivement la même proposition. La 2e version doit se distinguer de la 1ʳᵉ. (Catégorie match adaptée)",
+              "minPlayers": 4,
+              "maxPlayers": 99
             },
             {
               "name": "Comparée libre",
-              "desc": "Deux sous-groupes jouent successivement le même thème, aucune contrainte de forme. Liberté totale. (Catégorie match adaptée)"
+              "desc": "Deux sous-groupes jouent successivement le même thème, aucune contrainte de forme. Liberté totale. (Catégorie match adaptée)",
+              "minPlayers": 4,
+              "maxPlayers": 99
             },
             {
               "name": "Mixte avec accessoire",
-              "desc": "Un objet imposé doit être central à l'improvisation collective. La troupe entière l'apprivoise en scène. (Catégorie match adaptée)"
+              "desc": "Un objet imposé doit être central à l'improvisation collective. La troupe entière l'apprivoise en scène. (Catégorie match adaptée)",
+              "minPlayers": 3,
+              "maxPlayers": 99
             }
           ],
           "confirme": [
             {
               "name": "Pause-Reprise",
-              "desc": "Le meneur arrête la scène, change un élément (lieu, époque, statut), et la fait reprendre."
+              "desc": "Le meneur arrête la scène, change un élément (lieu, époque, statut), et la fait reprendre.",
+              "minPlayers": 2,
+              "maxPlayers": 6
             },
             {
               "name": "Trois mots imposés",
               "desc": "Trois mots tirés au sort doivent être placés naturellement dans la scène.",
-              "needsAudience": true
+              "needsAudience": true,
+              "minPlayers": 2,
+              "maxPlayers": 6
             },
             {
               "name": "Le statut",
-              "desc": "Chaque personnage a un statut social caché (1 à 10). Le public doit le deviner."
+              "desc": "Chaque personnage a un statut social caché (1 à 10). Le public doit le deviner.",
+              "minPlayers": 2,
+              "maxPlayers": 6
             },
             {
               "name": "Doublage",
-              "desc": "Deux joueurs miment, deux autres parlent pour eux depuis l'extérieur du plateau."
+              "desc": "Deux joueurs miment, deux autres parlent pour eux depuis l'extérieur du plateau.",
+              "minPlayers": 4,
+              "maxPlayers": 4
             },
             {
               "name": "Conférence d'experts",
               "desc": "Un panel d'experts d'un sujet absurde répond aux questions du public avec sérieux.",
-              "needsAudience": true
+              "needsAudience": true,
+              "minPlayers": 2,
+              "maxPlayers": 6
             },
             {
               "name": "Last word, first word",
-              "desc": "Chaque réplique doit commencer par le dernier mot de la précédente."
+              "desc": "Chaque réplique doit commencer par le dernier mot de la précédente.",
+              "minPlayers": 2,
+              "maxPlayers": 4
             },
             {
               "name": "Histoire à rebours",
-              "desc": "Raconter une histoire en commençant par la fin et en remontant scène par scène."
+              "desc": "Raconter une histoire en commençant par la fin et en remontant scène par scène.",
+              "minPlayers": 2,
+              "maxPlayers": 8
             },
             {
               "name": "Genres mélangés",
-              "desc": "Le meneur change de genre toutes les 30 secondes (western, polar, romance, horreur...)."
+              "desc": "Le meneur change de genre toutes les 30 secondes (western, polar, romance, horreur...).",
+              "minPlayers": 2,
+              "maxPlayers": 6
             },
             {
               "name": "Le triple statut",
-              "desc": "Chaque personnage a un secret, un objectif et un obstacle. Tous se révèlent en cours de scène."
+              "desc": "Chaque personnage a un secret, un objectif et un obstacle. Tous se révèlent en cours de scène.",
+              "minPlayers": 2,
+              "maxPlayers": 5
             },
             {
               "name": "Scène inversée",
-              "desc": "On commence par le climax et on remonte jusqu'à la rencontre des personnages."
+              "desc": "On commence par le climax et on remonte jusqu'à la rencontre des personnages.",
+              "minPlayers": 2,
+              "maxPlayers": 6
             },
             {
               "name": "Le chœur désaccordé",
-              "desc": "Une chorale sur scène — un membre est désaccordé ou hors rythme. Tout le drame vient de lui. (Wikiversité)"
+              "desc": "Une chorale sur scène — un membre est désaccordé ou hors rythme. Tout le drame vient de lui. (Wikiversité)",
+              "minPlayers": 4,
+              "maxPlayers": 99
             },
             {
               "name": "Acteurs en coulisses",
-              "desc": "Une scène se joue côté coulisses pendant que le 'spectacle' a lieu côté scène. Mise en abyme. (Wikiversité)"
+              "desc": "Une scène se joue côté coulisses pendant que le 'spectacle' a lieu côté scène. Mise en abyme. (Wikiversité)",
+              "minPlayers": 3,
+              "maxPlayers": 12
             },
             {
               "name": "L'ascenseur en panne",
-              "desc": "Espace ultra-restreint, plusieurs personnages, le huis-clos est forcé. Classique. (Wikiversité)"
+              "desc": "Espace ultra-restreint, plusieurs personnages, le huis-clos est forcé. Classique. (Wikiversité)",
+              "minPlayers": 3,
+              "maxPlayers": 8
             },
             {
               "name": "La réunion de profs",
-              "desc": "Une réunion d'enseignants où chaque prof a un agenda caché et un élève fétiche."
+              "desc": "Une réunion d'enseignants où chaque prof a un agenda caché et un élève fétiche.",
+              "minPlayers": 3,
+              "maxPlayers": 8
             },
             {
               "name": "Le retour au passé",
-              "desc": "À un moment-clé, un joueur tape dans ses mains. La scène revient 1 minute en arrière et se rejoue différemment."
+              "desc": "À un moment-clé, un joueur tape dans ses mains. La scène revient 1 minute en arrière et se rejoue différemment.",
+              "minPlayers": 2,
+              "maxPlayers": 6
             },
             {
               "name": "Le personnage tiré",
-              "desc": "Chaque joueur tire un type de personnage (clown, séducteur, paranoïaque) qu'il doit jouer sans le nommer."
+              "desc": "Chaque joueur tire un type de personnage (clown, séducteur, paranoïaque) qu'il doit jouer sans le nommer.",
+              "minPlayers": 2,
+              "maxPlayers": 8
             },
             {
               "name": "Mixte à la manière de",
-              "desc": "Tout le monde joue le thème dans un style d'auteur ou de genre imposé : Molière, Audiard, film noir... (Catégorie match adaptée)"
+              "desc": "Tout le monde joue le thème dans un style d'auteur ou de genre imposé : Molière, Audiard, film noir... (Catégorie match adaptée)",
+              "minPlayers": 3,
+              "maxPlayers": 99
             },
             {
               "name": "Comparée à la manière de",
-              "desc": "Deux sous-groupes jouent successivement le même thème dans le style imposé, chacun à leur façon. (Catégorie match adaptée)"
+              "desc": "Deux sous-groupes jouent successivement le même thème dans le style imposé, chacun à leur façon. (Catégorie match adaptée)",
+              "minPlayers": 4,
+              "maxPlayers": 99
             },
             {
               "name": "Mixte sans paroles",
-              "desc": "Aucun mot prononcé : seule la mise en scène collective raconte. Concentration extrême. (Catégorie match adaptée)"
+              "desc": "Aucun mot prononcé : seule la mise en scène collective raconte. Concentration extrême. (Catégorie match adaptée)",
+              "minPlayers": 3,
+              "maxPlayers": 99
             },
             {
               "name": "Sans paroles avec soutien musical",
-              "desc": "Improvisation muette, mais l'écriture est rigoureusement influencée par l'ambiance musicale imposée. (Dramaction)"
+              "desc": "Improvisation muette, mais l'écriture est rigoureusement influencée par l'ambiance musicale imposée. (Dramaction)",
+              "minPlayers": 1,
+              "maxPlayers": 99
             },
             {
               "name": "Comparée à contrainte",
-              "desc": "Deux sous-groupes jouent successivement le même thème, chacun avec une contrainte tirée au sort différente. (Catégorie match adaptée)"
+              "desc": "Deux sous-groupes jouent successivement le même thème, chacun avec une contrainte tirée au sort différente. (Catégorie match adaptée)",
+              "minPlayers": 4,
+              "maxPlayers": 99
             },
             {
               "name": "Sans thème ni caucus",
-              "desc": "Aucun thème annoncé, aucun temps de concertation. Pure inventivité immédiate. (Dramaction)"
+              "desc": "Aucun thème annoncé, aucun temps de concertation. Pure inventivité immédiate. (Dramaction)",
+              "minPlayers": 2,
+              "maxPlayers": 99
             },
             {
               "name": "Saute-mouton",
-              "desc": "Quatre impros différentes, un thème par impro. La 1ʳᵉ avec un joueur, on en ajoute un à chaque impro suivante. (Dramaction)"
+              "desc": "Quatre impros différentes, un thème par impro. La 1ʳᵉ avec un joueur, on en ajoute un à chaque impro suivante. (Dramaction)",
+              "minPlayers": 4,
+              "maxPlayers": 4
             },
             {
               "name": "Sensorielle",
-              "desc": "Un des cinq sens d'un improvisateur est stimulé pendant la scène. Cette sensation doit nourrir toute l'écriture. (Dramaction)"
+              "desc": "Un des cinq sens d'un improvisateur est stimulé pendant la scène. Cette sensation doit nourrir toute l'écriture. (Dramaction)",
+              "minPlayers": 2,
+              "maxPlayers": 99
             }
           ],
           "expert": [
             {
               "name": "Le Harold",
-              "desc": "Forme longue : trois scènes en parallèle s'entrelacent, se répondent et se nourrissent. Format Del Close."
+              "desc": "Forme longue : trois scènes en parallèle s'entrelacent, se répondent et se nourrissent. Format Del Close.",
+              "minPlayers": 4,
+              "maxPlayers": 10
             },
             {
               "name": "La Boule de feu",
-              "desc": "Tous les joueurs sur scène. À chaque temps fort, un duo se détache pour une mini-scène, puis revient au groupe."
+              "desc": "Tous les joueurs sur scène. À chaque temps fort, un duo se détache pour une mini-scène, puis revient au groupe.",
+              "minPlayers": 4,
+              "maxPlayers": 99
             },
             {
               "name": "L'improvisation chantée",
-              "desc": "Une scène entièrement chantée avec mélodie improvisée, rimes et structure couplet/refrain."
+              "desc": "Une scène entièrement chantée avec mélodie improvisée, rimes et structure couplet/refrain.",
+              "minPlayers": 2,
+              "maxPlayers": 8
             },
             {
               "name": "Le monologue partagé",
-              "desc": "Un long monologue est repris par chaque joueur, qui le déforme et l'enrichit en assumant le même personnage."
+              "desc": "Un long monologue est repris par chaque joueur, qui le déforme et l'enrichit en assumant le même personnage.",
+              "minPlayers": 2,
+              "maxPlayers": 8
             },
             {
               "name": "Forme libre 20 minutes",
-              "desc": "Une seule scène, vingt minutes, sans interruption ni bascule. Tenir un monde entier."
+              "desc": "Une seule scène, vingt minutes, sans interruption ni bascule. Tenir un monde entier.",
+              "minPlayers": 2,
+              "maxPlayers": 6
             },
             {
               "name": "L'opéra impro",
-              "desc": "Récitatifs et arias chantés en alternance, livret entièrement improvisé, voix lyriques."
+              "desc": "Récitatifs et arias chantés en alternance, livret entièrement improvisé, voix lyriques.",
+              "minPlayers": 2,
+              "maxPlayers": 10
             },
             {
               "name": "Le miroir Pirandello",
               "desc": "Les personnages prennent conscience qu'ils sont improvisés... mais doivent continuer la scène quand même.",
-              "needsAudience": true
+              "needsAudience": true,
+              "minPlayers": 2,
+              "maxPlayers": 6
             },
             {
               "name": "Scène à deux temps",
-              "desc": "Une scène se joue, puis se rejoue dix ans plus tard avec les conséquences logiques de la première."
+              "desc": "Une scène se joue, puis se rejoue dix ans plus tard avec les conséquences logiques de la première.",
+              "minPlayers": 2,
+              "maxPlayers": 6
             },
             {
               "name": "Improvisation muette",
-              "desc": "Spectacle de 15 minutes, intégralement sans paroles, avec intrigue claire et résolue."
+              "desc": "Spectacle de 15 minutes, intégralement sans paroles, avec intrigue claire et résolue.",
+              "minPlayers": 2,
+              "maxPlayers": 8
             },
             {
               "name": "Le théâtre dans le théâtre",
-              "desc": "Les personnages improvisent à leur tour une pièce dans la scène. Trois niveaux de fiction superposés."
+              "desc": "Les personnages improvisent à leur tour une pièce dans la scène. Trois niveaux de fiction superposés.",
+              "minPlayers": 3,
+              "maxPlayers": 8
             },
             {
               "name": "La Maison (Del Close)",
-              "desc": "Forme longue où chaque scène ouvre des thèmes que les suivantes reprennent et approfondissent."
+              "desc": "Forme longue où chaque scène ouvre des thèmes que les suivantes reprennent et approfondissent.",
+              "minPlayers": 4,
+              "maxPlayers": 10
             },
             {
               "name": "Le Deconstructed",
-              "desc": "Une seule scène est jouée, puis dépiautée et recommencée selon plusieurs angles narratifs."
+              "desc": "Une seule scène est jouée, puis dépiautée et recommencée selon plusieurs angles narratifs.",
+              "minPlayers": 3,
+              "maxPlayers": 10
             },
             {
               "name": "Tchekhovienne",
-              "desc": "Long format à la Tchekhov : pas de climax, des personnages qui se ratent, l'inaction comme moteur."
+              "desc": "Long format à la Tchekhov : pas de climax, des personnages qui se ratent, l'inaction comme moteur.",
+              "minPlayers": 3,
+              "maxPlayers": 99
             },
             {
               "name": "Beckettienne",
-              "desc": "Long format absurde : silences habités, attente, langage qui se vide. À l'image d'En attendant Godot."
+              "desc": "Long format absurde : silences habités, attente, langage qui se vide. À l'image d'En attendant Godot.",
+              "minPlayers": 2,
+              "maxPlayers": 6
             },
             {
               "name": "Mixte chantée",
-              "desc": "Improvisation entièrement ou partiellement chantée par toute la troupe, mélodies et paroles improvisées en collectif. (Catégorie match adaptée)"
+              "desc": "Improvisation entièrement ou partiellement chantée par toute la troupe, mélodies et paroles improvisées en collectif. (Catégorie match adaptée)",
+              "minPlayers": 3,
+              "maxPlayers": 99
             },
             {
               "name": "Comparée chantée",
-              "desc": "Deux sous-groupes proposent successivement leur version chantée du même thème. (Catégorie match adaptée)"
+              "desc": "Deux sous-groupes proposent successivement leur version chantée du même thème. (Catégorie match adaptée)",
+              "minPlayers": 4,
+              "maxPlayers": 99
             },
             {
               "name": "Mixte rimée",
-              "desc": "Toutes les répliques riment. Octosyllabes ou alexandrins selon niveau. La troupe entière tient le mètre. (Catégorie match adaptée)"
+              "desc": "Toutes les répliques riment. Octosyllabes ou alexandrins selon niveau. La troupe entière tient le mètre. (Catégorie match adaptée)",
+              "minPlayers": 3,
+              "maxPlayers": 99
             },
             {
               "name": "Comparée rimée",
-              "desc": "Deux sous-groupes livrent successivement leur version rimée du thème. (Catégorie match adaptée)"
+              "desc": "Deux sous-groupes livrent successivement leur version rimée du thème. (Catégorie match adaptée)",
+              "minPlayers": 4,
+              "maxPlayers": 99
             },
             {
               "name": "Videoway",
-              "desc": "Mixte avec quatre canaux TV (F1-F4), contenu différent par canal. Le meneur saute d'un canal à l'autre sans ordre prédéfini. (Dramaction)"
+              "desc": "Mixte avec quatre canaux TV (F1-F4), contenu différent par canal. Le meneur saute d'un canal à l'autre sans ordre prédéfini. (Dramaction)",
+              "minPlayers": 4,
+              "maxPlayers": 12
             },
             {
               "name": "Mixte à thèse",
-              "desc": "L'improvisation collective doit défendre une thèse philosophique annoncée à l'avance."
+              "desc": "L'improvisation collective doit défendre une thèse philosophique annoncée à l'avance.",
+              "minPlayers": 3,
+              "maxPlayers": 99
             }
           ]
         },
@@ -2639,95 +2775,139 @@ window.IMPRO_BUNDLE = {
           "debutant": [
             {
               "name": "Improvisation simple",
-              "desc": "Une équipe joue, l'autre attend. Forme classique du match d'impro de la LNI."
+              "desc": "Une équipe joue, l'autre attend. Forme classique du match d'impro de la LNI.",
+              "minPlayers": 1,
+              "maxPlayers": 6
             },
             {
               "name": "Improvisation mixte",
-              "desc": "Les deux équipes jouent ensemble dans la même improvisation, en équilibre numérique."
+              "desc": "Les deux équipes jouent ensemble dans la même improvisation, en équilibre numérique.",
+              "minPlayers": 2,
+              "maxPlayers": 99
             },
             {
               "name": "Improvisation comparée",
-              "desc": "Chaque équipe joue tour à tour la même proposition. Le public compare et vote."
+              "desc": "Chaque équipe joue tour à tour la même proposition. Le public compare et vote.",
+              "minPlayers": 2,
+              "maxPlayers": 99
             },
             {
               "name": "Mixte sans paroles",
-              "desc": "Les deux équipes ensemble, mais en silence absolu pendant toute la scène."
+              "desc": "Les deux équipes ensemble, mais en silence absolu pendant toute la scène.",
+              "minPlayers": 2,
+              "maxPlayers": 99
             },
             {
               "name": "Comparée chantée",
-              "desc": "Chaque équipe joue le thème en y intégrant au moins un passage chanté."
+              "desc": "Chaque équipe joue le thème en y intégrant au moins un passage chanté.",
+              "minPlayers": 2,
+              "maxPlayers": 99
             },
             {
               "name": "Comparée avec accessoire",
-              "desc": "Un accessoire imposé doit être central. Chaque équipe l'utilise à sa façon."
+              "desc": "Un accessoire imposé doit être central. Chaque équipe l'utilise à sa façon.",
+              "minPlayers": 2,
+              "maxPlayers": 99
             }
           ],
           "confirme": [
             {
               "name": "À la manière de",
-              "desc": "Style d'auteur ou de genre imposé : Molière, Audiard, film noir... (Catégorie LNI classique)"
+              "desc": "Style d'auteur ou de genre imposé : Molière, Audiard, film noir... (Catégorie LNI classique)",
+              "minPlayers": 1,
+              "maxPlayers": 99
             },
             {
               "name": "Mixte avec accessoire",
-              "desc": "Un objet imposé doit être central à l'improvisation. Les deux équipes négocient en scène."
+              "desc": "Un objet imposé doit être central à l'improvisation. Les deux équipes négocient en scène.",
+              "minPlayers": 2,
+              "maxPlayers": 99
             },
             {
               "name": "Comparée à contrainte",
-              "desc": "Chaque équipe joue le thème avec une contrainte tirée au sort différemment."
+              "desc": "Chaque équipe joue le thème avec une contrainte tirée au sort différemment.",
+              "minPlayers": 2,
+              "maxPlayers": 8
             },
             {
               "name": "Mixte avec personnage imposé",
-              "desc": "Un type de personnage imposé doit apparaître dès la première minute."
+              "desc": "Un type de personnage imposé doit apparaître dès la première minute.",
+              "minPlayers": 2,
+              "maxPlayers": 8
             },
             {
               "name": "Improvisation à rebours",
-              "desc": "L'équipe doit jouer la scène en commençant par la fin et en remontant."
+              "desc": "L'équipe doit jouer la scène en commençant par la fin et en remontant.",
+              "minPlayers": 2,
+              "maxPlayers": 6
             },
             {
               "name": "Mixte par phrases",
-              "desc": "Les joueurs ne peuvent parler que par phrases entières et complètes — pas d'interruption."
+              "desc": "Les joueurs ne peuvent parler que par phrases entières et complètes — pas d'interruption.",
+              "minPlayers": 2,
+              "maxPlayers": 8
             },
             {
               "name": "Comparée rimée",
-              "desc": "Toutes les répliques doivent rimer (octosyllabes ou rimes plates)."
+              "desc": "Toutes les répliques doivent rimer (octosyllabes ou rimes plates).",
+              "minPlayers": 2,
+              "maxPlayers": 6
             },
             {
               "name": "Comparée muette",
-              "desc": "Aucune parole : seul le geste et l'expression racontent l'histoire."
+              "desc": "Aucune parole : seul le geste et l'expression racontent l'histoire.",
+              "minPlayers": 2,
+              "maxPlayers": 8
             }
           ],
           "expert": [
             {
               "name": "Chantée et dansée",
-              "desc": "Mini-musical : alternance dialogues, chants et chorégraphies improvisés. Style Broadway impro."
+              "desc": "Mini-musical : alternance dialogues, chants et chorégraphies improvisés. Style Broadway impro.",
+              "minPlayers": 2,
+              "maxPlayers": 99
             },
             {
               "name": "À la manière de + époque",
-              "desc": "Style d'auteur ET époque historique imposés. Les deux doivent être lisibles dès l'entrée."
+              "desc": "Style d'auteur ET époque historique imposés. Les deux doivent être lisibles dès l'entrée.",
+              "minPlayers": 2,
+              "maxPlayers": 8
             },
             {
               "name": "Mixte en alexandrins",
-              "desc": "Toutes les répliques en alexandrins (12 pieds), rimes plates ou croisées. Niveau classique."
+              "desc": "Toutes les répliques en alexandrins (12 pieds), rimes plates ou croisées. Niveau classique.",
+              "minPlayers": 2,
+              "maxPlayers": 6
             },
             {
               "name": "Comparée silencieuse + bruitée",
-              "desc": "Une équipe joue muette, l'autre uniquement en bruitages. Même thème, lectures inverses."
+              "desc": "Une équipe joue muette, l'autre uniquement en bruitages. Même thème, lectures inverses.",
+              "minPlayers": 2,
+              "maxPlayers": 99
             },
             {
               "name": "Sans héros",
-              "desc": "L'improvisation doit fonctionner sans personnage principal identifiable. Choralité totale."
+              "desc": "L'improvisation doit fonctionner sans personnage principal identifiable. Choralité totale.",
+              "minPlayers": 3,
+              "maxPlayers": 99
             },
             {
               "name": "À thèse",
-              "desc": "L'improvisation doit défendre une thèse philosophique annoncée à l'avance par l'arbitre."
+              "desc": "L'improvisation doit défendre une thèse philosophique annoncée à l'avance par l'arbitre.",
+              "minPlayers": 2,
+              "maxPlayers": 8
             },
             {
               "name": "À la manière de Tchekhov",
-              "desc": "Style russe fin XIXᵉ : ennui aristocratique, samovars, silences chargés, monologues."
+              "desc": "Style russe fin XIXᵉ : ennui aristocratique, samovars, silences chargés, monologues.",
+              "minPlayers": 2,
+              "maxPlayers": 8
             },
             {
               "name": "Rétro-pédalage temporel",
-              "desc": "La scène avance puis revient en arrière toutes les 30 secondes. Boucle vertigineuse."
+              "desc": "La scène avance puis revient en arrière toutes les 30 secondes. Boucle vertigineuse.",
+              "minPlayers": 2,
+              "maxPlayers": 6
             }
           ]
         }
@@ -2937,75 +3117,111 @@ window.IMPRO_BUNDLE = {
       "categories": [
         {
           "name": "Mixte",
-          "desc": "Les deux équipes jouent ensemble, en équilibre numérique, sur le même thème."
+          "desc": "Les deux équipes jouent ensemble, en équilibre numérique, sur le même thème.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Comparée",
-          "desc": "Chaque équipe joue tour à tour la même proposition. Le public compare et vote."
+          "desc": "Chaque équipe joue tour à tour la même proposition. Le public compare et vote.",
+          "minPlayers": 1,
+          "maxPlayers": 99
         },
         {
           "name": "Mixte à la manière de",
-          "desc": "Style d'auteur ou de genre imposé : Molière, Audiard, film noir..."
+          "desc": "Style d'auteur ou de genre imposé : Molière, Audiard, film noir...",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Comparée à la manière de",
-          "desc": "Chaque équipe joue le thème dans le style imposé, à sa façon."
+          "desc": "Chaque équipe joue le thème dans le style imposé, à sa façon.",
+          "minPlayers": 1,
+          "maxPlayers": 99
         },
         {
           "name": "Mixte chantée",
-          "desc": "Improvisation entièrement ou partiellement chantée, mélodies et paroles improvisées."
+          "desc": "Improvisation entièrement ou partiellement chantée, mélodies et paroles improvisées.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Comparée chantée",
-          "desc": "Chaque équipe propose sa version chantée du même thème."
+          "desc": "Chaque équipe propose sa version chantée du même thème.",
+          "minPlayers": 1,
+          "maxPlayers": 99
         },
         {
           "name": "Mixte sans paroles",
-          "desc": "Aucun mot prononcé : seul le geste raconte. Concentration extrême."
+          "desc": "Aucun mot prononcé : seul le geste raconte. Concentration extrême.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Sans paroles avec soutien musical",
-          "desc": "Improvisation muette, mais l'écriture est rigoureusement influencée par l'ambiance musicale imposée. (Dramaction)"
+          "desc": "Improvisation muette, mais l'écriture est rigoureusement influencée par l'ambiance musicale imposée. (Dramaction)",
+          "minPlayers": 1,
+          "maxPlayers": 99
         },
         {
           "name": "Mixte rimée",
-          "desc": "Toutes les répliques riment. Octosyllabes ou alexandrins selon niveau."
+          "desc": "Toutes les répliques riment. Octosyllabes ou alexandrins selon niveau.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Comparée rimée",
-          "desc": "Chaque équipe livre sa version rimée du thème."
+          "desc": "Chaque équipe livre sa version rimée du thème.",
+          "minPlayers": 1,
+          "maxPlayers": 99
         },
         {
           "name": "Mixte avec accessoire",
-          "desc": "Un objet imposé doit être central à l'improvisation."
+          "desc": "Un objet imposé doit être central à l'improvisation.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Comparée à contrainte",
-          "desc": "Chaque équipe joue le thème avec une contrainte tirée au sort différente."
+          "desc": "Chaque équipe joue le thème avec une contrainte tirée au sort différente.",
+          "minPlayers": 1,
+          "maxPlayers": 99
         },
         {
           "name": "Sans thème ni caucus",
-          "desc": "Aucun thème annoncé, aucun temps de concertation. Pure inventivité immédiate. (Dramaction)"
+          "desc": "Aucun thème annoncé, aucun temps de concertation. Pure inventivité immédiate. (Dramaction)",
+          "minPlayers": 1,
+          "maxPlayers": 99
         },
         {
           "name": "Saute-mouton",
-          "desc": "Quatre improvisations différentes, un thème par impro. La 1ʳᵉ avec un joueur, on en ajoute un à chaque impro suivante. (Dramaction)"
+          "desc": "Quatre improvisations différentes, un thème par impro. La 1ʳᵉ avec un joueur, on en ajoute un à chaque impro suivante. (Dramaction)",
+          "minPlayers": 4,
+          "maxPlayers": 4
         },
         {
           "name": "Videoway",
-          "desc": "Mixte avec 4 canaux TV (F1-F4), contenu différent par canal. L'arbitre saute d'un canal à l'autre sans ordre prédéfini. (Dramaction)"
+          "desc": "Mixte avec 4 canaux TV (F1-F4), contenu différent par canal. L'arbitre saute d'un canal à l'autre sans ordre prédéfini. (Dramaction)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Sensorielle",
-          "desc": "Un des cinq sens d'un improvisateur est stimulé. Cette sensation doit nourrir toute l'écriture de l'impro. (Dramaction)"
+          "desc": "Un des cinq sens d'un improvisateur est stimulé. Cette sensation doit nourrir toute l'écriture de l'impro. (Dramaction)",
+          "minPlayers": 1,
+          "maxPlayers": 99
         },
         {
           "name": "Mixte à thèse",
-          "desc": "L'improvisation doit défendre une thèse philosophique annoncée à l'avance."
+          "desc": "L'improvisation doit défendre une thèse philosophique annoncée à l'avance.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Comparée libre",
-          "desc": "Aucune contrainte de forme, juste le thème. Liberté totale de traitement."
+          "desc": "Aucune contrainte de forme, juste le thème. Liberté totale de traitement.",
+          "minPlayers": 1,
+          "maxPlayers": 99
         }
       ],
       "durations": {

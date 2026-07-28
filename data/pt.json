@@ -304,7 +304,10 @@
           "name": "Comparada cantada",
           "desc": "Cada equipa inclui pelo menos uma passagem cantada."
         },
-        { "name": "Comparada com adereço", "desc": "Um adereço imposto deve ser central. Cada equipa usa-o à sua maneira." }
+        {
+          "name": "Comparada com adereço",
+          "desc": "Um adereço imposto deve ser central. Cada equipa usa-o à sua maneira."
+        }
       ],
       "confirme": [
         {
@@ -331,8 +334,14 @@
           "name": "Mista com personagem",
           "desc": "Um tipo de personagem imposto deve aparecer no primeiro minuto."
         },
-        { "name": "Comparada com restrição", "desc": "Cada equipa joga o tema com uma restrição sorteada diferente." },
-        { "name": "Mista por frases", "desc": "Os jogadores só podem falar em frases inteiras e completas — sem interrupções." }
+        {
+          "name": "Comparada com restrição",
+          "desc": "Cada equipa joga o tema com uma restrição sorteada diferente."
+        },
+        {
+          "name": "Mista por frases",
+          "desc": "Os jogadores só podem falar em frases inteiras e completas — sem interrupções."
+        }
       ],
       "expert": [
         {
@@ -359,8 +368,14 @@
           "name": "Ciclo temporal",
           "desc": "A cena avança e recua 30 segundos repetidamente. Ciclo vertiginoso."
         },
-        { "name": "Comparada muda + sonoplastia", "desc": "Uma equipa joga em silêncio, a outra só com efeitos sonoros. Mesmo tema, leituras opostas." },
-        { "name": "À maneira de Tchékhov", "desc": "Estilo russo do fim do séc. XIX: tédio aristocrático, samovares, silêncios carregados, monólogos." }
+        {
+          "name": "Comparada muda + sonoplastia",
+          "desc": "Uma equipa joga em silêncio, a outra só com efeitos sonoros. Mesmo tema, leituras opostas."
+        },
+        {
+          "name": "À maneira de Tchékhov",
+          "desc": "Estilo russo do fim do séc. XIX: tédio aristocrático, samovares, silêncios carregados, monólogos."
+        }
       ]
     }
   },

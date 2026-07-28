@@ -586,10 +586,17 @@
     // Mirror generateAll's guard: custom-themes mode with an empty list would fill
     // the reel with "undefined" and strip the theme — keep the current draw instead.
     if (state.useCustom && state.customThemes.length === 0) return challengeSnapshot();
+    const n = parseInt(playersCount, 10);
+    // Le filtre doit être posé AVANT le tirage de l'épreuve, sinon il n'a aucun
+    // effet (poolFor est lu pendant spinTarget). On le relâche ensuite pour ne
+    // pas contaminer les tirages normaux du Match rapide.
+    playersFilter = (!isNaN(n) && n > 0) ? n : 0;
     try { spinTarget("theme", 0); } catch (e) { try { pickFor("theme"); } catch (e2) {} }
     const slot = state.mode === "match" ? "category" : "exercise";
-    try { spinTarget(slot, 0); } catch (e) { try { pickFor(slot); } catch (e2) {} }
-    const n = parseInt(playersCount, 10);
+    // pickFor est SYNCHRONE : indispensable ici, car spinTarget est async et lirait
+    // le pool après la sortie de cette fonction — le filtre serait alors sans effet.
+    try { pickFor(slot); } catch (e) {}
+    try { spinTarget(slot, 0); } catch (e) {}
     if (!isNaN(n) && n > 0) {
       state.currentPlayers = n;
       const trk = $("#reel-players");
@@ -1745,7 +1752,12 @@
     const { mode, level } = state;
     switch (target) {
       case "exercise":   {
-        const ex = pickFromBag("exercise:" + mode + ":" + level, data.exercises[mode][level]);
+        // Filtre effectif du défi : c'est ICI que se fait le vrai tirage
+        // (poolFor ne sert qu'à l'animation de la roue). Clé de sac distincte
+        // quand un filtre est actif, sinon le sac non filtré serait réutilisé.
+        const exPool = keepFitting(data.exercises[mode][level], playersFilter);
+        const exKey = "exercise:" + mode + ":" + level + (playersFilter ? ":p" + playersFilter : "");
+        const ex = pickFromBag(exKey, exPool);
         state.currentExercise = ex;
         let meta = (ex && ex.desc) || "";
         if (mode === "troupe" && ex && ex.needsAudience) {
@@ -1788,7 +1800,8 @@
         return { value: v };
       }
       case "category":   {
-        const c = pickFromBag("category", data.categories);
+        const catPool = keepFitting(data.categories, playersFilter);
+        const c = pickFromBag("category" + (playersFilter ? ":p" + playersFilter : ""), catPool);
         state.currentCategory = c;
         // In Match mode the Category card replaces Exercise. Mirror the picked
         // category onto state.currentExercise so the recorder overlay (which
@@ -1804,15 +1817,36 @@
     }
     return { value: "—" };
   }
+  // Filtre « nombre d'improvisateurs » (défis). Quand l'émetteur impose un
+  // effectif, on ne tire que des épreuves réellement jouables à ce nombre —
+  // avant, « Le miroir » (explicitement à 2, face à face) pouvait sortir avec
+  // « 4 improvisateurs ». Variable de module et NON un champ de `state` : state
+  // est persisté, on ne veut pas que ce filtre éphémère y soit enregistré.
+  let playersFilter = 0;
+  function fitsPlayers(item, n) {
+    if (!n || !item) return true;
+    const mn = item.minPlayers, mx = item.maxPlayers;
+    // Donnée absente (contribution utilisateur, ancien cache) → on n'exclut pas.
+    if (typeof mn !== "number" || typeof mx !== "number") return true;
+    return n >= mn && n <= mx;
+  }
+  // Ne jamais renvoyer un pool vide : si aucune épreuve ne colle à l'effectif,
+  // mieux vaut un tirage large qu'un défi impossible à générer.
+  function keepFitting(all, n) {
+    if (!n) return all;
+    const kept = all.filter(x => fitsPlayers(x, n));
+    return kept.length ? kept : all;
+  }
+
   function poolFor(target) {
     const data = store.data;
     const t = store.ui;
     const { mode, level } = state;
     switch (target) {
-      case "exercise":   return data.exercises[mode][level].map(e => e.name);
+      case "exercise":   return keepFitting(data.exercises[mode][level], playersFilter).map(e => e.name);
       case "constraint": return data.constraints[mode][level];
       case "theme":      return state.useCustom ? state.customThemes : data.themes[level];
-      case "category":   return data.categories.map(c => c.name);
+      case "category":   return keepFitting(data.categories, playersFilter).map(c => c.name);
       case "duration":   return durationSteps(level).map(formatSec);
       case "players":    return data.players[level];
       case "nature":     return [t.natureMixte || "Mixte", t.natureComparee || "Comparée"];
@@ -1831,6 +1865,7 @@
   }
   async function generateAll() {
     if (state.isGenerating) return;
+    playersFilter = 0;   // un tirage normal n'est jamais bridé par le filtre des défis
     if (state.useCustom && state.customThemes.length === 0) { openThemesDialog(); return; }
     state.isGenerating = true;
     $("#generateBtn").disabled = true;

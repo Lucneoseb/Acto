@@ -2,156 +2,709 @@
   "exercises": {
     "troupe": {
       "debutant": [
-        { "name": "Lo specchio",            "desc": "Due giocatori uno di fronte all'altro. Uno fa movimenti lenti, l'altro lo imita in uno specchio perfetto. Si accelera progressivamente. (Tadam Impro)" },
-        { "name": "Le sedie",               "desc": "Una squadra ha 30s per costruire una struttura con delle sedie. Un'altra squadra ha 40s per preparare un'improvvisazione a partire da questa struttura. (Tadam Impro)" },
-        { "name": "Il discorso funebre",    "desc": "Ognuno improvvisa un discorso in omaggio al proprio animale domestico. Tono solenne, divertente, o entrambi. (Tadam Impro)" },
-        { "name": "Storia collettiva",      "desc": "In cerchio, una parola ciascuno. La storia si costruisce collettivamente, senza esitare né tornare indietro." },
-        { "name": "Il tema da incarnare",   "desc": "Il gruppo è in movimento, un conduttore lancia un tema (museo, piramidi...). Il gruppo lo ricrea immediatamente. (Tadam Impro)" },
-        { "name": "Conversazione bizzarra", "desc": "Due giocatori improvvisano una situazione assurda: un uccello che spiega l'albero a un altro uccello, una pulce che litiga con un cane. (Tadam Impro)" },
-        { "name": "Yes, and...",            "desc": "Ogni proposta viene accettata e arricchita. Regola d'oro dell'improvvisazione secondo InFamily: non bloccare mai." },
-        { "name": "L'oggetto immaginario",  "desc": "Un giocatore manipola un oggetto invisibile. Gli altri indovinano e lo rilanciano aggiungendovi un utilizzo." },
-        { "name": "L'ubriaco",              "desc": "Un membro del pubblico (o un attore) interpreta l'« ubriaco » che interrompe la scena con suggerimenti assurdi che gli improvvisatori devono integrare per far evolvere la storia.", "needsAudience": true },
-        { "name": "Cerchio di domande",     "desc": "Un giocatore al centro del cerchio. Gli altri gli pongono domande a raffica. Lui risponde con precisione a ciascuna. (Dramaction)", "needsAudience": true },
-        { "name": "Emozioni a comando",     "desc": "Il conduttore lancia un'emozione. I giocatori cambiano immediatamente e la giustificano in scena." },
-        { "name": "La macchina umana",      "desc": "Uno alla volta, i giocatori entrano e aggiungono un gesto/suono ripetitivo. La macchina si costruisce organicamente." },
-        { "name": "ABC",                    "desc": "Una scena in cui ogni battuta inizia con la lettera successiva dell'alfabeto. A, B, C... fino alla Z." },
-        { "name": "L'autobus",              "desc": "Una fermata dell'autobus. A ogni arrivo, un nuovo personaggio sale con il suo universo. La scena muta ogni volta." },
-        { "name": "Pantomima",              "desc": "Una scena interamente mimata a partire da un tema. (Dramaction)" },
-        { "name": "Tre personaggi",         "desc": "Tre giocatori entrano e costruiscono il proprio personaggio in meno di 30 secondi, solo con la postura e la voce." },
-        { "name": "Emozione che passa",     "desc": "Un giocatore trasmette un'emozione in silenzio al suo vicino con un gesto, che a sua volta la trasmette. (Dramaction)" },
-        { "name": "Il Freeze",              "desc": "Due giocatori improvvisano a partire da una postura. In qualsiasi momento, un altro batte le mani per congelare la scena e sostituire un giocatore. (Impro-Exo)" },
-        { "name": "Inizio-mezzo-fine in 30s","desc": "Iniziare un'improvvisazione, far muovere la posta in gioco e concludere — il tutto in 30 secondi cronometrati. (Impro-Exo)" },
-        { "name": "Conversazione a emozione mutevole", "desc": "Una conversazione in coppia. Ogni 1-2 minuti, un conduttore grida un'emozione. I giocatori cambiano. (MentorShow)", "needsAudience": true },
-        { "name": "Mista",                  "desc": "Tutti i giocatori della compagnia entrano insieme e interpretano il tema senza divisione in squadre. (Categoria match adattata)" },
-        { "name": "Comparata",              "desc": "Due sottogruppi della compagnia interpretano successivamente la stessa proposta. La 2ª versione deve distinguersi dalla 1ª. (Categoria match adattata)" },
-        { "name": "Comparata libera",       "desc": "Due sottogruppi interpretano successivamente lo stesso tema, nessun vincolo di forma. Libertà totale. (Categoria match adattata)" },
-        { "name": "Mista con accessorio",   "desc": "Un oggetto imposto deve essere centrale nell'improvvisazione collettiva. L'intera compagnia lo addomestica in scena. (Categoria match adattata)" }
+        {
+          "name": "Lo specchio",
+          "desc": "Due giocatori uno di fronte all'altro. Uno fa movimenti lenti, l'altro lo imita in uno specchio perfetto. Si accelera progressivamente. (Tadam Impro)"
+        },
+        {
+          "name": "Le sedie",
+          "desc": "Una squadra ha 30s per costruire una struttura con delle sedie. Un'altra squadra ha 40s per preparare un'improvvisazione a partire da questa struttura. (Tadam Impro)"
+        },
+        {
+          "name": "Il discorso funebre",
+          "desc": "Ognuno improvvisa un discorso in omaggio al proprio animale domestico. Tono solenne, divertente, o entrambi. (Tadam Impro)"
+        },
+        {
+          "name": "Storia collettiva",
+          "desc": "In cerchio, una parola ciascuno. La storia si costruisce collettivamente, senza esitare né tornare indietro."
+        },
+        {
+          "name": "Il tema da incarnare",
+          "desc": "Il gruppo è in movimento, un conduttore lancia un tema (museo, piramidi...). Il gruppo lo ricrea immediatamente. (Tadam Impro)"
+        },
+        {
+          "name": "Conversazione bizzarra",
+          "desc": "Due giocatori improvvisano una situazione assurda: un uccello che spiega l'albero a un altro uccello, una pulce che litiga con un cane. (Tadam Impro)"
+        },
+        {
+          "name": "Yes, and...",
+          "desc": "Ogni proposta viene accettata e arricchita. Regola d'oro dell'improvvisazione secondo InFamily: non bloccare mai."
+        },
+        {
+          "name": "L'oggetto immaginario",
+          "desc": "Un giocatore manipola un oggetto invisibile. Gli altri indovinano e lo rilanciano aggiungendovi un utilizzo."
+        },
+        {
+          "name": "L'ubriaco",
+          "desc": "Un membro del pubblico (o un attore) interpreta l'« ubriaco » che interrompe la scena con suggerimenti assurdi che gli improvvisatori devono integrare per far evolvere la storia.",
+          "needsAudience": true
+        },
+        {
+          "name": "Cerchio di domande",
+          "desc": "Un giocatore al centro del cerchio. Gli altri gli pongono domande a raffica. Lui risponde con precisione a ciascuna. (Dramaction)",
+          "needsAudience": true
+        },
+        {
+          "name": "Emozioni a comando",
+          "desc": "Il conduttore lancia un'emozione. I giocatori cambiano immediatamente e la giustificano in scena."
+        },
+        {
+          "name": "La macchina umana",
+          "desc": "Uno alla volta, i giocatori entrano e aggiungono un gesto/suono ripetitivo. La macchina si costruisce organicamente."
+        },
+        {
+          "name": "ABC",
+          "desc": "Una scena in cui ogni battuta inizia con la lettera successiva dell'alfabeto. A, B, C... fino alla Z."
+        },
+        {
+          "name": "L'autobus",
+          "desc": "Una fermata dell'autobus. A ogni arrivo, un nuovo personaggio sale con il suo universo. La scena muta ogni volta."
+        },
+        {
+          "name": "Pantomima",
+          "desc": "Una scena interamente mimata a partire da un tema. (Dramaction)"
+        },
+        {
+          "name": "Tre personaggi",
+          "desc": "Tre giocatori entrano e costruiscono il proprio personaggio in meno di 30 secondi, solo con la postura e la voce."
+        },
+        {
+          "name": "Emozione che passa",
+          "desc": "Un giocatore trasmette un'emozione in silenzio al suo vicino con un gesto, che a sua volta la trasmette. (Dramaction)"
+        },
+        {
+          "name": "Il Freeze",
+          "desc": "Due giocatori improvvisano a partire da una postura. In qualsiasi momento, un altro batte le mani per congelare la scena e sostituire un giocatore. (Impro-Exo)"
+        },
+        {
+          "name": "Inizio-mezzo-fine in 30s",
+          "desc": "Iniziare un'improvvisazione, far muovere la posta in gioco e concludere — il tutto in 30 secondi cronometrati. (Impro-Exo)"
+        },
+        {
+          "name": "Conversazione a emozione mutevole",
+          "desc": "Una conversazione in coppia. Ogni 1-2 minuti, un conduttore grida un'emozione. I giocatori cambiano. (MentorShow)",
+          "needsAudience": true
+        },
+        {
+          "name": "Mista",
+          "desc": "Tutti i giocatori della compagnia entrano insieme e interpretano il tema senza divisione in squadre. (Categoria match adattata)"
+        },
+        {
+          "name": "Comparata",
+          "desc": "Due sottogruppi della compagnia interpretano successivamente la stessa proposta. La 2ª versione deve distinguersi dalla 1ª. (Categoria match adattata)"
+        },
+        {
+          "name": "Comparata libera",
+          "desc": "Due sottogruppi interpretano successivamente lo stesso tema, nessun vincolo di forma. Libertà totale. (Categoria match adattata)"
+        },
+        {
+          "name": "Mista con accessorio",
+          "desc": "Un oggetto imposto deve essere centrale nell'improvvisazione collettiva. L'intera compagnia lo addomestica in scena. (Categoria match adattata)"
+        }
       ],
       "confirme": [
-        { "name": "Pausa-Ripresa",          "desc": "Il conduttore ferma la scena, cambia un elemento (luogo, epoca, status) e la fa riprendere." },
-        { "name": "Tre parole imposte",     "desc": "Tre parole estratte a sorte devono essere inserite naturalmente nella scena.", "needsAudience": true },
-        { "name": "Lo status",              "desc": "Ogni personaggio ha uno status sociale nascosto (da 1 a 10). Il pubblico deve indovinarlo." },
-        { "name": "Doppiaggio",             "desc": "Due giocatori mimano, altri due parlano per loro dall'esterno del palco." },
-        { "name": "Conferenza di esperti",  "desc": "Un panel di esperti su un argomento assurdo risponde con serietà alle domande del pubblico.", "needsAudience": true },
-        { "name": "Last word, first word",  "desc": "Ogni battuta deve iniziare con l'ultima parola di quella precedente." },
-        { "name": "Storia a ritroso",       "desc": "Raccontare una storia iniziando dalla fine e risalendo scena per scena." },
-        { "name": "Generi mescolati",       "desc": "Il conduttore cambia genere ogni 30 secondi (western, giallo, romance, horror...)." },
-        { "name": "Il triplo status",       "desc": "Ogni personaggio ha un segreto, un obiettivo e un ostacolo. Tutti si rivelano nel corso della scena." },
-        { "name": "Scena invertita",        "desc": "Si inizia dal climax e si risale fino all'incontro dei personaggi." },
-        { "name": "Il coro stonato",        "desc": "Un coro sul palco — un membro è stonato o fuori tempo. Tutto il dramma nasce da lui. (Wikiversité)" },
-        { "name": "Attori dietro le quinte","desc": "Una scena si svolge dietro le quinte mentre lo 'spettacolo' ha luogo sul palco. Messa in abisso. (Wikiversité)" },
-        { "name": "L'ascensore guasto",     "desc": "Spazio ultra-ristretto, più personaggi, la situazione chiusa è forzata. Un classico. (Wikiversité)" },
-        { "name": "La riunione dei prof",   "desc": "Una riunione di insegnanti in cui ogni prof ha un'agenda nascosta e un allievo prediletto." },
-        { "name": "Il ritorno al passato",  "desc": "In un momento chiave, un giocatore batte le mani. La scena torna indietro di 1 minuto e si rigioca diversamente." },
-        { "name": "Il personaggio estratto","desc": "Ogni giocatore estrae un tipo di personaggio (clown, seduttore, paranoico) che deve interpretare senza nominarlo." },
-        { "name": "Mista alla maniera di",  "desc": "Tutti interpretano il tema in uno stile d'autore o di genere imposto: Molière, Audiard, film noir... (Categoria match adattata)" },
-        { "name": "Comparata alla maniera di","desc": "Due sottogruppi interpretano successivamente lo stesso tema nello stile imposto, ciascuno a modo suo. (Categoria match adattata)" },
-        { "name": "Mista senza parole",     "desc": "Nessuna parola pronunciata: solo la messa in scena collettiva racconta. Concentrazione estrema. (Categoria match adattata)" },
-        { "name": "Senza parole con supporto musicale", "desc": "Improvvisazione muta, ma la scrittura è rigorosamente influenzata dall'atmosfera musicale imposta. (Dramaction)" },
-        { "name": "Comparata con vincolo",  "desc": "Due sottogruppi interpretano successivamente lo stesso tema, ciascuno con un vincolo diverso estratto a sorte. (Categoria match adattata)" },
-        { "name": "Senza tema né caucus",   "desc": "Nessun tema annunciato, nessun tempo di concertazione. Pura inventiva immediata. (Dramaction)" },
-        { "name": "Salto della cavallina",  "desc": "Quattro improvvisazioni diverse, un tema per improvvisazione. La 1ª con un giocatore, se ne aggiunge uno a ogni improvvisazione successiva. (Dramaction)" },
-        { "name": "Sensoriale",             "desc": "Uno dei cinque sensi di un improvvisatore viene stimolato durante la scena. Questa sensazione deve nutrire tutta la scrittura. (Dramaction)" }
+        {
+          "name": "Pausa-Ripresa",
+          "desc": "Il conduttore ferma la scena, cambia un elemento (luogo, epoca, status) e la fa riprendere."
+        },
+        {
+          "name": "Tre parole imposte",
+          "desc": "Tre parole estratte a sorte devono essere inserite naturalmente nella scena.",
+          "needsAudience": true
+        },
+        {
+          "name": "Lo status",
+          "desc": "Ogni personaggio ha uno status sociale nascosto (da 1 a 10). Il pubblico deve indovinarlo."
+        },
+        {
+          "name": "Doppiaggio",
+          "desc": "Due giocatori mimano, altri due parlano per loro dall'esterno del palco."
+        },
+        {
+          "name": "Conferenza di esperti",
+          "desc": "Un panel di esperti su un argomento assurdo risponde con serietà alle domande del pubblico.",
+          "needsAudience": true
+        },
+        {
+          "name": "Last word, first word",
+          "desc": "Ogni battuta deve iniziare con l'ultima parola di quella precedente."
+        },
+        {
+          "name": "Storia a ritroso",
+          "desc": "Raccontare una storia iniziando dalla fine e risalendo scena per scena."
+        },
+        {
+          "name": "Generi mescolati",
+          "desc": "Il conduttore cambia genere ogni 30 secondi (western, giallo, romance, horror...)."
+        },
+        {
+          "name": "Il triplo status",
+          "desc": "Ogni personaggio ha un segreto, un obiettivo e un ostacolo. Tutti si rivelano nel corso della scena."
+        },
+        {
+          "name": "Scena invertita",
+          "desc": "Si inizia dal climax e si risale fino all'incontro dei personaggi."
+        },
+        {
+          "name": "Il coro stonato",
+          "desc": "Un coro sul palco — un membro è stonato o fuori tempo. Tutto il dramma nasce da lui. (Wikiversité)"
+        },
+        {
+          "name": "Attori dietro le quinte",
+          "desc": "Una scena si svolge dietro le quinte mentre lo 'spettacolo' ha luogo sul palco. Messa in abisso. (Wikiversité)"
+        },
+        {
+          "name": "L'ascensore guasto",
+          "desc": "Spazio ultra-ristretto, più personaggi, la situazione chiusa è forzata. Un classico. (Wikiversité)"
+        },
+        {
+          "name": "La riunione dei prof",
+          "desc": "Una riunione di insegnanti in cui ogni prof ha un'agenda nascosta e un allievo prediletto."
+        },
+        {
+          "name": "Il ritorno al passato",
+          "desc": "In un momento chiave, un giocatore batte le mani. La scena torna indietro di 1 minuto e si rigioca diversamente."
+        },
+        {
+          "name": "Il personaggio estratto",
+          "desc": "Ogni giocatore estrae un tipo di personaggio (clown, seduttore, paranoico) che deve interpretare senza nominarlo."
+        },
+        {
+          "name": "Mista alla maniera di",
+          "desc": "Tutti interpretano il tema in uno stile d'autore o di genere imposto: Molière, Audiard, film noir... (Categoria match adattata)"
+        },
+        {
+          "name": "Comparata alla maniera di",
+          "desc": "Due sottogruppi interpretano successivamente lo stesso tema nello stile imposto, ciascuno a modo suo. (Categoria match adattata)"
+        },
+        {
+          "name": "Mista senza parole",
+          "desc": "Nessuna parola pronunciata: solo la messa in scena collettiva racconta. Concentrazione estrema. (Categoria match adattata)"
+        },
+        {
+          "name": "Senza parole con supporto musicale",
+          "desc": "Improvvisazione muta, ma la scrittura è rigorosamente influenzata dall'atmosfera musicale imposta. (Dramaction)"
+        },
+        {
+          "name": "Comparata con vincolo",
+          "desc": "Due sottogruppi interpretano successivamente lo stesso tema, ciascuno con un vincolo diverso estratto a sorte. (Categoria match adattata)"
+        },
+        {
+          "name": "Senza tema né caucus",
+          "desc": "Nessun tema annunciato, nessun tempo di concertazione. Pura inventiva immediata. (Dramaction)"
+        },
+        {
+          "name": "Salto della cavallina",
+          "desc": "Quattro improvvisazioni diverse, un tema per improvvisazione. La 1ª con un giocatore, se ne aggiunge uno a ogni improvvisazione successiva. (Dramaction)"
+        },
+        {
+          "name": "Sensoriale",
+          "desc": "Uno dei cinque sensi di un improvvisatore viene stimolato durante la scena. Questa sensazione deve nutrire tutta la scrittura. (Dramaction)"
+        }
       ],
       "expert": [
-        { "name": "L'Harold",               "desc": "Forma lunga: tre scene in parallelo si intrecciano, si rispondono e si nutrono a vicenda. Formato Del Close." },
-        { "name": "La Palla di fuoco",      "desc": "Tutti i giocatori sul palco. A ogni momento clou, una coppia si stacca per una mini-scena, poi torna al gruppo." },
-        { "name": "L'improvvisazione cantata","desc": "Una scena interamente cantata con melodia improvvisata, rime e struttura strofa/ritornello." },
-        { "name": "Il monologo condiviso",  "desc": "Un lungo monologo viene ripreso da ogni giocatore, che lo deforma e lo arricchisce assumendo lo stesso personaggio." },
-        { "name": "Forma libera 20 minuti", "desc": "Una sola scena, venti minuti, senza interruzione né cambiamento. Reggere un mondo intero." },
-        { "name": "L'opera impro",          "desc": "Recitativi e arie cantati in alternanza, libretto interamente improvvisato, voci liriche." },
-        { "name": "Lo specchio Pirandello", "desc": "I personaggi prendono coscienza di essere improvvisati... ma devono continuare comunque la scena.", "needsAudience": true },
-        { "name": "Scena a due tempi",      "desc": "Una scena si gioca, poi si rigioca dieci anni dopo con le conseguenze logiche della prima." },
-        { "name": "Improvvisazione muta",   "desc": "Spettacolo di 15 minuti, integralmente senza parole, con intreccio chiaro e risolto." },
-        { "name": "Il teatro nel teatro",   "desc": "I personaggi improvvisano a loro volta una pièce dentro la scena. Tre livelli di finzione sovrapposti." },
-        { "name": "La Casa (Del Close)",    "desc": "Forma lunga in cui ogni scena apre temi che le successive riprendono e approfondiscono." },
-        { "name": "Il Deconstructed",       "desc": "Una sola scena viene interpretata, poi sviscerata e ricominciata secondo diversi angoli narrativi." },
-        { "name": "Cechoviana",             "desc": "Forma lunga alla Cechov: nessun climax, personaggi che si mancano, l'inazione come motore." },
-        { "name": "Beckettiana",            "desc": "Forma lunga assurda: silenzi abitati, attesa, linguaggio che si svuota. Sul modello di Aspettando Godot." },
-        { "name": "Mista cantata",          "desc": "Improvvisazione interamente o parzialmente cantata da tutta la compagnia, melodie e parole improvvisate in collettivo. (Categoria match adattata)" },
-        { "name": "Comparata cantata",      "desc": "Due sottogruppi propongono successivamente la propria versione cantata dello stesso tema. (Categoria match adattata)" },
-        { "name": "Mista in rima",          "desc": "Tutte le battute fanno rima. Ottonari o alessandrini a seconda del livello. L'intera compagnia regge il metro. (Categoria match adattata)" },
-        { "name": "Comparata in rima",      "desc": "Due sottogruppi propongono successivamente la propria versione in rima del tema. (Categoria match adattata)" },
-        { "name": "Videoway",               "desc": "Mista con quattro canali TV (F1-F4), contenuto diverso per canale. Il conduttore salta da un canale all'altro senza ordine predefinito. (Dramaction)" },
-        { "name": "Mista a tesi",           "desc": "L'improvvisazione collettiva deve difendere una tesi filosofica annunciata in anticipo." }
+        {
+          "name": "L'Harold",
+          "desc": "Forma lunga: tre scene in parallelo si intrecciano, si rispondono e si nutrono a vicenda. Formato Del Close."
+        },
+        {
+          "name": "La Palla di fuoco",
+          "desc": "Tutti i giocatori sul palco. A ogni momento clou, una coppia si stacca per una mini-scena, poi torna al gruppo."
+        },
+        {
+          "name": "L'improvvisazione cantata",
+          "desc": "Una scena interamente cantata con melodia improvvisata, rime e struttura strofa/ritornello."
+        },
+        {
+          "name": "Il monologo condiviso",
+          "desc": "Un lungo monologo viene ripreso da ogni giocatore, che lo deforma e lo arricchisce assumendo lo stesso personaggio."
+        },
+        {
+          "name": "Forma libera 20 minuti",
+          "desc": "Una sola scena, venti minuti, senza interruzione né cambiamento. Reggere un mondo intero."
+        },
+        {
+          "name": "L'opera impro",
+          "desc": "Recitativi e arie cantati in alternanza, libretto interamente improvvisato, voci liriche."
+        },
+        {
+          "name": "Lo specchio Pirandello",
+          "desc": "I personaggi prendono coscienza di essere improvvisati... ma devono continuare comunque la scena.",
+          "needsAudience": true
+        },
+        {
+          "name": "Scena a due tempi",
+          "desc": "Una scena si gioca, poi si rigioca dieci anni dopo con le conseguenze logiche della prima."
+        },
+        {
+          "name": "Improvvisazione muta",
+          "desc": "Spettacolo di 15 minuti, integralmente senza parole, con intreccio chiaro e risolto."
+        },
+        {
+          "name": "Il teatro nel teatro",
+          "desc": "I personaggi improvvisano a loro volta una pièce dentro la scena. Tre livelli di finzione sovrapposti."
+        },
+        {
+          "name": "La Casa (Del Close)",
+          "desc": "Forma lunga in cui ogni scena apre temi che le successive riprendono e approfondiscono."
+        },
+        {
+          "name": "Il Deconstructed",
+          "desc": "Una sola scena viene interpretata, poi sviscerata e ricominciata secondo diversi angoli narrativi."
+        },
+        {
+          "name": "Cechoviana",
+          "desc": "Forma lunga alla Cechov: nessun climax, personaggi che si mancano, l'inazione come motore."
+        },
+        {
+          "name": "Beckettiana",
+          "desc": "Forma lunga assurda: silenzi abitati, attesa, linguaggio che si svuota. Sul modello di Aspettando Godot."
+        },
+        {
+          "name": "Mista cantata",
+          "desc": "Improvvisazione interamente o parzialmente cantata da tutta la compagnia, melodie e parole improvvisate in collettivo. (Categoria match adattata)"
+        },
+        {
+          "name": "Comparata cantata",
+          "desc": "Due sottogruppi propongono successivamente la propria versione cantata dello stesso tema. (Categoria match adattata)"
+        },
+        {
+          "name": "Mista in rima",
+          "desc": "Tutte le battute fanno rima. Ottonari o alessandrini a seconda del livello. L'intera compagnia regge il metro. (Categoria match adattata)"
+        },
+        {
+          "name": "Comparata in rima",
+          "desc": "Due sottogruppi propongono successivamente la propria versione in rima del tema. (Categoria match adattata)"
+        },
+        {
+          "name": "Videoway",
+          "desc": "Mista con quattro canali TV (F1-F4), contenuto diverso per canale. Il conduttore salta da un canale all'altro senza ordine predefinito. (Dramaction)"
+        },
+        {
+          "name": "Mista a tesi",
+          "desc": "L'improvvisazione collettiva deve difendere una tesi filosofica annunciata in anticipo."
+        }
       ]
     },
     "match": {
       "debutant": [
-        { "name": "Improvvisazione semplice","desc": "Una squadra gioca, l'altra aspetta. Forma classica del match d'improvvisazione della LNI." },
-        { "name": "Improvvisazione mista", "desc": "Le due squadre giocano insieme nella stessa improvvisazione, in equilibrio numerico." },
-        { "name": "Improvvisazione comparata","desc": "Ogni squadra interpreta a turno la stessa proposta. Il pubblico confronta e vota." },
-        { "name": "Mista senza parole",    "desc": "Le due squadre insieme, ma in silenzio assoluto per tutta la scena." },
-        { "name": "Comparata cantata",     "desc": "Ogni squadra interpreta il tema integrandovi almeno un passaggio cantato." },
-        { "name": "Comparata con accessorio","desc": "Un accessorio imposto deve essere centrale. Ogni squadra lo usa a modo suo." }
+        {
+          "name": "Improvvisazione semplice",
+          "desc": "Una squadra gioca, l'altra aspetta. Forma classica del match d'improvvisazione della LNI."
+        },
+        {
+          "name": "Improvvisazione mista",
+          "desc": "Le due squadre giocano insieme nella stessa improvvisazione, in equilibrio numerico."
+        },
+        {
+          "name": "Improvvisazione comparata",
+          "desc": "Ogni squadra interpreta a turno la stessa proposta. Il pubblico confronta e vota."
+        },
+        {
+          "name": "Mista senza parole",
+          "desc": "Le due squadre insieme, ma in silenzio assoluto per tutta la scena."
+        },
+        {
+          "name": "Comparata cantata",
+          "desc": "Ogni squadra interpreta il tema integrandovi almeno un passaggio cantato."
+        },
+        {
+          "name": "Comparata con accessorio",
+          "desc": "Un accessorio imposto deve essere centrale. Ogni squadra lo usa a modo suo."
+        }
       ],
       "confirme": [
-        { "name": "Alla maniera di",        "desc": "Stile d'autore o di genere imposto: Molière, Audiard, film noir... (Categoria LNI classica)" },
-        { "name": "Mista con accessorio",  "desc": "Un oggetto imposto deve essere centrale nell'improvvisazione. Le due squadre negoziano in scena." },
-        { "name": "Comparata con vincolo", "desc": "Ogni squadra interpreta il tema con un vincolo estratto a sorte diversamente." },
-        { "name": "Mista con personaggio imposto", "desc": "Un tipo di personaggio imposto deve comparire fin dal primo minuto." },
-        { "name": "Improvvisazione a ritroso","desc": "La squadra deve interpretare la scena iniziando dalla fine e risalendo." },
-        { "name": "Mista a frasi",          "desc": "I giocatori possono parlare solo con frasi intere e complete — nessuna interruzione." },
-        { "name": "Comparata in rima",      "desc": "Tutte le battute devono fare rima (ottonari o rime baciate)." },
-        { "name": "Comparata muta",         "desc": "Nessuna parola: solo il gesto e l'espressione raccontano la storia." }
+        {
+          "name": "Alla maniera di",
+          "desc": "Stile d'autore o di genere imposto: Molière, Audiard, film noir... (Categoria LNI classica)"
+        },
+        {
+          "name": "Mista con accessorio",
+          "desc": "Un oggetto imposto deve essere centrale nell'improvvisazione. Le due squadre negoziano in scena."
+        },
+        {
+          "name": "Comparata con vincolo",
+          "desc": "Ogni squadra interpreta il tema con un vincolo estratto a sorte diversamente."
+        },
+        {
+          "name": "Mista con personaggio imposto",
+          "desc": "Un tipo di personaggio imposto deve comparire fin dal primo minuto."
+        },
+        {
+          "name": "Improvvisazione a ritroso",
+          "desc": "La squadra deve interpretare la scena iniziando dalla fine e risalendo."
+        },
+        {
+          "name": "Mista a frasi",
+          "desc": "I giocatori possono parlare solo con frasi intere e complete — nessuna interruzione."
+        },
+        {
+          "name": "Comparata in rima",
+          "desc": "Tutte le battute devono fare rima (ottonari o rime baciate)."
+        },
+        {
+          "name": "Comparata muta",
+          "desc": "Nessuna parola: solo il gesto e l'espressione raccontano la storia."
+        }
       ],
       "expert": [
-        { "name": "Cantata e ballata",      "desc": "Mini-musical: alternanza di dialoghi, canti e coreografie improvvisate. Stile Broadway impro." },
-        { "name": "Alla maniera di + epoca","desc": "Stile d'autore E epoca storica imposti. Entrambi devono essere leggibili fin dall'ingresso." },
-        { "name": "Mista in alessandrini", "desc": "Tutte le battute in alessandrini (12 piedi), rime baciate o alternate. Livello classico." },
-        { "name": "Comparata silenziosa + rumorata", "desc": "Una squadra gioca muta, l'altra solo con effetti sonori. Stesso tema, letture opposte." },
-        { "name": "Senza eroe",             "desc": "L'improvvisazione deve funzionare senza un personaggio principale identificabile. Coralità totale." },
-        { "name": "A tesi",                 "desc": "L'improvvisazione deve difendere una tesi filosofica annunciata in anticipo dall'arbitro." },
-        { "name": "Alla maniera di Cechov", "desc": "Stile russo di fine XIX secolo: noia aristocratica, samovar, silenzi carichi, monologhi." },
-        { "name": "Retromarcia temporale", "desc": "La scena avanza poi torna indietro ogni 30 secondi. Loop vertiginoso." }
+        {
+          "name": "Cantata e ballata",
+          "desc": "Mini-musical: alternanza di dialoghi, canti e coreografie improvvisate. Stile Broadway impro."
+        },
+        {
+          "name": "Alla maniera di + epoca",
+          "desc": "Stile d'autore E epoca storica imposti. Entrambi devono essere leggibili fin dall'ingresso."
+        },
+        {
+          "name": "Mista in alessandrini",
+          "desc": "Tutte le battute in alessandrini (12 piedi), rime baciate o alternate. Livello classico."
+        },
+        {
+          "name": "Comparata silenziosa + rumorata",
+          "desc": "Una squadra gioca muta, l'altra solo con effetti sonori. Stesso tema, letture opposte."
+        },
+        {
+          "name": "Senza eroe",
+          "desc": "L'improvvisazione deve funzionare senza un personaggio principale identificabile. Coralità totale."
+        },
+        {
+          "name": "A tesi",
+          "desc": "L'improvvisazione deve difendere una tesi filosofica annunciata in anticipo dall'arbitro."
+        },
+        {
+          "name": "Alla maniera di Cechov",
+          "desc": "Stile russo di fine XIX secolo: noia aristocratica, samovar, silenzi carichi, monologhi."
+        },
+        {
+          "name": "Retromarcia temporale",
+          "desc": "La scena avanza poi torna indietro ogni 30 secondi. Loop vertiginoso."
+        }
       ]
     }
   },
   "constraints": {
     "troupe": {
-      "debutant": ["Sussurrando","Camminando in cerchio per tutta la scena","Con una sola parola ripetuta","Tenendosi per mano dall'inizio alla fine","Senza toccare il suolo con i talloni","Con una sola emozione (gioia, tristezza, rabbia...)","Ballando in permanenza","Senza guardare il proprio partner","Con gli occhi chiusi","Facendo effetti sonori invece di parlare","Una battuta su due è obbligatoriamente cantata","Tutti di spalle al pubblico","Nessuno si siede né si sdraia"],
-      "confirme": ["Senza usare la parola « no »","Senza usare pronomi personali","In rime sistematiche","Alla maniera di Molière","Alla maniera di un film noir degli anni '40","Con una battuta su due cantata","Al rallentatore dalla A alla Z","In accelerato dalla A alla Z","Con una parola proibita scelta dal pubblico","Alternando italiano e lingua inventata","Alla maniera di un cartone animato per bambini","Con un narratore esterno che commenta","Nello stile di un telegiornale","Alla maniera di un documentario naturalistico"],
-      "expert": ["Con retromarcia temporale: la scena avanza poi torna indietro ogni 30s","A più voci: ogni personaggio è interpretato simultaneamente da 2 attori","Solo in teatro d'ombre","Con una narrazione esterna che contraddice l'azione","In versi liberi e in esametri","Alla maniera di Beckett (silenzi, assurdo, attesa)","Con una quarta parete permanente (gli attori si rivolgono al pubblico)","In palindromo: la scena deve poter essere giocata al contrario","Senza un solo verbo d'azione","Con una lingua interamente inventata ma coerente","Alla maniera del teatro Nō","In messa in abisso (la pièce parla di una pièce che si recita)","Con una sola battuta udibile al minuto","Tutta la scena alla prima persona plurale"]
+      "debutant": [
+        "Sussurrando",
+        "Camminando in cerchio per tutta la scena",
+        "Con una sola parola ripetuta",
+        "Tenendosi per mano dall'inizio alla fine",
+        "Senza toccare il suolo con i talloni",
+        "Con una sola emozione (gioia, tristezza, rabbia...)",
+        "Ballando in permanenza",
+        "Senza guardare il proprio partner",
+        "Con gli occhi chiusi",
+        "Facendo effetti sonori invece di parlare",
+        "Una battuta su due è obbligatoriamente cantata",
+        "Tutti di spalle al pubblico",
+        "Nessuno si siede né si sdraia"
+      ],
+      "confirme": [
+        "Senza usare la parola « no »",
+        "Senza usare pronomi personali",
+        "In rime sistematiche",
+        "Alla maniera di Molière",
+        "Alla maniera di un film noir degli anni '40",
+        "Con una battuta su due cantata",
+        "Al rallentatore dalla A alla Z",
+        "In accelerato dalla A alla Z",
+        "Con una parola proibita scelta dal pubblico",
+        "Alternando italiano e lingua inventata",
+        "Alla maniera di un cartone animato per bambini",
+        "Con un narratore esterno che commenta",
+        "Nello stile di un telegiornale",
+        "Alla maniera di un documentario naturalistico"
+      ],
+      "expert": [
+        "Con retromarcia temporale: la scena avanza poi torna indietro ogni 30s",
+        "A più voci: ogni personaggio è interpretato simultaneamente da 2 attori",
+        "Solo in teatro d'ombre",
+        "Con una narrazione esterna che contraddice l'azione",
+        "In versi liberi e in esametri",
+        "Alla maniera di Beckett (silenzi, assurdo, attesa)",
+        "Con una quarta parete permanente (gli attori si rivolgono al pubblico)",
+        "In palindromo: la scena deve poter essere giocata al contrario",
+        "Senza un solo verbo d'azione",
+        "Con una lingua interamente inventata ma coerente",
+        "Alla maniera del teatro Nō",
+        "In messa in abisso (la pièce parla di una pièce che si recita)",
+        "Con una sola battuta udibile al minuto",
+        "Tutta la scena alla prima persona plurale"
+      ]
     },
     "match": {
-      "debutant": ["Sussurrando","Cantando","Con un accessorio imposto","Con una frase imposta da inserire","Ballando","Alla maniera di un cartone animato","Con un'emozione imposta","In modalità commedia musicale","Con accenti regionali imposti","Senza toccare il suolo","Con una parola proibita","Alla maniera del muto (Chaplin, Keaton)"],
-      "confirme": ["Alla maniera di Shakespeare","Alla maniera di un film horror","Alla maniera di Audiard","In versi","Senza usare la parola « no »","Con una parola proibita scelta dall'arbitro","Alla maniera dei fratelli Coen","Alla maniera di un peplum","In fantascienza degli anni '60","Con una sola battuta udibile al minuto","Alla maniera del muto (Chaplin, Keaton)","Con un narratore onnisciente esterno","Alla maniera di una soap opera","Alla maniera di un manga"],
-      "expert": ["In alessandrini dall'inizio alla fine","Alla maniera di Cechov","Alla maniera del teatro Nō giapponese","Con retromarcia temporale","Alla maniera di Wes Anderson","Alla maniera della Commedia dell'arte","Con un sottotesto filosofico imposto","In cluedo (il colpevole deve essere rivelato alla fine)","Alla maniera del teatro dell'assurdo","Con un personaggio che sa di essere in una finzione","Alla maniera di Pirandello","Alla maniera di Tarantino","In forma di tragedia greca (coro + eroe + hybris)","Alla maniera di Bergman"]
+      "debutant": [
+        "Sussurrando",
+        "Cantando",
+        "Con un accessorio imposto",
+        "Con una frase imposta da inserire",
+        "Ballando",
+        "Alla maniera di un cartone animato",
+        "Con un'emozione imposta",
+        "In modalità commedia musicale",
+        "Con accenti regionali imposti",
+        "Senza toccare il suolo",
+        "Con una parola proibita",
+        "Alla maniera del muto (Chaplin, Keaton)"
+      ],
+      "confirme": [
+        "Alla maniera di Shakespeare",
+        "Alla maniera di un film horror",
+        "Alla maniera di Audiard",
+        "In versi",
+        "Senza usare la parola « no »",
+        "Con una parola proibita scelta dall'arbitro",
+        "Alla maniera dei fratelli Coen",
+        "Alla maniera di un peplum",
+        "In fantascienza degli anni '60",
+        "Con una sola battuta udibile al minuto",
+        "Alla maniera del muto (Chaplin, Keaton)",
+        "Con un narratore onnisciente esterno",
+        "Alla maniera di una soap opera",
+        "Alla maniera di un manga"
+      ],
+      "expert": [
+        "In alessandrini dall'inizio alla fine",
+        "Alla maniera di Cechov",
+        "Alla maniera del teatro Nō giapponese",
+        "Con retromarcia temporale",
+        "Alla maniera di Wes Anderson",
+        "Alla maniera della Commedia dell'arte",
+        "Con un sottotesto filosofico imposto",
+        "In cluedo (il colpevole deve essere rivelato alla fine)",
+        "Alla maniera del teatro dell'assurdo",
+        "Con un personaggio che sa di essere in una finzione",
+        "Alla maniera di Pirandello",
+        "Alla maniera di Tarantino",
+        "In forma di tragedia greca (coro + eroe + hybris)",
+        "Alla maniera di Bergman"
+      ]
     }
   },
   "themes": {
-    "debutant": ["L'appuntamento dal parrucchiere","Primo giorno di scuola","Una serata pizza che degenera","Le chiavi dimenticate sul pianerottolo","La metro un lunedì mattina","I vicini del piano di sopra fanno festa","Il picnic sotto la pioggia","Il supermercato alle 19:59","Il guasto dell'ascensore","Il matrimonio del cugino","Il baby-sitting della sera","L'attesa dal medico","L'esame della patente di guida","L'aperitivo che si trascina all'infinito","Il trasloco fallito","La fila in panetteria","La lezione di cucina catastrofica","Il karaoke tra amici","Il giorno del rientro a scuola","Il ritorno dalle vacanze","Spiegare Snapchat alla nonna","La giuria di un concorso di canto che non si capisce","Un programma di cucina con una ricetta assurda","La telecronaca di una partita a bocce come se fosse la finale dei mondiali","Un supereroe con poteri inutili","Il telegiornale di un pianeta lontano","Documentario naturalistico sugli umani","Riunione di valutazione al lavoro che va fuori controllo","Un interrogatorio di polizia per una sciocchezza minuscola","La domenica in famiglia con i parenti acquisiti"],
-    "confirme": ["L'ultima domenica del mondo","Un gatto che parla al suo padrone","L'appuntamento mancato","La lettera mai spedita","Il viaggio in treno senza destinazione","L'hotel dimenticato dalle mappe","Il sogno che ritorna ogni notte","Due sconosciuti in un ascensore guasto","Il funerale di un perfetto sconosciuto","I tre desideri del genio","Il portiere che sa tutto","La foto che non si sarebbe dovuta vedere","Il fratello mai conosciuto","Lo scrittore di fronte al suo personaggio","L'ultima telefonata","La casa che cambia di notte","Il ballo in maschera dei rimpianti","L'orologiaio del tempo perduto","La stazione delle anime in transito","Lo specchio che mente","Gli attori sorpresi dietro le quinte","Il coro stonato","La riunione dei prof in cui si parla di un solo allievo","L'ascensore bloccato tra due piani","La lezione che non ha alcun senso","Lo scienziato pazzo e il suo assistente disilluso","Darth Vader chiama per lasciare la fidanzata","Una terapia di coppia tra due oggetti","La deposizione dell'unico testimone","La cena in cui nessuno osa parlare"],
-    "expert": ["Il processo alla memoria collettiva","L'ultima conversazione tra Dio e Diavolo","L'archivista delle vite non vissute","Il teorema indimostrabile della felicità","Il silenzio dopo la rivelazione","Il manicomio dei poeti dimenticati","Il testamento di una lingua morta","Le ore rubate di Schrödinger","La stanza in cui si entra da soli","La clessidra della coscienza","L'ultima rappresentazione del Globe Theatre","I sette peccati capitali a cena","Il manoscritto di Borges","Il sogno nel sogno nel sogno","L'esule tornato troppo tardi","Il funambolo tra due mondi","La sinfonia incompiuta del condannato","Il banchetto degli assenti","Il confine che non esisteva","Il filosofo e la formica","Tre sorelle che non andranno mai a Mosca","Il guardiano notturno del museo degli oblii","L'usciere delle anime in eccedenza","La conferenza stampa dell'oblio","L'ultimo traduttore dell'inutile","Autobiografia di un virus","Autopsia dell'anima gemella","Altare del peccato","L'amore è un bouquet di violenza","Lo straniero dell'ascensore","Il bacio della morte","Il ballo degli smascherati","La banca del ricordo","Battello ebbro","Il cinema degli altri"]
+    "debutant": [
+      "L'appuntamento dal parrucchiere",
+      "Primo giorno di scuola",
+      "Una serata pizza che degenera",
+      "Le chiavi dimenticate sul pianerottolo",
+      "La metro un lunedì mattina",
+      "I vicini del piano di sopra fanno festa",
+      "Il picnic sotto la pioggia",
+      "Il supermercato alle 19:59",
+      "Il guasto dell'ascensore",
+      "Il matrimonio del cugino",
+      "Il baby-sitting della sera",
+      "L'attesa dal medico",
+      "L'esame della patente di guida",
+      "L'aperitivo che si trascina all'infinito",
+      "Il trasloco fallito",
+      "La fila in panetteria",
+      "La lezione di cucina catastrofica",
+      "Il karaoke tra amici",
+      "Il giorno del rientro a scuola",
+      "Il ritorno dalle vacanze",
+      "Spiegare Snapchat alla nonna",
+      "La giuria di un concorso di canto che non si capisce",
+      "Un programma di cucina con una ricetta assurda",
+      "La telecronaca di una partita a bocce come se fosse la finale dei mondiali",
+      "Un supereroe con poteri inutili",
+      "Il telegiornale di un pianeta lontano",
+      "Documentario naturalistico sugli umani",
+      "Riunione di valutazione al lavoro che va fuori controllo",
+      "Un interrogatorio di polizia per una sciocchezza minuscola",
+      "La domenica in famiglia con i parenti acquisiti"
+    ],
+    "confirme": [
+      "L'ultima domenica del mondo",
+      "Un gatto che parla al suo padrone",
+      "L'appuntamento mancato",
+      "La lettera mai spedita",
+      "Il viaggio in treno senza destinazione",
+      "L'hotel dimenticato dalle mappe",
+      "Il sogno che ritorna ogni notte",
+      "Due sconosciuti in un ascensore guasto",
+      "Il funerale di un perfetto sconosciuto",
+      "I tre desideri del genio",
+      "Il portiere che sa tutto",
+      "La foto che non si sarebbe dovuta vedere",
+      "Il fratello mai conosciuto",
+      "Lo scrittore di fronte al suo personaggio",
+      "L'ultima telefonata",
+      "La casa che cambia di notte",
+      "Il ballo in maschera dei rimpianti",
+      "L'orologiaio del tempo perduto",
+      "La stazione delle anime in transito",
+      "Lo specchio che mente",
+      "Gli attori sorpresi dietro le quinte",
+      "Il coro stonato",
+      "La riunione dei prof in cui si parla di un solo allievo",
+      "L'ascensore bloccato tra due piani",
+      "La lezione che non ha alcun senso",
+      "Lo scienziato pazzo e il suo assistente disilluso",
+      "Darth Vader chiama per lasciare la fidanzata",
+      "Una terapia di coppia tra due oggetti",
+      "La deposizione dell'unico testimone",
+      "La cena in cui nessuno osa parlare"
+    ],
+    "expert": [
+      "Il processo alla memoria collettiva",
+      "L'ultima conversazione tra Dio e Diavolo",
+      "L'archivista delle vite non vissute",
+      "Il teorema indimostrabile della felicità",
+      "Il silenzio dopo la rivelazione",
+      "Il manicomio dei poeti dimenticati",
+      "Il testamento di una lingua morta",
+      "Le ore rubate di Schrödinger",
+      "La stanza in cui si entra da soli",
+      "La clessidra della coscienza",
+      "L'ultima rappresentazione del Globe Theatre",
+      "I sette peccati capitali a cena",
+      "Il manoscritto di Borges",
+      "Il sogno nel sogno nel sogno",
+      "L'esule tornato troppo tardi",
+      "Il funambolo tra due mondi",
+      "La sinfonia incompiuta del condannato",
+      "Il banchetto degli assenti",
+      "Il confine che non esisteva",
+      "Il filosofo e la formica",
+      "Tre sorelle che non andranno mai a Mosca",
+      "Il guardiano notturno del museo degli oblii",
+      "L'usciere delle anime in eccedenza",
+      "La conferenza stampa dell'oblio",
+      "L'ultimo traduttore dell'inutile",
+      "Autobiografia di un virus",
+      "Autopsia dell'anima gemella",
+      "Altare del peccato",
+      "L'amore è un bouquet di violenza",
+      "Lo straniero dell'ascensore",
+      "Il bacio della morte",
+      "Il ballo degli smascherati",
+      "La banca del ricordo",
+      "Battello ebbro",
+      "Il cinema degli altri"
+    ]
   },
   "categories": [
-    { "name": "Mista",                          "desc": "Le due squadre giocano insieme, in equilibrio numerico, sullo stesso tema." },
-    { "name": "Comparata",                      "desc": "Ogni squadra interpreta a turno la stessa proposta. Il pubblico confronta e vota." },
-    { "name": "Mista alla maniera di",          "desc": "Stile d'autore o di genere imposto: Molière, Audiard, film noir..." },
-    { "name": "Comparata alla maniera di",      "desc": "Ogni squadra interpreta il tema nello stile imposto, a modo suo." },
-    { "name": "Mista cantata",                  "desc": "Improvvisazione interamente o parzialmente cantata, melodie e parole improvvisate." },
-    { "name": "Comparata cantata",              "desc": "Ogni squadra propone la propria versione cantata dello stesso tema." },
-    { "name": "Mista senza parole",             "desc": "Nessuna parola pronunciata: solo il gesto racconta. Concentrazione estrema." },
-    { "name": "Senza parole con supporto musicale", "desc": "Improvvisazione muta, ma la scrittura è rigorosamente influenzata dall'atmosfera musicale imposta. (Dramaction)" },
-    { "name": "Mista in rima",                  "desc": "Tutte le battute fanno rima. Ottonari o alessandrini a seconda del livello." },
-    { "name": "Comparata in rima",              "desc": "Ogni squadra propone la propria versione in rima del tema." },
-    { "name": "Mista con accessorio",           "desc": "Un oggetto imposto deve essere centrale nell'improvvisazione." },
-    { "name": "Comparata con vincolo",          "desc": "Ogni squadra interpreta il tema con un vincolo diverso estratto a sorte." },
-    { "name": "Senza tema né caucus",           "desc": "Nessun tema annunciato, nessun tempo di concertazione. Pura inventiva immediata. (Dramaction)" },
-    { "name": "Salto della cavallina",          "desc": "Quattro improvvisazioni diverse, un tema per improvvisazione. La 1ª con un giocatore, se ne aggiunge uno a ogni improvvisazione successiva. (Dramaction)" },
-    { "name": "Videoway",                       "desc": "Mista con 4 canali TV (F1-F4), contenuto diverso per canale. L'arbitro salta da un canale all'altro senza ordine predefinito. (Dramaction)" },
-    { "name": "Sensoriale",                     "desc": "Uno dei cinque sensi di un improvvisatore viene stimolato. Questa sensazione deve nutrire tutta la scrittura dell'improvvisazione. (Dramaction)" },
-    { "name": "Mista a tesi",                   "desc": "L'improvvisazione deve difendere una tesi filosofica annunciata in anticipo." },
-    { "name": "Comparata libera",               "desc": "Nessun vincolo di forma, solo il tema. Libertà totale di trattamento." }
+    {
+      "name": "Mista",
+      "desc": "Le due squadre giocano insieme, in equilibrio numerico, sullo stesso tema."
+    },
+    {
+      "name": "Comparata",
+      "desc": "Ogni squadra interpreta a turno la stessa proposta. Il pubblico confronta e vota."
+    },
+    {
+      "name": "Mista alla maniera di",
+      "desc": "Stile d'autore o di genere imposto: Molière, Audiard, film noir..."
+    },
+    {
+      "name": "Comparata alla maniera di",
+      "desc": "Ogni squadra interpreta il tema nello stile imposto, a modo suo."
+    },
+    {
+      "name": "Mista cantata",
+      "desc": "Improvvisazione interamente o parzialmente cantata, melodie e parole improvvisate."
+    },
+    {
+      "name": "Comparata cantata",
+      "desc": "Ogni squadra propone la propria versione cantata dello stesso tema."
+    },
+    {
+      "name": "Mista senza parole",
+      "desc": "Nessuna parola pronunciata: solo il gesto racconta. Concentrazione estrema."
+    },
+    {
+      "name": "Senza parole con supporto musicale",
+      "desc": "Improvvisazione muta, ma la scrittura è rigorosamente influenzata dall'atmosfera musicale imposta. (Dramaction)"
+    },
+    {
+      "name": "Mista in rima",
+      "desc": "Tutte le battute fanno rima. Ottonari o alessandrini a seconda del livello."
+    },
+    {
+      "name": "Comparata in rima",
+      "desc": "Ogni squadra propone la propria versione in rima del tema."
+    },
+    {
+      "name": "Mista con accessorio",
+      "desc": "Un oggetto imposto deve essere centrale nell'improvvisazione."
+    },
+    {
+      "name": "Comparata con vincolo",
+      "desc": "Ogni squadra interpreta il tema con un vincolo diverso estratto a sorte."
+    },
+    {
+      "name": "Senza tema né caucus",
+      "desc": "Nessun tema annunciato, nessun tempo di concertazione. Pura inventiva immediata. (Dramaction)"
+    },
+    {
+      "name": "Salto della cavallina",
+      "desc": "Quattro improvvisazioni diverse, un tema per improvvisazione. La 1ª con un giocatore, se ne aggiunge uno a ogni improvvisazione successiva. (Dramaction)"
+    },
+    {
+      "name": "Videoway",
+      "desc": "Mista con 4 canali TV (F1-F4), contenuto diverso per canale. L'arbitro salta da un canale all'altro senza ordine predefinito. (Dramaction)"
+    },
+    {
+      "name": "Sensoriale",
+      "desc": "Uno dei cinque sensi di un improvvisatore viene stimolato. Questa sensazione deve nutrire tutta la scrittura dell'improvvisazione. (Dramaction)"
+    },
+    {
+      "name": "Mista a tesi",
+      "desc": "L'improvvisazione deve difendere una tesi filosofica annunciata in anticipo."
+    },
+    {
+      "name": "Comparata libera",
+      "desc": "Nessun vincolo di forma, solo il tema. Libertà totale di trattamento."
+    }
   ],
   "durations": {
-    "debutant": ["30 secondi", "1 minuto", "1 minuto 30", "2 minuti"],
-    "confirme": ["1 minuto", "2 minuti", "3 minuti", "4 minuti", "5 minuti"],
-    "expert":   ["3 minuti", "5 minuti", "7 minuti", "10 minuti", "15 minuti", "20 minuti"]
+    "debutant": [
+      "30 secondi",
+      "1 minuto",
+      "1 minuto 30",
+      "2 minuti"
+    ],
+    "confirme": [
+      "1 minuto",
+      "2 minuti",
+      "3 minuti",
+      "4 minuti",
+      "5 minuti"
+    ],
+    "expert": [
+      "3 minuti",
+      "5 minuti",
+      "7 minuti",
+      "10 minuti",
+      "15 minuti",
+      "20 minuti"
+    ]
   },
   "players": {
-    "debutant": ["1 giocatore", "2 giocatori", "3 giocatori", "Tutta la squadra"],
-    "confirme": ["1 giocatore", "2 giocatori", "3 giocatori", "4 giocatori", "Tutta la squadra", "Solo il capitano"],
-    "expert":   ["1 giocatore", "2 giocatori", "Misto 1 + 1", "Misto 2 + 2", "3 giocatori imposti", "Tutta la squadra", "Capitano + 1"]
+    "debutant": [
+      "1 giocatore",
+      "2 giocatori",
+      "3 giocatori",
+      "Tutta la squadra"
+    ],
+    "confirme": [
+      "1 giocatore",
+      "2 giocatori",
+      "3 giocatori",
+      "4 giocatori",
+      "Tutta la squadra",
+      "Solo il capitano"
+    ],
+    "expert": [
+      "1 giocatore",
+      "2 giocatori",
+      "Misto 1 + 1",
+      "Misto 2 + 2",
+      "3 giocatori imposti",
+      "Tutta la squadra",
+      "Capitano + 1"
+    ]
   }
 }

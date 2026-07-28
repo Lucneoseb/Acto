@@ -304,7 +304,10 @@
           "name": "Vergleich gesungen",
           "desc": "Jede Mannschaft baut mindestens eine gesungene Passage ein."
         },
-        { "name": "Vergleich mit Requisit", "desc": "Ein vorgegebenes Requisit muss zentral sein. Jedes Team nutzt es auf seine Weise." }
+        {
+          "name": "Vergleich mit Requisit",
+          "desc": "Ein vorgegebenes Requisit muss zentral sein. Jedes Team nutzt es auf seine Weise."
+        }
       ],
       "confirme": [
         {
@@ -331,8 +334,14 @@
           "name": "Mit vorgegebener Figur",
           "desc": "Ein vorgegebener Figurentyp muss in der ersten Minute erscheinen."
         },
-        { "name": "Vergleich mit Auflage", "desc": "Jedes Team spielt das Thema mit einer anders ausgelosten Auflage." },
-        { "name": "Gemischt in ganzen Sätzen", "desc": "Die Spieler dürfen nur in vollständigen Sätzen sprechen – keine Unterbrechung." }
+        {
+          "name": "Vergleich mit Auflage",
+          "desc": "Jedes Team spielt das Thema mit einer anders ausgelosten Auflage."
+        },
+        {
+          "name": "Gemischt in ganzen Sätzen",
+          "desc": "Die Spieler dürfen nur in vollständigen Sätzen sprechen – keine Unterbrechung."
+        }
       ],
       "expert": [
         {
@@ -359,8 +368,14 @@
           "name": "Zeitschleife",
           "desc": "Die Szene geht vor und springt alle 30 Sekunden zurück. Schwindelerregender Loop."
         },
-        { "name": "Vergleich stumm + Geräusche", "desc": "Ein Team spielt stumm, das andere nur mit Geräuschen. Gleiches Thema, gegensätzliche Lesarten." },
-        { "name": "In der Art von Tschechow", "desc": "Russischer Stil des späten 19. Jh.: aristokratische Langeweile, Samoware, schwere Stille, Monologe." }
+        {
+          "name": "Vergleich stumm + Geräusche",
+          "desc": "Ein Team spielt stumm, das andere nur mit Geräuschen. Gleiches Thema, gegensätzliche Lesarten."
+        },
+        {
+          "name": "In der Art von Tschechow",
+          "desc": "Russischer Stil des späten 19. Jh.: aristokratische Langeweile, Samoware, schwere Stille, Monologe."
+        }
       ]
     }
   },

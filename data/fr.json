@@ -2,156 +2,925 @@
   "exercises": {
     "troupe": {
       "debutant": [
-        { "name": "Le miroir",              "desc": "Deux joueurs face à face. L'un fait des mouvements lents, l'autre l'imite en miroir parfait. On accélère progressivement. (Tadam Impro)" },
-        { "name": "Les chaises",            "desc": "Une équipe a 30s pour bâtir une structure avec des chaises. Une autre équipe a 40s pour préparer une impro à partir de cette structure. (Tadam Impro)" },
-        { "name": "Le discours funéraire",  "desc": "Chacun improvise un discours d'hommage à son animal de compagnie. Ton solennel, drôle, ou les deux. (Tadam Impro)" },
-        { "name": "Histoire collective",    "desc": "En cercle, un mot chacun. L'histoire se construit collectivement, sans hésiter ni reprendre." },
-        { "name": "Le thème à incarner",    "desc": "Le groupe est en mouvement, un meneur lance un thème (musée, pyramides...). Le groupe le recrée immédiatement. (Tadam Impro)" },
-        { "name": "Conversation bizarre",   "desc": "Deux joueurs improvisent une situation décalée : oiseau qui explique l'arbre à un autre oiseau, puce qui se dispute avec un chien. (Tadam Impro)" },
-        { "name": "Yes, and...",            "desc": "Toute proposition est acceptée et enrichie. Règle d'or de l'impro selon InFamily : ne jamais bloquer." },
-        { "name": "L'objet imaginaire",     "desc": "Un joueur manipule un objet invisible. Les autres devinent et le relancent en y ajoutant un usage." },
-        { "name": "Le gars bourré",         "desc": "Un membre du public (ou un comédien) joue le « gars bourré » qui interrompt la scène avec des suggestions absurdes que les improvisateurs doivent intégrer pour faire évoluer l'histoire.", "needsAudience": true },
-        { "name": "Cercle de questions",    "desc": "Un joueur au centre du cercle. Les autres lui posent des questions en rafale. Il répond précisément à chacune. (Dramaction)", "needsAudience": true },
-        { "name": "Émotions sur commande",  "desc": "Le meneur lance une émotion. Les joueurs basculent immédiatement et la justifient en scène." },
-        { "name": "La machine humaine",     "desc": "Un par un, les joueurs entrent et ajoutent un geste/son répétitif. La machine se construit organiquement." },
-        { "name": "ABC",                    "desc": "Une scène où chaque réplique commence par la lettre suivante de l'alphabet. À, B, C... jusqu'à Z." },
-        { "name": "Le bus",                 "desc": "Un arrêt de bus. À chaque arrivée, un nouveau personnage monte avec son univers. La scène mute à chaque fois." },
-        { "name": "Pantomime",              "desc": "Une scène entièrement mimée à partir d'un thème. (Dramaction)" },
-        { "name": "Trois personnages",      "desc": "Trois joueurs entrent et campent leur personnage en moins de 30 secondes, juste par la posture et la voix." },
-        { "name": "Émotion qui passe",      "desc": "Un joueur transmet une émotion en silence à son voisin par un geste, qui la transmet à son tour. (Dramaction)" },
-        { "name": "Le Freeze",              "desc": "Deux joueurs improvisent depuis une posture. À tout moment, un autre tape dans ses mains pour figer la scène et remplacer un joueur. (Impro-Exo)" },
-        { "name": "Début-milieu-fin en 30s","desc": "Commencer une impro, faire bouger l'enjeu, et conclure — le tout en 30 secondes chrono. (Impro-Exo)" },
-        { "name": "Conversation à émotion changeante", "desc": "Une conversation en duo. Toutes les 1-2 minutes, un meneur crie une émotion. Les joueurs basculent. (MentorShow)", "needsAudience": true },
-        { "name": "Mixte",                  "desc": "Tous les joueurs de la troupe entrent ensemble et jouent le thème sans découpage en équipes. (Catégorie match adaptée)" },
-        { "name": "Comparée",               "desc": "Deux sous-groupes de la troupe jouent successivement la même proposition. La 2e version doit se distinguer de la 1ʳᵉ. (Catégorie match adaptée)" },
-        { "name": "Comparée libre",         "desc": "Deux sous-groupes jouent successivement le même thème, aucune contrainte de forme. Liberté totale. (Catégorie match adaptée)" },
-        { "name": "Mixte avec accessoire",  "desc": "Un objet imposé doit être central à l'improvisation collective. La troupe entière l'apprivoise en scène. (Catégorie match adaptée)" }
+        {
+          "name": "Le miroir",
+          "desc": "Deux joueurs face à face. L'un fait des mouvements lents, l'autre l'imite en miroir parfait. On accélère progressivement. (Tadam Impro)",
+          "minPlayers": 2,
+          "maxPlayers": 2
+        },
+        {
+          "name": "Les chaises",
+          "desc": "Une équipe a 30s pour bâtir une structure avec des chaises. Une autre équipe a 40s pour préparer une impro à partir de cette structure. (Tadam Impro)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Le discours funéraire",
+          "desc": "Chacun improvise un discours d'hommage à son animal de compagnie. Ton solennel, drôle, ou les deux. (Tadam Impro)",
+          "minPlayers": 1,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Histoire collective",
+          "desc": "En cercle, un mot chacun. L'histoire se construit collectivement, sans hésiter ni reprendre.",
+          "minPlayers": 3,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Le thème à incarner",
+          "desc": "Le groupe est en mouvement, un meneur lance un thème (musée, pyramides...). Le groupe le recrée immédiatement. (Tadam Impro)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Conversation bizarre",
+          "desc": "Deux joueurs improvisent une situation décalée : oiseau qui explique l'arbre à un autre oiseau, puce qui se dispute avec un chien. (Tadam Impro)",
+          "minPlayers": 2,
+          "maxPlayers": 2
+        },
+        {
+          "name": "Yes, and...",
+          "desc": "Toute proposition est acceptée et enrichie. Règle d'or de l'impro selon InFamily : ne jamais bloquer.",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        },
+        {
+          "name": "L'objet imaginaire",
+          "desc": "Un joueur manipule un objet invisible. Les autres devinent et le relancent en y ajoutant un usage.",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Le gars bourré",
+          "desc": "Un membre du public (ou un comédien) joue le « gars bourré » qui interrompt la scène avec des suggestions absurdes que les improvisateurs doivent intégrer pour faire évoluer l'histoire.",
+          "needsAudience": true,
+          "minPlayers": 2,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Cercle de questions",
+          "desc": "Un joueur au centre du cercle. Les autres lui posent des questions en rafale. Il répond précisément à chacune. (Dramaction)",
+          "needsAudience": true,
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Émotions sur commande",
+          "desc": "Le meneur lance une émotion. Les joueurs basculent immédiatement et la justifient en scène.",
+          "minPlayers": 3,
+          "maxPlayers": 99
+        },
+        {
+          "name": "La machine humaine",
+          "desc": "Un par un, les joueurs entrent et ajoutent un geste/son répétitif. La machine se construit organiquement.",
+          "minPlayers": 3,
+          "maxPlayers": 99
+        },
+        {
+          "name": "ABC",
+          "desc": "Une scène où chaque réplique commence par la lettre suivante de l'alphabet. À, B, C... jusqu'à Z.",
+          "minPlayers": 2,
+          "maxPlayers": 4
+        },
+        {
+          "name": "Le bus",
+          "desc": "Un arrêt de bus. À chaque arrivée, un nouveau personnage monte avec son univers. La scène mute à chaque fois.",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Pantomime",
+          "desc": "Une scène entièrement mimée à partir d'un thème. (Dramaction)",
+          "minPlayers": 1,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Trois personnages",
+          "desc": "Trois joueurs entrent et campent leur personnage en moins de 30 secondes, juste par la posture et la voix.",
+          "minPlayers": 3,
+          "maxPlayers": 3
+        },
+        {
+          "name": "Émotion qui passe",
+          "desc": "Un joueur transmet une émotion en silence à son voisin par un geste, qui la transmet à son tour. (Dramaction)",
+          "minPlayers": 3,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Le Freeze",
+          "desc": "Deux joueurs improvisent depuis une posture. À tout moment, un autre tape dans ses mains pour figer la scène et remplacer un joueur. (Impro-Exo)",
+          "minPlayers": 3,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Début-milieu-fin en 30s",
+          "desc": "Commencer une impro, faire bouger l'enjeu, et conclure — le tout en 30 secondes chrono. (Impro-Exo)",
+          "minPlayers": 2,
+          "maxPlayers": 3
+        },
+        {
+          "name": "Conversation à émotion changeante",
+          "desc": "Une conversation en duo. Toutes les 1-2 minutes, un meneur crie une émotion. Les joueurs basculent. (MentorShow)",
+          "needsAudience": true,
+          "minPlayers": 2,
+          "maxPlayers": 2
+        },
+        {
+          "name": "Mixte",
+          "desc": "Tous les joueurs de la troupe entrent ensemble et jouent le thème sans découpage en équipes. (Catégorie match adaptée)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Comparée",
+          "desc": "Deux sous-groupes de la troupe jouent successivement la même proposition. La 2e version doit se distinguer de la 1ʳᵉ. (Catégorie match adaptée)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Comparée libre",
+          "desc": "Deux sous-groupes jouent successivement le même thème, aucune contrainte de forme. Liberté totale. (Catégorie match adaptée)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Mixte avec accessoire",
+          "desc": "Un objet imposé doit être central à l'improvisation collective. La troupe entière l'apprivoise en scène. (Catégorie match adaptée)",
+          "minPlayers": 3,
+          "maxPlayers": 99
+        }
       ],
       "confirme": [
-        { "name": "Pause-Reprise",          "desc": "Le meneur arrête la scène, change un élément (lieu, époque, statut), et la fait reprendre." },
-        { "name": "Trois mots imposés",     "desc": "Trois mots tirés au sort doivent être placés naturellement dans la scène.", "needsAudience": true },
-        { "name": "Le statut",              "desc": "Chaque personnage a un statut social caché (1 à 10). Le public doit le deviner." },
-        { "name": "Doublage",               "desc": "Deux joueurs miment, deux autres parlent pour eux depuis l'extérieur du plateau." },
-        { "name": "Conférence d'experts",   "desc": "Un panel d'experts d'un sujet absurde répond aux questions du public avec sérieux.", "needsAudience": true },
-        { "name": "Last word, first word",  "desc": "Chaque réplique doit commencer par le dernier mot de la précédente." },
-        { "name": "Histoire à rebours",     "desc": "Raconter une histoire en commençant par la fin et en remontant scène par scène." },
-        { "name": "Genres mélangés",        "desc": "Le meneur change de genre toutes les 30 secondes (western, polar, romance, horreur...)." },
-        { "name": "Le triple statut",       "desc": "Chaque personnage a un secret, un objectif et un obstacle. Tous se révèlent en cours de scène." },
-        { "name": "Scène inversée",         "desc": "On commence par le climax et on remonte jusqu'à la rencontre des personnages." },
-        { "name": "Le chœur désaccordé",    "desc": "Une chorale sur scène — un membre est désaccordé ou hors rythme. Tout le drame vient de lui. (Wikiversité)" },
-        { "name": "Acteurs en coulisses",   "desc": "Une scène se joue côté coulisses pendant que le 'spectacle' a lieu côté scène. Mise en abyme. (Wikiversité)" },
-        { "name": "L'ascenseur en panne",   "desc": "Espace ultra-restreint, plusieurs personnages, le huis-clos est forcé. Classique. (Wikiversité)" },
-        { "name": "La réunion de profs",    "desc": "Une réunion d'enseignants où chaque prof a un agenda caché et un élève fétiche." },
-        { "name": "Le retour au passé",     "desc": "À un moment-clé, un joueur tape dans ses mains. La scène revient 1 minute en arrière et se rejoue différemment." },
-        { "name": "Le personnage tiré",     "desc": "Chaque joueur tire un type de personnage (clown, séducteur, paranoïaque) qu'il doit jouer sans le nommer." },
-        { "name": "Mixte à la manière de",  "desc": "Tout le monde joue le thème dans un style d'auteur ou de genre imposé : Molière, Audiard, film noir... (Catégorie match adaptée)" },
-        { "name": "Comparée à la manière de","desc": "Deux sous-groupes jouent successivement le même thème dans le style imposé, chacun à leur façon. (Catégorie match adaptée)" },
-        { "name": "Mixte sans paroles",     "desc": "Aucun mot prononcé : seule la mise en scène collective raconte. Concentration extrême. (Catégorie match adaptée)" },
-        { "name": "Sans paroles avec soutien musical", "desc": "Improvisation muette, mais l'écriture est rigoureusement influencée par l'ambiance musicale imposée. (Dramaction)" },
-        { "name": "Comparée à contrainte",  "desc": "Deux sous-groupes jouent successivement le même thème, chacun avec une contrainte tirée au sort différente. (Catégorie match adaptée)" },
-        { "name": "Sans thème ni caucus",   "desc": "Aucun thème annoncé, aucun temps de concertation. Pure inventivité immédiate. (Dramaction)" },
-        { "name": "Saute-mouton",           "desc": "Quatre impros différentes, un thème par impro. La 1ʳᵉ avec un joueur, on en ajoute un à chaque impro suivante. (Dramaction)" },
-        { "name": "Sensorielle",            "desc": "Un des cinq sens d'un improvisateur est stimulé pendant la scène. Cette sensation doit nourrir toute l'écriture. (Dramaction)" }
+        {
+          "name": "Pause-Reprise",
+          "desc": "Le meneur arrête la scène, change un élément (lieu, époque, statut), et la fait reprendre.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Trois mots imposés",
+          "desc": "Trois mots tirés au sort doivent être placés naturellement dans la scène.",
+          "needsAudience": true,
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Le statut",
+          "desc": "Chaque personnage a un statut social caché (1 à 10). Le public doit le deviner.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Doublage",
+          "desc": "Deux joueurs miment, deux autres parlent pour eux depuis l'extérieur du plateau.",
+          "minPlayers": 4,
+          "maxPlayers": 4
+        },
+        {
+          "name": "Conférence d'experts",
+          "desc": "Un panel d'experts d'un sujet absurde répond aux questions du public avec sérieux.",
+          "needsAudience": true,
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Last word, first word",
+          "desc": "Chaque réplique doit commencer par le dernier mot de la précédente.",
+          "minPlayers": 2,
+          "maxPlayers": 4
+        },
+        {
+          "name": "Histoire à rebours",
+          "desc": "Raconter une histoire en commençant par la fin et en remontant scène par scène.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Genres mélangés",
+          "desc": "Le meneur change de genre toutes les 30 secondes (western, polar, romance, horreur...).",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Le triple statut",
+          "desc": "Chaque personnage a un secret, un objectif et un obstacle. Tous se révèlent en cours de scène.",
+          "minPlayers": 2,
+          "maxPlayers": 5
+        },
+        {
+          "name": "Scène inversée",
+          "desc": "On commence par le climax et on remonte jusqu'à la rencontre des personnages.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Le chœur désaccordé",
+          "desc": "Une chorale sur scène — un membre est désaccordé ou hors rythme. Tout le drame vient de lui. (Wikiversité)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Acteurs en coulisses",
+          "desc": "Une scène se joue côté coulisses pendant que le 'spectacle' a lieu côté scène. Mise en abyme. (Wikiversité)",
+          "minPlayers": 3,
+          "maxPlayers": 12
+        },
+        {
+          "name": "L'ascenseur en panne",
+          "desc": "Espace ultra-restreint, plusieurs personnages, le huis-clos est forcé. Classique. (Wikiversité)",
+          "minPlayers": 3,
+          "maxPlayers": 8
+        },
+        {
+          "name": "La réunion de profs",
+          "desc": "Une réunion d'enseignants où chaque prof a un agenda caché et un élève fétiche.",
+          "minPlayers": 3,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Le retour au passé",
+          "desc": "À un moment-clé, un joueur tape dans ses mains. La scène revient 1 minute en arrière et se rejoue différemment.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Le personnage tiré",
+          "desc": "Chaque joueur tire un type de personnage (clown, séducteur, paranoïaque) qu'il doit jouer sans le nommer.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Mixte à la manière de",
+          "desc": "Tout le monde joue le thème dans un style d'auteur ou de genre imposé : Molière, Audiard, film noir... (Catégorie match adaptée)",
+          "minPlayers": 3,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Comparée à la manière de",
+          "desc": "Deux sous-groupes jouent successivement le même thème dans le style imposé, chacun à leur façon. (Catégorie match adaptée)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Mixte sans paroles",
+          "desc": "Aucun mot prononcé : seule la mise en scène collective raconte. Concentration extrême. (Catégorie match adaptée)",
+          "minPlayers": 3,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Sans paroles avec soutien musical",
+          "desc": "Improvisation muette, mais l'écriture est rigoureusement influencée par l'ambiance musicale imposée. (Dramaction)",
+          "minPlayers": 1,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Comparée à contrainte",
+          "desc": "Deux sous-groupes jouent successivement le même thème, chacun avec une contrainte tirée au sort différente. (Catégorie match adaptée)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Sans thème ni caucus",
+          "desc": "Aucun thème annoncé, aucun temps de concertation. Pure inventivité immédiate. (Dramaction)",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Saute-mouton",
+          "desc": "Quatre impros différentes, un thème par impro. La 1ʳᵉ avec un joueur, on en ajoute un à chaque impro suivante. (Dramaction)",
+          "minPlayers": 4,
+          "maxPlayers": 4
+        },
+        {
+          "name": "Sensorielle",
+          "desc": "Un des cinq sens d'un improvisateur est stimulé pendant la scène. Cette sensation doit nourrir toute l'écriture. (Dramaction)",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        }
       ],
       "expert": [
-        { "name": "Le Harold",              "desc": "Forme longue : trois scènes en parallèle s'entrelacent, se répondent et se nourrissent. Format Del Close." },
-        { "name": "La Boule de feu",        "desc": "Tous les joueurs sur scène. À chaque temps fort, un duo se détache pour une mini-scène, puis revient au groupe." },
-        { "name": "L'improvisation chantée","desc": "Une scène entièrement chantée avec mélodie improvisée, rimes et structure couplet/refrain." },
-        { "name": "Le monologue partagé",   "desc": "Un long monologue est repris par chaque joueur, qui le déforme et l'enrichit en assumant le même personnage." },
-        { "name": "Forme libre 20 minutes", "desc": "Une seule scène, vingt minutes, sans interruption ni bascule. Tenir un monde entier." },
-        { "name": "L'opéra impro",          "desc": "Récitatifs et arias chantés en alternance, livret entièrement improvisé, voix lyriques." },
-        { "name": "Le miroir Pirandello",   "desc": "Les personnages prennent conscience qu'ils sont improvisés... mais doivent continuer la scène quand même.", "needsAudience": true },
-        { "name": "Scène à deux temps",     "desc": "Une scène se joue, puis se rejoue dix ans plus tard avec les conséquences logiques de la première." },
-        { "name": "Improvisation muette",   "desc": "Spectacle de 15 minutes, intégralement sans paroles, avec intrigue claire et résolue." },
-        { "name": "Le théâtre dans le théâtre", "desc": "Les personnages improvisent à leur tour une pièce dans la scène. Trois niveaux de fiction superposés." },
-        { "name": "La Maison (Del Close)",  "desc": "Forme longue où chaque scène ouvre des thèmes que les suivantes reprennent et approfondissent." },
-        { "name": "Le Deconstructed",       "desc": "Une seule scène est jouée, puis dépiautée et recommencée selon plusieurs angles narratifs." },
-        { "name": "Tchekhovienne",          "desc": "Long format à la Tchekhov : pas de climax, des personnages qui se ratent, l'inaction comme moteur." },
-        { "name": "Beckettienne",           "desc": "Long format absurde : silences habités, attente, langage qui se vide. À l'image d'En attendant Godot." },
-        { "name": "Mixte chantée",          "desc": "Improvisation entièrement ou partiellement chantée par toute la troupe, mélodies et paroles improvisées en collectif. (Catégorie match adaptée)" },
-        { "name": "Comparée chantée",       "desc": "Deux sous-groupes proposent successivement leur version chantée du même thème. (Catégorie match adaptée)" },
-        { "name": "Mixte rimée",            "desc": "Toutes les répliques riment. Octosyllabes ou alexandrins selon niveau. La troupe entière tient le mètre. (Catégorie match adaptée)" },
-        { "name": "Comparée rimée",         "desc": "Deux sous-groupes livrent successivement leur version rimée du thème. (Catégorie match adaptée)" },
-        { "name": "Videoway",               "desc": "Mixte avec quatre canaux TV (F1-F4), contenu différent par canal. Le meneur saute d'un canal à l'autre sans ordre prédéfini. (Dramaction)" },
-        { "name": "Mixte à thèse",          "desc": "L'improvisation collective doit défendre une thèse philosophique annoncée à l'avance." }
+        {
+          "name": "Le Harold",
+          "desc": "Forme longue : trois scènes en parallèle s'entrelacent, se répondent et se nourrissent. Format Del Close.",
+          "minPlayers": 4,
+          "maxPlayers": 10
+        },
+        {
+          "name": "La Boule de feu",
+          "desc": "Tous les joueurs sur scène. À chaque temps fort, un duo se détache pour une mini-scène, puis revient au groupe.",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "L'improvisation chantée",
+          "desc": "Une scène entièrement chantée avec mélodie improvisée, rimes et structure couplet/refrain.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Le monologue partagé",
+          "desc": "Un long monologue est repris par chaque joueur, qui le déforme et l'enrichit en assumant le même personnage.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Forme libre 20 minutes",
+          "desc": "Une seule scène, vingt minutes, sans interruption ni bascule. Tenir un monde entier.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "L'opéra impro",
+          "desc": "Récitatifs et arias chantés en alternance, livret entièrement improvisé, voix lyriques.",
+          "minPlayers": 2,
+          "maxPlayers": 10
+        },
+        {
+          "name": "Le miroir Pirandello",
+          "desc": "Les personnages prennent conscience qu'ils sont improvisés... mais doivent continuer la scène quand même.",
+          "needsAudience": true,
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Scène à deux temps",
+          "desc": "Une scène se joue, puis se rejoue dix ans plus tard avec les conséquences logiques de la première.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Improvisation muette",
+          "desc": "Spectacle de 15 minutes, intégralement sans paroles, avec intrigue claire et résolue.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Le théâtre dans le théâtre",
+          "desc": "Les personnages improvisent à leur tour une pièce dans la scène. Trois niveaux de fiction superposés.",
+          "minPlayers": 3,
+          "maxPlayers": 8
+        },
+        {
+          "name": "La Maison (Del Close)",
+          "desc": "Forme longue où chaque scène ouvre des thèmes que les suivantes reprennent et approfondissent.",
+          "minPlayers": 4,
+          "maxPlayers": 10
+        },
+        {
+          "name": "Le Deconstructed",
+          "desc": "Une seule scène est jouée, puis dépiautée et recommencée selon plusieurs angles narratifs.",
+          "minPlayers": 3,
+          "maxPlayers": 10
+        },
+        {
+          "name": "Tchekhovienne",
+          "desc": "Long format à la Tchekhov : pas de climax, des personnages qui se ratent, l'inaction comme moteur.",
+          "minPlayers": 3,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Beckettienne",
+          "desc": "Long format absurde : silences habités, attente, langage qui se vide. À l'image d'En attendant Godot.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Mixte chantée",
+          "desc": "Improvisation entièrement ou partiellement chantée par toute la troupe, mélodies et paroles improvisées en collectif. (Catégorie match adaptée)",
+          "minPlayers": 3,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Comparée chantée",
+          "desc": "Deux sous-groupes proposent successivement leur version chantée du même thème. (Catégorie match adaptée)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Mixte rimée",
+          "desc": "Toutes les répliques riment. Octosyllabes ou alexandrins selon niveau. La troupe entière tient le mètre. (Catégorie match adaptée)",
+          "minPlayers": 3,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Comparée rimée",
+          "desc": "Deux sous-groupes livrent successivement leur version rimée du thème. (Catégorie match adaptée)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Videoway",
+          "desc": "Mixte avec quatre canaux TV (F1-F4), contenu différent par canal. Le meneur saute d'un canal à l'autre sans ordre prédéfini. (Dramaction)",
+          "minPlayers": 4,
+          "maxPlayers": 12
+        },
+        {
+          "name": "Mixte à thèse",
+          "desc": "L'improvisation collective doit défendre une thèse philosophique annoncée à l'avance.",
+          "minPlayers": 3,
+          "maxPlayers": 99
+        }
       ]
     },
     "match": {
       "debutant": [
-        { "name": "Improvisation simple",   "desc": "Une équipe joue, l'autre attend. Forme classique du match d'impro de la LNI." },
-        { "name": "Improvisation mixte",    "desc": "Les deux équipes jouent ensemble dans la même improvisation, en équilibre numérique." },
-        { "name": "Improvisation comparée", "desc": "Chaque équipe joue tour à tour la même proposition. Le public compare et vote." },
-        { "name": "Mixte sans paroles",     "desc": "Les deux équipes ensemble, mais en silence absolu pendant toute la scène." },
-        { "name": "Comparée chantée",       "desc": "Chaque équipe joue le thème en y intégrant au moins un passage chanté." },
-        { "name": "Comparée avec accessoire","desc": "Un accessoire imposé doit être central. Chaque équipe l'utilise à sa façon." }
+        {
+          "name": "Improvisation simple",
+          "desc": "Une équipe joue, l'autre attend. Forme classique du match d'impro de la LNI.",
+          "minPlayers": 1,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Improvisation mixte",
+          "desc": "Les deux équipes jouent ensemble dans la même improvisation, en équilibre numérique.",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Improvisation comparée",
+          "desc": "Chaque équipe joue tour à tour la même proposition. Le public compare et vote.",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Mixte sans paroles",
+          "desc": "Les deux équipes ensemble, mais en silence absolu pendant toute la scène.",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Comparée chantée",
+          "desc": "Chaque équipe joue le thème en y intégrant au moins un passage chanté.",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Comparée avec accessoire",
+          "desc": "Un accessoire imposé doit être central. Chaque équipe l'utilise à sa façon.",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        }
       ],
       "confirme": [
-        { "name": "À la manière de",        "desc": "Style d'auteur ou de genre imposé : Molière, Audiard, film noir... (Catégorie LNI classique)" },
-        { "name": "Mixte avec accessoire",  "desc": "Un objet imposé doit être central à l'improvisation. Les deux équipes négocient en scène." },
-        { "name": "Comparée à contrainte",  "desc": "Chaque équipe joue le thème avec une contrainte tirée au sort différemment." },
-        { "name": "Mixte avec personnage imposé", "desc": "Un type de personnage imposé doit apparaître dès la première minute." },
-        { "name": "Improvisation à rebours","desc": "L'équipe doit jouer la scène en commençant par la fin et en remontant." },
-        { "name": "Mixte par phrases",      "desc": "Les joueurs ne peuvent parler que par phrases entières et complètes — pas d'interruption." },
-        { "name": "Comparée rimée",         "desc": "Toutes les répliques doivent rimer (octosyllabes ou rimes plates)." },
-        { "name": "Comparée muette",        "desc": "Aucune parole : seul le geste et l'expression racontent l'histoire." }
+        {
+          "name": "À la manière de",
+          "desc": "Style d'auteur ou de genre imposé : Molière, Audiard, film noir... (Catégorie LNI classique)",
+          "minPlayers": 1,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Mixte avec accessoire",
+          "desc": "Un objet imposé doit être central à l'improvisation. Les deux équipes négocient en scène.",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Comparée à contrainte",
+          "desc": "Chaque équipe joue le thème avec une contrainte tirée au sort différemment.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Mixte avec personnage imposé",
+          "desc": "Un type de personnage imposé doit apparaître dès la première minute.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Improvisation à rebours",
+          "desc": "L'équipe doit jouer la scène en commençant par la fin et en remontant.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Mixte par phrases",
+          "desc": "Les joueurs ne peuvent parler que par phrases entières et complètes — pas d'interruption.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Comparée rimée",
+          "desc": "Toutes les répliques doivent rimer (octosyllabes ou rimes plates).",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Comparée muette",
+          "desc": "Aucune parole : seul le geste et l'expression racontent l'histoire.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        }
       ],
       "expert": [
-        { "name": "Chantée et dansée",      "desc": "Mini-musical : alternance dialogues, chants et chorégraphies improvisés. Style Broadway impro." },
-        { "name": "À la manière de + époque","desc": "Style d'auteur ET époque historique imposés. Les deux doivent être lisibles dès l'entrée." },
-        { "name": "Mixte en alexandrins",   "desc": "Toutes les répliques en alexandrins (12 pieds), rimes plates ou croisées. Niveau classique." },
-        { "name": "Comparée silencieuse + bruitée", "desc": "Une équipe joue muette, l'autre uniquement en bruitages. Même thème, lectures inverses." },
-        { "name": "Sans héros",             "desc": "L'improvisation doit fonctionner sans personnage principal identifiable. Choralité totale." },
-        { "name": "À thèse",                "desc": "L'improvisation doit défendre une thèse philosophique annoncée à l'avance par l'arbitre." },
-        { "name": "À la manière de Tchekhov","desc": "Style russe fin XIXᵉ : ennui aristocratique, samovars, silences chargés, monologues." },
-        { "name": "Rétro-pédalage temporel","desc": "La scène avance puis revient en arrière toutes les 30 secondes. Boucle vertigineuse." }
+        {
+          "name": "Chantée et dansée",
+          "desc": "Mini-musical : alternance dialogues, chants et chorégraphies improvisés. Style Broadway impro.",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        },
+        {
+          "name": "À la manière de + époque",
+          "desc": "Style d'auteur ET époque historique imposés. Les deux doivent être lisibles dès l'entrée.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Mixte en alexandrins",
+          "desc": "Toutes les répliques en alexandrins (12 pieds), rimes plates ou croisées. Niveau classique.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Comparée silencieuse + bruitée",
+          "desc": "Une équipe joue muette, l'autre uniquement en bruitages. Même thème, lectures inverses.",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Sans héros",
+          "desc": "L'improvisation doit fonctionner sans personnage principal identifiable. Choralité totale.",
+          "minPlayers": 3,
+          "maxPlayers": 99
+        },
+        {
+          "name": "À thèse",
+          "desc": "L'improvisation doit défendre une thèse philosophique annoncée à l'avance par l'arbitre.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "À la manière de Tchekhov",
+          "desc": "Style russe fin XIXᵉ : ennui aristocratique, samovars, silences chargés, monologues.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Rétro-pédalage temporel",
+          "desc": "La scène avance puis revient en arrière toutes les 30 secondes. Boucle vertigineuse.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        }
       ]
     }
   },
   "constraints": {
     "troupe": {
-      "debutant": ["En chuchotant","En marchant en cercle pendant toute la scène","Avec un seul mot répété","En se tenant la main du début à la fin","Sans toucher le sol avec ses talons","Avec une seule émotion (joie, tristesse, colère...)","En dansant en permanence","Sans regarder son partenaire","Avec les yeux fermés","En faisant des bruitages au lieu de parler","Une réplique sur deux est obligatoirement chantée","Tout le monde dos au public","Personne ne s'assoit ni ne se couche"],
-      "confirme": ["Sans utiliser le mot « non »","Sans utiliser de pronoms personnels","En rimes systématiques","À la manière de Molière","À la manière d'un film noir des années 40","Avec une réplique sur deux chantée","En ralenti de A à Z","En accéléré de A à Z","Avec un mot interdit choisi par le public","En alternant français et langue inventée","À la manière d'un dessin animé pour enfants","Avec un narrateur extérieur qui commente","Dans le style d'un journal télévisé","À la manière d'un documentaire animalier"],
-      "expert": ["Avec rétro-pédalage temporel : la scène avance puis revient en arrière toutes les 30s","À plusieurs voix : chaque personnage est joué simultanément par 2 acteurs","En théâtre d'ombres uniquement","Avec une narration extérieure qui contredit l'action","En vers libres et en hexamètres","À la manière de Beckett (silences, absurde, attente)","Avec un quatrième mur permanent (les acteurs s'adressent au public)","En palindrome : la scène doit pouvoir être jouée à l'envers","Sans un seul verbe d'action","Avec une langue entièrement inventée mais cohérente","À la manière du théâtre Nô","En mise en abyme (la pièce parle d'une pièce qui se joue)","Avec une seule réplique audible par minute","Toute la scène à la première personne du pluriel"]
+      "debutant": [
+        "En chuchotant",
+        "En marchant en cercle pendant toute la scène",
+        "Avec un seul mot répété",
+        "En se tenant la main du début à la fin",
+        "Sans toucher le sol avec ses talons",
+        "Avec une seule émotion (joie, tristesse, colère...)",
+        "En dansant en permanence",
+        "Sans regarder son partenaire",
+        "Avec les yeux fermés",
+        "En faisant des bruitages au lieu de parler",
+        "Une réplique sur deux est obligatoirement chantée",
+        "Tout le monde dos au public",
+        "Personne ne s'assoit ni ne se couche"
+      ],
+      "confirme": [
+        "Sans utiliser le mot « non »",
+        "Sans utiliser de pronoms personnels",
+        "En rimes systématiques",
+        "À la manière de Molière",
+        "À la manière d'un film noir des années 40",
+        "Avec une réplique sur deux chantée",
+        "En ralenti de A à Z",
+        "En accéléré de A à Z",
+        "Avec un mot interdit choisi par le public",
+        "En alternant français et langue inventée",
+        "À la manière d'un dessin animé pour enfants",
+        "Avec un narrateur extérieur qui commente",
+        "Dans le style d'un journal télévisé",
+        "À la manière d'un documentaire animalier"
+      ],
+      "expert": [
+        "Avec rétro-pédalage temporel : la scène avance puis revient en arrière toutes les 30s",
+        "À plusieurs voix : chaque personnage est joué simultanément par 2 acteurs",
+        "En théâtre d'ombres uniquement",
+        "Avec une narration extérieure qui contredit l'action",
+        "En vers libres et en hexamètres",
+        "À la manière de Beckett (silences, absurde, attente)",
+        "Avec un quatrième mur permanent (les acteurs s'adressent au public)",
+        "En palindrome : la scène doit pouvoir être jouée à l'envers",
+        "Sans un seul verbe d'action",
+        "Avec une langue entièrement inventée mais cohérente",
+        "À la manière du théâtre Nô",
+        "En mise en abyme (la pièce parle d'une pièce qui se joue)",
+        "Avec une seule réplique audible par minute",
+        "Toute la scène à la première personne du pluriel"
+      ]
     },
     "match": {
-      "debutant": ["En chuchotant","En chantant","Avec un accessoire imposé","Avec une phrase imposée à placer","En dansant","À la manière d'un dessin animé","Avec une émotion imposée","En mode comédie musicale","Avec des accents régionaux imposés","Sans toucher le sol","Avec un mot interdit","À la manière du muet (Chaplin, Keaton)"],
-      "confirme": ["À la manière de Shakespeare","À la manière d'un film d'horreur","À la manière d'Audiard","En vers","Sans utiliser le mot « non »","Avec un mot interdit choisi par l'arbitre","À la manière des frères Coen","À la manière d'un péplum","En science-fiction des années 60","Avec une seule réplique audible par minute","À la manière du muet (Chaplin, Keaton)","Avec un narrateur omniscient extérieur","À la manière d'un soap opera","À la manière d'un manga"],
-      "expert": ["En alexandrins du début à la fin","À la manière de Tchekhov","À la manière du théâtre Nô japonais","Avec rétro-pédalage temporel","À la manière d'un Wes Anderson","À la manière de la Commedia dell'arte","Avec un sous-texte philosophique imposé","En cluedo (le coupable doit être révélé à la fin)","À la manière du théâtre de l'absurde","Avec un personnage qui sait qu'il est dans une fiction","À la manière de Pirandello","À la manière d'un Tarantino","En forme de tragédie grecque (chœur + héros + hubris)","À la manière d'un Bergman"]
+      "debutant": [
+        "En chuchotant",
+        "En chantant",
+        "Avec un accessoire imposé",
+        "Avec une phrase imposée à placer",
+        "En dansant",
+        "À la manière d'un dessin animé",
+        "Avec une émotion imposée",
+        "En mode comédie musicale",
+        "Avec des accents régionaux imposés",
+        "Sans toucher le sol",
+        "Avec un mot interdit",
+        "À la manière du muet (Chaplin, Keaton)"
+      ],
+      "confirme": [
+        "À la manière de Shakespeare",
+        "À la manière d'un film d'horreur",
+        "À la manière d'Audiard",
+        "En vers",
+        "Sans utiliser le mot « non »",
+        "Avec un mot interdit choisi par l'arbitre",
+        "À la manière des frères Coen",
+        "À la manière d'un péplum",
+        "En science-fiction des années 60",
+        "Avec une seule réplique audible par minute",
+        "À la manière du muet (Chaplin, Keaton)",
+        "Avec un narrateur omniscient extérieur",
+        "À la manière d'un soap opera",
+        "À la manière d'un manga"
+      ],
+      "expert": [
+        "En alexandrins du début à la fin",
+        "À la manière de Tchekhov",
+        "À la manière du théâtre Nô japonais",
+        "Avec rétro-pédalage temporel",
+        "À la manière d'un Wes Anderson",
+        "À la manière de la Commedia dell'arte",
+        "Avec un sous-texte philosophique imposé",
+        "En cluedo (le coupable doit être révélé à la fin)",
+        "À la manière du théâtre de l'absurde",
+        "Avec un personnage qui sait qu'il est dans une fiction",
+        "À la manière de Pirandello",
+        "À la manière d'un Tarantino",
+        "En forme de tragédie grecque (chœur + héros + hubris)",
+        "À la manière d'un Bergman"
+      ]
     }
   },
   "themes": {
-    "debutant": ["Le rendez-vous chez le coiffeur","Premier jour à l'école","Une soirée pizza qui dégénère","L'oubli des clés sur le palier","Le métro un lundi matin","Les voisins du dessus font la fête","Le piquenique sous la pluie","Le supermarché à 19h59","La panne d'ascenseur","Le mariage du cousin","Le baby-sitting du soir","L'attente chez le médecin","L'examen du permis de conduire","L'apéro qui s'éternise","Le déménagement raté","La queue à la boulangerie","La leçon de cuisine catastrophique","Le karaoké entre amis","Le jour de la rentrée","Le retour de vacances","Expliquer Snapchat à sa grand-mère","Le jury d'un concours de chant qui ne s'entend pas","Une émission culinaire avec une recette absurde","Le commentaire d'un match de pétanque comme si c'était la finale du mondial","Un super-héros aux pouvoirs inutiles","Le journal télévisé d'une planète lointaine","Documentaire animalier sur les humains","Réunion d'évaluation au boulot qui dérape","Un interrogatoire de police pour une bêtise minuscule","Le dimanche en famille avec les pièces rapportées"],
-    "confirme": ["Le dernier dimanche du monde","Un chat qui parle à son maître","Le rendez-vous manqué","La lettre jamais envoyée","Le voyage en train sans destination","L'hôtel oublié des cartes","Le rêve qui revient toutes les nuits","Deux inconnus dans un ascenseur en panne","L'enterrement d'un parfait inconnu","Les trois souhaits du génie","Le concierge qui sait tout","La photo qu'on n'aurait pas dû voir","Le frère qu'on n'a jamais connu","L'écrivain face à son personnage","Le dernier appel téléphonique","La maison qui change la nuit","Le bal masqué des regrets","L'horloger du temps perdu","La gare des âmes en transit","Le miroir qui ment","Les acteurs surpris en coulisses","Le chœur désaccordé","La réunion de profs où l'on parle d'un seul élève","L'ascenseur bloqué entre deux étages","La leçon qui ne fait aucun sens","Le savant fou et son assistant désabusé","Dark Vador appelle pour rompre","Une thérapie de couple entre deux objets","La déposition de l'unique témoin","Le diner où personne n'ose parler"],
-    "expert": ["Le procès de la mémoire collective","La dernière conversation entre Dieu et Diable","L'archiviste des vies non vécues","Le théorème indémontrable du bonheur","Le silence d'après la révélation","L'asile des poètes oubliés","Le testament d'une langue morte","Les heures volées de Schrödinger","La chambre où l'on entre seul","Le sablier de la conscience","L'ultime représentation du Globe Theatre","Les sept péchés capitaux à dîner","Le manuscrit de Borges","Le rêve dans le rêve dans le rêve","L'exilé revenu trop tard","Le funambule entre deux mondes","La symphonie inachevée du condamné","Le banquet des absents","La frontière qui n'existait pas","Le philosophe et la fourmi","Trois sœurs qui n'iront jamais à Moscou","Le veilleur de nuit du musée des oublis","L'huissier des âmes en surplus","La conférence de presse de l'oubli","Le dernier traducteur de l'inutile","Autobiographie d'un virus","Autopsie de l'âme sœur","Autel du péché","L'amour est un bouquet de violence","L'étranger de l'ascenseur","Le baiser de la mort","Le bal des démasqués","La banque du souvenir","Bateau ivre","Le cinéma des autres"]
+    "debutant": [
+      "Le rendez-vous chez le coiffeur",
+      "Premier jour à l'école",
+      "Une soirée pizza qui dégénère",
+      "L'oubli des clés sur le palier",
+      "Le métro un lundi matin",
+      "Les voisins du dessus font la fête",
+      "Le piquenique sous la pluie",
+      "Le supermarché à 19h59",
+      "La panne d'ascenseur",
+      "Le mariage du cousin",
+      "Le baby-sitting du soir",
+      "L'attente chez le médecin",
+      "L'examen du permis de conduire",
+      "L'apéro qui s'éternise",
+      "Le déménagement raté",
+      "La queue à la boulangerie",
+      "La leçon de cuisine catastrophique",
+      "Le karaoké entre amis",
+      "Le jour de la rentrée",
+      "Le retour de vacances",
+      "Expliquer Snapchat à sa grand-mère",
+      "Le jury d'un concours de chant qui ne s'entend pas",
+      "Une émission culinaire avec une recette absurde",
+      "Le commentaire d'un match de pétanque comme si c'était la finale du mondial",
+      "Un super-héros aux pouvoirs inutiles",
+      "Le journal télévisé d'une planète lointaine",
+      "Documentaire animalier sur les humains",
+      "Réunion d'évaluation au boulot qui dérape",
+      "Un interrogatoire de police pour une bêtise minuscule",
+      "Le dimanche en famille avec les pièces rapportées"
+    ],
+    "confirme": [
+      "Le dernier dimanche du monde",
+      "Un chat qui parle à son maître",
+      "Le rendez-vous manqué",
+      "La lettre jamais envoyée",
+      "Le voyage en train sans destination",
+      "L'hôtel oublié des cartes",
+      "Le rêve qui revient toutes les nuits",
+      "Deux inconnus dans un ascenseur en panne",
+      "L'enterrement d'un parfait inconnu",
+      "Les trois souhaits du génie",
+      "Le concierge qui sait tout",
+      "La photo qu'on n'aurait pas dû voir",
+      "Le frère qu'on n'a jamais connu",
+      "L'écrivain face à son personnage",
+      "Le dernier appel téléphonique",
+      "La maison qui change la nuit",
+      "Le bal masqué des regrets",
+      "L'horloger du temps perdu",
+      "La gare des âmes en transit",
+      "Le miroir qui ment",
+      "Les acteurs surpris en coulisses",
+      "Le chœur désaccordé",
+      "La réunion de profs où l'on parle d'un seul élève",
+      "L'ascenseur bloqué entre deux étages",
+      "La leçon qui ne fait aucun sens",
+      "Le savant fou et son assistant désabusé",
+      "Dark Vador appelle pour rompre",
+      "Une thérapie de couple entre deux objets",
+      "La déposition de l'unique témoin",
+      "Le diner où personne n'ose parler"
+    ],
+    "expert": [
+      "Le procès de la mémoire collective",
+      "La dernière conversation entre Dieu et Diable",
+      "L'archiviste des vies non vécues",
+      "Le théorème indémontrable du bonheur",
+      "Le silence d'après la révélation",
+      "L'asile des poètes oubliés",
+      "Le testament d'une langue morte",
+      "Les heures volées de Schrödinger",
+      "La chambre où l'on entre seul",
+      "Le sablier de la conscience",
+      "L'ultime représentation du Globe Theatre",
+      "Les sept péchés capitaux à dîner",
+      "Le manuscrit de Borges",
+      "Le rêve dans le rêve dans le rêve",
+      "L'exilé revenu trop tard",
+      "Le funambule entre deux mondes",
+      "La symphonie inachevée du condamné",
+      "Le banquet des absents",
+      "La frontière qui n'existait pas",
+      "Le philosophe et la fourmi",
+      "Trois sœurs qui n'iront jamais à Moscou",
+      "Le veilleur de nuit du musée des oublis",
+      "L'huissier des âmes en surplus",
+      "La conférence de presse de l'oubli",
+      "Le dernier traducteur de l'inutile",
+      "Autobiographie d'un virus",
+      "Autopsie de l'âme sœur",
+      "Autel du péché",
+      "L'amour est un bouquet de violence",
+      "L'étranger de l'ascenseur",
+      "Le baiser de la mort",
+      "Le bal des démasqués",
+      "La banque du souvenir",
+      "Bateau ivre",
+      "Le cinéma des autres"
+    ]
   },
   "categories": [
-    { "name": "Mixte",                          "desc": "Les deux équipes jouent ensemble, en équilibre numérique, sur le même thème." },
-    { "name": "Comparée",                       "desc": "Chaque équipe joue tour à tour la même proposition. Le public compare et vote." },
-    { "name": "Mixte à la manière de",          "desc": "Style d'auteur ou de genre imposé : Molière, Audiard, film noir..." },
-    { "name": "Comparée à la manière de",       "desc": "Chaque équipe joue le thème dans le style imposé, à sa façon." },
-    { "name": "Mixte chantée",                  "desc": "Improvisation entièrement ou partiellement chantée, mélodies et paroles improvisées." },
-    { "name": "Comparée chantée",               "desc": "Chaque équipe propose sa version chantée du même thème." },
-    { "name": "Mixte sans paroles",             "desc": "Aucun mot prononcé : seul le geste raconte. Concentration extrême." },
-    { "name": "Sans paroles avec soutien musical", "desc": "Improvisation muette, mais l'écriture est rigoureusement influencée par l'ambiance musicale imposée. (Dramaction)" },
-    { "name": "Mixte rimée",                    "desc": "Toutes les répliques riment. Octosyllabes ou alexandrins selon niveau." },
-    { "name": "Comparée rimée",                 "desc": "Chaque équipe livre sa version rimée du thème." },
-    { "name": "Mixte avec accessoire",          "desc": "Un objet imposé doit être central à l'improvisation." },
-    { "name": "Comparée à contrainte",          "desc": "Chaque équipe joue le thème avec une contrainte tirée au sort différente." },
-    { "name": "Sans thème ni caucus",           "desc": "Aucun thème annoncé, aucun temps de concertation. Pure inventivité immédiate. (Dramaction)" },
-    { "name": "Saute-mouton",                   "desc": "Quatre improvisations différentes, un thème par impro. La 1ʳᵉ avec un joueur, on en ajoute un à chaque impro suivante. (Dramaction)" },
-    { "name": "Videoway",                       "desc": "Mixte avec 4 canaux TV (F1-F4), contenu différent par canal. L'arbitre saute d'un canal à l'autre sans ordre prédéfini. (Dramaction)" },
-    { "name": "Sensorielle",                    "desc": "Un des cinq sens d'un improvisateur est stimulé. Cette sensation doit nourrir toute l'écriture de l'impro. (Dramaction)" },
-    { "name": "Mixte à thèse",                  "desc": "L'improvisation doit défendre une thèse philosophique annoncée à l'avance." },
-    { "name": "Comparée libre",                 "desc": "Aucune contrainte de forme, juste le thème. Liberté totale de traitement." }
+    {
+      "name": "Mixte",
+      "desc": "Les deux équipes jouent ensemble, en équilibre numérique, sur le même thème.",
+      "minPlayers": 2,
+      "maxPlayers": 99
+    },
+    {
+      "name": "Comparée",
+      "desc": "Chaque équipe joue tour à tour la même proposition. Le public compare et vote.",
+      "minPlayers": 1,
+      "maxPlayers": 99
+    },
+    {
+      "name": "Mixte à la manière de",
+      "desc": "Style d'auteur ou de genre imposé : Molière, Audiard, film noir...",
+      "minPlayers": 2,
+      "maxPlayers": 99
+    },
+    {
+      "name": "Comparée à la manière de",
+      "desc": "Chaque équipe joue le thème dans le style imposé, à sa façon.",
+      "minPlayers": 1,
+      "maxPlayers": 99
+    },
+    {
+      "name": "Mixte chantée",
+      "desc": "Improvisation entièrement ou partiellement chantée, mélodies et paroles improvisées.",
+      "minPlayers": 2,
+      "maxPlayers": 99
+    },
+    {
+      "name": "Comparée chantée",
+      "desc": "Chaque équipe propose sa version chantée du même thème.",
+      "minPlayers": 1,
+      "maxPlayers": 99
+    },
+    {
+      "name": "Mixte sans paroles",
+      "desc": "Aucun mot prononcé : seul le geste raconte. Concentration extrême.",
+      "minPlayers": 2,
+      "maxPlayers": 99
+    },
+    {
+      "name": "Sans paroles avec soutien musical",
+      "desc": "Improvisation muette, mais l'écriture est rigoureusement influencée par l'ambiance musicale imposée. (Dramaction)",
+      "minPlayers": 1,
+      "maxPlayers": 99
+    },
+    {
+      "name": "Mixte rimée",
+      "desc": "Toutes les répliques riment. Octosyllabes ou alexandrins selon niveau.",
+      "minPlayers": 2,
+      "maxPlayers": 99
+    },
+    {
+      "name": "Comparée rimée",
+      "desc": "Chaque équipe livre sa version rimée du thème.",
+      "minPlayers": 1,
+      "maxPlayers": 99
+    },
+    {
+      "name": "Mixte avec accessoire",
+      "desc": "Un objet imposé doit être central à l'improvisation.",
+      "minPlayers": 2,
+      "maxPlayers": 99
+    },
+    {
+      "name": "Comparée à contrainte",
+      "desc": "Chaque équipe joue le thème avec une contrainte tirée au sort différente.",
+      "minPlayers": 1,
+      "maxPlayers": 99
+    },
+    {
+      "name": "Sans thème ni caucus",
+      "desc": "Aucun thème annoncé, aucun temps de concertation. Pure inventivité immédiate. (Dramaction)",
+      "minPlayers": 1,
+      "maxPlayers": 99
+    },
+    {
+      "name": "Saute-mouton",
+      "desc": "Quatre improvisations différentes, un thème par impro. La 1ʳᵉ avec un joueur, on en ajoute un à chaque impro suivante. (Dramaction)",
+      "minPlayers": 4,
+      "maxPlayers": 4
+    },
+    {
+      "name": "Videoway",
+      "desc": "Mixte avec 4 canaux TV (F1-F4), contenu différent par canal. L'arbitre saute d'un canal à l'autre sans ordre prédéfini. (Dramaction)",
+      "minPlayers": 4,
+      "maxPlayers": 99
+    },
+    {
+      "name": "Sensorielle",
+      "desc": "Un des cinq sens d'un improvisateur est stimulé. Cette sensation doit nourrir toute l'écriture de l'impro. (Dramaction)",
+      "minPlayers": 1,
+      "maxPlayers": 99
+    },
+    {
+      "name": "Mixte à thèse",
+      "desc": "L'improvisation doit défendre une thèse philosophique annoncée à l'avance.",
+      "minPlayers": 2,
+      "maxPlayers": 99
+    },
+    {
+      "name": "Comparée libre",
+      "desc": "Aucune contrainte de forme, juste le thème. Liberté totale de traitement.",
+      "minPlayers": 1,
+      "maxPlayers": 99
+    }
   ],
   "durations": {
-    "debutant": ["30 secondes", "1 minute", "1 minute 30", "2 minutes"],
-    "confirme": ["1 minute", "2 minutes", "3 minutes", "4 minutes", "5 minutes"],
-    "expert":   ["3 minutes", "5 minutes", "7 minutes", "10 minutes", "15 minutes", "20 minutes"]
+    "debutant": [
+      "30 secondes",
+      "1 minute",
+      "1 minute 30",
+      "2 minutes"
+    ],
+    "confirme": [
+      "1 minute",
+      "2 minutes",
+      "3 minutes",
+      "4 minutes",
+      "5 minutes"
+    ],
+    "expert": [
+      "3 minutes",
+      "5 minutes",
+      "7 minutes",
+      "10 minutes",
+      "15 minutes",
+      "20 minutes"
+    ]
   },
   "players": {
-    "debutant": ["1 joueur", "2 joueurs", "3 joueurs", "Toute l'équipe"],
-    "confirme": ["1 joueur", "2 joueurs", "3 joueurs", "4 joueurs", "Toute l'équipe", "Capitaine seul"],
-    "expert":   ["1 joueur", "2 joueurs", "Mixte 1 + 1", "Mixte 2 + 2", "3 joueurs imposés", "Toute l'équipe", "Capitaine + 1"]
+    "debutant": [
+      "1 joueur",
+      "2 joueurs",
+      "3 joueurs",
+      "Toute l'équipe"
+    ],
+    "confirme": [
+      "1 joueur",
+      "2 joueurs",
+      "3 joueurs",
+      "4 joueurs",
+      "Toute l'équipe",
+      "Capitaine seul"
+    ],
+    "expert": [
+      "1 joueur",
+      "2 joueurs",
+      "Mixte 1 + 1",
+      "Mixte 2 + 2",
+      "3 joueurs imposés",
+      "Toute l'équipe",
+      "Capitaine + 1"
+    ]
   }
 }
