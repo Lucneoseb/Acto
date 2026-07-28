@@ -135,6 +135,55 @@
     beep(660, 0, 0.25); beep(880, 0.28, 0.25); beep(1180, 0.56, 0.45);
     try { if (navigator.vibrate) navigator.vibrate([120, 60, 120]); } catch (e) { /* ignore */ }
   }
+  // iOS/Safari n'autorisent la création et la reprise d'un AudioContext QUE
+  // pendant un geste utilisateur. Le son de fin partant d'un timer, il ne
+  // sortait jamais sur iPhone. On débloque donc le contexte au premier tap de
+  // l'arbitre (silencieusement), pour que la sonnerie fonctionne ensuite.
+  var _audioPrimed = false;
+  function unlockAudio() {
+    // audioCtx() fait déjà resume() s'il est suspendu : c'est le point clé, car
+    // iOS RE-suspend le contexte à chaque passage en arrière-plan ou appel
+    // entrant. Se verrouiller sur un drapeau une bonne fois tuerait la sonnerie
+    // pour tout le reste du match — on repasse donc à chaque tap (coût nul).
+    var ac = audioCtx(); if (!ac) return;
+    if (_audioPrimed && ac.state === "running") return;
+    try {
+      var b = ac.createBuffer(1, 1, 22050);
+      var src = ac.createBufferSource();
+      src.buffer = b; src.connect(ac.destination); src.start(0);
+      _audioPrimed = true;
+    } catch (e) { /* on réessaiera au prochain tap */ }
+  }
+
+  /* ---------- Wake Lock : l'écran de l'arbitre ne doit pas s'éteindre ----------
+     Sans ça le téléphone se verrouille en pleine impro et l'arbitre perd le
+     chrono, les scores et la main. Réacquis au retour d'onglet (le verrou est
+     perdu quand la page passe en arrière-plan). */
+  var _wakeLock = null, _wakeLockPending = false, _wakeLockWanted = false;
+  function requestWakeLock() {
+    try {
+      // _wakeLock n'est assigné qu'en asynchrone : sans le drapeau "pending",
+      // chaque tap relancerait une demande concurrente et les sentinelles
+      // précédentes fuiteraient (mesuré : 9 demandes pour 1 seul verrou utile).
+      if (!navigator.wakeLock || _wakeLock || _wakeLockPending) return;
+      _wakeLockPending = true; _wakeLockWanted = true;
+      navigator.wakeLock.request("screen").then(function (wl) {
+        _wakeLockPending = false;
+        if (!_wakeLockWanted) { try { wl.release(); } catch (e) {} return; }  // on a quitté entre-temps
+        _wakeLock = wl;
+        wl.addEventListener("release", function () { _wakeLock = null; });
+      }).catch(function () {
+        _wakeLockPending = false;   // refusé (batterie faible, onglet caché) : sans gravité
+      });
+    } catch (e) { _wakeLockPending = false; }
+  }
+  function releaseWakeLock() {
+    _wakeLockWanted = false;        // annule aussi une demande encore en vol
+    try { if (_wakeLock) { _wakeLock.release(); _wakeLock = null; } } catch (e) { /* ignore */ }
+  }
+  function onVisibilityForWakeLock() {
+    if (document.visibilityState === "visible" && document.body.classList.contains("suite-live-mode")) requestWakeLock();
+  }
 
   /* ============================================================
      PRESENTER state + timer
@@ -146,14 +195,26 @@
   var voteResult = null;            // {round, a, b} once the referee reveals the public tally
 
   function curSeg() { return (sess && sess.setlist && sess.setlist[cursor]) || null; }
-  function persist() { if (sess) S.live.save(sess); }
+  // L'état du chrono vivait uniquement en mémoire : un rafraîchissement en plein
+  // match (ou un onglet tué par iOS) repartait à zéro sur l'impro en cours.
+  // tEndAt étant une date absolue, un chrono en marche se reconstitue exactement.
+  function snapshotLiveState() {
+    if (!sess) return;
+    sess.liveState = {
+      phase: phase, cursor: cursor, tk: tk, tTotal: tTotal,
+      tRemaining: tRemaining, tRunning: tRunning,
+      tEndAt: tRunning ? tEndAt : 0, finished: finished,
+      at: Date.now()          // horodatage : une partie oubliée n'est plus « en cours »
+    };
+  }
+  function persist() { if (sess) { snapshotLiveState(); S.live.save(sess); } }
 
   function clearTick() { if (tInterval) { clearInterval(tInterval); tInterval = null; } }
   function timerStart(sec, kind) {
     clearTick();
     tk = kind; tTotal = sec; tRemaining = sec; tRunning = true; tEndAt = Date.now() + sec * 1000;
     tInterval = setInterval(tick, 250);
-    renderPresenter(); broadcast();
+    persist(); renderPresenter(); broadcast();
   }
   function tick() {
     if (!tRunning) return;
@@ -164,29 +225,29 @@
   function timerPause() {
     if (!tRunning) return;
     tRunning = false; tRemaining = Math.max(0, Math.round((tEndAt - Date.now()) / 1000)); clearTick();
-    renderPresenter(); broadcast();
+    persist(); renderPresenter(); broadcast();
   }
   function timerResume() {
     if (tRunning || tRemaining <= 0) return;
     tRunning = true; tEndAt = Date.now() + tRemaining * 1000; tInterval = setInterval(tick, 250);
-    renderPresenter(); broadcast();
+    persist(); renderPresenter(); broadcast();
   }
   function timerReset(sec) {
     clearTick(); tRunning = false; tTotal = (sec != null ? sec : tTotal); tRemaining = tTotal;
-    renderPresenter(); broadcast();
+    persist(); renderPresenter(); broadcast();
   }
   function timerAdd(d) {
     tRemaining = Math.max(0, tRemaining + d);
     if (tRemaining > tTotal) tTotal = tRemaining;
     if (tRunning) tEndAt = Date.now() + tRemaining * 1000;
-    renderPresenter(); broadcast();
+    persist(); renderPresenter(); broadcast();
   }
   function onTimerEnd() {
     playEndSound();
     // Vote timer ending must NOT drop the phase — the referee still needs to reveal
     // the tally (the Reveal button is gated on phase==="vote").
     phase = (tk === "impro") ? "between" : (tk === "vote") ? "vote" : "announce";
-    renderPresenter(); broadcast();
+    persist(); renderPresenter(); broadcast();
   }
 
   function startImpro() { var seg = curSeg(); if (!seg) return; phase = "running"; timerStart(seg.durationSec || 90, "impro"); }
@@ -207,7 +268,15 @@
     if (tk && tRemaining > 0 && tRemaining < tTotal) { timerResume(); return; }
     startImpro();
   }
-  function resetChrono() { var seg = curSeg(); phase = "announce"; timerReset(seg ? seg.durationSec : 0); }
+  function resetChrono() {
+    // « Réinitialiser » est collé sous « Pause » : un faux clic en pleine impro
+    // remettait le chrono à zéro sans recours. On confirme dès que le chrono
+    // tourne OU qu'il a déjà été entamé. Le test « tRemaining < tTotal » seul
+    // ratait le cas d'un « +30 s » (qui remonte tTotal au niveau de tRemaining).
+    if ((tRunning || (tRemaining > 0 && tRemaining < tTotal)) &&
+        !window.confirm(t("liveConfirmReset"))) return;
+    var seg = curSeg(); phase = "announce"; timerReset(seg ? seg.durationSec : 0);
+  }
 
   function gotoSeg(i) {
     if (i < 0 || i >= sess.setlist.length) return;
@@ -215,8 +284,14 @@
     var seg = curSeg(); timerReset(seg ? seg.durationSec : 0);
     persist();
   }
-  function nextSeg() { if (cursor < sess.setlist.length - 1) gotoSeg(cursor + 1); }
-  function prevSeg() { if (cursor > 0) gotoSeg(cursor - 1); }
+  // Changer d'impro tue le chrono en cours. « Réinitialiser » demande
+  // confirmation, il serait incohérent que « Suivant »/« Précédent » — juste à
+  // côté — abandonnent une impro en train d'être jouée sans rien demander.
+  function confirmLeaveRunning() {
+    return !tRunning || window.confirm(t("liveConfirmSwitchSeg"));
+  }
+  function nextSeg() { if (cursor < sess.setlist.length - 1 && confirmLeaveRunning()) gotoSeg(cursor + 1); }
+  function prevSeg() { if (cursor > 0 && confirmLeaveRunning()) gotoSeg(cursor - 1); }
   function newImpro() {
     var seg = S.gen.newSegmentFor(sess.kind, sess.level); S.gen.fillSegment(seg, sess.level);
     sess.setlist.push(seg); cursor = sess.setlist.length - 1; sess.cursor = cursor;
@@ -231,6 +306,18 @@
   }
   function togglePenalty(team, i) {
     var tm = sess.teams[team]; tm.penalties = tm.penalties || [false, false, false];
+    // La 3e faute donne un point à l'adversaire : conséquence lourde, déclenchée
+    // depuis une pastille minuscule. On confirme avant de valider.
+    var wouldComplete = !tm.penalties[i] &&
+      [0, 1, 2].every(function (k) { return k === i ? true : tm.penalties[k]; });
+    if (wouldComplete) {
+      var opp0 = sess.teams[team === 0 ? 1 : 0];
+      var msg = tf("liveConfirmThirdPenalty", {
+        team: tm.name || (team === 0 ? t("teamA") : t("teamB")),
+        opponent: opp0.name || (team === 0 ? t("teamB") : t("teamA"))
+      });
+      if (!window.confirm(msg)) return;
+    }
     tm.penalties[i] = !tm.penalties[i];
     if (tm.penalties[0] && tm.penalties[1] && tm.penalties[2]) {
       tm.penalties = [false, false, false];
@@ -562,10 +649,34 @@
     cursor = Math.min(sess.cursor || 0, Math.max(0, sess.setlist.length - 1));
     phase = "announce"; tk = null; tRunning = false; finished = false; voteResult = null;
     var seg = curSeg(); tTotal = seg ? seg.durationSec : 0; tRemaining = tTotal;
+    // Reprise après rafraîchissement / onglet tué : on restaure l'impro en cours
+    // et son chrono. tEndAt est absolu, donc un chrono qui tournait reprend à la
+    // bonne seconde (et se termine tout seul s'il a expiré entre-temps).
+    var ls = sess.liveState;
+    if (ls && typeof ls.cursor === "number") {
+      cursor = Math.min(ls.cursor, Math.max(0, sess.setlist.length - 1));
+      seg = curSeg();
+      phase = ls.phase || "announce"; tk = ls.tk || null; finished = !!ls.finished;
+      tTotal = ls.tTotal || (seg ? seg.durationSec : 0);
+      if (ls.tRunning && ls.tEndAt) {
+        tRemaining = Math.max(0, Math.round((ls.tEndAt - Date.now()) / 1000));
+        if (tRemaining > 0) { tRunning = true; tEndAt = ls.tEndAt; tInterval = setInterval(tick, 250); }
+        else { tRunning = false; phase = (tk === "impro") ? "between" : (tk === "vote") ? "vote" : "announce"; }
+      } else {
+        tRemaining = (typeof ls.tRemaining === "number") ? ls.tRemaining : tTotal;
+      }
+    }
     document.body.classList.add("suite-live-mode");
+    // L'écran ne doit pas s'éteindre pendant le match (réacquis au retour d'onglet).
+    requestWakeLock();
+    document.addEventListener("visibilitychange", onVisibilityForWakeLock);
     var c = chan();
     if (c) c.onmessage = function (ev) { if (ev.data && ev.data.type === "hello") broadcast(); };
     rtEnsurePublisher();   // start the cross-device channel (answers remote 'hello')
+    // Persister tout de suite : (a) l'état restauré/corrigé devient la référence,
+    // (b) liveState existe dès l'ouverture du direct, ce qui permet à l'éditeur
+    // de savoir qu'une partie est en cours avant même la 1re action de l'arbitre.
+    persist();
     renderPresenter(); broadcast();
   }
 
@@ -718,6 +829,9 @@
     root.querySelectorAll("[data-act]").forEach(function (btn) {
       var act = btn.getAttribute("data-act");
       btn.onclick = function () {
+        // Tout tap de l'arbitre est un geste utilisateur valide : on en profite
+        // pour débloquer l'audio (iOS) et (re)prendre le verrou d'écran.
+        unlockAudio(); requestWakeLock();
         switch (act) {
           case "back": cleanup(); navigate(editRoute()); break;
           case "finish": finish(); break;
@@ -1074,6 +1188,8 @@
     recMounted = false;          // any late getUserMedia resolve now self-releases
     stopCamera();
     var c = chan(); if (c) c.onmessage = null;
+    releaseWakeLock();
+    document.removeEventListener("visibilitychange", onVisibilityForWakeLock);
     window.removeEventListener("storage", onStorage);
     rtTeardown();
     redraw = function () {};

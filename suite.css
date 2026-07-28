@@ -1052,3 +1052,150 @@
 @media (prefers-reduced-motion: reduce) {
   .suite-launch-card, .suite-choice, .suite-btn, .suite-toast { transition: none; }
 }
+
+/* ==========================================================
+   ÉCRAN BAS / PAYSAGE MOBILE — Studio
+   ----------------------------------------------------------
+   .suite-hero / .suite-hero-logo étaient en clamp(..vw..) : en
+   paysage l'écran est LARGE, donc le logo prenait sa taille MAX
+   (240 px) alors que la hauteur dispo est MIN (390 px). Mesuré :
+   le chrome mangeait 67 % de l'écran et AUCUNE des 4 cartes de
+   section n'était visible sans scroller (0/4).
+   ========================================================== */
+@media (max-height: 560px) {
+  .suite-hero { padding-top: 0.5rem; padding-bottom: 0.2rem; }
+  .suite-hero-logo { max-width: min(170px, 26vh); }
+  .suite-shell { padding-bottom: 2.5rem; }
+  .suite-home-head { margin-bottom: 0.5rem; }
+  .suite-home-title { font-size: 1.25rem; }
+  .suite-home-sub { font-size: 0.85rem; }
+  /* 4 sections de front : tout tient dans la hauteur restante */
+  .suite-launch-grid { grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+  .suite-launch-card { padding: 0.6rem 0.5rem; gap: 0.2rem; }
+  .suite-launch-icon { font-size: 1.4rem; }
+  .suite-launch-title { font-size: 0.9rem; }
+  .suite-launch-desc { display: none; }
+}
+@media (max-height: 430px) {
+  .suite-hero { padding-top: 0.3rem; }
+  .suite-hero-logo { max-width: min(130px, 22vh); }
+  .suite-home-sub { display: none; }
+}
+
+/* La barre du haut débordait hors de l'écran entre ~641 et 768 px
+   (téléphone en paysage) : les libellés s'effacent, on garde les
+   icônes, et la barre peut défiler horizontalement en dernier recours. */
+@media (max-width: 780px) {
+  .suite-topbar { flex-wrap: wrap; row-gap: 0.35rem; max-width: 100%; }
+}
+@media (max-height: 560px) {
+  .suite-topbar { gap: 0.3rem; }
+  .suite-topbar .top-trigger span:not([aria-hidden]) { display: none; }
+  .suite-topbar .top-trigger { padding: 0.35rem 0.5rem; }
+}
+
+/* ---------- SURFACE ARBITRE EN PAYSAGE ----------
+   Le plus critique de l'app : en paysage, seuls 4 boutons sur 24
+   étaient visibles sans scroller — Caucus, Vote, le « + » de score
+   et « Impro suivante » étaient TOUS hors écran. L'arbitre devait
+   scroller en plein match pour donner un point.
+   On passe la surface en 2 colonnes : le suivi à gauche, les
+   commandes à droite, sans aucun défilement.
+   Le présentateur injecte ses blocs directement dans #suiteRoot (pas de
+   conteneur intermédiaire) ; le body porte .suite-live-mode. */
+@media (max-height: 560px) and (min-width: 700px) {
+  .suite-live-mode .suite-root {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.35rem 0.7rem;
+    align-content: start;
+    padding-bottom: 0.3rem;
+  }
+  .suite-live-mode .suite-root > * { min-width: 0; }
+  /* Placement EXPLICITE : sans lui, la grille synchronise la hauteur des
+     lignes entre les deux colonnes et gaspille la hauteur (mesuré : les
+     commandes retombaient à y=434 sur un écran de 390). */
+  .suite-live-mode .live-bar-top    { grid-area: 1 / 1 / 2 / 3; }
+  .suite-live-mode .live-seg        { grid-area: 2 / 1 / 3 / 2; }
+  .suite-live-mode .live-chrono-wrap{ grid-area: 3 / 1 / 5 / 2; }
+  .suite-live-mode .live-scores     { grid-area: 2 / 2 / 3 / 3; }
+  .suite-live-mode .live-stars-row  { grid-area: 3 / 2 / 4 / 3; }
+  .suite-live-mode .live-transport  { grid-area: 4 / 2 / 5 / 3; }
+  .suite-live-mode .live-foot       { grid-area: 5 / 1 / 6 / 3; }
+  .suite-live-mode .live-done       { grid-area: 1 / 1 / 2 / 3; }
+
+  /* Compactage : tout doit tenir dans ~390 px de haut, sans défilement */
+  .suite-live-mode .live-bar-top { margin-bottom: 0; }
+  .suite-live-mode .live-seg { padding: 0.4rem 0.6rem; }
+  .suite-live-mode .live-meta { display: none; }          /* infos secondaires */
+  .suite-live-mode .live-cat { font-size: 1rem; }
+  .suite-live-mode .live-chrono { font-size: clamp(2rem, 11vh, 3.2rem); }
+  .suite-live-mode .live-timer-btns,
+  .suite-live-mode .live-phase-btns { gap: 0.3rem; margin-top: 0.3rem; }
+  .suite-live-mode .live-foot { flex-wrap: nowrap; gap: 0.3rem; padding: 0; }
+  .suite-live-mode .live-foot .suite-btn { font-size: 0.75rem; padding: 0.4rem 0.5rem; }
+  /* Bloc des scores : c'est lui qui dictait la hauteur de la 2e ligne */
+  .suite-live-mode .live-scores { gap: 0.4rem; }
+  .suite-live-mode .live-team { padding: 0.35rem 0.5rem; }
+  .suite-live-mode .live-team-logo { width: 22px; height: 22px; }
+  .suite-live-mode .live-team-nm { font-size: 0.8rem; }
+  .suite-live-mode .live-score-val { font-size: 1.6rem; }
+  .suite-live-mode .live-stars-row,
+  .suite-live-mode .live-transport { padding: 0; }
+  /* Dernier ajustement : la coquille garde une marge basse de 5.5rem
+     (prévue pour le scroll en portrait) inutile ici. */
+  .suite-live-mode .suite-shell { padding: 0.2rem 0.6rem 0.3rem; }
+}
+
+/* Cibles tactiles : les commandes du direct descendaient à 18 px.
+   44 px est le minimum confortable (et la recommandation Apple/Google). */
+@media (pointer: coarse) {
+  .suite-live-mode .live-timer-btns button,
+  .suite-live-mode .live-phase-btns button,
+  .suite-live-mode .live-transport button,
+  .suite-live-mode .live-foot button,
+  .suite-live-mode .live-score-btn { min-height: 44px; min-width: 44px; }
+  .suite-live-mode .live-pen-dot { min-width: 28px; min-height: 28px; }
+}
+
+/* Dialogs du Studio : svh au lieu de vh (barre d'URL mobile) */
+@supports (height: 100svh) {
+  .suite-dialog { max-height: min(92svh, 100% - 2rem); }
+}
+
+/* ==========================================================
+   ÉCRAN PUBLIC SUR ÉCRAN BAS (téléphone/tablette en paysage)
+   ----------------------------------------------------------
+   Tout le tableau public est dimensionné en vw : sur un écran
+   large mais bas, le chrono réclamait 9vw (76 px sur un 844×390)
+   et le titre 7vw, ce qui faisait déborder et se chevaucher le
+   contenu d'un board haut de 100svh.
+   On ne touche QUE les écrans bas : sur un vidéoprojecteur
+   1920×1080, ces mêmes valeurs retombent déjà sur le maximum du
+   clamp, donc le rendu TV reste rigoureusement identique.
+   ========================================================== */
+@media (max-height: 560px) {
+  .disp-board { gap: 0; }
+  .disp-team { padding: 0.4rem 0.6rem; gap: 0.2rem; }
+  .disp-logo { width: clamp(32px, 11vh, 64px); height: clamp(32px, 11vh, 64px); border-radius: 10px; }
+  .disp-team-nm { font-size: clamp(0.9rem, 5vh, 1.6rem); }
+  .disp-score { font-size: clamp(1.8rem, 16vh, 4rem); }
+  .disp-pen-dot { width: clamp(0.5rem, 1.8vh, 0.8rem); height: clamp(0.5rem, 1.8vh, 0.8rem); }
+  .disp-center { gap: 0.15rem; }
+  .disp-clock { font-size: clamp(1.6rem, 11vh, 3.4rem); }
+  .disp-cat { font-size: clamp(1.2rem, 8vh, 2.6rem); }
+  .disp-theme { font-size: clamp(0.8rem, 4vh, 1.3rem); }
+  .disp-players, .disp-nature { font-size: clamp(0.65rem, 2.6vh, 0.95rem); }
+  /* Écrans pleine page (annonce, caucus, vote, fin) */
+  .disp-overlay-label { font-size: clamp(1.2rem, 9vh, 3rem); }
+  .disp-clock-big { font-size: clamp(2.4rem, 26vh, 6rem); }
+  .disp-final { font-size: clamp(2.2rem, 22vh, 5rem); }
+  .disp-winner { font-size: clamp(1rem, 6vh, 2rem); }
+  .disp-vote-main { font-size: clamp(1.2rem, 10vh, 3rem); }
+  .disp-vote-hint { margin-top: 0.4rem; font-size: clamp(0.75rem, 3vh, 1.1rem); }
+  /* Cérémonie des étoiles */
+  .disp-stars-list { gap: clamp(0.3rem, 2vh, 0.8rem); margin-top: clamp(0.4rem, 2vh, 1rem); }
+  .disp-star-medal { font-size: clamp(1.2rem, 8vh, 2.4rem); }
+  .disp-star-name { font-size: clamp(1rem, 6vh, 2rem); }
+  .disp-star-label { font-size: clamp(0.6rem, 2.4vh, 0.9rem); }
+}

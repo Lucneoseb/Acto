@@ -4506,3 +4506,55 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   border-color: rgba(255, 100, 110, 0.6);
   outline: none;
 }
+
+/* ==========================================================
+   ÉCRAN BAS / PAYSAGE MOBILE
+   ----------------------------------------------------------
+   Tout le dimensionnement ci-dessus est piloté par la LARGEUR
+   (vw, max-width). Un téléphone tenu à l'horizontale est large
+   mais très bas : il héritait donc du plus GROS hero au moment
+   où la hauteur est la plus rare (mesuré : hero = 397 px sur un
+   écran de 390 px, soit 102 % — le bouton « Générer » se
+   retrouvait à 1076 px, ~3 écrans plus bas).
+   On repasse ici sur la HAUTEUR, qui est la vraie contrainte.
+   ========================================================== */
+@media (max-height: 560px) {
+  .hero { padding: 0.5rem 1rem 0.25rem; }
+  .hero-logo-link { margin-bottom: -0.15rem; }
+  .hero-logo { max-width: min(220px, 30vh); animation: none; }
+  .hero-mask { font-size: 2rem; margin-bottom: 0.3rem; animation: none; }
+  /* Le sous-titre décoratif n'a pas sa place quand la hauteur manque */
+  .hero .subtitle, .hero-sub { font-size: 0.85rem; }
+}
+@media (max-height: 430px) {
+  .hero { padding: 0.35rem 1rem 0.2rem; }
+  .hero-logo { max-width: min(160px, 26vh); }
+  .hero-mask { font-size: 1.5rem; }
+  .hero .subtitle, .hero-sub { display: none; }
+}
+
+/* La carte de connexion dépassait l'écran en paysage : « Se connecter »
+   était coupé et le bouton Google hors champ. On la rend scrollable et
+   on resserre les espacements plutôt que de la laisser déborder. */
+@media (max-height: 560px) {
+  .auth-screen { min-height: auto; padding-top: 0.5rem; padding-bottom: 1rem; }
+  .auth-card { gap: 0.6rem; padding: 1rem 1.1rem; }
+  .auth-title { font-size: 1.15rem; }
+  .auth-oauth { gap: 0.45rem; }
+}
+
+/* iOS zoome automatiquement dès qu'un champ fait moins de 16 px.
+   On garantit 16 px au focus sur tous les contrôles de saisie. */
+@media (max-width: 900px) {
+  input[type="text"], input[type="email"], input[type="password"],
+  input[type="number"], input[type="search"], input[type="date"],
+  input[type="tel"], input[type="url"], select, textarea {
+    font-size: max(16px, 1rem);
+  }
+}
+
+/* Les dialogs étaient dimensionnées en vh : la barre d'URL mobile les
+   coupait en haut ET en bas. svh = hauteur réellement visible. */
+@supports (height: 100svh) {
+  dialog { max-height: min(92svh, 100% - 2rem); }
+}

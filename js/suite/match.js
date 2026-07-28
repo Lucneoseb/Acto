@@ -96,6 +96,15 @@
     if (sub === "prepare") { prep.title = ""; prep.matchDate = ""; renderPrep(); }
     else if (sub === "list") renderList();
     else if (sub === "edit") {
+      // `current` ne vit qu'en mémoire : après un rechargement en plein match,
+      // le « Retour » du présentateur éjectait l'arbitre vers le formulaire de
+      // préparation, sans aucun chemin de retour vers sa partie. On récupère
+      // donc le déroulé depuis la partie en cours (copie enregistrée si elle
+      // existe, sinon la copie live).
+      if (!current || current.kind !== kind) {
+        var running = S.live.load();
+        if (running && running.kind === kind) current = S.sessions.get(running.id) || running;
+      }
       if (!current || current.kind !== kind) { navigate(homeRoute() + "/prepare"); return; }
       // Re-subscribe if this is a shared resource (e.g. after a locale-change re-render
       // tore the channel down) so the owner doesn't silently leave the collab session.
@@ -592,12 +601,7 @@
         openCollabDialog();
         break;
       case "launch":
-        current.cursor = 0;
-        // Fresh per-run id so replaying a saved match counts as a distinct
-        // match in stats (the dedup key is per match_uid + referee).
-        current.runId = S.gen.uid();
-        S.live.save(current);
-        navigate(homeRoute() + "/live");
+        launchOrResume();
         break;
       case "edit-teams":
         openTeamsEditor(current.teams, function (teams) {
@@ -654,6 +658,90 @@
   /* ============================================================
      SAVE + LIST
      ============================================================ */
+  /* ---- Lancer / reprendre une partie ------------------------------------
+     Un arbitre revient souvent sur le déroulé EN PLEIN MATCH. Relancer
+     écrasait la partie : scores à zéro et NOUVEAU code de partage — or le
+     canal temps réel dérive du joinCode, donc l'écran public et tous les
+     téléphones des votants se retrouvaient orphelins, sans message.
+     Un simple confirm() ne suffisait pas : Annuler, Échap ET la case
+     « empêcher cette page de créer des dialogues » de Chrome renvoient tous
+     false, ce qui déclenchait justement la destruction. Les trois issues sont
+     donc explicites, et Échap = Annuler (jamais destructeur). */
+  function launchOrResume() {
+    var running = S.live.load();
+    var live = (running && running.id === current.id) ? running : null;
+    // Une partie d'une AUTRE session est en cours : la lancer ici la remplace
+    // définitivement (un seul run live à la fois). On prévient au lieu de
+    // l'effacer en silence.
+    if (running && !live && (running.joinCode || running.liveState)) {
+      if (!window.confirm(tf("liveOtherRunning", { title: running.title || t(K.titleKey) }))) return;
+    }
+    // « Partie en cours » = tout signe de vie, pas seulement des points marqués.
+    // joinCode est le critère décisif : dès qu'il existe, du public peut être
+    // branché dessus. Indispensable pour Spectacle/Entraînement où il n'y a
+    // jamais de score, et pour la 1re impro d'un match encore à 0-0.
+    var hasProgress = !!live && (
+      !!live.joinCode || !!live.liveState || (live.cursor || 0) > 0 ||
+      (live.teams || []).some(function (tm) {
+        return tm && ((tm.score || 0) > 0 || (tm.penalties || []).some(Boolean));
+      }) ||
+      !!(live.stars && (live.stars.or || live.stars.argent || live.stars.bronze))
+    );
+    // Une partie oubliée depuis des heures n'est plus « en cours ». En cas de
+    // doute (pas d'horodatage), on demande plutôt que de détruire.
+    var at = live && live.liveState && live.liveState.at;
+    var fresh = !at || (Date.now() - at) < 12 * 3600 * 1000;
+    if (!hasProgress || !fresh) { startFreshRun(); return; }
+    askResume().then(function (r) {
+      if (r === "resume") navigate(homeRoute() + "/live");
+      else if (r === "restart") startFreshRun();
+      // null → Annuler / Échap : on ne touche à RIEN
+    });
+  }
+  function startFreshRun() {
+    current.cursor = 0;
+    // Fresh per-run id so replaying a saved match counts as a distinct
+    // match in stats (the dedup key is per match_uid + referee).
+    current.runId = S.gen.uid();
+    delete current.liveState;      // nouvelle partie : aucun chrono hérité
+    delete current.joinCode;       // nouveau code de partage, assumé
+    (current.teams || []).forEach(function (tm) {
+      if (tm) { tm.score = 0; tm.penalties = [false, false, false]; }
+    });
+    if (current.stars) current.stars = { or: null, argent: null, bronze: null };
+    S.live.save(current);
+    navigate(homeRoute() + "/live");
+  }
+  function askResume() {
+    return new Promise(function (resolve) {
+      var dlg = document.createElement("dialog");
+      dlg.className = "suite-dialog";
+      dlg.innerHTML =
+        '<div class="suite-dialog-body">' +
+          '<h2 class="suite-dialog-title">' + esc(t("liveResumeTitle")) + '</h2>' +
+          '<p class="suite-info-text">' + esc(t("liveResumeRun")) + '</p>' +
+          '<div class="suite-dialog-actions">' +
+            '<button type="button" data-r="cancel" class="suite-btn suite-btn-ghost">' + esc(t("saveCancel")) + '</button>' +
+            '<button type="button" data-r="restart" class="suite-btn suite-btn-ghost">' + esc(t("liveRestartBtn")) + '</button>' +
+            '<button type="button" data-r="resume" class="suite-btn suite-btn-primary">' + esc(t("liveResumeBtn")) + '</button>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(dlg);
+      var settled = false;
+      function done(v) {
+        if (settled) return; settled = true;
+        try { if (dlg.open) dlg.close(); } catch (e) { /* ignore */ }
+        dlg.remove(); resolve(v);
+      }
+      dlg.querySelector('[data-r="resume"]').onclick = function () { done("resume"); };
+      dlg.querySelector('[data-r="restart"]').onclick = function () { done("restart"); };
+      dlg.querySelector('[data-r="cancel"]').onclick = function () { done(null); };
+      dlg.addEventListener("cancel", function (e) { e.preventDefault(); done(null); });   // Échap
+      if (typeof dlg.showModal === "function") { try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } }
+      else dlg.setAttribute("open", "");
+    });
+  }
+
   function openSaveDialog() {
     // Already named (in the prep form)? Save straight away. Otherwise ask.
     if (current.title && current.title.trim()) {

@@ -8,8 +8,8 @@
 <title>Acto — Vote du public</title>
 <link rel="icon" type="image/png" href="./assets/logo.png?v=20260716" />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=20260716" />
-<link rel="stylesheet" href="suite.css?v=20260716" />
+<link rel="stylesheet" href="styles.css?v=2026072608" />
+<link rel="stylesheet" href="suite.css?v=2026072608" />
 <style>
   .suite-vote-body { min-height: 100svh; }
   .vote-wrap { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.1rem; padding: 1.6rem 1.1rem; text-align: center; }
@@ -27,6 +27,7 @@
   .vote-team-dot { width: 56px; height: 56px; border-radius: 50%; background: var(--team, #888); }
   .vote-team-nm { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
   .vote-thanks { color: var(--gold-soft); font-weight: 700; }
+  .vote-error { color: #ef6b6b; font-weight: 700; margin: 0; max-width: 26rem; }
   .vote-result-label { font: 700 0.9rem/1 "Inter"; letter-spacing: .12em; color: var(--gold-soft); text-transform: uppercase; }
   .vote-result-main { font-family: "Bebas Neue", sans-serif; font-size: clamp(1.6rem,7vw,2.6rem); color: var(--gold); letter-spacing: .02em; line-height: 1.05; max-width: 32rem; }
   .vote-result-score { font-family: "Bebas Neue", monospace; font-size: 2.2rem; color: var(--ink); font-variant-numeric: tabular-nums; }
@@ -49,10 +50,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
           integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
           crossorigin="anonymous"></script>
-  <script src="./js/config.js?v=20260716"></script>
-  <script src="./data/all.js?v=20260716"></script>
-  <script src="./js/suite/i18n.js?v=20260716"></script>
-  <script src="./js/suite/core.js?v=20260716"></script>
+  <script src="./js/config.js?v=2026072608"></script>
+  <script src="./data/all.js?v=2026072608"></script>
+  <script src="./js/suite/i18n.js?v=2026072608"></script>
+  <script src="./js/suite/core.js?v=2026072608"></script>
   <script>
   (function () {
     "use strict";
@@ -83,6 +84,7 @@
     var myChoice = { round: -1, choice: null };   // remembered impro vote for the current round
     var myStar = null;          // remembered star pick (player name)
     var clockTimer = null;
+    var waitedTooLong = false;   // aucun snapshot reçu au bout d'un délai → code probablement erroné
 
     /* ---------- snapshot inflow (same channels as the public display) ---------- */
     var SNAP_KEY = "acto-live:snap:v1", CHANNEL = "acto-live";
@@ -99,16 +101,48 @@
     }
 
     /* ---------- voting actions ---------- */
+    // Le vote partait en « fire and forget » : on affichait « Merci, vote
+    // enregistré ! » même quand l'appel échouait (hors ligne, mauvais code,
+    // réseau de salle saturé). On attend donc la réponse avant de remercier,
+    // et on le dit franchement en cas d'échec.
+    // « idle » → rien envoyé · « sending » → en vol · « ok » → confirmé par le
+    // serveur · « error » → refusé, hors ligne, ou resté sans réponse.
+    // Le délai est indispensable : sur un réseau de salle saturé la requête ne
+    // rejette jamais, elle PEND — et on remerciait alors pour un vote fantôme.
+    var voteState = "idle";
+    function sendVote(promise, onFail) {
+      voteState = "sending"; render();
+      var done = false;
+      var to = setTimeout(function () {
+        if (done) return; done = true;
+        voteState = "error"; onFail(); render();
+      }, 8000);
+      Promise.resolve(promise).then(function (res) {
+        if (done) return; done = true; clearTimeout(to);
+        if (res && res.error) { voteState = "error"; onFail(); } else { voteState = "ok"; }
+        render();
+      }, function () {
+        if (done) return; done = true; clearTimeout(to);
+        voteState = "error"; onFail(); render();
+      });
+    }
     function castImpro(choice) {
+      var prev = myChoice;
       myChoice = { round: snap ? snap.segIndex : -1, choice: choice };
-      render();
-      if (sb && CODE && snap) {
-        try { sb.rpc("cast_live_vote", { p_code: CODE, p_round: snap.segIndex, p_voter: VOTER, p_choice: choice }); } catch (e) {}
-      }
+      if (!sb || !CODE || !snap) { voteState = "error"; myChoice = prev; render(); return; }
+      try {
+        sendVote(sb.rpc("cast_live_vote", { p_code: CODE, p_round: snap.segIndex, p_voter: VOTER, p_choice: choice }),
+                 function () { myChoice = prev; });
+      } catch (e) { voteState = "error"; myChoice = prev; render(); }
     }
     function castStar(player) {
-      myStar = player; render();
-      if (sb && CODE) { try { sb.rpc("cast_star_vote", { p_code: CODE, p_voter: VOTER, p_player: player }); } catch (e) {} }
+      var prev = myStar;
+      myStar = player;
+      if (!sb || !CODE) { voteState = "error"; myStar = prev; render(); return; }
+      try {
+        sendVote(sb.rpc("cast_star_vote", { p_code: CODE, p_voter: VOTER, p_player: player }),
+                 function () { myStar = prev; });
+      } catch (e) { voteState = "error"; myStar = prev; render(); }
     }
 
     /* ---------- render ---------- */
@@ -134,7 +168,9 @@
     function render() {
       if (clockTimer) { clearInterval(clockTimer); clockTimer = null; }
       if (!CODE) { return renderCodeEntry(); }
-      if (!snap) { return wait(t("voteWaiting")); }
+      // Un code erroné (ou un match pas encore lancé) laissait le spectateur sur
+      // un spinner éternel, sans un mot. Au bout d'un moment on l'aide.
+      if (!snap) { return waitedTooLong ? renderNotFound() : wait(t("voteWaiting")); }
 
       var vr = snap.voteResult;
       // 1) Result revealed for the current impro → show it (only during the vote phase,
@@ -161,13 +197,42 @@
           '<div id="voteClock" class="vote-clock">' + esc(fmtSec(remaining())) + '</div>' +
           '<h1 class="vote-title">' + esc(t("votePrompt")) + '</h1>' +
           '<div class="vote-teams">' + teamBtn(0) + teamBtn(1) + '</div>' +
-          (thanks ? '<p class="vote-thanks">' + esc(t("voteThanks")) + ' ' + esc(t("voteChangeHint")) + '</p>' : '<p class="vote-sub">' + esc(t("voteTapTeam")) + '</p>');
+          (voteState === "sending" ? '<p class="vote-sub">' + esc(t("voteSending")) + '</p>'
+            : voteState === "error" ? '<p class="vote-error">' + esc(t("voteFailed")) + '</p>'
+            : (thanks && voteState === "ok") ? '<p class="vote-thanks">' + esc(t("voteThanks")) + ' ' + esc(t("voteChangeHint")) + '</p>'
+            : '<p class="vote-sub">' + esc(t("voteTapTeam")) + '</p>');
         root.querySelectorAll(".vote-team").forEach(function (b) { b.onclick = function () { castImpro(+b.getAttribute("data-choice")); }; });
         clockTimer = setInterval(tickClock, 250);
         return;
       }
-      // 4) Otherwise → waiting between impros.
+      // 4) Match terminé : les téléphones du public restaient bloqués sur
+      //    « en attente de la prochaine impro » indéfiniment. On clôt proprement.
+      if (snap.phase === "done") { return renderEnded(); }
+      // 5) Otherwise → waiting between impros.
       wait(t("voteWaiting"));
+    }
+
+    function renderEnded() {
+      var a = (snap.teams && snap.teams[0] && snap.teams[0].score) || 0;
+      var b = (snap.teams && snap.teams[1] && snap.teams[1].score) || 0;
+      var win = a > b ? 0 : (b > a ? 1 : -1);
+      root.innerHTML =
+        '<h1 class="vote-title">🎭 ' + esc(t("voteEndedTitle")) + '</h1>' +
+        (snap.showScores !== false
+          ? '<div class="vote-result-main"' + (win >= 0 ? ' style="color:' + esc(teamColor(win)) + '"' : '') + '>' +
+              esc(win < 0 ? tf("voteTie", { a: a, b: b }) : teamName(win)) + '</div>' +
+            '<div class="vote-result-score">' + a + ' — ' + b + '</div>'
+          : '') +
+        '<p class="vote-sub">' + esc(t("voteEndedSub")) + '</p>';
+    }
+
+    function renderNotFound() {
+      root.innerHTML =
+        '<h1 class="vote-title">🤔 ' + esc(t("voteNotFoundTitle")) + '</h1>' +
+        '<p class="vote-sub">' + esc(t("voteNotFoundSub")) + '</p>' +
+        '<p class="vote-sub" style="opacity:.6">' + esc(t("voteCodeLabel")) + ' ' + esc(CODE) + '</p>' +
+        '<button id="vAgain" class="suite-btn suite-btn-primary">' + esc(t("voteChangeCode")) + '</button>';
+      document.getElementById("vAgain").onclick = function () { location.search = ""; };
     }
 
     function renderStars() {
@@ -179,7 +244,9 @@
       }).join("");
       root.innerHTML =
         '<h1 class="vote-title">⭐ ' + esc(t("voteStarTitle")) + '</h1>' +
-        '<p class="vote-sub">' + esc(chosen ? (t("voteThanks") + " " + t("voteChangeHint")) : t("voteStarPrompt")) + '</p>' +
+        (voteState === "sending" ? '<p class="vote-sub">' + esc(t("voteSending")) + '</p>'
+          : voteState === "error" ? '<p class="vote-error">' + esc(t("voteFailed")) + '</p>'
+          : '<p class="vote-sub">' + esc((chosen && voteState === "ok") ? (t("voteThanks") + " " + t("voteChangeHint")) : t("voteStarPrompt")) + '</p>') +
         '<div class="vote-stars">' + rows + '</div>';
       root.querySelectorAll(".vote-star").forEach(function (b) { b.onclick = function () { castStar(b.getAttribute("data-nm")); }; });
     }
@@ -208,6 +275,9 @@
     }
 
     if (!S) { root.textContent = "⚠"; return; }
+    // Si rien n'arrive au bout de 12 s, c'est presque toujours un code erroné
+    // ou un match pas encore lancé : on le dit et on propose de ressaisir.
+    if (CODE) setTimeout(function () { if (!snap) { waitedTooLong = true; render(); } }, 12000);
     render();
   })();
   </script>
