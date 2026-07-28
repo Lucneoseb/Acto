@@ -64,6 +64,27 @@
     for (var i = 0; i < 6; i++) s += A.charAt(Math.floor(Math.random() * A.length));
     return s;
   }
+  /* ---- Registre serveur du match en direct ----------------------------------
+     Le code de partage ne vivait QUE dans le localStorage de l'arbitre : le
+     serveur ne savait pas qu'un match existait, et acceptait donc des votes pour
+     n'importe quel code inventé. On déclare le code à l'entrée en direct, puis on
+     rafraîchit périodiquement (battement de cœur) tant que le match dure.
+     Silencieux par conception : hors ligne, le direct doit continuer de tourner. */
+  var _runReg = { code: null, at: 0 };
+  function registerRun() {
+    var sb = rtClient();
+    var code = sess && sess.joinCode;
+    if (!sb || !code) return;
+    // au plus une fois toutes les 5 min pour le même code
+    if (_runReg.code === code && (Date.now() - _runReg.at) < 300000) return;
+    _runReg = { code: code, at: Date.now() };
+    try {
+      Promise.resolve(sb.rpc("register_live_run", { p_code: code })).then(function (r) {
+        if (r && r.error) { _runReg.at = 0; console.warn("[live] register_live_run", r.error.message || r.error); }
+      }, function () { _runReg.at = 0; });   // réessaiera au prochain battement
+    } catch (e) { _runReg.at = 0; }
+  }
+
   function rtEnsurePublisher() {
     if (_rt) return _rt;
     var sb = rtClient(), name = rtChannelName(); if (!sb || !name) return null;
@@ -633,6 +654,7 @@
   // every per-second tick — only on real state changes (start/pause/score/
   // phase/segment/stars/finish), which all route through here.
   function broadcast() {
+    registerRun();   // battement de cœur du registre (auto-limité à 1×/5 min)
     if (!sess) return;
     var snap = broadcastLocal();
     rtSend(snap);
@@ -673,6 +695,7 @@
     var c = chan();
     if (c) c.onmessage = function (ev) { if (ev.data && ev.data.type === "hello") broadcast(); };
     rtEnsurePublisher();   // start the cross-device channel (answers remote 'hello')
+    registerRun();         // déclare le code côté serveur : sans ça les votes sont refusés
     // Persister tout de suite : (a) l'état restauré/corrigé devient la référence,
     // (b) liveState existe dès l'ouverture du direct, ce qui permet à l'éditeur
     // de savoir qu'une partie est en cours avant même la 1re action de l'arbitre.

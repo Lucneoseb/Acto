@@ -107,7 +107,11 @@
 
     try {
       var CFG = window.actoConfig.supabase;
-      window.actoSuiteSb = window.supabase.createClient(CFG.url, CFG.key, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
+      // persistSession:true est REQUIS ici : sans la session du destinataire,
+      // auth.uid() est nul et mark_challenge_opened ne peut pas rattacher le
+      // défi à son compte — « Défis reçus » resterait vide. Lecture seule :
+      // on ne fait que relire la session déjà posée par le Studio.
+      window.actoSuiteSb = window.supabase.createClient(CFG.url, CFG.key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } });
     } catch (e) { /* ignore */ }
     var sb = window.actoSuiteSb;
 
