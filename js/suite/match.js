@@ -754,26 +754,44 @@
 
      Best-effort et jamais bloquant : hors ligne, ou tant que la migration C6
      n'est pas passée, la sauvegarde locale reste la référence. */
+  // Une session VALIDE et rien d'autre ne doit jamais partir vers le serveur ni
+  // devenir une session locale. Sans ce contrôle, une réponse mal déballée
+  // (ex. un TABLEAU de lignes) écrasait le miroir par une structure imbriquée,
+  // rendant le match irrécupérable.
+  function isSession(d) {
+    return !!d && typeof d === "object" && !Array.isArray(d) &&
+           typeof d.kind === "string" && Array.isArray(d.setlist);
+  }
+  var cloudCreating = {};   // verrou par session : évite 2 lignes serveur sur double tap
+
   function cloudMirror(session) {
     var sb = sbClient();
-    if (!sb || !session) return;
+    if (!sb || !isSession(session)) return;
     var payload = collabClean(session);
+    if (!isSession(payload)) return;          // ceinture + bretelles
     var title = session.title || "";
     try {
       if (session.cloudId) {
         Promise.resolve(sb.rpc("save_shared_resource", { p_id: session.cloudId, p_title: title, p_data: payload }))
-          .then(function (r) { if (r && r.error) console.warn("[cloud] save", r.error.message || r.error); },
-                function () { /* hors ligne : le local fait foi */ });
+          .then(function (r) {
+            if (r && r.error) { console.warn("[cloud] save", r.error.message || r.error); return; }
+            // Mémoriser la fraîcheur serveur : c'est ce qui permet de repérer
+            // qu'un AUTRE appareil a modifié la session depuis.
+            if (r && r.data) { session.cloudUpdatedAt = r.data; S.sessions.save(session); }
+          }, function () { /* hors ligne : le local fait foi */ });
       } else {
+        if (cloudCreating[session.id]) return;   // création déjà en vol
+        cloudCreating[session.id] = true;
         Promise.resolve(sb.rpc("share_resource_create", { p_type: resourceType(), p_title: title, p_data: payload }))
           .then(function (r) {
+            delete cloudCreating[session.id];
             if (r && r.error) { console.warn("[cloud] create", r.error.message || r.error); return; }
             if (!r || !r.data) return;
             session.cloudId = r.data;
             S.sessions.save(session);      // retenir l'id du miroir
-          }, function () { /* hors ligne */ });
+          }, function () { delete cloudCreating[session.id]; });
       }
-    } catch (e) { /* jamais bloquant */ }
+    } catch (e) { delete cloudCreating[session.id]; }
   }
   // Sauvegarde unique : local (référence) + miroir de compte (best-effort).
   function persistSession(session) {
@@ -834,17 +852,28 @@
      déjà présente localement n'est pas dupliquée ici. */
   function renderMyCloud() {
     var wrap = root.querySelector("#cloudWrap"); if (!wrap || !sbClient()) return;
+    // On retient la FRAICHEUR connue localement, pas un simple booleen : masquer
+    // toute ligne deja liee rendait un appareil perime aveugle a la version
+    // serveur plus recente, et son prochain enregistrement ecrasait le travail
+    // fait ailleurs, sans le moindre avertissement.
     var locaux = {};
     S.sessions.list().forEach(function (e) {
-      var full = S.sessions.get(e.id);
-      if (full && full.cloudId) locaux[full.cloudId] = true;
+      var full = null;
+      try { full = S.sessions.get(e.id); } catch (err) {}
+      if (full && full.cloudId) {
+        locaux[full.cloudId] = full.cloudUpdatedAt ? Date.parse(full.cloudUpdatedAt) : 0;
+      }
     });
     Promise.resolve(sbClient().rpc("list_my_resources")).then(function (r) {
       // migration C6 pas encore passée → r.error : on n'affiche simplement rien
       if (!wrap.isConnected || !r || r.error) return;
       var rows = (r.data || []).filter(function (x) {
-        return (x.kind || x.resource_type) === kind && !locaux[x.id];
-      });
+        if ((x.kind || x.resource_type) !== kind) return false;
+        if (!(x.id in locaux)) return true;                 // absente de cet appareil
+        // presente : on ne la propose que si le serveur est PLUS RECENT
+        var srv = x.updated_at ? Date.parse(x.updated_at) : 0;
+        return srv > (locaux[x.id] || 0) + 1000;            // 1 s de tolerance d'horloge
+      }).map(function (x) { x.__maj = (x.id in locaux); return x; });
       if (!rows.length) return;
       wrap.innerHTML = '<h2 class="suite-shared-h">☁️ ' + esc(t("cloudMine")) + '</h2>' +
         '<div class="suite-list">' + rows.map(function (x) {
@@ -854,16 +883,27 @@
             '<span class="suite-list-meta">' + esc(tf("listUpdated", { date: maj })) +
               ' · ' + esc(tf("listMetaCount", { n: x.nb_impros || 0 })) + '</span></div>' +
             '<div class="suite-list-actions"><button class="suite-btn suite-btn-mini" data-act="pull">' +
-              esc(t("cloudRestore")) + '</button></div></div>';
+              esc(x.__maj ? t("cloudUpdate") : t("cloudRestore")) + '</button></div></div>';
         }).join("") + '</div>';
       [].forEach.call(wrap.querySelectorAll(".suite-cloud-item"), function (row) {
         row.querySelector('[data-act="pull"]').onclick = function () {
           var id = row.getAttribute("data-cid");
           Promise.resolve(sbClient().rpc("get_shared_resource", { p_id: id })).then(function (g) {
             if (!g || g.error || !g.data) { toast(t("collabError")); return; }
-            var d = g.data.data || g.data;               // { data: {...} } ou l'objet direct
-            if (!d || typeof d !== "object") { toast(t("collabError")); return; }
+            // get_shared_resource est déclarée `returns table(...)` : supabase-js
+            // rend donc un TABLEAU de lignes. Le déballage naïf gardait ce tableau
+            // (typeof [] === "object" ne l'attrape pas), l'éditeur s'ouvrait VIDE,
+            // et la sauvegarde suivante écrasait le miroir — seule copie restante —
+            // par une structure imbriquée. mountCollab faisait déjà r.data[0].data.
+            var row = Array.isArray(g.data) ? g.data[0] : g.data;
+            var d = row && row.data;
+            if (!isSession(d)) { toast(t("collabError")); return; }
+            // Ne jamais remplacer une session locale du même id sans le demander.
+            var deja = null;
+            try { deja = S.sessions.get(d.id); } catch (e) {}
+            if (deja && !window.confirm(t("cloudOverwriteLocal"))) return;
             d.cloudId = id;                              // rattacher au miroir existant
+            d.cloudUpdatedAt = row.updated_at || null;   // repère de fraîcheur
             S.sessions.save(d);                          // local uniquement : pas de ré-écriture serveur
             current = d; navigate(homeRoute() + "/edit");
           }, function () { toast(t("collabError")); });

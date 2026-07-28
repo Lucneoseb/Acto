@@ -361,7 +361,11 @@ window.IMPRO_BUNDLE = {
       "warmupsSubmitOk": "✓ Proposition envoyée à l'admin pour validation.",
       "warmupsSubmitErrRequired": "Le nom et la description sont obligatoires.",
       "warmupsSubmitErrPrefix": "Échec de l'envoi",
-      "warmupsSubmitNeedsAuth": "Connecte-toi sur l'app pour proposer un exercice : "
+      "warmupsSubmitNeedsAuth": "Connecte-toi sur l'app pour proposer un exercice : ",
+      "authTagline": "Tire des thèmes, chronomètre tes impros, arbitre tes matchs.",
+      "authTryTitle": "Découvrir sans compte",
+      "authTryWarmup": "🔥 Un échauffement au hasard",
+      "authTryInspire": "🎭 Des vidéos d’impro"
     },
     "it": {
       "title": "Impro",
@@ -691,7 +695,11 @@ window.IMPRO_BUNDLE = {
       "warmupsSubmitOk": "✓ Proposta inviata all'admin per la validazione.",
       "warmupsSubmitErrRequired": "Il nome e la descrizione sono obbligatori.",
       "warmupsSubmitErrPrefix": "Invio non riuscito",
-      "warmupsSubmitNeedsAuth": "Accedi all'app per proporre un esercizio: "
+      "warmupsSubmitNeedsAuth": "Accedi all'app per proporre un esercizio: ",
+      "authTagline": "Sorteggia temi, cronometra le tue impro, arbitra i tuoi match.",
+      "authTryTitle": "Scoprire senza account",
+      "authTryWarmup": "🔥 Un riscaldamento a caso",
+      "authTryInspire": "🎭 Video di impro"
     },
     "en": {
       "title": "Impro",
@@ -1023,7 +1031,11 @@ window.IMPRO_BUNDLE = {
       "warmupsSubmitOk": "✓ Suggestion sent to the admin for review.",
       "warmupsSubmitErrRequired": "Name and description are required.",
       "warmupsSubmitErrPrefix": "Submission failed",
-      "warmupsSubmitNeedsAuth": "Sign in to the app to suggest an exercise: "
+      "warmupsSubmitNeedsAuth": "Sign in to the app to suggest an exercise: ",
+      "authTagline": "Draw themes, time your scenes, referee your matches.",
+      "authTryTitle": "Explore without an account",
+      "authTryWarmup": "🔥 A random warm-up",
+      "authTryInspire": "🎭 Improv videos"
     },
     "de": {
       "title": "Impro",
@@ -1353,7 +1365,11 @@ window.IMPRO_BUNDLE = {
       "warmupsSubmitOk": "✓ Vorschlag an den Admin zur Prüfung gesendet.",
       "warmupsSubmitErrRequired": "Name und Beschreibung sind erforderlich.",
       "warmupsSubmitErrPrefix": "Senden fehlgeschlagen",
-      "warmupsSubmitNeedsAuth": "Melde dich in der App an, um eine Übung vorzuschlagen: "
+      "warmupsSubmitNeedsAuth": "Melde dich in der App an, um eine Übung vorzuschlagen: ",
+      "authTagline": "Themen ziehen, Szenen stoppen, Matches leiten.",
+      "authTryTitle": "Ohne Konto entdecken",
+      "authTryWarmup": "🔥 Ein zufälliges Warm-up",
+      "authTryInspire": "🎭 Impro-Videos"
     },
     "es": {
       "title": "Impro",
@@ -1683,7 +1699,11 @@ window.IMPRO_BUNDLE = {
       "warmupsSubmitOk": "✓ Propuesta enviada al admin para validación.",
       "warmupsSubmitErrRequired": "El nombre y la descripción son obligatorios.",
       "warmupsSubmitErrPrefix": "Fallo en el envío",
-      "warmupsSubmitNeedsAuth": "Inicia sesión en la app para proponer un ejercicio: "
+      "warmupsSubmitNeedsAuth": "Inicia sesión en la app para proponer un ejercicio: ",
+      "authTagline": "Sortea temas, cronometra tus impros, arbitra tus matches.",
+      "authTryTitle": "Descubrir sin cuenta",
+      "authTryWarmup": "🔥 Un calentamiento al azar",
+      "authTryInspire": "🎭 Vídeos de impro"
     },
     "pt": {
       "title": "Impro",
@@ -2013,7 +2033,11 @@ window.IMPRO_BUNDLE = {
       "warmupsSubmitOk": "✓ Proposta enviada ao admin para validação.",
       "warmupsSubmitErrRequired": "O nome e a descrição são obrigatórios.",
       "warmupsSubmitErrPrefix": "Falha no envio",
-      "warmupsSubmitNeedsAuth": "Inicia sessão na app para propor um exercício: "
+      "warmupsSubmitNeedsAuth": "Inicia sessão na app para propor um exercício: ",
+      "authTagline": "Sorteia temas, cronometra as tuas impros, arbitra os teus combates.",
+      "authTryTitle": "Descobrir sem conta",
+      "authTryWarmup": "🔥 Um aquecimento à sorte",
+      "authTryInspire": "🎭 Vídeos de impro"
     },
     "nl": {
       "title": "Impro",
@@ -2343,7 +2367,11 @@ window.IMPRO_BUNDLE = {
       "warmupsSubmitOk": "✓ Voorstel naar de admin gestuurd ter validatie.",
       "warmupsSubmitErrRequired": "Naam en beschrijving zijn verplicht.",
       "warmupsSubmitErrPrefix": "Verzenden mislukt",
-      "warmupsSubmitNeedsAuth": "Meld je aan in de app om een oefening voor te stellen: "
+      "warmupsSubmitNeedsAuth": "Meld je aan in de app om een oefening voor te stellen: ",
+      "authTagline": "Trek themas, klok je impro’s, leid je matches.",
+      "authTryTitle": "Ontdekken zonder account",
+      "authTryWarmup": "🔥 Een willekeurige warming-up",
+      "authTryInspire": "🎭 Impro-videos"
     }
   },
   "data": {

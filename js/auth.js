@@ -52,7 +52,16 @@
      1. UTILS
      ------------------------------------------------------------------ */
   const $  = (id) => document.getElementById(id);
-  const ui = () => (window.IMPRO_BUNDLE && window.IMPRO_BUNDLE.ui[localStorage.getItem("impro-studio:locale:v1") || "fr"]) || {};
+  // Deux sources de vérité divergeaient : ui() retombait EN DUR sur "fr" quand
+  // rien n'était stocké, alors que currentLocale() (qui alimente le sélecteur de
+  // langue) suit navigator.language. Un premier visiteur anglophone voyait donc
+  // un formulaire en français avec « English » déjà coché — et re-choisir English
+  // ne déclenchait aucun change. On aligne les deux.
+  const ui = () => {
+    const B = window.IMPRO_BUNDLE;
+    if (!B || !B.ui) return {};
+    return B.ui[currentLocale()] || B.ui.fr || {};
+  };
   function setText(id, v) {
     const el = $(id);
     if (el && v != null) el.textContent = v;
@@ -101,6 +110,11 @@
     setText("authResetConfirmLabel",   t.authConfirmPassword);
     setText("authResetSubmitBtn",      t.authResetSave);
     setText("authNoAccountText",       t.authNoAccount);
+    // Accroche + porte d'entree publique (page /login uniquement)
+    setText("authTaglineText",         t.authTagline);
+    setText("authTryTitleText",        t.authTryTitle);
+    setText("authTryWarmupLink",       t.authTryWarmup);
+    setText("authTryInspireLink",      t.authTryInspire);
     setText("authOpenSignupBtn",       t.authCreateAccount);
     setText("authPendingTitle",        t.authPendingTitle);
     setText("authResendBtn",           t.authResendEmail);
