@@ -1277,7 +1277,10 @@
   // (it would leak over the broadcast / into the durable row to any id-holder).
   function collabClean(s) {
     var out = {};
-    for (var k in s) { if (s.hasOwnProperty(k) && k !== "collabId" && k !== "collabToken") out[k] = s[k]; }
+    // cloudId exclu aussi : c'est un pointeur LOCAL vers le miroir de compte.
+    // Embarque dans le payload, un collaborateur heriterait de l'id de la
+    // ressource du proprietaire et ecrirait dedans en enregistrant chez lui.
+    for (var k in s) { if (s.hasOwnProperty(k) && k !== "collabId" && k !== "collabToken" && k !== "cloudId") out[k] = s[k]; }
     return out;
   }
   function collabMe() {
