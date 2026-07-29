@@ -471,7 +471,16 @@
       if (error) {
         const msg = String(error.message || "").toLowerCase();
         if (msg.includes("not confirm") || msg.includes("confirm")) {
-          showError("authLoginError", t.authErrorEmailNotConfirmed);
+          // Impasse : on affichait « email non confirmé » et rien d'autre. Qui
+          // s'inscrit, ne clique pas le lien tout de suite, puis revient plus
+          // tard n'avait AUCUN moyen de se le faire renvoyer — le bouton de
+          // renvoi existait, mais uniquement sur l'écran d'après-inscription,
+          // que rien ne permettait de rejoindre. On y bascule donc, en gardant
+          // « Retour à la connexion » pour ne pas enfermer l'utilisateur.
+          showPendingScreen(email);
+          const resend = $("authResendBtn");
+          if (resend) resend.hidden = false;   // le lien magique le masque
+          showError("authPendingError", t.authErrorEmailNotConfirmed);
         } else if (msg.includes("invalid") || msg.includes("credential")) {
           showError("authLoginError", t.authErrorInvalidCredentials);
         } else {
@@ -507,7 +516,10 @@
         options: { emailRedirectTo: window.location.origin + window.location.pathname }
       });
       if (error) throw error;
-      showError("authPendingError", t.authResetSent || "Email sent");
+      // `authResetSent` parle de RÉINITIALISATION DE MOT DE PASSE : l'utilisateur
+      // qui demandait un renvoi de confirmation lisait « Email de réinitialisation
+      // envoyé » et pouvait croire s'être trompé de bouton.
+      showError("authPendingError", t.authConfirmResent || t.authResetSent || "Email sent");
       const el = $("authPendingError");
       if (el) {
         el.hidden = false;

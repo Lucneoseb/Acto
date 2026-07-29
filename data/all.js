@@ -365,7 +365,8 @@ window.IMPRO_BUNDLE = {
       "authTagline": "Tire des thèmes, chronomètre tes impros, arbitre tes matchs.",
       "authTryTitle": "Découvrir sans compte",
       "authTryWarmup": "🔥 Un échauffement au hasard",
-      "authTryInspire": "🎭 Des vidéos d’impro"
+      "authTryInspire": "🎭 Des vidéos d’impro",
+      "authConfirmResent": "Email de confirmation renvoyé. Vérifie ta boîte mail (et les indésirables)."
     },
     "it": {
       "title": "Impro",
@@ -699,7 +700,8 @@ window.IMPRO_BUNDLE = {
       "authTagline": "Sorteggia temi, cronometra le tue impro, arbitra i tuoi match.",
       "authTryTitle": "Scoprire senza account",
       "authTryWarmup": "🔥 Un riscaldamento a caso",
-      "authTryInspire": "🎭 Video di impro"
+      "authTryInspire": "🎭 Video di impro",
+      "authConfirmResent": "Email di conferma inviata di nuovo. Controlla la posta (anche lo spam)."
     },
     "en": {
       "title": "Impro",
@@ -1035,7 +1037,8 @@ window.IMPRO_BUNDLE = {
       "authTagline": "Draw themes, time your scenes, referee your matches.",
       "authTryTitle": "Explore without an account",
       "authTryWarmup": "🔥 A random warm-up",
-      "authTryInspire": "🎭 Improv videos"
+      "authTryInspire": "🎭 Improv videos",
+      "authConfirmResent": "Confirmation email resent. Check your inbox (and your spam folder)."
     },
     "de": {
       "title": "Impro",
@@ -1369,7 +1372,8 @@ window.IMPRO_BUNDLE = {
       "authTagline": "Themen ziehen, Szenen stoppen, Matches leiten.",
       "authTryTitle": "Ohne Konto entdecken",
       "authTryWarmup": "🔥 Ein zufälliges Warm-up",
-      "authTryInspire": "🎭 Impro-Videos"
+      "authTryInspire": "🎭 Impro-Videos",
+      "authConfirmResent": "Bestätigungs-E-Mail erneut gesendet. Prüfe dein Postfach (auch den Spam-Ordner)."
     },
     "es": {
       "title": "Impro",
@@ -1703,7 +1707,8 @@ window.IMPRO_BUNDLE = {
       "authTagline": "Sortea temas, cronometra tus impros, arbitra tus matches.",
       "authTryTitle": "Descubrir sin cuenta",
       "authTryWarmup": "🔥 Un calentamiento al azar",
-      "authTryInspire": "🎭 Vídeos de impro"
+      "authTryInspire": "🎭 Vídeos de impro",
+      "authConfirmResent": "Email de confirmación reenviado. Revisa tu bandeja (y el spam)."
     },
     "pt": {
       "title": "Impro",
@@ -2037,7 +2042,8 @@ window.IMPRO_BUNDLE = {
       "authTagline": "Sorteia temas, cronometra as tuas impros, arbitra os teus combates.",
       "authTryTitle": "Descobrir sem conta",
       "authTryWarmup": "🔥 Um aquecimento à sorte",
-      "authTryInspire": "🎭 Vídeos de impro"
+      "authTryInspire": "🎭 Vídeos de impro",
+      "authConfirmResent": "Email de confirmação reenviado. Verifica a tua caixa de entrada (e o spam)."
     },
     "nl": {
       "title": "Impro",
@@ -2371,7 +2377,8 @@ window.IMPRO_BUNDLE = {
       "authTagline": "Trek themas, klok je impro’s, leid je matches.",
       "authTryTitle": "Ontdekken zonder account",
       "authTryWarmup": "🔥 Een willekeurige warming-up",
-      "authTryInspire": "🎭 Impro-videos"
+      "authTryInspire": "🎭 Impro-videos",
+      "authConfirmResent": "Bevestigingsmail opnieuw verzonden. Controleer je inbox (en je spammap)."
     }
   },
   "data": {
