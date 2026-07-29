@@ -1666,18 +1666,47 @@
   </form>
 </dialog>
 
+<!-- Édition rapide (texte + description). Remplace deux prompt() natifs
+     ENCHAÎNÉS : annuler le second faisait perdre la première saisie sans rien
+     dire, et Safari propose « Empêcher cette page d'ouvrir d'autres boîtes de
+     dialogue » dès la deuxième — auquel cas l'édition échouait en silence.
+     Un seul formulaire : on voit les deux champs, on annule ou on valide. -->
+<dialog id="quickEditDialog" class="bundle-add-dialog">
+  <form method="dialog" class="dlg-head">
+    <h2 id="quickEditTitle">Modifier</h2>
+    <button type="button" class="dlg-close" id="quickEditCloseBtn" aria-label="Fermer">✕</button>
+  </form>
+  <form id="quickEditForm" class="bundle-add-form" novalidate>
+    <div class="dlg-body">
+      <label class="bundle-add-field">
+        <span>Texte</span>
+        <input type="text" id="quickEditText" maxlength="300" required />
+      </label>
+      <label class="bundle-add-field" id="quickEditDescWrap">
+        <span>Description (vide = aucune)</span>
+        <textarea id="quickEditDesc" rows="3" maxlength="600"></textarea>
+      </label>
+      <p class="admin-login-error" id="quickEditError" hidden></p>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="btn" id="quickEditCancelBtn">Annuler</button>
+      <button type="submit" class="btn btn-primary" id="quickEditSubmitBtn">Enregistrer</button>
+    </div>
+  </form>
+</dialog>
+
 <!-- Pinned + SRI: protects against a jsDelivr compromise or typosquat that
      would otherwise execute attacker code with the user's session JWT in
      reach. Bump both `@VERSION` and the integrity hash together. -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
         integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
         crossorigin="anonymous"></script>
-<script src="./js/config.js?v=2026072935"></script>
-<script src="./js/utils.js?v=2026072935"></script>
+<script src="./js/config.js?v=2026072938"></script>
+<script src="./js/utils.js?v=2026072938"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=2026072935"></script>
+<script src="./data/all.js?v=2026072938"></script>
 <script>
 (function () {
   "use strict";
@@ -2252,18 +2281,19 @@
     if (typeof renderBundled === "function") renderBundled();
   }
 
-  function startEditSubmission(id) {
+  async function startEditSubmission(id) {
     const row = allSubmissions.find(s => s.id === id);
     if (!row) return;
-    const newText = prompt("Nouveau texte :", row.text || "");
-    if (newText == null) return;
-    if (!newText.trim()) { alert("Le texte ne peut pas être vide."); return; }
-    let newDesc = row.description || "";
-    if (row.kind === "exercise" || row.kind === "category") {
-      const r = prompt("Nouvelle description (vide = aucune) :", newDesc);
-      if (r == null) return; // cancelled
-      newDesc = r;
-    }
+    const avecDesc = (row.kind === "exercise" || row.kind === "category");
+    const saisie = await askTextAndDesc({
+      title: "Modifier la soumission",
+      text: row.text || "",
+      desc: row.description || "",
+      withDesc: avecDesc
+    });
+    if (!saisie) return;
+    const newText = saisie.text;
+    const newDesc = avecDesc ? saisie.desc : (row.description || "");
     sb.rpc("update_user_submission", {
       p_id:          id,
       p_text:        newText.trim(),
@@ -3326,17 +3356,16 @@
    *  original and inserts an approved user_submission with the new value
    *  → next page load merges it back into the pool. */
   async function editBundledItem(payload) {
-    const newText = prompt("Nouveau texte :", payload.text || "");
-    if (newText == null) return;
-    if (!newText.trim()) { alert("Le texte ne peut pas être vide."); return; }
-    let newDesc = payload.desc || "";
-    if (payload.kind === "exercise" || payload.kind === "category") {
-      const r = prompt("Nouvelle description (vide = aucune) :", newDesc);
-      if (r == null) return;
-      newDesc = r;
-    } else {
-      newDesc = "";
-    }
+    const avecDesc = (payload.kind === "exercise" || payload.kind === "category");
+    const saisie = await askTextAndDesc({
+      title: "Modifier l'item",
+      text: payload.text || "",
+      desc: payload.desc || "",
+      withDesc: avecDesc
+    });
+    if (!saisie) return;
+    const newText = saisie.text;
+    const newDesc = avecDesc ? saisie.desc : "";
     const { error } = await sb.rpc("replace_bundled_item", {
       p_kind:          payload.kind,
       p_mode:          payload.mode  || null,
@@ -3752,6 +3781,73 @@
         try { el.scrollIntoView({ block: "nearest", behavior: "smooth" }); }
         catch (e) { try { el.scrollIntoView(); } catch (e2) { /* ignore */ } }
       }).observe(el, { attributes: true, attributeFilter: ["hidden"] });
+    });
+  }
+
+  /* Édition rapide en UNE fois. Renvoie {text, desc} ou null si annulé.
+     Remplace deux prompt() enchaînés dont le second, s'il était annulé,
+     jetait silencieusement la première saisie. */
+  function askTextAndDesc(opts) {
+    const o = opts || {};
+    return new Promise(resolve => {
+      const dlg  = $("quickEditDialog");
+      const form = $("quickEditForm");
+      if (!dlg || !form) { resolve(null); return; }   // markup absent → on n'édite pas au hasard
+      const txt  = $("quickEditText");
+      const desc = $("quickEditDesc");
+      const wrap = $("quickEditDescWrap");
+      const err  = $("quickEditError");
+      $("quickEditTitle").textContent = o.title || "Modifier";
+      txt.value  = o.text || "";
+      desc.value = o.desc || "";
+      wrap.hidden = !o.withDesc;
+      if (err) { err.hidden = true; err.textContent = ""; }
+
+      let fini = false;
+      /* La fermeture par Échap doit TOUJOURS résoudre la promesse : sinon
+         l'appelant reste bloqué sur son `await` et l'édition ne se termine
+         jamais, sans le moindre signe à l'écran.
+
+         Trois filets, parce qu'on ne peut se fier à aucun seul :
+          - `close` par addEventListener (le standard) ;
+          - `cancel`, émis par Échap avant `close` ;
+          - un `keydown` Échap, qui marche même là où le moteur n'émet aucun
+            événement de <dialog> — c'est le cas du bac à sable de test, où j'ai
+            mesuré que ni `close`, ni `cancel`, ni `onclose` ne se déclenchent. */
+      function surFermeture() { fermer(null); }
+      function surEchap(ev) { if (ev.key === "Escape") fermer(null); }
+      function fermer(val) {
+        if (fini) return;
+        fini = true;
+        form.onsubmit = null;
+        $("quickEditCancelBtn").onclick = null;
+        $("quickEditCloseBtn").onclick = null;
+        dlg.removeEventListener("close", surFermeture);
+        dlg.removeEventListener("cancel", surFermeture);
+        document.removeEventListener("keydown", surEchap, true);
+        try { dlg.close(); } catch (e) { dlg.removeAttribute("open"); }
+        resolve(val);
+      }
+      form.onsubmit = ev => {
+        ev.preventDefault();
+        const v = (txt.value || "").trim();
+        if (!v) {
+          // Dans le dialogue, pas dans un alert() : l'erreur reste à côté du champ.
+          if (err) { err.textContent = "Le texte ne peut pas être vide."; err.hidden = false; }
+          txt.focus();
+          return;
+        }
+        fermer({ text: v, desc: (desc.value || "").trim() });
+      };
+      $("quickEditCancelBtn").onclick = () => fermer(null);
+      $("quickEditCloseBtn").onclick  = () => fermer(null);
+      dlg.addEventListener("close", surFermeture);
+      dlg.addEventListener("cancel", surFermeture);
+      document.addEventListener("keydown", surEchap, true);
+
+      if (typeof dlg.showModal === "function") dlg.showModal();
+      else dlg.setAttribute("open", "");
+      setTimeout(() => { try { txt.focus(); txt.select(); } catch (e) {} }, 40);
     });
   }
 
