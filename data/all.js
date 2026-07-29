@@ -701,7 +701,9 @@ window.IMPRO_BUNDLE = {
       "authTryTitle": "Scoprire senza account",
       "authTryWarmup": "🔥 Un riscaldamento a caso",
       "authTryInspire": "🎭 Video di impro",
-      "authConfirmResent": "Email di conferma inviata di nuovo. Controlla la posta (anche lo spam)."
+      "authConfirmResent": "Email di conferma inviata di nuovo. Controlla la posta (anche lo spam).",
+      "inspireShare": "Copia il link",
+      "inspireViews": "visualizzazioni"
     },
     "en": {
       "title": "Impro",
@@ -1373,7 +1375,9 @@ window.IMPRO_BUNDLE = {
       "authTryTitle": "Ohne Konto entdecken",
       "authTryWarmup": "🔥 Ein zufälliges Warm-up",
       "authTryInspire": "🎭 Impro-Videos",
-      "authConfirmResent": "Bestätigungs-E-Mail erneut gesendet. Prüfe dein Postfach (auch den Spam-Ordner)."
+      "authConfirmResent": "Bestätigungs-E-Mail erneut gesendet. Prüfe dein Postfach (auch den Spam-Ordner).",
+      "inspireShare": "Link kopieren",
+      "inspireViews": "Aufrufe"
     },
     "es": {
       "title": "Impro",
@@ -1708,7 +1712,9 @@ window.IMPRO_BUNDLE = {
       "authTryTitle": "Descubrir sin cuenta",
       "authTryWarmup": "🔥 Un calentamiento al azar",
       "authTryInspire": "🎭 Vídeos de impro",
-      "authConfirmResent": "Email de confirmación reenviado. Revisa tu bandeja (y el spam)."
+      "authConfirmResent": "Email de confirmación reenviado. Revisa tu bandeja (y el spam).",
+      "inspireShare": "Copiar el enlace",
+      "inspireViews": "visitas"
     },
     "pt": {
       "title": "Impro",
@@ -2043,7 +2049,9 @@ window.IMPRO_BUNDLE = {
       "authTryTitle": "Descobrir sem conta",
       "authTryWarmup": "🔥 Um aquecimento à sorte",
       "authTryInspire": "🎭 Vídeos de impro",
-      "authConfirmResent": "Email de confirmação reenviado. Verifica a tua caixa de entrada (e o spam)."
+      "authConfirmResent": "Email de confirmação reenviado. Verifica a tua caixa de entrada (e o spam).",
+      "inspireShare": "Copiar a ligação",
+      "inspireViews": "visualizações"
     },
     "nl": {
       "title": "Impro",
@@ -2378,7 +2386,9 @@ window.IMPRO_BUNDLE = {
       "authTryTitle": "Ontdekken zonder account",
       "authTryWarmup": "🔥 Een willekeurige warming-up",
       "authTryInspire": "🎭 Impro-videos",
-      "authConfirmResent": "Bevestigingsmail opnieuw verzonden. Controleer je inbox (en je spammap)."
+      "authConfirmResent": "Bevestigingsmail opnieuw verzonden. Controleer je inbox (en je spammap).",
+      "inspireShare": "Link kopiëren",
+      "inspireViews": "weergaven"
     }
   },
   "data": {
