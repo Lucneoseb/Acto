@@ -1986,6 +1986,58 @@ grant execute on function public.shared_match_save(uuid, text, text, jsonb) to a
 -- ============================================================================
 create extension if not exists pgcrypto;
 
+-- ── registre des matchs en direct (durcissement, 2026-07-27) ───────────────
+--    cast_live_vote / cast_star_vote sont exécutables par `anon` — c'est voulu,
+--    le public vote sans compte — mais n'avaient AUCUNE validation du code : le
+--    serveur ignorait jusqu'à l'existence du match, le code de partage ne vivant
+--    que dans le localStorage de l'arbitre. N'importe qui pouvait donc écrire
+--    des lignes pour un code arbitraire. L'arbitre (authentifié) déclare
+--    désormais son code, et seuls les codes déclarés et récents sont votables.
+create table if not exists public.live_runs (
+  code       text primary key,
+  owner_id   uuid not null references auth.users(id) on delete cascade,
+  started_at timestamptz not null default now(),
+  last_seen  timestamptz not null default now()
+);
+create index if not exists live_runs_last_seen_idx on public.live_runs(last_seen desc);
+alter table public.live_runs enable row level security;
+
+-- Personne n'accède à la table en direct : tout passe par les RPC ci-dessous.
+drop policy if exists "live_runs_owner_read" on public.live_runs;
+create policy "live_runs_owner_read"
+  on public.live_runs for select
+  using (owner_id = auth.uid());
+
+-- L'arbitre déclare (ou rafraîchit) son match. Appelé au montage du présentateur
+-- puis à chaque diffusion, ce qui sert aussi de battement de cœur.
+create or replace function public.register_live_run(p_code text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'not authenticated'; end if;
+  if p_code is null or length(btrim(p_code)) < 4 or length(p_code) > 40 then return; end if;
+  insert into public.live_runs(code, owner_id)
+    values (upper(btrim(p_code)), auth.uid())
+  on conflict (code) do update
+    set last_seen = now(),
+        -- un code repris par quelqu'un d'autre ne change de propriétaire que si
+        -- l'ancien run est abandonné depuis plus de 12 h
+        owner_id  = case when public.live_runs.last_seen < now() - interval '12 hours'
+                         then excluded.owner_id else public.live_runs.owner_id end;
+end $$;
+revoke all on function public.register_live_run(text) from public;
+grant execute on function public.register_live_run(text) to authenticated;
+
+-- Un code est votable s'il est déclaré et vu il y a moins de 12 h.
+create or replace function public.live_run_is_open(p_code text)
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists (
+    select 1 from public.live_runs
+     where code = upper(btrim(coalesce(p_code, '')))
+       and last_seen > now() - interval '12 hours'
+  );
+$$;
+grant execute on function public.live_run_is_open(text) to anon, authenticated;
+
 -- ── impro votes: one row per (match code, round, device) ───────────────────
 create table if not exists public.live_votes (
   code       text     not null,
@@ -2002,6 +2054,7 @@ returns void language plpgsql security definer set search_path = public as $$
 begin
   if p_code is null or p_voter is null or p_choice not in (0, 1) then return; end if;
   if length(coalesce(p_voter, '')) > 80 or length(coalesce(p_code, '')) > 40 then return; end if;
+  if not public.live_run_is_open(p_code) then return; end if;   -- ← durcissement
   insert into public.live_votes(code, round, voter, choice)
     values (upper(p_code), p_round, p_voter, p_choice::smallint)
   on conflict (code, round, voter) do update set choice = excluded.choice, created_at = now();
@@ -2034,6 +2087,7 @@ returns void language plpgsql security definer set search_path = public as $$
 begin
   if p_code is null or p_voter is null or coalesce(trim(p_player), '') = '' then return; end if;
   if length(p_voter) > 80 or length(p_code) > 40 or length(p_player) > 160 then return; end if;
+  if not public.live_run_is_open(p_code) then return; end if;   -- ← durcissement
   insert into public.live_star_votes(code, voter, player)
     values (upper(p_code), p_voter, trim(p_player))
   on conflict (code, voter) do update set player = excluded.player, created_at = now();
@@ -2138,12 +2192,27 @@ revoke all on function public.get_challenge_by_token(text) from public;
 grant execute on function public.get_challenge_by_token(text) to anon, authenticated;
 
 -- ── status transitions (token-gated, idempotent, monotonic) ────────────────
+-- create_challenge force volontairement recipient_user_id à NULL (on ne fait pas
+-- confiance à un destinataire déclaré par l'émetteur : il pourrait pousser des
+-- défis non sollicités chez un inconnu). Mais rien ne le renseignait ensuite →
+-- list_received_challenges() ne pouvait retourner que du vide, « Défis reçus »
+-- était structurellement mort. Le destinataire se rattache donc LUI-MÊME en
+-- ouvrant le lien : il faut posséder le token, et c'est sa propre identité qu'il
+-- pose. L'émetteur qui ouvre son propre lien ne se l'attribue pas.
 create or replace function public.mark_challenge_opened(p_token text)
 returns void language plpgsql security definer set search_path = public as $$
 begin
   update public.challenges
-     set status = 'opened', opened_at = coalesce(opened_at, now())
-   where token = p_token and status = 'sent';
+     set status    = case when status = 'sent' then 'opened' else status end,
+         opened_at = coalesce(opened_at, now()),
+         recipient_user_id = case
+           when recipient_user_id is null
+            and auth.uid() is not null
+            and auth.uid() <> sender_id
+           then auth.uid()
+           else recipient_user_id
+         end
+   where token = p_token;
 end $$;
 revoke all on function public.mark_challenge_opened(text) from public;
 grant execute on function public.mark_challenge_opened(text) to anon, authenticated;
@@ -2194,11 +2263,13 @@ grant execute on function public.list_received_challenges() to authenticated;
 -- ============================================================================
 --  COLLABORATION F2 (matchs + entraînements) — folded from migrate-collab.sql
 -- ============================================================================
--- ── the shared resource (a match OR entraînement session, server-side) ──────
+-- ── the shared resource (a match, spectacle OR entraînement, server-side) ───
+--    Sert deux usages : la collaboration (F2) ET le miroir de compte (C6) qui
+--    fait suivre les sessions d'un appareil à l'autre.
 create table if not exists public.shared_resources (
   id            uuid primary key default gen_random_uuid(),
   owner_id      uuid not null references auth.users(id) on delete cascade,
-  resource_type text not null check (resource_type in ('match', 'entrainement')),
+  resource_type text not null check (resource_type in ('match', 'entrainement', 'spectacle')),
   title         text not null default '',
   data          jsonb not null,                                    -- full Suite session object
   updated_at    timestamptz not null default now(),
@@ -2206,6 +2277,14 @@ create table if not exists public.shared_resources (
   created_at    timestamptz not null default now()
 );
 create index if not exists shared_resources_owner_idx on public.shared_resources(owner_id);
+
+-- Bases créées avant C6 : le `create table if not exists` ci-dessus ne les
+-- touche pas, la contrainte doit donc être réécrite explicitement.
+alter table public.shared_resources
+  drop constraint if exists shared_resources_resource_type_check;
+alter table public.shared_resources
+  add constraint shared_resources_resource_type_check
+  check (resource_type in ('match', 'entrainement', 'spectacle'));
 
 -- ── collaborators (named accounts + roles; email invites are 'pending') ─────
 create table if not exists public.resource_collaborators (
@@ -2275,7 +2354,7 @@ returns uuid language plpgsql security definer set search_path = public as $$
 declare v_id uuid;
 begin
   if auth.uid() is null then raise exception 'auth required'; end if;
-  if p_type not in ('match', 'entrainement') then raise exception 'bad type'; end if;
+  if p_type not in ('match', 'entrainement', 'spectacle') then raise exception 'bad type'; end if;
   if p_data is null or jsonb_typeof(p_data) <> 'object' then raise exception 'bad data'; end if;
   insert into public.shared_resources(owner_id, resource_type, title, data, updated_by)
     values (auth.uid(), p_type, coalesce(p_title, ''), p_data, auth.uid())
@@ -2316,6 +2395,40 @@ begin
     from public.shared_resources r
     where r.id = p_id;
 end $$;
+
+-- ── C6 « Sur mon compte » : lister les ressources dont je suis PROPRIÉTAIRE ──
+--    list_shared_with_me() joint resource_collaborators, où le propriétaire
+--    n'est jamais inséré à la création : ses propres matchs n'apparaissaient
+--    donc nulle part, et le miroir de compte ne servait à rien.
+--    Volontairement léger — ni `data` ni `setlist`, juste de quoi peupler la
+--    liste. Le contenu complet passe par get_shared_resource(id), qui contrôle
+--    déjà les droits.
+create or replace function public.list_my_resources()
+returns table(
+  id            uuid,
+  resource_type text,
+  kind          text,
+  title         text,
+  match_date    text,
+  nb_impros     int,
+  updated_at    timestamptz
+)
+language sql security definer set search_path = public stable as $$
+  select r.id,
+         r.resource_type,
+         coalesce(r.data->>'kind', r.resource_type),
+         r.title,
+         coalesce(r.data->>'matchDate', ''),
+         coalesce(jsonb_array_length(case
+           when jsonb_typeof(r.data->'setlist') = 'array' then r.data->'setlist'
+           else '[]'::jsonb end), 0),
+         r.updated_at
+    from public.shared_resources r
+   where r.owner_id = auth.uid()
+   order by r.updated_at desc;
+$$;
+revoke all on function public.list_my_resources() from public;
+grant execute on function public.list_my_resources() to authenticated;
 
 -- ── "Partagés avec moi" (resources I collaborate on, not mine) ──────────────
 drop function if exists public.list_shared_with_me();   -- return signature changed (added kind)
@@ -2437,3 +2550,979 @@ drop trigger if exists trg_claim_pending_collaborations on auth.users;
 create trigger trg_claim_pending_collaborations
   after insert on auth.users
   for each row execute function public.claim_pending_collaborations();
+
+
+-- ============================================================================
+--  SCHEMAS REPLIES LE 2026-07-29
+--
+--  Ces six pans du schema ne vivaient QUE dans leur migrate-*.sql. Or ce
+--  fichier est presente comme LA reference re-executable : une base creee a
+--  partir de lui seul se retrouvait sans echauffements, sans equipes, sans
+--  statistiques joueurs, sans notation des inspirations, sans keep-alive et
+--  sans les codes de direct. Tout est idempotent (create or replace /
+--  if not exists / drop policy if exists), donc re-executable sans risque.
+-- ============================================================================
+
+
+-- ----------------------------------------------------------------------------
+--  LIVE CODES + SHARED MATCH (Realtime auth)  (replie depuis migrate-realtime-auth.sql)
+-- ----------------------------------------------------------------------------
+-- ============================================================================
+--  ⚠️  NOT IN USE / EXPERIMENTAL (2026-06-29).
+--  Applied + live-tested against the project, but Supabase Realtime Authorization
+--  DENIED even a confirmed member (valid user JWT + row in shared_match_members)
+--  read access to a private channel ("Unauthorized: You do not have permissions
+--  to read from this Channel topic"). Root cause is in Realtime's private-channel
+--  RLS/auth path (likely the new sb_publishable_ key or realtime.topic() in the
+--  receive check) and would need iterative SQL debugging with uncertain payoff.
+--  The client was NOT switched to `private: true`, so this migration is INERT —
+--  it only affects channels opened privately, and none are. Safe to leave or to
+--  roll back (see the ROLLBACK block at the very bottom of this file).
+-- ============================================================================
+--  migrate-realtime-auth.sql — lock down the live + collab Realtime channels.
+--
+--  Until now acto-live:<CODE> (public scoreboard / filming) and
+--  acto-collab:<id> (co-editing) were PUBLIC broadcast channels: any subscriber
+--  holding the code/id could also PUBLISH — forge a scoreboard or inject collab
+--  edits. This migration makes those channels PRIVATE and authorizes who may
+--  RECEIVE vs BROADCAST via RLS policies on realtime.messages.
+--
+--  SAFE TO RUN ANY TIME: RLS on realtime.messages is only enforced for channels
+--  the client opens with `private: true`. Today's channels are public, so they
+--  keep working unchanged after this runs. Ship the `private: true` client
+--  AFTER this migration is applied.
+--
+--  Idempotent — safe to re-run.
+-- ============================================================================
+
+create extension if not exists pgcrypto;
+
+-- ── registry: which account owns a live join code (the presenter) ──────────
+create table if not exists public.live_codes (
+  code       text primary key,
+  owner      uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+alter table public.live_codes enable row level security;   -- all access via the SECURITY DEFINER RPC below
+
+-- Presenter claims its code at launch. Only the same owner may re-claim a code
+-- (prevents another account from hijacking an in-use code).
+create or replace function public.live_code_claim(p_code text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'auth required'; end if;
+  insert into public.live_codes(code, owner) values (upper(p_code), auth.uid())
+  on conflict (code) do update set owner = excluded.owner
+    where public.live_codes.owner = auth.uid();
+end $$;
+revoke all on function public.live_code_claim(text) from public;
+grant execute on function public.live_code_claim(text) to authenticated;
+
+-- ── registry: collaborators who presented a valid share token ──────────────
+create table if not exists public.shared_match_members (
+  match_id   uuid not null references public.shared_matches(id) on delete cascade,
+  user_id    uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (match_id, user_id)
+);
+alter table public.shared_match_members enable row level security;
+
+-- Join a shared match (token-gated) → become a Realtime member of its channel.
+create or replace function public.shared_match_join(p_id uuid, p_token text)
+returns boolean language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'auth required'; end if;
+  if not exists (select 1 from public.shared_matches where id = p_id and share_token = p_token) then
+    return false;
+  end if;
+  insert into public.shared_match_members(match_id, user_id) values (p_id, auth.uid())
+    on conflict do nothing;
+  return true;
+end $$;
+revoke all on function public.shared_match_join(uuid, text) from public;
+grant execute on function public.shared_match_join(uuid, text) to authenticated;
+
+-- The creator is implicitly a member of their own shared match.
+create or replace function public.shared_match_create(p_title text, p_data jsonb)
+returns table(id uuid, share_token text)
+language plpgsql security definer set search_path = public as $$
+declare v_id uuid; v_tok text;
+begin
+  if auth.uid() is null then raise exception 'auth required'; end if;
+  insert into public.shared_matches(owner, title, data, updated_by)
+    values (auth.uid(), coalesce(p_title, ''), p_data, auth.uid())
+    returning shared_matches.id, shared_matches.share_token into v_id, v_tok;
+  insert into public.shared_match_members(match_id, user_id) values (v_id, auth.uid())
+    on conflict do nothing;
+  return query select v_id, v_tok;
+end $$;
+grant execute on function public.shared_match_create(text, jsonb) to authenticated;
+
+-- ── RLS on realtime.messages (enforced ONLY for private channels) ──────────
+-- LIVE board: anyone may RECEIVE (the projector is public); only the code's
+-- owner (the presenter) may BROADCAST. So an audience viewer can watch but
+-- cannot inject a forged board.
+drop policy if exists "acto_live_receive" on realtime.messages;
+create policy "acto_live_receive" on realtime.messages
+  for select to anon, authenticated
+  using ( realtime.topic() like 'acto-live:%' );
+
+drop policy if exists "acto_live_broadcast" on realtime.messages;
+create policy "acto_live_broadcast" on realtime.messages
+  for insert to authenticated
+  with check (
+    realtime.topic() like 'acto-live:%'
+    and exists (
+      select 1 from public.live_codes c
+      where c.code = upper(split_part(realtime.topic(), ':', 2))
+        and c.owner = (select auth.uid())
+    )
+  );
+
+-- COLLAB: only members (those who presented a valid token via shared_match_join,
+-- plus the owner) may RECEIVE or BROADCAST. An id-without-token party is shut out.
+drop policy if exists "acto_collab_receive" on realtime.messages;
+create policy "acto_collab_receive" on realtime.messages
+  for select to authenticated
+  using (
+    realtime.topic() like 'acto-collab:%'
+    and exists (
+      select 1 from public.shared_match_members m
+      where m.match_id::text = split_part(realtime.topic(), ':', 2)
+        and m.user_id = (select auth.uid())
+    )
+  );
+
+drop policy if exists "acto_collab_broadcast" on realtime.messages;
+create policy "acto_collab_broadcast" on realtime.messages
+  for insert to authenticated
+  with check (
+    realtime.topic() like 'acto-collab:%'
+    and exists (
+      select 1 from public.shared_match_members m
+      where m.match_id::text = split_part(realtime.topic(), ':', 2)
+        and m.user_id = (select auth.uid())
+    )
+  );
+
+-- ============================================================================
+--  ROLLBACK (optional — the migration is inert, so this is only for tidiness).
+--  Run this block to remove everything this file added. Order matters:
+--  shared_match_create must be reverted to NOT write shared_match_members
+--  BEFORE that table is dropped.
+-- ============================================================================
+-- drop policy if exists "acto_live_receive"     on realtime.messages;
+-- drop policy if exists "acto_live_broadcast"   on realtime.messages;
+-- drop policy if exists "acto_collab_receive"   on realtime.messages;
+-- drop policy if exists "acto_collab_broadcast" on realtime.messages;
+-- -- revert shared_match_create to the plain version (no member insert):
+-- create or replace function public.shared_match_create(p_title text, p_data jsonb)
+-- returns table(id uuid, share_token text)
+-- language plpgsql security definer set search_path = public as $$
+-- declare v_id uuid; v_tok text;
+-- begin
+--   if auth.uid() is null then raise exception 'auth required'; end if;
+--   insert into public.shared_matches(owner, title, data, updated_by)
+--     values (auth.uid(), coalesce(p_title, ''), p_data, auth.uid())
+--     returning shared_matches.id, shared_matches.share_token into v_id, v_tok;
+--   return query select v_id, v_tok;
+-- end $$;
+-- drop function if exists public.shared_match_join(uuid, text);
+-- drop function if exists public.live_code_claim(text);
+-- drop table if exists public.shared_match_members;
+-- drop table if exists public.live_codes;
+
+
+-- ----------------------------------------------------------------------------
+--  EQUIPES ENREGISTREES (acto_teams)  (replie depuis migrate-teams.sql)
+-- ----------------------------------------------------------------------------
+-- ============================================================================
+-- migrate-teams.sql — Saved teams (rosters) for the Studio.
+--
+-- A logged-in user can save teams with a name, colour, logo and a roster of
+-- players. Each player may carry a photo and, when that player has an Acto
+-- account, a link to their user id (so per-player stats can attribute to them).
+--
+-- Private per-user data → plain owner-scoped RLS (no RPC needed for CRUD).
+-- The client reads/writes via the authenticated Supabase client directly.
+--
+-- Idempotent: safe to re-run. Requires public.search_users_by_stage_name()
+-- (already in supabase-setup-all.sql) for the account-link search in the UI.
+-- ============================================================================
+
+create table if not exists public.acto_teams (
+  id          uuid        primary key default gen_random_uuid(),
+  owner_id    uuid        not null references auth.users(id) on delete cascade,
+  name        text        not null default '',
+  color       text        not null default '#6dd3c5',
+  logo        text,                                    -- downscaled data URL
+  players     jsonb       not null default '[]'::jsonb, -- [{id,name,photo,user_id}]
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+
+create index if not exists acto_teams_owner_idx on public.acto_teams (owner_id);
+
+-- Keep updated_at fresh on every update.
+create or replace function public.acto_touch_updated_at()
+returns trigger language plpgsql as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists acto_teams_touch on public.acto_teams;
+create trigger acto_teams_touch
+  before update on public.acto_teams
+  for each row execute function public.acto_touch_updated_at();
+
+-- ---- RLS: owner-only CRUD ---------------------------------------------------
+alter table public.acto_teams enable row level security;
+
+drop policy if exists acto_teams_select_own on public.acto_teams;
+create policy acto_teams_select_own on public.acto_teams
+  for select to authenticated
+  using (owner_id = auth.uid());
+
+drop policy if exists acto_teams_insert_own on public.acto_teams;
+create policy acto_teams_insert_own on public.acto_teams
+  for insert to authenticated
+  with check (owner_id = auth.uid());
+
+drop policy if exists acto_teams_update_own on public.acto_teams;
+create policy acto_teams_update_own on public.acto_teams
+  for update to authenticated
+  using (owner_id = auth.uid())
+  with check (owner_id = auth.uid());
+
+drop policy if exists acto_teams_delete_own on public.acto_teams;
+create policy acto_teams_delete_own on public.acto_teams
+  for delete to authenticated
+  using (owner_id = auth.uid());
+
+-- Admins may also read every team (handy for support/debugging). Optional.
+drop policy if exists acto_teams_select_admin on public.acto_teams;
+create policy acto_teams_select_admin on public.acto_teams
+  for select to authenticated
+  using (public.is_admin());
+
+
+-- ----------------------------------------------------------------------------
+--  STATISTIQUES JOUEURS (acto_match_results)  (replie depuis migrate-stats.sql)
+-- ----------------------------------------------------------------------------
+-- ============================================================================
+-- migrate-stats.sql — Per-player match stats (event-sourced).
+--
+-- One row per (player account) per match. The referee submits results at the
+-- end of a match via record_match_results(); each linked player accrues an
+-- outcome (win/loss/draw) and possibly a star (or/argent/bronze). A player
+-- reads their own totals via get_my_stats() on the account page.
+--
+-- Event-sourced (not counters) → idempotent re-submits, no read-modify-write
+-- races, and a history we can aggregate or extend later.
+--
+-- Soft trust: the writing RPC is SECURITY DEFINER and inserts rows for OTHER
+-- users' accounts (the players), so any authenticated referee could in theory
+-- inflate stats. Acceptable for a small community app; submitted_by is recorded
+-- for audit. Requires public.is_admin() (in supabase-setup-all.sql).
+--
+-- Idempotent: safe to re-run.
+-- ============================================================================
+
+create table if not exists public.acto_match_results (
+  id             uuid        primary key default gen_random_uuid(),
+  match_uid      text        not null,                 -- client session id (dedup key)
+  submitted_by   uuid        not null references auth.users(id) on delete cascade,
+  player_user_id uuid        not null references auth.users(id) on delete cascade,
+  player_name    text,
+  team_name      text,
+  outcome        text        not null check (outcome in ('win', 'loss', 'draw')),
+  star           text        check (star in ('or', 'argent', 'bronze')),  -- nullable
+  created_at     timestamptz not null default now()
+);
+
+create index if not exists acto_match_results_player_idx on public.acto_match_results (player_user_id);
+create index if not exists acto_match_results_match_idx  on public.acto_match_results (match_uid, submitted_by);
+
+alter table public.acto_match_results enable row level security;
+
+-- Read: your own rows (as player), your own submissions (as referee), or admin.
+drop policy if exists acto_results_select_own on public.acto_match_results;
+create policy acto_results_select_own on public.acto_match_results
+  for select to authenticated
+  using (player_user_id = auth.uid() or submitted_by = auth.uid() or public.is_admin());
+-- No direct insert/update/delete policies → writes only via the RPC below.
+
+-- record_match_results — referee submits the match outcome for its linked
+-- players. Idempotent per (match_uid, submitted_by): re-submitting replaces this
+-- referee's rows for that match. p_results = [{user_id,name,team,outcome,star}].
+create or replace function public.record_match_results(p_match_uid text, p_results jsonb)
+returns integer
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  me  uuid := auth.uid();
+  rec jsonb;
+  n   int  := 0;
+begin
+  if me is null then raise exception 'not authenticated'; end if;
+  if p_match_uid is null or length(trim(p_match_uid)) = 0 then raise exception 'match_uid required'; end if;
+
+  -- Replace this referee's previous rows for this match (idempotent re-submit).
+  delete from public.acto_match_results
+   where match_uid = p_match_uid and submitted_by = me;
+
+  for rec in select value from jsonb_array_elements(coalesce(p_results, '[]'::jsonb)) as t(value)
+  loop
+    if (rec->>'user_id') is null or length(trim(rec->>'user_id')) = 0 then continue; end if;
+    -- Tolerate one bad row (a deleted account → FK violation, or a malformed
+    -- user_id → invalid uuid) instead of aborting the entire match submission.
+    -- outcome/star are normalized to valid values so a junk caller can't trip
+    -- the CHECK constraints and roll the whole batch back.
+    begin
+      insert into public.acto_match_results
+        (match_uid, submitted_by, player_user_id, player_name, team_name, outcome, star)
+      values (
+        p_match_uid, me,
+        (rec->>'user_id')::uuid,
+        nullif(rec->>'name', ''),
+        nullif(rec->>'team', ''),
+        case when nullif(rec->>'outcome', '') in ('win', 'loss', 'draw') then rec->>'outcome' else 'draw' end,
+        case when nullif(rec->>'star', '') in ('or', 'argent', 'bronze') then rec->>'star' else null end
+      );
+      n := n + 1;
+    exception
+      when foreign_key_violation then null;        -- stale/deleted account → skip row
+      when invalid_text_representation then null;  -- malformed user_id → skip row
+    end;
+  end loop;
+  return n;
+end;
+$$;
+
+revoke all on function public.record_match_results(text, jsonb) from public;
+grant  execute on function public.record_match_results(text, jsonb) to authenticated;
+
+-- get_my_stats — aggregate totals for the calling user.
+create or replace function public.get_my_stats()
+returns table(matches bigint, wins bigint, draws bigint, losses bigint, gold bigint, silver bigint, bronze bigint)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    count(distinct match_uid)                       as matches,
+    count(*) filter (where outcome = 'win')         as wins,
+    count(*) filter (where outcome = 'draw')        as draws,
+    count(*) filter (where outcome = 'loss')        as losses,
+    count(*) filter (where star = 'or')             as gold,
+    count(*) filter (where star = 'argent')         as silver,
+    count(*) filter (where star = 'bronze')         as bronze
+  from public.acto_match_results
+  where player_user_id = auth.uid();
+$$;
+
+revoke all on function public.get_my_stats() from public;
+grant  execute on function public.get_my_stats() to authenticated;
+
+
+-- ----------------------------------------------------------------------------
+--  ECHAUFFEMENTS (warmup_exercises)  (replie depuis migrate-warmups.sql)
+-- ----------------------------------------------------------------------------
+-- migrate-warmups.sql
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Community-submitted warmup exercises. Mirrors the inspiration_videos design:
+--   • anyone (anon) reads approved rows  → the public warmups.html merges them
+--     with the static data/warmups.json curated base.
+--   • authenticated users submit new ones (pending) via submit_warmup_exercise.
+--   • admins moderate (approve/hide/edit/delete) + can add directly (approved).
+--
+-- Idempotent: safe to re-run. Run AFTER supabase-setup-all.sql (needs is_admin()
+-- and html_escape()).
+-- ─────────────────────────────────────────────────────────────────────────────
+
+create table if not exists public.warmup_exercises (
+  id            uuid          primary key default gen_random_uuid(),
+  type          text          not null,                 -- Échauffement|Mise en train|Atelier|Situation de jeu
+  subtype       text,                                    -- free-ish secondary tag (Voix, Corps, Énergie…)
+  name          text          not null,
+  description   text          not null,
+  duration_seconds integer,                              -- optional countdown length
+  participants  text,                                    -- free text ("2 joueurs", "Tous", "10 à 50"…)
+  source        text,                                    -- attribution / origin
+  locale        text          not null default 'fr',
+  submitted_by  uuid          references auth.users(id) on delete set null,
+  status        text          not null default 'pending'
+                              check (status in ('pending','approved','rejected')),
+  approved_by   uuid          references auth.users(id) on delete set null,
+  approved_at   timestamptz,
+  created_at    timestamptz   not null default now()
+);
+
+-- Type whitelist (NOT VALID + try-validate pattern, legacy-safe).
+do $$
+begin
+  alter table public.warmup_exercises drop constraint if exists warmup_exercises_type_chk;
+  alter table public.warmup_exercises
+    add constraint warmup_exercises_type_chk
+      check (type in ('Échauffement','Mise en train','Atelier','Situation de jeu')) not valid;
+  begin
+    alter table public.warmup_exercises validate constraint warmup_exercises_type_chk;
+  exception when check_violation then
+    raise notice 'warmup_exercises_type_chk kept NOT VALID (legacy rows)';
+  end;
+end$$;
+
+create index if not exists warmup_exercises_status_idx  on public.warmup_exercises (status);
+create index if not exists warmup_exercises_type_idx    on public.warmup_exercises (type);
+create index if not exists warmup_exercises_locale_idx  on public.warmup_exercises (locale);
+create index if not exists warmup_exercises_created_idx on public.warmup_exercises (created_at desc);
+
+-- RLS
+alter table public.warmup_exercises enable row level security;
+
+drop policy if exists "anon_read_approved_warmups"  on public.warmup_exercises;
+drop policy if exists "owner_read_own_warmups"      on public.warmup_exercises;
+drop policy if exists "admins_read_all_warmups"     on public.warmup_exercises;
+
+create policy "anon_read_approved_warmups"
+  on public.warmup_exercises for select
+  to anon, authenticated
+  using (status = 'approved');
+
+create policy "owner_read_own_warmups"
+  on public.warmup_exercises for select
+  using (submitted_by = auth.uid());
+
+create policy "admins_read_all_warmups"
+  on public.warmup_exercises for select
+  using (public.is_admin());
+
+-- ─── SUBMIT (authenticated → pending) ───
+create or replace function public.submit_warmup_exercise(
+  p_type             text,
+  p_subtype          text,
+  p_name             text,
+  p_description      text,
+  p_duration_seconds integer,
+  p_participants     text,
+  p_source           text,
+  p_locale           text
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_name text;
+  v_desc text;
+  new_id uuid;
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+  v_name := nullif(trim(coalesce(p_name, '')), '');
+  v_desc := nullif(trim(coalesce(p_description, '')), '');
+  if v_name is null then raise exception 'name is empty'; end if;
+  if v_desc is null then raise exception 'description is empty'; end if;
+  if length(v_name) > 160 then raise exception 'name too long (max 160)'; end if;
+  if length(v_desc) > 2000 then raise exception 'description too long (max 2000)'; end if;
+  if p_type not in ('Échauffement','Mise en train','Atelier','Situation de jeu') then
+    raise exception 'invalid type: %', p_type;
+  end if;
+  if p_duration_seconds is not null and (p_duration_seconds < 0 or p_duration_seconds > 7200) then
+    raise exception 'invalid duration';
+  end if;
+
+  insert into public.warmup_exercises (
+    type, subtype, name, description, duration_seconds,
+    participants, source, locale, submitted_by, status
+  ) values (
+    p_type,
+    nullif(trim(coalesce(p_subtype, '')), ''),
+    v_name,
+    v_desc,
+    p_duration_seconds,
+    nullif(trim(coalesce(p_participants, '')), ''),
+    nullif(trim(coalesce(p_source, '')), ''),
+    coalesce(nullif(p_locale, ''), 'fr'),
+    auth.uid(),
+    'pending'
+  )
+  returning id into new_id;
+  return new_id;
+end;
+$$;
+
+revoke all on function public.submit_warmup_exercise(text, text, text, text, integer, text, text, text) from public;
+grant  execute on function public.submit_warmup_exercise(text, text, text, text, integer, text, text, text) to authenticated;
+
+-- ─── ADMIN ADD (admin → approved directly) ───
+create or replace function public.admin_add_warmup_exercise(
+  p_type             text,
+  p_subtype          text,
+  p_name             text,
+  p_description      text,
+  p_duration_seconds integer,
+  p_participants     text,
+  p_source           text,
+  p_locale           text
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_name text;
+  v_desc text;
+  new_id uuid;
+begin
+  if auth.uid() is null or not public.is_admin() then
+    raise exception 'admin only';
+  end if;
+  v_name := nullif(trim(coalesce(p_name, '')), '');
+  v_desc := nullif(trim(coalesce(p_description, '')), '');
+  if v_name is null then raise exception 'name is empty'; end if;
+  if v_desc is null then raise exception 'description is empty'; end if;
+  if p_type not in ('Échauffement','Mise en train','Atelier','Situation de jeu') then
+    raise exception 'invalid type: %', p_type;
+  end if;
+  insert into public.warmup_exercises (
+    type, subtype, name, description, duration_seconds,
+    participants, source, locale, submitted_by, status, approved_by, approved_at
+  ) values (
+    p_type,
+    nullif(trim(coalesce(p_subtype, '')), ''),
+    v_name, v_desc, p_duration_seconds,
+    nullif(trim(coalesce(p_participants, '')), ''),
+    nullif(trim(coalesce(p_source, '')), ''),
+    coalesce(nullif(p_locale, ''), 'fr'),
+    auth.uid(), 'approved', auth.uid(), now()
+  )
+  returning id into new_id;
+  return new_id;
+end;
+$$;
+
+revoke all on function public.admin_add_warmup_exercise(text, text, text, text, integer, text, text, text) from public;
+grant  execute on function public.admin_add_warmup_exercise(text, text, text, text, integer, text, text, text) to authenticated;
+
+-- ─── SET STATUS (admin) ───
+create or replace function public.set_warmup_exercise_status(p_id uuid, p_status text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if auth.uid() is null or not public.is_admin() then raise exception 'admin only'; end if;
+  if p_status not in ('pending','approved','rejected') then
+    raise exception 'invalid status: %', p_status;
+  end if;
+  update public.warmup_exercises
+     set status      = p_status,
+         approved_by = case when p_status = 'approved' then auth.uid() else approved_by end,
+         approved_at = case when p_status = 'approved' then now()      else approved_at end
+   where id = p_id;
+end;
+$$;
+
+revoke all on function public.set_warmup_exercise_status(uuid, text) from public;
+grant  execute on function public.set_warmup_exercise_status(uuid, text) to authenticated;
+
+-- ─── UPDATE (admin) ───
+create or replace function public.update_warmup_exercise(
+  p_id               uuid,
+  p_type             text,
+  p_subtype          text,
+  p_name             text,
+  p_description      text,
+  p_duration_seconds integer,
+  p_participants     text,
+  p_source           text,
+  p_locale           text
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_name text;
+  v_desc text;
+begin
+  if auth.uid() is null or not public.is_admin() then raise exception 'admin only'; end if;
+  v_name := nullif(trim(coalesce(p_name, '')), '');
+  v_desc := nullif(trim(coalesce(p_description, '')), '');
+  if v_name is null then raise exception 'name is empty'; end if;
+  if v_desc is null then raise exception 'description is empty'; end if;
+  if p_type not in ('Échauffement','Mise en train','Atelier','Situation de jeu') then
+    raise exception 'invalid type: %', p_type;
+  end if;
+  update public.warmup_exercises
+     set type             = p_type,
+         subtype          = nullif(trim(coalesce(p_subtype, '')), ''),
+         name             = v_name,
+         description      = v_desc,
+         duration_seconds = p_duration_seconds,
+         participants     = nullif(trim(coalesce(p_participants, '')), ''),
+         source           = nullif(trim(coalesce(p_source, '')), ''),
+         locale           = coalesce(nullif(p_locale, ''), locale)
+   where id = p_id;
+end;
+$$;
+
+revoke all on function public.update_warmup_exercise(uuid, text, text, text, text, integer, text, text, text) from public;
+grant  execute on function public.update_warmup_exercise(uuid, text, text, text, text, integer, text, text, text) to authenticated;
+
+-- ─── DELETE (admin) ───
+create or replace function public.delete_warmup_exercise(p_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if auth.uid() is null or not public.is_admin() then raise exception 'admin only'; end if;
+  delete from public.warmup_exercises where id = p_id;
+end;
+$$;
+
+revoke all on function public.delete_warmup_exercise(uuid) from public;
+grant  execute on function public.delete_warmup_exercise(uuid) to authenticated;
+
+-- ─── EMAIL TRIGGER (Resend, optional) ───
+create or replace function public.notify_admin_on_new_warmup()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, extensions
+as $$
+declare
+  v_api_key   text;
+  v_admin     text;
+  v_from      text;
+  v_admin_url text;
+  v_user_email text;
+  v_html      text;
+  v_payload   jsonb;
+begin
+  if NEW.status is distinct from 'pending' then return NEW; end if;
+  select value into v_api_key   from public.app_secrets where key = 'resend_api_key';
+  select value into v_admin     from public.app_secrets where key = 'admin_email';
+  select value into v_from      from public.app_secrets where key = 'from_email';
+  select value into v_admin_url from public.app_secrets where key = 'admin_url';
+  if v_api_key is null or v_admin is null or v_from is null then return NEW; end if;
+  if v_admin_url is null then
+    v_admin_url := 'https://acto-theimprostudio.com/admin.html#warmups';
+  else
+    v_admin_url := regexp_replace(v_admin_url, '#[a-z]+$', '') || '#warmups';
+  end if;
+  begin
+    select email into v_user_email from public.profiles where id = NEW.submitted_by;
+  exception when others then v_user_email := null; end;
+
+  v_html :=
+    '<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#1a0f2b;background:#f5f0ea;padding:24px;">' ||
+      '<h2 style="color:#b91c4d;margin:0 0 12px;">Nouvel exercice d''échauffement proposé</h2>' ||
+      '<blockquote style="background:#fff;border-left:4px solid #ff7a59;padding:12px 16px;margin:16px 0;font-size:1.1rem;">' ||
+        public.html_escape(NEW.name) ||
+      '</blockquote>' ||
+      '<table style="border-collapse:collapse;font-size:0.9rem;">' ||
+        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Type</td><td>'         || public.html_escape(coalesce(NEW.type, '—')) || '</td></tr>' ||
+        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Sous-type</td><td>'    || public.html_escape(coalesce(NEW.subtype, '—')) || '</td></tr>' ||
+        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Description</td><td>'  || public.html_escape(coalesce(NEW.description, '—')) || '</td></tr>' ||
+        '<tr><td style="padding:4px 12px 4px 0;color:#666;">Soumis par</td><td>'   || public.html_escape(coalesce(v_user_email, NEW.submitted_by::text, '—')) || '</td></tr>' ||
+      '</table>' ||
+      '<p style="margin-top:24px;">' ||
+        '<a href="' || public.html_escape(v_admin_url) || '" style="background:#ff9a73;color:#1a0f2b;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block;">' ||
+          '→ Examiner sur le tableau d''admin' ||
+        '</a>' ||
+      '</p>' ||
+      '<p style="color:#999;font-size:0.8rem;margin-top:32px;">Acto · The Impro Studio</p>' ||
+    '</div>';
+
+  v_payload := jsonb_build_object(
+    'from', v_from, 'to', jsonb_build_array(v_admin),
+    'subject', '[Acto] Nouvel exercice d''échauffement — ' || coalesce(NEW.name, '(sans nom)'),
+    'html', v_html
+  );
+  perform net.http_post(
+    url     := 'https://api.resend.com/emails',
+    body    := v_payload,
+    headers := jsonb_build_object(
+      'Authorization', 'Bearer ' || v_api_key,
+      'Content-Type',  'application/json'
+    )
+  );
+  return NEW;
+exception when others then
+  raise warning 'notify_admin_on_new_warmup failed: %', SQLERRM;
+  return NEW;
+end;
+$$;
+
+drop trigger if exists trg_notify_admin_on_new_warmup on public.warmup_exercises;
+create trigger trg_notify_admin_on_new_warmup
+  after insert on public.warmup_exercises
+  for each row
+  execute function public.notify_admin_on_new_warmup();
+
+-- ─── DONE ───
+-- After running: the public warmups page will merge approved rows with the
+-- static data/warmups.json. Admin moderation lives at /admin.html#warmups.
+
+
+-- ----------------------------------------------------------------------------
+--  INSPIRATIONS : vues + notes + stats admin  (replie depuis migrate-inspiration-engagement.sql)
+-- ----------------------------------------------------------------------------
+-- ============================================================================
+-- migrate-inspiration-engagement.sql
+-- View tracking + per-user A–F ratings for inspiration_videos, plus an admin
+-- ranking. Idempotent: safe to re-run. Requires inspiration_videos +
+-- public.is_admin() (in supabase-setup-all.sql / migrate-inspirations.sql).
+-- ============================================================================
+
+-- 1. Global view counter -----------------------------------------------------
+alter table public.inspiration_videos
+  add column if not exists view_count integer not null default 0;
+
+-- 2. Per-user view tracking ("which impros I've seen", how many times) --------
+create table if not exists public.inspiration_user_views (
+  user_id        uuid        not null references auth.users(id) on delete cascade,
+  inspiration_id uuid        not null references public.inspiration_videos(id) on delete cascade,
+  views          integer     not null default 0,
+  last_viewed_at timestamptz not null default now(),
+  primary key (user_id, inspiration_id)
+);
+alter table public.inspiration_user_views enable row level security;
+drop policy if exists insp_user_views_own on public.inspiration_user_views;
+create policy insp_user_views_own on public.inspiration_user_views
+  for select to authenticated using (user_id = auth.uid());
+-- writes via RPC only
+
+-- 3. record_inspiration_view — counts a view (anon counts globally; a logged-in
+--    viewer also accrues a personal view). View counters are inherently
+--    spoofable by anon; acceptable for a community catalogue.
+create or replace function public.record_inspiration_view(p_id uuid)
+returns void
+language plpgsql security definer set search_path = public
+as $$
+begin
+  if p_id is null then return; end if;
+  update public.inspiration_videos set view_count = view_count + 1
+   where id = p_id and status = 'approved';
+  if auth.uid() is not null then
+    insert into public.inspiration_user_views (user_id, inspiration_id, views, last_viewed_at)
+    values (auth.uid(), p_id, 1, now())
+    on conflict (user_id, inspiration_id)
+      do update set views = inspiration_user_views.views + 1, last_viewed_at = now();
+  end if;
+end;
+$$;
+revoke all on function public.record_inspiration_view(uuid) from public;
+grant  execute on function public.record_inspiration_view(uuid) to anon, authenticated;
+
+-- 4. Personal A–F ratings (A best … F worst) + a private comment --------------
+create table if not exists public.inspiration_ratings (
+  id             uuid        primary key default gen_random_uuid(),
+  user_id        uuid        not null references auth.users(id) on delete cascade,
+  inspiration_id uuid        not null references public.inspiration_videos(id) on delete cascade,
+  grade          text        not null check (grade in ('A','B','C','D','E','F')),
+  comment        text,
+  created_at     timestamptz not null default now(),
+  updated_at     timestamptz not null default now(),
+  unique (user_id, inspiration_id)
+);
+create index if not exists insp_ratings_video_idx on public.inspiration_ratings (inspiration_id);
+
+alter table public.inspiration_ratings enable row level security;
+drop policy if exists insp_ratings_own   on public.inspiration_ratings;
+drop policy if exists insp_ratings_admin on public.inspiration_ratings;
+create policy insp_ratings_own on public.inspiration_ratings
+  for select to authenticated using (user_id = auth.uid());
+create policy insp_ratings_admin on public.inspiration_ratings
+  for select to authenticated using (public.is_admin());
+-- writes via RPC
+
+create or replace function public.set_inspiration_rating(p_id uuid, p_grade text, p_comment text)
+returns void
+language plpgsql security definer set search_path = public
+as $$
+begin
+  if auth.uid() is null then raise exception 'not authenticated'; end if;
+  if p_grade is null or p_grade not in ('A','B','C','D','E','F') then raise exception 'invalid grade'; end if;
+  if p_comment is not null and length(p_comment) > 2000 then raise exception 'comment too long (max 2000)'; end if;
+  insert into public.inspiration_ratings (user_id, inspiration_id, grade, comment, updated_at)
+  values (auth.uid(), p_id, p_grade, nullif(trim(coalesce(p_comment, '')), ''), now())
+  on conflict (user_id, inspiration_id)
+    do update set grade = excluded.grade, comment = excluded.comment, updated_at = now();
+end;
+$$;
+revoke all on function public.set_inspiration_rating(uuid, text, text) from public;
+grant  execute on function public.set_inspiration_rating(uuid, text, text) to authenticated;
+
+-- Let a user clear their rating.
+create or replace function public.delete_inspiration_rating(p_id uuid)
+returns void
+language plpgsql security definer set search_path = public
+as $$
+begin
+  if auth.uid() is null then raise exception 'not authenticated'; end if;
+  delete from public.inspiration_ratings where user_id = auth.uid() and inspiration_id = p_id;
+end;
+$$;
+revoke all on function public.delete_inspiration_rating(uuid) from public;
+grant  execute on function public.delete_inspiration_rating(uuid) to authenticated;
+
+-- 5. Admin ranking — views + how many rated + average grade (A=6 … F=1, so
+--    a higher average = more loved). Visible only to admins.
+create or replace function public.admin_inspiration_stats()
+returns table(
+  id uuid, title text, content_type text, view_count integer,
+  rating_count bigint, avg_grade numeric
+)
+language plpgsql stable security definer set search_path = public
+as $$
+begin
+  if auth.uid() is null or not public.is_admin() then raise exception 'forbidden'; end if;
+  return query
+    select v.id, v.title, v.content_type, v.view_count,
+           count(r.id) as rating_count,
+           round(avg(case r.grade
+                       when 'A' then 6 when 'B' then 5 when 'C' then 4
+                       when 'D' then 3 when 'E' then 2 when 'F' then 1 end)::numeric, 2) as avg_grade
+    from public.inspiration_videos v
+    left join public.inspiration_ratings r on r.inspiration_id = v.id
+    where v.status = 'approved'
+    group by v.id, v.title, v.content_type, v.view_count
+    order by v.view_count desc, avg_grade desc nulls last, v.title asc;
+end;
+$$;
+revoke all on function public.admin_inspiration_stats() from public;
+grant  execute on function public.admin_inspiration_stats() to authenticated;
+
+-- 6. Defense-in-depth: never store a non-http(s) video_url. Escaping protects
+--    HTML context but not URL schemes, so a javascript:/data: video_url could
+--    otherwise become a clickable href. Nullify it at the source for ALL writers.
+create or replace function public.insp_sanitize_video_url()
+returns trigger
+language plpgsql
+as $$
+begin
+  if new.video_url is not null and new.video_url !~* '^\s*https?://' then
+    new.video_url := null;
+  end if;
+  return new;
+end;
+$$;
+drop trigger if exists insp_sanitize_video_url_trg on public.inspiration_videos;
+create trigger insp_sanitize_video_url_trg
+  before insert or update on public.inspiration_videos
+  for each row execute function public.insp_sanitize_video_url();
+
+-- Clean any already-stored unsafe URLs.
+update public.inspiration_videos
+   set video_url = null
+ where video_url is not null and video_url !~* '^\s*https?://';
+
+
+-- ----------------------------------------------------------------------------
+--  KEEP-ALIVE + ALIMENTATION AUTOMATIQUE DU FLUX  (replie depuis migrate-keepalive-feed.sql)
+-- ----------------------------------------------------------------------------
+-- ============================================================================
+-- migrate-keepalive-feed.sql
+--
+-- Backend for the twice-weekly "keep-alive + inspiration auto-feed" GitHub
+-- Action (.github/workflows/keepalive-feed.yml + scripts/feed.mjs).
+--
+-- WHAT IT DOES
+--   * acto_secrets        — a private key/value table (RLS denies ALL direct
+--                          access; only SECURITY DEFINER functions can read it).
+--   * feed_add_inspiration(...) — a token-gated RPC, callable with the PUBLIC
+--                          publishable key, that inserts ONE 'pending'
+--                          inspiration video (deduped). The shared token keeps
+--                          random visitors from spamming the queue.
+--
+-- The Action calls this RPC (a DB write) twice a week, which both (a) fills your
+-- admin review queue with fresh impro videos and (b) counts as activity so the
+-- free Supabase project is never paused for inactivity.
+--
+-- Idempotent — safe to re-run.
+--
+-- Your shared token is already set at the BOTTOM of this file. Use the SAME
+-- value as the GitHub repo secret named FEED_TOKEN.
+-- ============================================================================
+
+-- 1. Private secrets store -----------------------------------------------------
+create table if not exists public.acto_secrets (
+  name  text primary key,
+  value text not null
+);
+alter table public.acto_secrets enable row level security;
+-- Intentionally NO policies: anon/authenticated get zero direct access.
+-- Only SECURITY DEFINER functions (which run as the owner) can read it.
+revoke all on table public.acto_secrets from anon, authenticated;
+
+-- 2. Token-gated pending insert -----------------------------------------------
+create or replace function public.feed_add_inspiration(
+  p_token        text,
+  p_title        text,
+  p_url          text,
+  p_channel      text default null,
+  p_content_type text default 'spectacle',
+  p_locale       text default 'fr'
+) returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  expected text;
+  v_ct     text;
+begin
+  select value into expected from public.acto_secrets where name = 'feed_token';
+  if expected is null or p_token is null or p_token <> expected then
+    raise exception 'unauthorized';
+  end if;
+
+  if coalesce(btrim(p_title), '') = '' or coalesce(btrim(p_url), '') = '' then
+    return 'skipped:empty';
+  end if;
+
+  -- Dedupe: skip if this exact URL is already in the table (any status).
+  if exists (select 1 from public.inspiration_videos where video_url = p_url) then
+    return 'duplicate';
+  end if;
+
+  -- Validate content_type against the table's enum; fall back to a safe default.
+  v_ct := lower(coalesce(p_content_type, ''));
+  if v_ct not in ('chaine','match_impro','spectacle','tutoriel','documentaire','cabaret','format_court') then
+    v_ct := 'spectacle';
+  end if;
+
+  insert into public.inspiration_videos
+    (title, channel, content_type, video_url, locale, status, notes)
+  values
+    (left(p_title, 300), left(p_channel, 200), v_ct, p_url,
+     coalesce(nullif(btrim(p_locale), ''), 'fr'), 'pending', 'Ajout automatique (feed)');
+
+  return 'added';
+end;
+$$;
+
+revoke all on function public.feed_add_inspiration(text, text, text, text, text, text) from public;
+grant  execute on function public.feed_add_inspiration(text, text, text, text, text, text) to anon, authenticated;
+
+-- 3. Your shared feed token --------------------------------------------------
+-- Use this SAME value as the GitHub repo secret FEED_TOKEN.
+-- Le jeton partage n est PAS recopie ici : il vit dans migrate-keepalive-feed.sql
+-- (et dans le secret GitHub FEED_TOKEN). Pour (re)definir la valeur :
+--   insert into public.acto_secrets (name, value) values ('feed_token', '<valeur>')
+--   on conflict (name) do update set value = excluded.value;

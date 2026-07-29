@@ -764,39 +764,88 @@
   }
   var cloudCreating = {};   // verrou par session : évite 2 lignes serveur sur double tap
 
-  function cloudMirror(session) {
+  // La session existe-t-elle ENCORE localement ? Les callbacks des RPC arrivent
+  // longtemps après l'appel : sans ce contrôle, S.sessions.save() ressuscitait
+  // une session que l'utilisateur venait de supprimer entre-temps.
+  function stillThere(id) {
+    try { return !!S.sessions.get(id); } catch (e) { return false; }
+  }
+  // Un cloudId qui ne pointe plus rien (ligne supprimée depuis un autre appareil,
+  // partage révoqué) condamnait la sauvegarde compte À VIE : chaque tentative
+  // retombait en silence sur la même ligne fantôme. On repart alors de zéro.
+  function cloudGone(err) {
+    var m = String((err && (err.message || err.details || err.hint)) || "").toLowerCase();
+    return m.indexOf("not owner") >= 0 || m.indexOf("not allowed") >= 0 ||
+           m.indexOf("no rows") >= 0 || m.indexOf("0 rows") >= 0;
+  }
+  // Efface la ligne serveur. Le serveur refuse déjà si on n'est pas propriétaire,
+  // donc aucun contrôle côté client n'est nécessaire.
+  function cloudForget(cloudId) {
+    var sb = sbClient(); if (!sb || !cloudId) return;
+    try {
+      Promise.resolve(sb.rpc("delete_shared_resource", { p_id: cloudId }))
+        .then(function (r) { if (r && r.error) console.warn("[cloud] delete", r.error.message || r.error); },
+              function () { /* hors ligne : la ligne serveur restera */ });
+    } catch (e) { /* ignore */ }
+  }
+
+  // cb(ok) est appelé exactement une fois : ok=false signifie « rien n'est parti
+  // sur le compte ». Avant, l'échec était totalement muet alors que l'interface
+  // affichait « Enregistré » — l'utilisateur croyait son match à l'abri.
+  function cloudMirror(session, cb) {
+    var done = function (ok) { if (typeof cb === "function") { var f = cb; cb = null; f(ok); } };
     var sb = sbClient();
-    if (!sb || !isSession(session)) return;
+    if (!sb || !isSession(session)) { done(false); return; }
+    // Un match ouvert via un lien de collaboration appartient à QUELQU'UN
+    // D'AUTRE : le miroir en ferait une copie personnelle qui divergerait
+    // aussitôt de la version partagée. La sauvegarde locale suffit — « Partagés
+    // avec moi » le retrouve depuis n'importe quel appareil.
+    if (collab && collab.id === session.collabId && collab.role !== "owner") { done(true); return; }
     var payload = collabClean(session);
-    if (!isSession(payload)) return;          // ceinture + bretelles
+    if (!isSession(payload)) { done(false); return; }      // ceinture + bretelles
     var title = session.title || "";
     try {
       if (session.cloudId) {
         Promise.resolve(sb.rpc("save_shared_resource", { p_id: session.cloudId, p_title: title, p_data: payload }))
           .then(function (r) {
-            if (r && r.error) { console.warn("[cloud] save", r.error.message || r.error); return; }
+            if (r && r.error) {
+              console.warn("[cloud] save", r.error.message || r.error);
+              // Ligne disparue : on oublie le pointeur mort et on recrée, une fois.
+              if (cloudGone(r.error) && stillThere(session.id)) {
+                delete session.cloudId; session.cloudUpdatedAt = null;
+                S.sessions.save(session);
+                cloudMirror(session, done);
+              } else done(false);
+              return;
+            }
             // Mémoriser la fraîcheur serveur : c'est ce qui permet de repérer
             // qu'un AUTRE appareil a modifié la session depuis.
-            if (r && r.data) { session.cloudUpdatedAt = r.data; S.sessions.save(session); }
-          }, function () { /* hors ligne : le local fait foi */ });
+            if (r && r.data && stillThere(session.id)) { session.cloudUpdatedAt = r.data; S.sessions.save(session); }
+            done(true);
+          }, function () { done(false); });
       } else {
-        if (cloudCreating[session.id]) return;   // création déjà en vol
+        if (cloudCreating[session.id]) { done(true); return; }   // création déjà en vol
         cloudCreating[session.id] = true;
         Promise.resolve(sb.rpc("share_resource_create", { p_type: resourceType(), p_title: title, p_data: payload }))
           .then(function (r) {
             delete cloudCreating[session.id];
-            if (r && r.error) { console.warn("[cloud] create", r.error.message || r.error); return; }
-            if (!r || !r.data) return;
+            if (r && r.error) { console.warn("[cloud] create", r.error.message || r.error); done(false); return; }
+            if (!r || !r.data) { done(false); return; }
+            // Supprimée pendant le vol : ne surtout pas la faire revenir — et
+            // effacer la ligne qu'on vient de créer pour ne pas laisser d'orpheline.
+            if (!stillThere(session.id)) { cloudForget(r.data); done(false); return; }
             session.cloudId = r.data;
             S.sessions.save(session);      // retenir l'id du miroir
-          }, function () { delete cloudCreating[session.id]; });
+            done(true);
+          }, function () { delete cloudCreating[session.id]; done(false); });
       }
-    } catch (e) { delete cloudCreating[session.id]; }
+    } catch (e) { delete cloudCreating[session.id]; done(false); }
   }
+  function cloudWarn(ok) { if (!ok) toast(t("cloudSaveFailed")); }
   // Sauvegarde unique : local (référence) + miroir de compte (best-effort).
   function persistSession(session) {
     S.sessions.save(session);
-    cloudMirror(session);
+    cloudMirror(session, cloudWarn);
   }
 
   function openSaveDialog() {
@@ -817,8 +866,19 @@
 
   function renderList() {
     var items = S.sessions.list(kind);
+    // Lesquelles sont réellement à l'abri sur le compte ? L'info n'existe que
+    // dans la session complète, pas dans l'entrée de liste allégée. Sans repère,
+    // rien ne distinguait un match protégé d'un match qui ne vit que dans le
+    // cache de ce navigateur — et l'utilisateur n'apprenait la différence qu'en
+    // changeant de téléphone.
+    var mirrored = {};
+    items.forEach(function (e) {
+      var full = null; try { full = S.sessions.get(e.id); } catch (err) {}
+      if (full && full.cloudId) mirrored[e.id] = true;
+    });
+    var signed = !!sbClient();
     var rows = items.length
-      ? items.map(listRow).join("")
+      ? items.map(function (e) { return listRow(e, signed, !!mirrored[e.id]); }).join("")
       : '<p class="suite-empty">' + esc(t(K.listEmptyKey)) + '</p>';
     root.innerHTML =
       '<div class="suite-section-head">' +
@@ -838,7 +898,24 @@
       };
       row.querySelector('[data-act="dup"]').onclick = function () { S.sessions.duplicate(id); renderList(); };
       row.querySelector('[data-act="del"]').onclick = function () {
-        if (window.confirm(t(K.confirmDeleteKey))) { S.sessions.remove(id); renderList(); }
+        // Lire le pointeur miroir AVANT de supprimer la copie locale : sans ça
+        // la ligne serveur survivait, le match réapparaissait sous « Sur mon
+        // compte » et plus rien ne permettait de s'en débarrasser.
+        var full = null; try { full = S.sessions.get(id); } catch (e) {}
+        var cid = full && full.cloudId;
+        // Et le dire : supprimer sur tous ses appareils sans prévenir serait
+        // une très mauvaise surprise.
+        if (!window.confirm(t(K.confirmDeleteKey) + (cid ? "\n\n" + t("cloudDeleteAlso") : ""))) return;
+        S.sessions.remove(id);
+        if (cid) cloudForget(cid);
+        renderList();
+      };
+      var push = row.querySelector('[data-act="push"]');
+      if (push) push.onclick = function () {
+        var s = null; try { s = S.sessions.get(id); } catch (e) {}
+        if (!s) return;
+        push.disabled = true;
+        cloudMirror(s, function (ok) { cloudWarn(ok); renderList(); });
       };
     });
     renderMyCloud();
@@ -934,17 +1011,23 @@
     }, function () { /* ignore */ });
   }
 
-  function listRow(e) {
+  function listRow(e, signed, mirrored) {
     var updated = e.updatedAt ? new Date(e.updatedAt).toLocaleDateString(S.locale()) : "";
     var n = e.nbImpros || 0;
     var countLabel = tf("listMetaCount", { n: n });
+    // Déconnecté, la question ne se pose pas : tout est forcément local.
+    // Élément à part (et non « · badge » dans la même phrase) : sur téléphone il
+    // passe à la ligne, et le séparateur restait alors en suspens en bout de ligne.
+    var tag = !signed ? "" : '<span class="suite-list-cloud' + (mirrored ? " is-on" : "") + '">' +
+      esc(mirrored ? "☁️ " + t("cloudSaved") : "📵 " + t("cloudLocalOnly")) + '</span>';
     return '<div class="suite-list-item" data-id="' + esc(e.id) + '">' +
       '<div class="suite-list-main">' +
         '<span class="suite-list-title">' + esc(e.title || "—") + (e.matchDate ? ' <span class="suite-list-date">📅 ' + esc(fmtMatchDate(e.matchDate)) + '</span>' : '') + '</span>' +
-        '<span class="suite-list-meta">' + esc(tf("listUpdated", { date: updated })) + ' · ' + esc(countLabel) + '</span>' +
+        '<span class="suite-list-meta">' + esc(tf("listUpdated", { date: updated })) + ' · ' + esc(countLabel) + tag + '</span>' +
       '</div>' +
       '<div class="suite-list-actions">' +
         '<button class="suite-btn suite-btn-mini" data-act="open">' + esc(t("listOpen")) + '</button>' +
+        (signed && !mirrored ? '<button class="suite-btn suite-btn-mini suite-btn-ghost" data-act="push">☁️ ' + esc(t("cloudPush")) + '</button>' : '') +
         '<button class="suite-btn suite-btn-mini suite-btn-ghost" data-act="dup">' + esc(t("listDuplicate")) + '</button>' +
         '<button class="suite-btn suite-btn-mini suite-btn-danger" data-act="del">' + esc(t("listDelete")) + '</button>' +
       '</div>' +
@@ -1533,6 +1616,12 @@
         var row = r.data[0];
         current = row.data;
         current.collabId = id;
+        // Le propriétaire qui ouvre SON match par le lien collab : la ligne
+        // partagée EST son miroir de compte. Sans ce rattachement, son prochain
+        // 💾 créait une SECONDE ligne serveur et les deux copies divergeaient
+        // aussitôt — l'une suivie par la collaboration, l'autre par le miroir.
+        if (row.is_owner || row.my_role === "owner") current.cloudId = id;
+        else delete current.cloudId;
         kind = (current.kind && KINDS[current.kind]) ? current.kind : (row.resource_type === "entrainement" ? "training" : "match"); K = KINDS[kind];
         collabStart(id, row.my_role || "editor");
         collab.applyingRemote = true; renderEditor(); collab.applyingRemote = false;

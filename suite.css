@@ -361,8 +361,19 @@
 }
 .suite-list-title { font: 600 1.05rem/1.2 "Inter", sans-serif; color: var(--ink); display: block; }
 .suite-list-meta { font-size: 0.78rem; color: var(--ink-faint); }
-.suite-list-actions { display: flex; gap: 0.45rem; }
+/* Repère « ce match est-il à l'abri sur le compte ? ». Discret quand tout va
+   bien, franchement visible quand la session ne vit que dans ce navigateur. */
+.suite-list-cloud { display: block; margin-top: 0.2rem; white-space: nowrap; }
+.suite-list-cloud.is-on { color: var(--gold-soft); }
+/* La rangée doit pouvoir passer à la ligne : le 4e bouton (« Sauvegarder sur
+   mon compte », libellé volontairement explicite) poussait « Supprimer » hors
+   de la carte sur téléphone en portrait. */
+.suite-list-actions { display: flex; gap: 0.45rem; flex-wrap: wrap; }
 .suite-list-actions .suite-btn { flex: 1; }
+/* `order` pour qu'il passe SOUS la rangée principale au lieu de la couper en
+   deux : Ouvrir / Dupliquer / Supprimer restent alignés, l'action de compte
+   prend toute la largeur en dessous. */
+.suite-list-actions [data-act="push"] { flex: 1 1 100%; order: 1; }
 
 /* ============================================================
    DIALOG + TOAST + STUB
@@ -1038,6 +1049,7 @@
   .suite-list-main { flex: 1; }
   .suite-list-actions { flex: 0 0 auto; }
   .suite-list-actions .suite-btn { flex: 0 0 auto; }
+  .suite-list-actions [data-act="push"] { flex: 0 0 auto; order: 0; }   /* la place ne manque plus */
 }
 @media (min-width: 880px) {
   .suite-launch-grid { grid-template-columns: repeat(4, 1fr); }

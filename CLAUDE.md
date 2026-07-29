@@ -63,6 +63,19 @@ inside another file.
 ## Database
 
 Only **`supabase-setup-all.sql`** is in use. It's idempotent — safe to re-run.
+
+**It really does hold the whole schema now (2026-07-29).** It didn't before:
+six feature schemas — échauffements, équipes, stats joueurs, vues/notes des
+inspirations, keep-alive, codes de direct — lived only in their `migrate-*.sql`,
+so a database built from the "reference" file alone came up silently
+incomplete. They are folded in at the end of the file, newest definition last
+(a later migration that redefines an earlier function wins by position).
+
+`migrate-*.sql` files are kept as history. Re-applying one is harmless but
+never necessary. One exception worth knowing: `migrate-keepalive-feed.sql`
+carries the shared feed token in clear text; the fold-in deliberately leaves
+that `insert` out, so setting `acto_secrets.feed_token` stays a manual step.
+
 After first signup, promote yourself to admin:
 
 ```sql
