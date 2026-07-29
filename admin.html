@@ -718,6 +718,157 @@
   body.view-tableau        header.bar h1 .h1-impro,
   body.view-tableau        header.bar h1 .h1-inspirations,
   body.view-tableau        header.bar h1 .h1-warmups          { display: none; }
+  /* ══════════════════════════════════════════════════════════════════════════
+     PASSE RESPONSIVE 2026-07-29 — placée EN DERNIER volontairement.
+
+     admin.html est autonome : il ne charge ni styles.css ni suite.css, donc
+     aucune des protections mobiles ajoutées à l'application ne l'atteignait.
+     Mesures avant correction, sur un écran de 401 px :
+       profilesTable 1370 px (3,4 écrans)   warmupTableAdmin 1169 px (2,9)
+       inspRankTable 1100 px (2,7, pour 5 colonnes)   eventsTable 900 px (2,2)
+       submissionsTable 900 px (2,2)        bundledTable 720 px (1,8)
+       22 des 48 champs sous 16 px          25 boutons sur 25 sous 44 px
+
+     Être en dernier n'est pas cosmétique : c'est ce qui répare le correctif
+     mort décrit juste en dessous.
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  /* ─── 1. Le correctif mobile qui n'a jamais marché ─────────────────────────
+     Ligne ~293, dans @media (max-width: 640px) :
+         table.events, table.submissions { min-width: 0; }
+     …puis lignes ~538 et ~542, hors media query :
+         table.events      { min-width: 900px; }
+         table.submissions { min-width: 900px; }
+     Spécificité identique (0,0,1,1) : à égalité, c'est la règle la PLUS TARDIVE
+     qui gagne, media query ou pas. Le correctif était donc inerte depuis le
+     début — mesuré à 900 px sur un écran de 401 px. On le repose ici, après. */
+  @media (max-width: 900px) {
+    .table-wrap table.profiles,
+    table.events,
+    table.submissions,
+    table.bundled-list { min-width: 0; }
+  }
+
+  /* ─── 2. Chaque tableau devient une pile de cartes ─────────────────────────
+     Un tableau de 11 à 15 colonnes est illisible sur un téléphone : la colonne
+     Actions se retrouvait à trois écrans de défilement horizontal. Les libellés
+     viennent de `data-label`, posé sur chaque cellule depuis le <thead> par
+     wireTableLabels() — voir le script en bas de page.
+
+     #inspireTableAdmin garde son bloc dédié plus haut : ses libellés y sont
+     retouchés à la main (« Nature » plutôt que le « Nat. » de l'en-tête) et sa
+     spécificité est plus forte, donc il l'emporte. C'est voulu, pas un oubli. */
+  @media (max-width: 900px) {
+    .table-wrap { overflow-x: visible; background: transparent; border: 0; border-radius: 0; }
+    .table-wrap table.profiles,
+    .table-wrap table.profiles tbody { display: block; }
+    .table-wrap table.profiles thead { display: none; }
+    .table-wrap table.profiles tbody tr {
+      display: block;
+      background: linear-gradient(160deg, rgba(245,196,81,0.05), rgba(255,255,255,0.02));
+      border: 1px solid rgba(245,196,81,0.28);
+      border-radius: 14px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 0.7rem;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    }
+    .table-wrap table.profiles tbody td {
+      display: block; width: auto;
+      padding: 0.16rem 0; border: 0;
+      white-space: normal;            /* le nowrap du bureau ferait déborder */
+      overflow-wrap: anywhere;        /* URLs et emails ne débordent plus */
+      font-size: 0.86rem; text-align: left;
+    }
+    /* Le libellé, repris de l'en-tête de colonne. */
+    .table-wrap table.profiles tbody td[data-label]:before {
+      content: attr(data-label) " · ";
+      display: inline-block;
+      font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--gold-soft);
+      margin-right: 0.4rem; min-width: 5.5rem; vertical-align: top;
+    }
+    /* La première cellule fait office de titre de carte : pas de libellé. */
+    .table-wrap table.profiles tbody td:first-child {
+      font-size: 1rem; font-weight: 700; line-height: 1.3; margin-bottom: 0.25rem;
+    }
+    .table-wrap table.profiles tbody td:first-child:before { content: ""; margin: 0; min-width: 0; }
+    /* Les cellules vides n'ont pas à occuper une ligne pour ne rien dire. */
+    .table-wrap table.profiles tbody td:empty { display: none; }
+    /* Actions : détachées en bas de carte, toujours atteignables. */
+    .table-wrap table.profiles tbody td.actions {
+      margin-top: 0.5rem; padding-top: 0.5rem;
+      border-top: 1px dashed rgba(255,255,255,0.12);
+      display: flex; flex-wrap: wrap; gap: 0.4rem;
+    }
+    .table-wrap table.profiles tbody td.actions:before { content: ""; }
+    .table-wrap table.profiles tbody td.actions .btn { flex: 1 1 auto; min-width: 6rem; }
+    /* Ligne « Chargement… » / « Aucun résultat » : un colspan, pas une carte. */
+    .table-wrap table.profiles tbody td.empty {
+      display: block; text-align: center; padding: 1.4rem 0.5rem;
+      font-style: italic; color: var(--ink-muted);
+    }
+    .table-wrap table.profiles tbody td.empty:before { content: ""; }
+  }
+
+  /* ─── 3. iOS zoomait la page à chaque focus ────────────────────────────────
+     Safari iOS zoome dès qu'un champ passe sous 16 px, et ne dézoome jamais
+     seul : la mise en page reste décalée jusqu'au rechargement. 22 des 48
+     champs étaient à 13,6–14,4 px, dont TOUTES les recherches et TOUS les
+     filtres — c'est-à-dire tout ce qu'on touche réellement sur un téléphone.
+
+     Attention à la spécificité : les 17 filtres de l'admin sont des
+     `select class="btn"`, et `.btn { font-size: 0.85rem }` (0,1,0,0) bat un
+     simple `select` (0,0,0,1) quelle que soit la position dans le fichier.
+     Il faut donc nommer `.btn` explicitement. */
+  @media (max-width: 900px) {
+    input, select, textarea,
+    select.btn, input.btn,
+    .toolbar input[type="search"],
+    .bundle-add-field input,
+    .bundle-add-field select,
+    .bundle-add-field textarea { font-size: 16px; }
+  }
+
+  /* ─── 4. Cibles tactiles ───────────────────────────────────────────────────
+     Les 25 boutons de l'admin faisaient 38 px de haut. `pointer: coarse` vise
+     le doigt sans toucher la souris, où 38 px est parfaitement confortable. */
+  @media (pointer: coarse) {
+    .btn, button, .tab, .table-wrap table.profiles tbody td.actions .btn {
+      min-height: 44px;
+    }
+    .bundle-add-dialog .dlg-close { min-width: 44px; min-height: 44px; }
+  }
+
+  /* ─── 5. Téléphone en PAYSAGE ──────────────────────────────────────────────
+     Les 3 points de rupture d'origine ciblaient tous la largeur. En 812×375,
+     l'en-tête mangeait 104 px — 28 % de la hauteur utile — avant le moindre
+     contenu. On comprime le chrome, jamais les données. */
+  @media (max-height: 560px) and (orientation: landscape) {
+    /* Le titre (477 px) et la rangée de boutons (339 px) totalisent 822 px :
+       10 px de trop pour 812, donc la barre passait sur deux lignes et coûtait
+       97 px. On force une seule ligne et on laisse le titre se réduire — c'est
+       le seul des deux qui peut être tronqué sans perte d'usage. */
+    header.bar { padding-top: 0.5rem; padding-bottom: 0.5rem; gap: 0.4rem; flex-wrap: nowrap; }
+    header.bar h1 {
+      font-size: 1.15rem;
+      min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    header.bar > div { flex: 0 0 auto; }
+    .wrap { padding-top: 0.6rem; }
+    .section-title { margin: 0.9rem 0 0.5rem; font-size: 1rem; }
+    .stat-card { padding: 0.6rem 0.7rem; }
+    .stat-card .v { font-size: 1.1rem; }
+    .bundle-add-dialog { max-height: calc(100svh - 1rem); }
+    .bundle-add-dialog .dlg-head { padding: 0.55rem 1rem; }
+    .bundle-add-dialog .dlg-head h2 { font-size: 1.1rem; }
+    .bundle-add-dialog .dlg-body { padding: 0.7rem 1rem; gap: 0.6rem; }
+    .bundle-add-dialog .dlg-actions { padding: 0.55rem 1rem; }
+  }
+  /* La barre d'URL mobile fait mentir 100vh : elle compte dans le calcul mais
+     recouvre l'écran. svh mesure la hauteur réellement visible. */
+  @supports (height: 100svh) {
+    .bundle-add-dialog { max-height: calc(100svh - 2rem); }
+  }
 </style>
 </head>
 <body>
@@ -1401,12 +1552,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
         integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
         crossorigin="anonymous"></script>
-<script src="./js/config.js?v=2026072922"></script>
-<script src="./js/utils.js?v=2026072922"></script>
+<script src="./js/config.js?v=2026072923"></script>
+<script src="./js/utils.js?v=2026072923"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=2026072922"></script>
+<script src="./data/all.js?v=2026072923"></script>
 <script>
 (function () {
   "use strict";
@@ -3420,7 +3571,52 @@
     if (h === "impro" || h === "inspirations" || h === "warmups") return h;
     return "tableau";
   }
+  /* ─── Mise en cartes sur mobile : étiquetage automatique des cellules ───────
+     En portrait, chaque tableau devient une pile de cartes ; il faut donc un
+     libellé devant chaque valeur, puisque le <thead> disparaît.
+
+     La vue Inspirations le faisait avec 11 règles CSS `content:` en dur, à
+     resynchroniser à la main dès qu'une colonne bouge — et les 6 autres
+     tableaux n'ont jamais eu droit au traitement, d'où 1,8× à 3,4× de
+     défilement horizontal pour atteindre la colonne Actions.
+
+     On lit donc les libellés dans le <thead> et on les pose en `data-label`
+     sur chaque cellule. Le CSS n'a plus qu'une seule règle générique.
+     Un MutationObserver plutôt qu'un appel après chaque rendu : les tbody sont
+     réécrits par une douzaine de fonctions différentes (recherche, tri,
+     filtres, rechargement), et un futur tableau sera couvert sans rien câbler. */
+  function etiqueterCellules(table) {
+    const ths = table.querySelectorAll("thead th");
+    if (!ths.length) return;
+    const libelles = Array.prototype.map.call(ths, th => th.textContent.trim());
+    table.querySelectorAll("tbody tr").forEach(tr => {
+      Array.prototype.forEach.call(tr.children, (td, i) => {
+        // les lignes « Chargement… » / « Aucun résultat » sont en colspan :
+        // un libellé de colonne n'y aurait aucun sens
+        if (td.hasAttribute("colspan")) return;
+        if (libelles[i]) td.setAttribute("data-label", libelles[i]);
+      });
+    });
+  }
+  function wireTableLabels() {
+    const tables = document.querySelectorAll(".table-wrap table");
+    tables.forEach(etiqueterCellules);
+    if (typeof MutationObserver !== "function") return;
+    const obs = new MutationObserver(mutations => {
+      const vus = new Set();
+      mutations.forEach(m => {
+        const t = m.target && m.target.closest && m.target.closest("table");
+        if (t && !vus.has(t)) { vus.add(t); etiqueterCellules(t); }
+      });
+    });
+    tables.forEach(t => {
+      const tb = t.querySelector("tbody");
+      if (tb) obs.observe(tb, { childList: true });
+    });
+  }
+
   function wireViewRouter() {
+    wireTableLabels();
     setView(viewFromHash());
     window.addEventListener("hashchange", () => setView(viewFromHash()));
     const goImpro   = $("goImproBtn");
