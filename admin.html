@@ -799,9 +799,30 @@
       margin-top: 0.5rem; padding-top: 0.5rem;
       border-top: 1px dashed rgba(255,255,255,0.12);
       display: flex; flex-wrap: wrap; gap: 0.4rem;
+      width: auto; min-width: 0;      /* annule les largeurs figées du bureau */
     }
-    .table-wrap table.profiles tbody td.actions:before { content: ""; }
+    /* `content: none` et NON `content: ""`. Avec une chaîne vide, le pseudo-
+       élément EXISTE toujours : il hérite du `display: inline-block` et du
+       `min-width: 5.5rem` de la règle des libellés et, dans un conteneur flex,
+       devient un item de 88 px. Mesuré : « Supprimer » repoussé sur une
+       deuxième ligne par une boîte vide. `none` ne le génère pas du tout. */
+    .table-wrap table.profiles tbody td.actions:before { content: none; }
     .table-wrap table.profiles tbody td.actions .btn { flex: 1 1 auto; min-width: 6rem; }
+
+    /* Le bloc Inspirations plus haut fixe les largeurs de colonnes pour le
+       BUREAU (`td.actions { width: 8rem; min-width: 8rem }`, URL à 3rem…).
+       Ces règles portent un id, donc elles survivaient au passage en cartes :
+       mesuré, la cellule d'actions restait bloquée à 128 px dans une carte de
+       343. On les neutralise ici — même spécificité, mais plus bas. */
+    #inspireTableAdmin tbody td { width: auto !important; min-width: 0 !important; }
+    #inspireTableAdmin tbody td.actions:before { content: none; }
+    #inspireTableAdmin tbody td.actions {
+      display: flex; flex-wrap: wrap; gap: 0.4rem;
+    }
+    #inspireTableAdmin tbody td.actions .btn {
+      display: inline-block; width: auto; flex: 1 1 auto; min-width: 6rem;
+      margin-bottom: 0; font-size: 0.8rem;
+    }
     /* Ligne « Chargement… » / « Aucun résultat » : un colspan, pas une carte. */
     .table-wrap table.profiles tbody td.empty {
       display: block; text-align: center; padding: 1.4rem 0.5rem;
@@ -839,21 +860,81 @@
     .bundle-add-dialog .dlg-close { min-width: 44px; min-height: 44px; }
   }
 
-  /* ─── 5. Téléphone en PAYSAGE ──────────────────────────────────────────────
+  /* ─── 5. Deux champs de recherche jamais stylés ────────────────────────────
+     `#inspireFilterText` et `#warmupFilterText` (l. 1250 et 1320) ne sont
+     ciblés par AUCUNE règle : seul `.toolbar input[type="search"]` est stylé,
+     et ces deux-là sont dans `.submission-filters`. Mesuré : fond blanc,
+     texte noir, bordure système de 2 px, 24 px de haut — un champ nu posé au
+     milieu d'une interface or sur noir, à côté de sélecteurs de 44 px.
+     Trois agents d'audit indépendants l'ont relevé séparément. */
+  .submission-filters input[type="search"],
+  #inspireFilterText,
+  #warmupFilterText {
+    flex: 1 1 200px; max-width: 320px;
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--ink); padding: 0.55rem 0.8rem;
+    border-radius: 10px; font: inherit; font-size: 0.9rem;
+    outline: none;
+  }
+  .submission-filters input[type="search"]:focus,
+  #inspireFilterText:focus,
+  #warmupFilterText:focus { border-color: rgba(245,196,81,0.5); }
+  /* Le `font-size: 0.9rem` ci-dessus porte un id : il bat la règle des 16 px du
+     point 3 quelle que soit la position, et ramenait donc le zoom iOS sur ces
+     deux champs précis. On le réaffirme ici, plus bas, à spécificité égale. */
+  @media (max-width: 900px) {
+    .submission-filters input[type="search"],
+    #inspireFilterText,
+    #warmupFilterText { font-size: 16px; }
+  }
+
+  /* `.section-title` est en flex sans repli : un sous-titre à côté du titre se
+     retrouvait comprimé en colonne étroite au lieu de passer à la ligne. */
+  .section-title { flex-wrap: wrap; }
+
+  /* ─── 6. La barre d'URL mobile fait mentir 100vh ───────────────────────────
+     Elle compte dans le calcul de vh mais recouvre l'écran ; svh mesure la
+     hauteur réellement visible. Ce bloc est placé AVANT celui du paysage, pas
+     après : à spécificité égale la dernière règle gagne, et posé plus bas il
+     aurait écrasé le max-height du paysage — le genre de règle morte que ce
+     même fichier hébergeait déjà (voir le point 1). */
+  @supports (height: 100svh) {
+    .bundle-add-dialog { max-height: calc(100svh - 2rem); }
+  }
+
+  /* ─── 7. Téléphone en PAYSAGE ──────────────────────────────────────────────
      Les 3 points de rupture d'origine ciblaient tous la largeur. En 812×375,
      l'en-tête mangeait 104 px — 28 % de la hauteur utile — avant le moindre
      contenu. On comprime le chrome, jamais les données. */
   @media (max-height: 560px) and (orientation: landscape) {
-    /* Le titre (477 px) et la rangée de boutons (339 px) totalisent 822 px :
-       10 px de trop pour 812, donc la barre passait sur deux lignes et coûtait
-       97 px. On force une seule ligne et on laisse le titre se réduire — c'est
-       le seul des deux qui peut être tronqué sans perte d'usage. */
-    header.bar { padding-top: 0.5rem; padding-bottom: 0.5rem; gap: 0.4rem; flex-wrap: nowrap; }
+    /* Une seule ligne pour l'en-tête, mais PAS en écrasant le titre.
+       Première tentative ratée : `flex-wrap: nowrap` + `flex: 0 0 auto` sur le
+       bloc de navigation. J'avais mesuré cette rangée à 339 px — sur la seule
+       vue Tableau. Selon la vue elle fait en réalité 780 à 943 px (jusqu'à 8
+       boutons), et comme elle avait interdiction de rétrécir, tout le déficit
+       tombait sur le titre : H1 réduit à 0 px dans les 4 vues, « ← App » hors
+       écran, et la PAGE entière partait en défilement horizontal.
+
+       La rangée défile donc horizontalement DANS SA PROPRE BOÎTE : rien ne sort
+       de l'écran, les cibles restent à 44 px, et le titre garde un plancher. */
+    header.bar { padding-top: 0.5rem; padding-bottom: 0.5rem; gap: 0.5rem; flex-wrap: nowrap; align-items: center; }
     header.bar h1 {
       font-size: 1.15rem;
-      min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      flex: 0 1 auto; min-width: 4rem; max-width: 40%;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
-    header.bar > div { flex: 0 0 auto; }
+    header.bar > div { flex: 1 1 0; min-width: 0; }
+    header.bar .who { display: none; }       /* l'email tient déjà 2 lignes ailleurs */
+    header.bar .actions {
+      margin-top: 0 !important;              /* le style inline pose 0.4rem */
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    header.bar .actions::-webkit-scrollbar { display: none; }
+    header.bar .actions > * { flex: 0 0 auto; }
     .wrap { padding-top: 0.6rem; }
     .section-title { margin: 0.9rem 0 0.5rem; font-size: 1rem; }
     .stat-card { padding: 0.6rem 0.7rem; }
@@ -863,11 +944,6 @@
     .bundle-add-dialog .dlg-head h2 { font-size: 1.1rem; }
     .bundle-add-dialog .dlg-body { padding: 0.7rem 1rem; gap: 0.6rem; }
     .bundle-add-dialog .dlg-actions { padding: 0.55rem 1rem; }
-  }
-  /* La barre d'URL mobile fait mentir 100vh : elle compte dans le calcul mais
-     recouvre l'écran. svh mesure la hauteur réellement visible. */
-  @supports (height: 100svh) {
-    .bundle-add-dialog { max-height: calc(100svh - 2rem); }
   }
 </style>
 </head>
@@ -1552,12 +1628,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
         integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
         crossorigin="anonymous"></script>
-<script src="./js/config.js?v=2026072923"></script>
-<script src="./js/utils.js?v=2026072923"></script>
+<script src="./js/config.js?v=2026072927"></script>
+<script src="./js/utils.js?v=2026072927"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=2026072923"></script>
+<script src="./data/all.js?v=2026072927"></script>
 <script>
 (function () {
   "use strict";
