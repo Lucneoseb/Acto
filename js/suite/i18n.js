@@ -378,7 +378,9 @@
     unitMin: "min",
     unitSec: "s",
     unitHour: "h",
-    liveResumeRun: "Une partie est déjà en cours : scores, fautes et code de partage sont actifs. Recommencer génère un NOUVEAU code — les écrans et téléphones déjà connectés seront déconnectés."
+    liveResumeRun: "Une partie est déjà en cours : scores, fautes et code de partage sont actifs. Recommencer génère un NOUVEAU code — les écrans et téléphones déjà connectés seront déconnectés.",
+    publicDiscover: "Découvrir Acto",
+    publicDiscoverSub: "Le studio d’impro qui a fait tourner ce match."
   };
 
   var EN = {
@@ -731,7 +733,9 @@
     unitMin: "min",
     unitSec: "s",
     unitHour: "h",
-    liveResumeRun: "A match is already running: scores, penalties and the share code are active. Restarting generates a NEW code — screens and phones already connected will be dropped."
+    liveResumeRun: "A match is already running: scores, penalties and the share code are active. Restarting generates a NEW code — screens and phones already connected will be dropped.",
+    publicDiscover: "Discover Acto",
+    publicDiscoverSub: "The impro studio behind this match."
   };
 
 
@@ -1143,7 +1147,9 @@
     contribOptCShort: "Shortform",
     contribOptCDoc: "Doku",
     contribOptCChan: "Kanal",
-    liveResumeRun: "Ein Match läuft bereits: Punkte, Strafen und der Teilcode sind aktiv. Ein Neustart erzeugt einen NEUEN Code – bereits verbundene Bildschirme und Handys werden getrennt."
+    liveResumeRun: "Ein Match läuft bereits: Punkte, Strafen und der Teilcode sind aktiv. Ein Neustart erzeugt einen NEUEN Code – bereits verbundene Bildschirme und Handys werden getrennt.",
+    publicDiscover: "Acto entdecken",
+    publicDiscoverSub: "Das Impro-Studio hinter diesem Match."
   };
 
   var ES = {
@@ -1554,7 +1560,9 @@
     contribOptCCab: "Cabaret",
     contribOptCShort: "Formato corto",
     contribOptCDoc: "Documental",
-    contribOptCChan: "Canal"
+    contribOptCChan: "Canal",
+    publicDiscover: "Descubrir Acto",
+    publicDiscoverSub: "El estudio de impro detrás de este match."
   };
 
   var PT = {
@@ -1965,7 +1973,9 @@
     contribOptCCab: "Cabaré",
     contribOptCShort: "Formato curto",
     contribOptCDoc: "Documentário",
-    contribOptCChan: "Canal"
+    contribOptCChan: "Canal",
+    publicDiscover: "Descobrir o Acto",
+    publicDiscoverSub: "O estúdio de impro por trás deste match."
   };
 
   var NL = {
@@ -2376,7 +2386,9 @@
     contribOptCCab: "Cabaret",
     contribOptCShort: "Kort format",
     contribOptCDoc: "Documentaire",
-    contribOptCChan: "Kanaal"
+    contribOptCChan: "Kanaal",
+    publicDiscover: "Ontdek Acto",
+    publicDiscoverSub: "De impro-studio achter deze match."
   };
 
   var IT = {
@@ -2787,7 +2799,9 @@
     contribOptCCab: "Cabaret",
     contribOptCShort: "Formato corto",
     contribOptCDoc: "Documentario",
-    contribOptCChan: "Canale"
+    contribOptCChan: "Canale",
+    publicDiscover: "Scopri Acto",
+    publicDiscoverSub: "Lo studio di impro dietro questo match."
   };
 
   // de/es/pt/nl/it are filled to match the 7-locale set. Until translated

@@ -931,6 +931,24 @@
 .suite-join-body { min-height: 100svh; }
 .join-gate { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.1rem; padding: 2rem 1.2rem; text-align: center; }
 .join-gate[hidden] { display: none; }
+
+/* « Découvrir Acto » — la seule porte d'entrée depuis vote.html et join.html,
+   où le public arrive par un QR code sans rien savoir de l'application.
+   Ici et pas dans le <style> d'une page : les DEUX pages en ont besoin, et un
+   style local à vote.html laissait join.html afficher un lien bleu souligné nu.
+   Discret par construction : le spectateur est là pour voter, pas pour découvrir
+   un produit — mais la cible reste à 44 px pour le doigt. */
+.acto-discover {
+  margin-top: 2rem; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 0.15rem; text-decoration: none;
+  color: var(--gold-soft); opacity: 0.75; padding: 0.6rem 0.9rem;
+  border-radius: 12px; min-height: 44px;
+  border: 1px solid color-mix(in srgb, var(--gold) 22%, transparent);
+}
+.acto-discover:hover { opacity: 1; border-color: color-mix(in srgb, var(--gold) 45%, transparent); }
+.acto-discover:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; opacity: 1; }
+.acto-discover span  { font: 700 0.9rem/1.2 "Inter", sans-serif; letter-spacing: .02em; }
+.acto-discover small { font: 400 0.75rem/1.25 "Inter", sans-serif; color: var(--ink-faint); text-align: center; }
 .join-logo { width: 76px; height: auto; opacity: 0.95; }
 .join-title { font-family: "Bebas Neue", sans-serif; font-size: 2rem; letter-spacing: 1px; margin: 0; color: var(--ink); }
 .join-sub { color: var(--ink-muted); margin: 0; max-width: 30rem; }

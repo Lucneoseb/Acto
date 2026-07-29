@@ -858,6 +858,17 @@
       min-height: 44px;
     }
     .bundle-add-dialog .dlg-close { min-width: 44px; min-height: 44px; }
+    /* Les boutons de modération des Inspirations restaient à 38 px au doigt :
+       leur bloc « cartes » pose `min-height: 38px` derrière un id (spécificité
+       1,1,3), qu'un simple `.btn` (0,1,0) ne peut pas battre, où qu'il soit
+       placé dans le fichier. Il faut viser aussi précisément qu'eux. */
+    #inspireTableAdmin tbody td.actions .btn,
+    #inspireTableAdmin td.actions .btn { min-height: 44px; }
+    /* La case « Afficher les items cachés » gardait la taille par défaut du
+       navigateur : 13 × 13 px, soit un tiers de la cible minimale au doigt. */
+    input[type="checkbox"] { width: 22px; height: 22px; }
+    input[type="checkbox"] + span,
+    label:has(input[type="checkbox"]) { min-height: 44px; display: inline-flex; align-items: center; gap: 0.5rem; }
   }
 
   /* ─── 5. Deux champs de recherche jamais stylés ────────────────────────────
@@ -968,7 +979,7 @@
       <button type="submit" class="btn btn-primary admin-login-submit" id="adminLoginSubmit">Se connecter</button>
     </form>
     <p style="margin-top:1rem;font-size:0.85rem;">
-      <a href="./index.html">← Retour à l'app</a>
+      <a href="./welcome.html">← Retour à l'app</a>
     </p>
   </div>
 </div>
@@ -977,7 +988,7 @@
   <div class="gate-card">
     <h2>Accès refusé</h2>
     <p>Ton compte n'a pas les droits administrateur.</p>
-    <p><a href="./index.html">→ Retour à l'application</a></p>
+    <p><a href="./welcome.html">→ Retour à l'application</a></p>
   </div>
 </div>
 
@@ -998,7 +1009,7 @@
         <button class="btn nav-on-tableau nav-on-impro nav-on-warmups" id="goInspireBtn" type="button">🎭 Inspirations →</button>
         <button class="btn nav-on-tableau nav-on-impro nav-on-inspirations" id="goWarmupsBtn" type="button">🔥 Échauffement →</button>
         <a class="btn nav-on-inspirations" href="./inspirations.html" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;text-decoration:none;" title="Voir la page publique dans un nouvel onglet">↗ Page publique</a>
-        <a class="btn" href="./index.html" style="display:inline-flex;align-items:center;text-decoration:none;">← App</a>
+        <a class="btn" href="./welcome.html" style="display:inline-flex;align-items:center;text-decoration:none;">← App</a>
       </div>
     </div>
   </header>
@@ -1628,12 +1639,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
         integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
         crossorigin="anonymous"></script>
-<script src="./js/config.js?v=2026072930"></script>
-<script src="./js/utils.js?v=2026072930"></script>
+<script src="./js/config.js?v=2026072934"></script>
+<script src="./js/utils.js?v=2026072934"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=2026072930"></script>
+<script src="./data/all.js?v=2026072934"></script>
 <script>
 (function () {
   "use strict";
@@ -3512,7 +3523,7 @@
       console.log("[admin] session:", session ? session.user.email : "(none)");
     } catch (e) {
       console.error("[admin] getSession error:", e);
-      $("loadingGate").innerHTML = '<div class="gate-card"><h2>Erreur</h2><p>Impossible de vérifier ta session : ' + escapeHtml(e.message) + '</p><p><a href="./index.html">→ Retour à l\u0027app</a></p></div>';
+      $("loadingGate").innerHTML = '<div class="gate-card"><h2>Erreur</h2><p>Impossible de vérifier ta session : ' + escapeHtml(e.message) + '</p><p><a href="./welcome.html">→ Retour à l\u0027app</a></p></div>';
       return;
     }
     if (!session || !session.user) { showGate("loginGate"); return; }
@@ -3527,11 +3538,11 @@
       console.log("[admin] profile:", me, "err:", meErr);
     } catch (e) {
       console.error("[admin] profile lookup error:", e);
-      $("loadingGate").innerHTML = '<div class="gate-card"><h2>Erreur</h2><p>Impossible de lire ton profil : ' + escapeHtml(e.message) + '</p><p><a href="./index.html">→ Retour à l\u0027app</a></p></div>';
+      $("loadingGate").innerHTML = '<div class="gate-card"><h2>Erreur</h2><p>Impossible de lire ton profil : ' + escapeHtml(e.message) + '</p><p><a href="./welcome.html">→ Retour à l\u0027app</a></p></div>';
       return;
     }
     if (meErr) {
-      $("loadingGate").innerHTML = '<div class="gate-card"><h2>Erreur Supabase</h2><p>' + escapeHtml(meErr.message) + '</p><p><a href="./index.html">→ Retour à l\u0027app</a></p></div>';
+      $("loadingGate").innerHTML = '<div class="gate-card"><h2>Erreur Supabase</h2><p>' + escapeHtml(meErr.message) + '</p><p><a href="./welcome.html">→ Retour à l\u0027app</a></p></div>';
       return;
     }
     if (!me || !me.is_admin) { showGate("forbiddenGate"); return; }
@@ -3691,8 +3702,29 @@
     });
   }
 
+  /* ─── Les erreurs de modale s'affichaient hors du cadre visible ────────────
+     Le message d'erreur est la DERNIÈRE ligne de `.dlg-body`, qui défile ; le
+     bouton « Ajouter », lui, vit dans `.dlg-actions`, épinglé et toujours
+     visible. Sur un formulaire long — celui des inspirations en compte douze —
+     l'utilisateur cliquait, l'erreur s'affichait plus bas hors champ, et il en
+     concluait que le bouton ne faisait rien.
+
+     Un observateur plutôt que dix appels dispersés dans les gestionnaires de
+     soumission : ça couvre aussi les erreurs qu'on ajoutera plus tard. */
+  function wireDialogErrors() {
+    if (typeof MutationObserver !== "function") return;
+    document.querySelectorAll(".bundle-add-dialog .admin-login-error").forEach(el => {
+      new MutationObserver(() => {
+        if (el.hidden) return;
+        try { el.scrollIntoView({ block: "nearest", behavior: "smooth" }); }
+        catch (e) { try { el.scrollIntoView(); } catch (e2) { /* ignore */ } }
+      }).observe(el, { attributes: true, attributeFilter: ["hidden"] });
+    });
+  }
+
   function wireViewRouter() {
     wireTableLabels();
+    wireDialogErrors();
     setView(viewFromHash());
     window.addEventListener("hashchange", () => setView(viewFromHash()));
     const goImpro   = $("goImproBtn");

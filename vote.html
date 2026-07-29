@@ -8,8 +8,8 @@
 <title>Acto — Vote du public</title>
 <link rel="icon" type="image/png" href="./assets/logo.png?v=20260716" />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=2026072930" />
-<link rel="stylesheet" href="suite.css?v=2026072930" />
+<link rel="stylesheet" href="styles.css?v=2026072934" />
+<link rel="stylesheet" href="suite.css?v=2026072934" />
 <style>
   .suite-vote-body { min-height: 100svh; }
   .vote-wrap { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.1rem; padding: 1.6rem 1.1rem; text-align: center; }
@@ -38,6 +38,8 @@
   .vote-star:hover { border-color: var(--gold); }
   .vote-star.is-chosen { border-color: var(--gold); box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold) 35%, transparent); }
   .vote-star-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--team,#888); flex: 0 0 auto; }
+  /* .acto-discover est dans suite.css : join.html en a besoin aussi, et un style
+     posé ici ne l'aurait jamais atteint (il se serait affiché en lien bleu nu). */
   .vote-code-in { font-family: "Bebas Neue", monospace; font-size: 2rem; letter-spacing: .4rem; text-align: center; text-transform: uppercase; width: 10rem; padding: .35rem .5rem; border-radius: 12px; border: 2px solid color-mix(in srgb, var(--gold) 40%, transparent); background: color-mix(in srgb, var(--bg-velvet) 70%, transparent); color: var(--gold-soft); }
 </style>
 </head>
@@ -45,15 +47,25 @@
   <div class="vote-wrap">
     <img class="vote-logo" src="./assets/logo.png?v=20260716" alt="Acto" />
     <div id="voteRoot"></div>
+    <!-- Cette page est le SEUL contact d'un spectateur avec Acto : il scanne un
+         QR pendant le match, vote, voit le résultat… et n'avait ensuite aucun
+         moyen de savoir ce qu'est l'application. On lui laisse une porte, hors
+         du flux de vote pour ne pas le distraire pendant qu'il joue son rôle.
+         welcome.html s'auto-route : connecté → le Studio, déconnecté → la page
+         de connexion, qui porte le logo, la promesse et les essais sans compte. -->
+    <a class="acto-discover" href="./welcome.html">
+      <span id="voteDiscoverText"></span>
+      <small id="voteDiscoverSub"></small>
+    </a>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
           integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
           crossorigin="anonymous"></script>
-  <script src="./js/config.js?v=2026072930"></script>
-  <script src="./data/all.js?v=2026072930"></script>
-  <script src="./js/suite/i18n.js?v=2026072930"></script>
-  <script src="./js/suite/core.js?v=2026072930"></script>
+  <script src="./js/config.js?v=2026072934"></script>
+  <script src="./data/all.js?v=2026072934"></script>
+  <script src="./js/suite/i18n.js?v=2026072934"></script>
+  <script src="./js/suite/core.js?v=2026072934"></script>
   <script>
   (function () {
     "use strict";
@@ -273,6 +285,15 @@
       function go() { var v = (inp.value || "").trim().toUpperCase(); if (v.length >= 4) location.search = "?code=" + encodeURIComponent(v); }
       setTimeout(function () { try { inp.focus(); } catch (e) {} }, 40);
     }
+
+    // Le lien de découverte vit dans le HTML (donc il survit à tous les états de
+    // rendu), mais son texte doit suivre la langue choisie.
+    (function () {
+      var a = document.getElementById("voteDiscoverText");
+      var b = document.getElementById("voteDiscoverSub");
+      if (a) a.textContent = t("publicDiscover");
+      if (b) b.textContent = t("publicDiscoverSub");
+    })();
 
     if (!S) { root.textContent = "⚠"; return; }
     // Si rien n'arrive au bout de 12 s, c'est presque toujours un code erroné
