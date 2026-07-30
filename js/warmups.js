@@ -673,8 +673,12 @@
     setPh("#warmupQuery", "warmupsSearchPlaceholder", "");
     setText("#warmupRandomBtn", "warmupsRandomBtn", "🎲 Tirage aléatoire");
     setText("#warmupAddBtn", "warmupsAddBtn", "+ Proposer un exercice");
-    const back = $(".warmup-back a"); if (back) back.textContent = t("warmupsBackHome", "🏠 Accueil");
-    const home = $("#warmupHomeBtn span:last-child"); if (home) home.textContent = t("warmupsHome", "Accueil");
+    // `warmupsBackHome` / `warmupsHome` n'existaient dans aucun dictionnaire :
+    // les deux boutons restaient « Accueil » dans les 7 langues. La suite a bien
+    // un `navHome` traduit, mais warmups.html ne charge pas js/suite/i18n.js —
+    // ses 7 valeurs ont donc été reprises dans le bundle ui sous `homeBtn`.
+    const back = $(".warmup-back a"); if (back) back.textContent = "🏠 " + t("homeBtn", "Accueil");
+    const home = $("#warmupHomeBtn span:last-child"); if (home) home.textContent = t("homeBtn", "Accueil");
     // Draw popup
     setText("#drawBadge", "warmupsDrawBadge", "🎲 Tirage");
     setText("#drawChronoBtn", "warmupsDrawChrono", "⏱ Lancer le chrono");

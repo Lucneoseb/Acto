@@ -90,7 +90,10 @@
      Page text setup — pulls labels from i18n bundle, falls back to FR.
      ------------------------------------------------------------------ */
   function applyTexts() {
-    document.title = t("inspirePageTitle", "Acto — Inspirations");
+    // `inspirePageTitle` n'a jamais existé dans aucun dictionnaire : le titre de
+    // l'onglet restait donc en français dans les 7 langues, sur son repli codé
+    // en dur. Le libellé traduit est `inspirePageTitleShort`.
+    document.title = "Acto — " + t("inspirePageTitleShort", "Inspirations");
     const head = $("#inspirePageTitle"); if (head) head.textContent = "🎭 " + t("inspirePageTitleShort", "Inspirations");
     const blurb = $("#inspireBlurb"); if (blurb) blurb.textContent = t("inspireBlurb",
       "Une sélection vidéo de la communauté impro : matchs, longue forme, tutoriels, chaînes… Tape ci-dessous pour filtrer.");
@@ -107,7 +110,7 @@
     $("#hdrTheme").textContent    = t("inspireColTheme",    "Thème");
     $("#hdrDuration").textContent = t("inspireColDuration", "Durée");
     const hdrLocale = $("#hdrLocale");
-    if (hdrLocale) hdrLocale.textContent = t("inspireColLocale", "Langue");
+    if (hdrLocale) hdrLocale.textContent = t("language", "Langue");
     $("#hdrNotes").textContent    = t("inspireColNotes",    "Notes");
     // Top-action labels (Rules / Inspirations / Settings). Target ONLY the
     // text span (not the emoji span which carries aria-hidden) — earlier
@@ -116,9 +119,13 @@
     $$(".top-trigger span:not([aria-hidden])").forEach((s) => {
       const btn = s.closest(".top-trigger");
       if (!btn) return;
-      if (btn.classList.contains("rules-trigger"))    s.textContent = t("rulesLabelText", "Règles");
+      // `rulesLabelText` / `settingsLabelText` sont des ID DOM de quickgame.html,
+      // pas des clés i18n : recopiés ici par mégarde, ils ne résolvaient nulle
+      // part et laissaient « Règles » / « Réglages » en français dans les 7
+      // langues. Les vraies clés existent déjà, traduites 7/7.
+      if (btn.classList.contains("rules-trigger"))    s.textContent = t("rulesBtn", "Règles");
       if (btn.classList.contains("inspire-trigger"))  s.textContent = t("inspireLabelText", "Inspirations");
-      if (btn.classList.contains("settings-trigger")) s.textContent = t("settingsLabelText", "Réglages");
+      if (btn.classList.contains("settings-trigger")) s.textContent = t("settings", "Réglages");
     });
     // Submit dialog labels
     $("#inspireSubmitTitle").textContent = t("inspireSubmitTitle", "Proposer une inspiration");

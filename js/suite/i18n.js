@@ -1266,7 +1266,7 @@
     liveResumeTitle: "Hay una partida en curso",
     liveResumeBtn: "Reanudar",
     liveRestartBtn: "Empezar de cero",
-    liveResumeRun: "Ya hay un match en curso (marcador y código activos). ¿Reanudar donde lo dejaste? — «Cancelar» reinicia desde cero.",
+    liveResumeRun: "Ya hay una partida en curso: marcador, faltas y código de conexión están activos. Empezar de cero genera un NUEVO código — las pantallas y los teléfonos ya conectados se desconectarán.",
     liveConfirmReset: "¿Poner el cronómetro a cero?",
     liveConfirmThirdPenalty: "3.ª falta de {team}: {opponent} gana 1 punto. ¿Confirmar?",
     livePenalty: "Falta",
