@@ -327,6 +327,25 @@
     // is meaningless before sign-in). Rules stays visible regardless.
     document.body.classList.remove("is-signed-in");
   }
+  /* La carte « regarde ta boîte mail » sert à TROIS parcours : après une
+     inscription, après un lien magique, et depuis l'erreur « email non
+     confirmé ». Chacun laissait son état derrière lui :
+       - le lien magique masque le bouton de renvoi et ne le remontrait jamais,
+         donc l'inscription suivante s'affichait sans moyen de se renvoyer le mail ;
+       - l'erreur d'un parcours restait visible dans le suivant ;
+       - la couleur « succès » posée en style inline par resendConfirmation()
+         n'était jamais retirée, si bien que les erreurs suivantes s'affichaient
+         en doré, comme des confirmations.
+     On remet donc la carte à neuf à chaque ouverture. À chaque parcours ensuite
+     de poser ce dont il a besoin. */
+  function resetPendingCard() {
+    const t = ui();
+    setText("authPendingTitle", t.authPendingTitle || "");
+    const resend = $("authResendBtn");
+    if (resend) resend.hidden = false;
+    const err = $("authPendingError");
+    if (err) { err.hidden = true; err.textContent = ""; err.style.color = ""; }
+  }
   function showPendingScreen(email) {
     window.actoAuth.state.pendingEmail = email;
     const main = $("mainApp"); if (main) main.hidden = true;
@@ -334,6 +353,7 @@
     const loginCard = document.querySelector("#authScreen .auth-card:not(.auth-pending)");
     if (loginCard) loginCard.hidden = true;
     const card = $("authPendingCard"); if (card) card.hidden = false;
+    resetPendingCard();
     refreshPendingMsg();
     // Confirm-email screen is still pre-signed-in territory.
     document.body.classList.remove("is-signed-in");
@@ -509,6 +529,10 @@
     const email = window.actoAuth.state.pendingEmail;
     if (!email) return;
     showError("authPendingError", "");
+    // La couleur « succès » est posée en style inline plus bas : sans la retirer
+    // ici, un échec survenant APRÈS un envoi réussi s'affichait en doré, comme
+    // s'il s'agissait d'une confirmation.
+    const zone = $("authPendingError"); if (zone) zone.style.color = "";
     try {
       const { error } = await sb.auth.resend({
         type: "signup",
@@ -833,15 +857,16 @@
         options: { emailRedirectTo: loginReturnUrl() }
       });
       if (error) throw error;
-      // Reuse the "check your email" pending card.
-      const form = $("authLoginForm"); if (form) form.parentElement.hidden = true;
-      const pending = $("authPendingCard");
-      if (pending) {
-        pending.hidden = false;
-        setText("authPendingTitle", ui().authMagicSentTitle || "Check your email");
-        setText("authPendingMsg", ui().authMagicSentMsg || "We've emailed you a sign-in link. Open it to log in.");
-        const resend = $("authResendBtn"); if (resend) resend.hidden = true;  // resend is signup-only
-      }
+      // On réutilise la carte « regarde ta boîte mail », mais en passant par
+      // showPendingScreen() pour qu'elle soit d'abord remise à neuf : sinon
+      // l'erreur et la couleur laissées par un parcours précédent restaient
+      // affichées sous le message du lien magique.
+      showPendingScreen(email);
+      setText("authPendingTitle", ui().authMagicSentTitle || "Check your email");
+      setText("authPendingMsg", ui().authMagicSentMsg || "We've emailed you a sign-in link. Open it to log in.");
+      // Le renvoi ne vaut que pour une confirmation d'inscription : ici, c'est
+      // le bouton « lien magique » lui-même qu'il faut recliquer.
+      const resend = $("authResendBtn"); if (resend) resend.hidden = true;
     } catch (e) {
       showError("authLoginError", (ui().authMagicError || "Couldn't send the link.") + (e && e.message ? " (" + e.message + ")" : ""));
     } finally {
