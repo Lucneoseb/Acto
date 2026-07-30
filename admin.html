@@ -1701,12 +1701,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
         integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
         crossorigin="anonymous"></script>
-<script src="./js/config.js?v=2026072939"></script>
-<script src="./js/utils.js?v=2026072939"></script>
+<script src="./js/config.js?v=2026072940"></script>
+<script src="./js/utils.js?v=2026072940"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=2026072939"></script>
+<script src="./data/all.js?v=2026072940"></script>
 <script>
 (function () {
   "use strict";
@@ -2724,6 +2724,8 @@
   }
 
   function wireInspirationsControls() {
+    if (__cable.inspirations) return;
+    __cable.inspirations = true;
     ["inspireFilterStatus","inspireFilterType","inspireFilterLocale","inspireFilterText"].forEach(id => {
       const el = $(id); if (!el) return;
       el.addEventListener("input",  renderInspirations);
@@ -3094,6 +3096,8 @@
   }
 
   function wireWarmupsControls() {
+    if (__cable.warmups) return;
+    __cable.warmups = true;
     ["warmupFilterStatus","warmupFilterType","warmupFilterLocale","warmupFilterText"].forEach(id => {
       const el = $(id); if (!el) return;
       el.addEventListener("input",  renderWarmups);
@@ -3472,6 +3476,8 @@
 
   // Wire the bundled-list controls
   function wireBundledControls() {
+    if (__cable.bundled) return;   // voir __cable : recablage apres reconnexion
+    __cable.bundled = true;
     populateLocaleOptions();
     ["bundleFilterLocale","bundleFilterKind","bundleFilterMode","bundleFilterLevel","bundleShowHidden"].forEach(id => {
       const el = $(id); if (!el) return;
@@ -3570,6 +3576,15 @@
   // against the SIGNED_IN / INITIAL_SESSION events from onAuthStateChange.
   // The flags collapse duplicate runs so we don't double-load the dashboard.
   let __adminBooted  = false;
+  /* Le cablage des ecouteurs ne doit se faire qu UNE fois par chargement de page.
+     Se deconnecter remet __adminBooted a false (evenement SIGNED_OUT) et le
+     portier de connexion vit sur CETTE page : se reconnecter sans recharger
+     rappelle donc bootAdmin(), qui recablait tout une seconde fois. Un clic sur
+     « Cacher » partait alors en 2 RPC, puis 3 au cycle suivant, et chaque cycle
+     empilait 11 MutationObserver que rien ne deconnectait.
+     wireAdminLoginForm utilisait deja ce garde (form.dataset.wired) ; on
+     l applique aux autres. */
+  const __cable = { router: false, bundled: false, inspirations: false, warmups: false };
   let __adminBooting = false;
 
   async function bootAdmin() {
@@ -3852,6 +3867,8 @@
   }
 
   function wireViewRouter() {
+    if (__cable.router) { setView(viewFromHash()); return; }   // la vue, oui ; le cablage, une seule fois
+    __cable.router = true;
     wireTableLabels();
     wireDialogErrors();
     setView(viewFromHash());
