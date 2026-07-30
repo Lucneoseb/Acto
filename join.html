@@ -8,8 +8,8 @@
 <title>Acto — Écran live</title>
 <link rel="icon" type="image/png" href="./assets/logo.png?v=20260711" />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=2026072943" />
-<link rel="stylesheet" href="suite.css?v=2026072943" />
+<link rel="stylesheet" href="styles.css?v=2026072944" />
+<link rel="stylesheet" href="suite.css?v=2026072944" />
 </head>
 <body class="suite-body suite-join-body">
   <!-- Code entry / mode picker (hidden once a screen is mounted) -->
@@ -21,9 +21,11 @@
          dans le portier (saisie du code) et disparaît donc avec lui dès qu'un
          écran public ou de filmage est monté — un lien n'a rien à faire sur un
          écran projeté en salle. -->
+    <!-- Texte en dur, même raison que sur vote.html : sans i18n.js, t() renvoie
+         la clé ; sans JS du tout, le lien serait une boîte vide. -->
     <a class="acto-discover" href="./welcome.html">
-      <span id="joinDiscoverText"></span>
-      <small id="joinDiscoverSub"></small>
+      <span id="joinDiscoverText">Découvrir Acto</span>
+      <small id="joinDiscoverSub">Le studio d’impro qui a fait tourner ce match.</small>
     </a>
   </div>
   <!-- The public display / record screen mounts here -->
@@ -32,11 +34,11 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
           integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
           crossorigin="anonymous"></script>
-  <script src="./js/config.js?v=2026072943"></script>
-  <script src="./data/all.js?v=2026072943"></script>
-  <script src="./js/suite/i18n.js?v=2026072943"></script>
-  <script src="./js/suite/core.js?v=2026072943"></script>
-  <script src="./js/suite/live.js?v=2026072943"></script>
+  <script src="./js/config.js?v=2026072944"></script>
+  <script src="./data/all.js?v=2026072944"></script>
+  <script src="./js/suite/i18n.js?v=2026072944"></script>
+  <script src="./js/suite/core.js?v=2026072944"></script>
+  <script src="./js/suite/live.js?v=2026072944"></script>
   <script>
   (function () {
     "use strict";
@@ -60,10 +62,14 @@
     // Le lien de découverte est dans le HTML du portier : son texte doit suivre
     // la langue, comme le reste du portier.
     (function () {
-      var a = document.getElementById("joinDiscoverText");
-      var b = document.getElementById("joinDiscoverSub");
-      if (a) a.textContent = t("publicDiscover");
-      if (b) b.textContent = t("publicDiscoverSub");
+      // Même garde que sur vote.html : t() renvoie la clé si elle manque.
+      function poser(id, cle) {
+        var el = document.getElementById(id); if (!el) return;
+        var v = t(cle);
+        if (v && v !== cle) el.textContent = v;
+      }
+      poser("joinDiscoverText", "publicDiscover");
+      poser("joinDiscoverSub",  "publicDiscoverSub");
     })();
 
     function mount(code, mode) {

@@ -8,8 +8,8 @@
 <title>Acto — Vote du public</title>
 <link rel="icon" type="image/png" href="./assets/logo.png?v=20260716" />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=2026072943" />
-<link rel="stylesheet" href="suite.css?v=2026072943" />
+<link rel="stylesheet" href="styles.css?v=2026072944" />
+<link rel="stylesheet" href="suite.css?v=2026072944" />
 <style>
   .suite-vote-body { min-height: 100svh; }
   .vote-wrap { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.1rem; padding: 1.6rem 1.1rem; text-align: center; }
@@ -53,19 +53,24 @@
          du flux de vote pour ne pas le distraire pendant qu'il joue son rôle.
          welcome.html s'auto-route : connecté → le Studio, déconnecté → la page
          de connexion, qui porte le logo, la promesse et les essais sans compte. -->
+    <!-- Le texte est écrit ici en dur, pas laissé vide : si i18n.js ou core.js
+         ne se charge pas, t() renvoie la CLÉ, et le spectateur lisait
+         « publicDiscover ». Si le JS ne tourne pas du tout, il voyait une boîte
+         cliquable sans le moindre mot. Le script ci-dessous ne remplace ce
+         texte que s'il a réellement obtenu une traduction. -->
     <a class="acto-discover" href="./welcome.html">
-      <span id="voteDiscoverText"></span>
-      <small id="voteDiscoverSub"></small>
+      <span id="voteDiscoverText">Découvrir Acto</span>
+      <small id="voteDiscoverSub">Le studio d’impro qui a fait tourner ce match.</small>
     </a>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
           integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
           crossorigin="anonymous"></script>
-  <script src="./js/config.js?v=2026072943"></script>
-  <script src="./data/all.js?v=2026072943"></script>
-  <script src="./js/suite/i18n.js?v=2026072943"></script>
-  <script src="./js/suite/core.js?v=2026072943"></script>
+  <script src="./js/config.js?v=2026072944"></script>
+  <script src="./data/all.js?v=2026072944"></script>
+  <script src="./js/suite/i18n.js?v=2026072944"></script>
+  <script src="./js/suite/core.js?v=2026072944"></script>
   <script>
   (function () {
     "use strict";
@@ -289,10 +294,15 @@
     // Le lien de découverte vit dans le HTML (donc il survit à tous les états de
     // rendu), mais son texte doit suivre la langue choisie.
     (function () {
-      var a = document.getElementById("voteDiscoverText");
-      var b = document.getElementById("voteDiscoverSub");
-      if (a) a.textContent = t("publicDiscover");
-      if (b) b.textContent = t("publicDiscoverSub");
+      // t() renvoie la CLÉ quand elle est introuvable : on ne remplace donc le
+      // texte du HTML que si la traduction a réellement abouti.
+      function poser(id, cle) {
+        var el = document.getElementById(id); if (!el) return;
+        var v = t(cle);
+        if (v && v !== cle) el.textContent = v;
+      }
+      poser("voteDiscoverText", "publicDiscover");
+      poser("voteDiscoverSub",  "publicDiscoverSub");
     })();
 
     if (!S) { root.textContent = "⚠"; return; }
