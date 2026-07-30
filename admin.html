@@ -432,13 +432,6 @@
     #inspireTableAdmin tbody td.empty:before { content: ""; }
     #inspireTableAdmin tbody td.empty { text-align: center; padding: 1.5rem 0.5rem; font-style: italic; color: var(--ink-muted); }
   }
-  /* Extra-narrow phones */
-  @media (max-width: 380px) {
-    #inspireTableAdmin tr { padding: 0.75rem 0.85rem; border-radius: 12px; }
-    #inspireTableAdmin tbody td:nth-of-type(1) { font-size: 0.95rem; }
-    #inspireTableAdmin tbody td:nth-of-type(n+2):before { min-width: 4.5rem; font-size: 0.62rem; }
-    #inspireTableAdmin tbody td.actions .btn { min-width: 5rem; font-size: 0.75rem; padding: 0.45rem 0.55rem; }
-  }
 
   /* ----- Event analytics sections ----- */
   .section-title {
@@ -862,6 +855,43 @@
     }
     #inspireTableAdmin tbody td:first-child,
     #inspireTableAdmin tbody td.actions { grid-column: 1 / -1; }
+  }
+
+  /* ─── 2 ter. Trois restes de la mise en cartes ────────────────────────────
+     (a) `.bundle-add-dialog > form` pose `flex-direction: column` et attrape
+         AUSSI le <form class="dlg-head"> — le titre passait donc au-dessus de
+         la croix de fermeture, pour 100 px de haut mesurés. Le sélecteur
+         `.bundle-add-dialog .dlg-head` (0,2,0) l'emporte sur `> form` (0,1,1),
+         encore fallait-il qu'il déclare la direction. Vaut pour les quatre
+         dialogues, pas seulement le nouveau.
+     (b) Les boutons de « Listes bundled » gardent `min-height: 30px` via
+         `table.bundled-list td:last-child .btn` (0,2,3) : la règle 44 px au
+         doigt ne pouvait pas passer. Encore une fois, viser aussi précis.
+     (c) La conversion en cartes remet `width` à auto mais jamais `max-width` :
+         les cellules bridées (220 px pour `td.wrap`, 360 px ici) restaient
+         étroites au milieu d'une carte pleine largeur. */
+  .bundle-add-dialog .dlg-head { flex-direction: row; }
+
+  @media (max-width: 900px) {
+    .table-wrap table.profiles tbody td { max-width: none; }
+    #inspireTableAdmin tbody td { max-width: none !important; }
+  }
+  @media (pointer: coarse) {
+    table.bundled-list td:last-child .btn,
+    table.bundled-list td.actions .btn { min-height: 44px; }
+  }
+
+  /* ─── 2 quater. Très petits téléphones ─────────────────────────────────────
+     Ce bloc existait plus haut dans le fichier. Mes règles de mise en cartes
+     ciblent les MÊMES sélecteurs (`#inspireTableAdmin tbody td.actions .btn`,
+     spécificité identique) et, écrites plus bas, elles le neutralisaient : sous
+     380 px les boutons reprenaient 6 rem et 0.8 rem au lieu des 5 rem et
+     0.75 rem prévus. Déplacé ici — une seule copie, mais après ce qui le battait. */
+  @media (max-width: 380px) {
+    #inspireTableAdmin tr { padding: 0.75rem 0.85rem; border-radius: 12px; }
+    #inspireTableAdmin tbody td:nth-of-type(1) { font-size: 0.95rem; }
+    #inspireTableAdmin tbody td:nth-of-type(n+2):before { min-width: 4.5rem; font-size: 0.62rem; }
+    #inspireTableAdmin tbody td.actions .btn { min-width: 5rem; font-size: 0.75rem; padding: 0.45rem 0.55rem; }
   }
 
   /* ─── 3. iOS zoomait la page à chaque focus ────────────────────────────────
@@ -1701,12 +1731,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
         integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
         crossorigin="anonymous"></script>
-<script src="./js/config.js?v=2026072941"></script>
-<script src="./js/utils.js?v=2026072941"></script>
+<script src="./js/config.js?v=2026072942"></script>
+<script src="./js/utils.js?v=2026072942"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=2026072941"></script>
+<script src="./data/all.js?v=2026072942"></script>
 <script>
 (function () {
   "use strict";
@@ -3331,7 +3361,7 @@
         <td class="text"><span class="name">${escapeHtml(name)}</span></td>
         <td class="desc">${escapeHtml(desc) || '<span style="color:var(--ink-faint);">—</span>'}</td>
         <td class="state"><span class="pill ${isHidden ? 'pill-hidden' : 'pill-visible'}">${isHidden ? "caché" : "visible"}</span></td>
-        <td>${action}</td>
+        <td class="actions">${action}</td>
       </tr>`;
     }).join("");
   }
