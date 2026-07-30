@@ -4,281 +4,417 @@
       "debutant": [
         {
           "name": "De spiegel",
-          "desc": "Twee spelers tegenover elkaar. Eén maakt langzame bewegingen, de ander spiegelt perfect."
+          "desc": "Twee spelers tegenover elkaar. Eén maakt langzame bewegingen, de ander spiegelt perfect.",
+          "minPlayers": 2,
+          "maxPlayers": 2
         },
         {
           "name": "Yes, and...",
-          "desc": "Elk voorstel wordt aanvaard en uitgebouwd. Gouden regel: nooit blokkeren."
+          "desc": "Elk voorstel wordt aanvaard en uitgebouwd. Gouden regel: nooit blokkeren.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Woord per woord",
-          "desc": "In een kring voegt elke speler één woord toe. Een verhaal samen opbouwen, zonder aarzelen."
+          "desc": "In een kring voegt elke speler één woord toe. Een verhaal samen opbouwen, zonder aarzelen.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Freeze",
-          "desc": "Twee improviseren vanuit een houding. Iemand klapt, de scène bevriest, en wordt vervangen."
+          "desc": "Twee improviseren vanuit een houding. Iemand klapt, de scène bevriest, en wordt vervangen.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Emotie-achtbaan",
-          "desc": "De spelleider roept elke minuut een emotie. De spelers schakelen meteen om."
+          "desc": "De spelleider roept elke minuut een emotie. De spelers schakelen meteen om.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Onzichtbaar voorwerp",
-          "desc": "Eén speler hanteert een onzichtbaar voorwerp. Anderen raden en stellen nieuwe gebruiken voor."
+          "desc": "Eén speler hanteert een onzichtbaar voorwerp. Anderen raden en stellen nieuwe gebruiken voor.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Drie personages",
-          "desc": "Drie spelers komen op en vestigen hun personage in 30 seconden via houding en stem."
+          "desc": "Drie spelers komen op en vestigen hun personage in 30 seconden via houding en stem.",
+          "minPlayers": 3,
+          "maxPlayers": 3
         },
         {
           "name": "Vragenkring",
-          "desc": "Eén speler in het midden. Anderen bestoken hem met snelle vragen, nauwkeurig te beantwoorden."
+          "desc": "Eén speler in het midden. Anderen bestoken hem met snelle vragen, nauwkeurig te beantwoorden.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Gemengd",
-          "desc": "De hele troupe speelt het thema samen, zonder ploegopdeling. (Aangepast van match-categorie)"
+          "desc": "De hele troupe speelt het thema samen, zonder ploegopdeling. (Aangepast van match-categorie)",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Vergelijkend",
-          "desc": "Twee subgroepen van de troupe spelen om beurten dezelfde opdracht. De 2ª versie moet verschillen van de 1ª. (Aangepast van match-categorie)"
+          "desc": "Twee subgroepen van de troupe spelen om beurten dezelfde opdracht. De 2ª versie moet verschillen van de 1ª. (Aangepast van match-categorie)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Met rekwisiet",
-          "desc": "Een opgelegd voorwerp moet centraal staan in de collectieve improvisatie. De hele troupe laat het werken op de scène. (Aangepast van match-categorie)"
+          "desc": "Een opgelegd voorwerp moet centraal staan in de collectieve improvisatie. De hele troupe laat het werken op de scène. (Aangepast van match-categorie)",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Vrij",
-          "desc": "Twee subgroepen spelen om beurten hetzelfde thema zonder vormbeperking. Volledige vrijheid. (Aangepast van match-categorie)"
+          "desc": "Twee subgroepen spelen om beurten hetzelfde thema zonder vormbeperking. Volledige vrijheid. (Aangepast van match-categorie)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "De stoelen",
-          "desc": "Een team heeft 30 s om een structuur met stoelen te bouwen. Een ander team heeft 40 s om vanuit die structuur een improvisatie voor te bereiden. (Tadam Impro)"
+          "desc": "Een team heeft 30 s om een structuur met stoelen te bouwen. Een ander team heeft 40 s om vanuit die structuur een improvisatie voor te bereiden. (Tadam Impro)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "De grafrede",
-          "desc": "Ieder improviseert een eerbetoon aan zijn huisdier. Plechtig, grappig, of beide. (Tadam Impro)"
+          "desc": "Ieder improviseert een eerbetoon aan zijn huisdier. Plechtig, grappig, of beide. (Tadam Impro)",
+          "minPlayers": 1,
+          "maxPlayers": 99
         },
         {
           "name": "Thema belichamen",
-          "desc": "De groep is in beweging, een leider roept een thema (museum, piramiden...). De groep maakt het meteen uit. (Tadam Impro)"
+          "desc": "De groep is in beweging, een leider roept een thema (museum, piramiden...). De groep maakt het meteen uit. (Tadam Impro)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Vreemd gesprek",
-          "desc": "Twee spelers improviseren een schuine situatie: een vogel legt de boom uit aan een andere vogel, een vlo maakt ruzie met een hond. (Tadam Impro)"
+          "desc": "Twee spelers improviseren een schuine situatie: een vogel legt de boom uit aan een andere vogel, een vlo maakt ruzie met een hond. (Tadam Impro)",
+          "minPlayers": 2,
+          "maxPlayers": 2
         },
         {
           "name": "De dronkaard",
           "desc": "Een publiekslid (of acteur) speelt de « dronkaard » die de scène onderbreekt met absurde voorstellen die de improvisators moeten verwerken om het verhaal vooruit te helpen.",
-          "needsAudience": true
+          "needsAudience": true,
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "De menselijke machine",
-          "desc": "Eén voor één komen de spelers op en voegen een herhaald gebaar of geluid toe. De machine bouwt zich organisch op."
+          "desc": "Eén voor één komen de spelers op en voegen een herhaald gebaar of geluid toe. De machine bouwt zich organisch op.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "ABC",
-          "desc": "Een scène waarin elke replica begint met de volgende letter van het alfabet. A, B, C... tot Z."
+          "desc": "Een scène waarin elke replica begint met de volgende letter van het alfabet. A, B, C... tot Z.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "De bus",
-          "desc": "Een bushalte. Bij elke aankomst stapt een nieuw personage op met zijn eigen universum. De scène muteert telkens."
+          "desc": "Een bushalte. Bij elke aankomst stapt een nieuw personage op met zijn eigen universum. De scène muteert telkens.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Pantomime",
-          "desc": "Een volledig gemimede scène vanuit een gegeven thema. (Dramaction)"
+          "desc": "Een volledig gemimede scène vanuit een gegeven thema. (Dramaction)",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Doorgegeven emotie",
-          "desc": "Een speler geeft zwijgend een emotie door aan zijn buur via een gebaar, die haar op zijn beurt doorgeeft. (Dramaction)"
+          "desc": "Een speler geeft zwijgend een emotie door aan zijn buur via een gebaar, die haar op zijn beurt doorgeeft. (Dramaction)",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Begin-midden-einde in 30 s",
-          "desc": "Een impro beginnen, de inzet verschuiven en afronden — alles in 30 seconden chrono. (Impro-Exo)"
+          "desc": "Een impro beginnen, de inzet verschuiven en afronden — alles in 30 seconden chrono. (Impro-Exo)",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Gesprek met wisselende emotie",
           "desc": "Een gesprek met twee. Om de 1-2 minuten roept een leider een emotie. De spelers schakelen onmiddellijk om. (MentorShow)",
-          "needsAudience": true
+          "needsAudience": true,
+          "minPlayers": 2,
+          "maxPlayers": 2
         }
       ],
       "confirme": [
         {
           "name": "Pauze-hervat",
-          "desc": "De spelleider stopt de scène, verandert een element (plaats, tijd, status), en hervat."
+          "desc": "De spelleider stopt de scène, verandert een element (plaats, tijd, status), en hervat.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Drie verplichte woorden",
-          "desc": "Drie willekeurige woorden moeten natuurlijk in de scène voorkomen."
+          "desc": "Drie willekeurige woorden moeten natuurlijk in de scène voorkomen.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Statusspel",
-          "desc": "Elk personage heeft een verborgen status (1-10). Het publiek moet raden."
+          "desc": "Elk personage heeft een verborgen status (1-10). Het publiek moet raden.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Nasynchronisatie",
-          "desc": "Twee mimen, twee anderen spreken voor hen vanuit de coulissen."
+          "desc": "Twee mimen, twee anderen spreken voor hen vanuit de coulissen.",
+          "minPlayers": 4,
+          "maxPlayers": 4
         },
         {
           "name": "Expertenpanel",
-          "desc": "Een expertenpanel over een absurd onderwerp beantwoordt vragen van het publiek serieus."
+          "desc": "Een expertenpanel over een absurd onderwerp beantwoordt vragen van het publiek serieus.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Laatste woord, eerste woord",
-          "desc": "Elke replica begint met het laatste woord van de vorige."
+          "desc": "Elke replica begint met het laatste woord van de vorige.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Achterstevoren-verhaal",
-          "desc": "Een verhaal vertellen vanaf het einde en scène per scène teruggaan."
+          "desc": "Een verhaal vertellen vanaf het einde en scène per scène teruggaan.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Genres door elkaar",
-          "desc": "De spelleider wisselt elke 30 seconden van genre (western, krimi, romance, horror...)."
+          "desc": "De spelleider wisselt elke 30 seconden van genre (western, krimi, romance, horror...).",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "In de stijl van",
-          "desc": "Iedereen speelt het thema in een opgelegde auteurs- of genrestijl: Claus, film noir, Tarantino... (Aangepast van match-categorie)"
+          "desc": "Iedereen speelt het thema in een opgelegde auteurs- of genrestijl: Claus, film noir, Tarantino... (Aangepast van match-categorie)",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Stom",
-          "desc": "Geen woord gesproken — alleen de collectieve enscenering vertelt het verhaal. Extreme concentratie. (Aangepast van match-categorie)"
+          "desc": "Geen woord gesproken — alleen de collectieve enscenering vertelt het verhaal. Extreme concentratie. (Aangepast van match-categorie)",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Stom met muziek",
-          "desc": "Stomme improvisatie, maar het schrijven wordt streng gevormd door de opgelegde muzikale sfeer. (Dramaction)"
+          "desc": "Stomme improvisatie, maar het schrijven wordt streng gevormd door de opgelegde muzikale sfeer. (Dramaction)",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Met dwangopgave",
-          "desc": "Twee subgroepen spelen om beurten hetzelfde thema, elk met een andere willekeurig getrokken opgave. (Aangepast van match-categorie)"
+          "desc": "Twee subgroepen spelen om beurten hetzelfde thema, elk met een andere willekeurig getrokken opgave. (Aangepast van match-categorie)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Zonder thema, zonder caucus",
-          "desc": "Geen thema aangekondigd, geen voorbereidingstijd. Pure spontane invention. (Dramaction)"
+          "desc": "Geen thema aangekondigd, geen voorbereidingstijd. Pure spontane invention. (Dramaction)",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Bokspringen",
-          "desc": "Vier verschillende impro's, telkens een ander thema. De 1ª met één speler, bij elke volgende impro komt er één bij. (Dramaction)"
+          "desc": "Vier verschillende impro's, telkens een ander thema. De 1ª met één speler, bij elke volgende impro komt er één bij. (Dramaction)",
+          "minPlayers": 4,
+          "maxPlayers": 4
         },
         {
           "name": "Zintuiglijk",
-          "desc": "Eén van de vijf zintuigen van een speler wordt tijdens de scène geprikkeld. Die gewaarwording moet het hele schrijven dragen. (Dramaction)"
+          "desc": "Eén van de vijf zintuigen van een speler wordt tijdens de scène geprikkeld. Die gewaarwording moet het hele schrijven dragen. (Dramaction)",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Vergelijkend in de stijl van",
-          "desc": "Twee subgroepen van de troupe spelen om beurten hetzelfde thema in de opgelegde stijl, elk op hun eigen manier. (Aangepast van match-categorie)"
+          "desc": "Twee subgroepen van de troupe spelen om beurten hetzelfde thema in de opgelegde stijl, elk op hun eigen manier. (Aangepast van match-categorie)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Drievoudige status",
-          "desc": "Elk personage heeft een geheim, een doel en een obstakel. Alle drie worden in de loop van de scène onthuld."
+          "desc": "Elk personage heeft een geheim, een doel en een obstakel. Alle drie worden in de loop van de scène onthuld.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Omgekeerde scène",
-          "desc": "Men begint bij de climax en werkt terug tot de eerste ontmoeting van de personages."
+          "desc": "Men begint bij de climax en werkt terug tot de eerste ontmoeting van de personages.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Het ontstemde koor",
-          "desc": "Een koor op het podium — één lid is vals of uit het ritme. Het hele drama komt van hem. (Wikiversité)"
+          "desc": "Een koor op het podium — één lid is vals of uit het ritme. Het hele drama komt van hem. (Wikiversité)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Acteurs in de coulissen",
-          "desc": "Een scène speelt zich af in de coulissen terwijl de « voorstelling » op het podium doorgaat. Spel in spel. (Wikiversité)"
+          "desc": "Een scène speelt zich af in de coulissen terwijl de « voorstelling » op het podium doorgaat. Spel in spel. (Wikiversité)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "De vastgelopen lift",
-          "desc": "Ultra krappe ruimte, meerdere personages, gedwongen afsluiting. Een klassieker. (Wikiversité)"
+          "desc": "Ultra krappe ruimte, meerdere personages, gedwongen afsluiting. Een klassieker. (Wikiversité)",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "De lerarenvergadering",
-          "desc": "Een lerarenvergadering waar elke leerkracht een verborgen agenda en een lievelingsleerling heeft."
+          "desc": "Een lerarenvergadering waar elke leerkracht een verborgen agenda en een lievelingsleerling heeft.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Terug naar het verleden",
-          "desc": "Op een sleutelmoment klapt een speler in de handen. De scène spoelt één minuut terug en wordt anders gespeeld."
+          "desc": "Op een sleutelmoment klapt een speler in de handen. De scène spoelt één minuut terug en wordt anders gespeeld.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Getrokken personage",
-          "desc": "Elke speler trekt een personagetype (clown, verleider, paranoïde) dat hij moet spelen zonder het te noemen."
+          "desc": "Elke speler trekt een personagetype (clown, verleider, paranoïde) dat hij moet spelen zonder het te noemen.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         }
       ],
       "expert": [
         {
           "name": "De Harold",
-          "desc": "Lange vorm: drie parallelle scènes verweven en voeden elkaar. Formaat Del Close."
+          "desc": "Lange vorm: drie parallelle scènes verweven en voeden elkaar. Formaat Del Close.",
+          "minPlayers": 6,
+          "maxPlayers": 99
         },
         {
           "name": "Gezongen improvisatie",
-          "desc": "Volledig gezongen scène met geïmproviseerde melodie en couplet/refrein-structuur."
+          "desc": "Volledig gezongen scène met geïmproviseerde melodie en couplet/refrein-structuur.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Twintig minuten zonder onderbreking",
-          "desc": "Eén scène, twintig minuten, zonder breuk. Een hele wereld dragen."
+          "desc": "Eén scène, twintig minuten, zonder breuk. Een hele wereld dragen.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Pirandello-spiegel",
-          "desc": "De personages beseffen dat ze geïmproviseerd zijn — maar moeten de scène voortzetten."
+          "desc": "De personages beseffen dat ze geïmproviseerd zijn — maar moeten de scène voortzetten.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Twee tijden",
-          "desc": "Een scène wordt gespeeld en tien jaar later herspeeld met de gevolgen."
+          "desc": "Een scène wordt gespeeld en tien jaar later herspeeld met de gevolgen.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Stille voorstelling",
-          "desc": "15-minutenspektakel zonder één woord. Heldere plot, echte ontknoping."
+          "desc": "15-minutenspektakel zonder één woord. Heldere plot, echte ontknoping.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Theater in theater",
-          "desc": "De personages improviseren op hun beurt een stuk binnen de scène. Drie fictieniveaus."
+          "desc": "De personages improviseren op hun beurt een stuk binnen de scène. Drie fictieniveaus.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Beckett-stijl",
-          "desc": "Lange absurde vorm: bewoonde stiltes, wachten, taal die zich leegt. Godot-stijl."
+          "desc": "Lange absurde vorm: bewoonde stiltes, wachten, taal die zich leegt. Godot-stijl.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Gezongen",
-          "desc": "Improvisatie geheel of gedeeltelijk gezongen door de hele troupe, geïmproviseerde melodieën en teksten in collectief. (Aangepast van match-categorie)"
+          "desc": "Improvisatie geheel of gedeeltelijk gezongen door de hele troupe, geïmproviseerde melodieën en teksten in collectief. (Aangepast van match-categorie)",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Rijmend",
-          "desc": "Alle replica's rijmen. Achtsilbig of alexandrijn naargelang het niveau. De hele troupe houdt het metrum. (Aangepast van match-categorie)"
+          "desc": "Alle replica's rijmen. Achtsilbig of alexandrijn naargelang het niveau. De hele troupe houdt het metrum. (Aangepast van match-categorie)",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Videoway",
-          "desc": "Gemengd met vier TV-kanalen (F1-F4), verschillende inhoud per kanaal. De scheidsrechter springt zonder vooraf bepaalde volgorde tussen de kanalen. (Dramaction)"
+          "desc": "Gemengd met vier TV-kanalen (F1-F4), verschillende inhoud per kanaal. De scheidsrechter springt zonder vooraf bepaalde volgorde tussen de kanalen. (Dramaction)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Stelling",
-          "desc": "De collectieve improvisatie moet een vooraf aangekondigde filosofische stelling verdedigen."
+          "desc": "De collectieve improvisatie moet een vooraf aangekondigde filosofische stelling verdedigen.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Vergelijkend gezongen",
-          "desc": "Twee subgroepen van de troupe bieden achtereenvolgens hun gezongen versie van hetzelfde thema. (Aangepast van match-categorie)"
+          "desc": "Twee subgroepen van de troupe bieden achtereenvolgens hun gezongen versie van hetzelfde thema. (Aangepast van match-categorie)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Vergelijkend rijmend",
-          "desc": "Twee subgroepen van de troupe leveren achtereenvolgens hun rijmende versie van het thema. (Aangepast van match-categorie)"
+          "desc": "Twee subgroepen van de troupe leveren achtereenvolgens hun rijmende versie van het thema. (Aangepast van match-categorie)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "De vuurbal",
-          "desc": "Alle spelers op het podium. Op elk hoogtepunt maakt een duo zich los voor een miniscène en keert dan terug naar de groep."
+          "desc": "Alle spelers op het podium. Op elk hoogtepunt maakt een duo zich los voor een miniscène en keert dan terug naar de groep.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Gedeelde monoloog",
-          "desc": "Een lange monoloog wordt door elke speler hernomen, die hem vervormt en verrijkt terwijl hij hetzelfde personage blijft."
+          "desc": "Een lange monoloog wordt door elke speler hernomen, die hem vervormt en verrijkt terwijl hij hetzelfde personage blijft.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Impro-opera",
-          "desc": "Recitatieven en aria's afwisselend gezongen, volledig geïmproviseerd libretto, lyrische stemmen."
+          "desc": "Recitatieven en aria's afwisselend gezongen, volledig geïmproviseerd libretto, lyrische stemmen.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Het Huis (Del Close)",
-          "desc": "Lange vorm waarin elke scène thema's opent die de volgende scènes hernemen en verdiepen."
+          "desc": "Lange vorm waarin elke scène thema's opent die de volgende scènes hernemen en verdiepen.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Het Deconstructed",
-          "desc": "Eén enkele scène wordt gespeeld, daarna ontleed en hernomen vanuit meerdere verhaalhoeken."
+          "desc": "Eén enkele scène wordt gespeeld, daarna ontleed en hernomen vanuit meerdere verhaalhoeken.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Tsjechoviaans",
-          "desc": "Lange vorm à la Tsjechov: geen climax, personages die elkaar mislopen, niets-doen als motor."
+          "desc": "Lange vorm à la Tsjechov: geen climax, personages die elkaar mislopen, niets-doen als motor.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         }
       ]
     },
@@ -286,95 +422,139 @@
       "debutant": [
         {
           "name": "Enkele ploeg",
-          "desc": "Eén ploeg speelt, de andere wacht. Klassieke LNI-matchvorm."
+          "desc": "Eén ploeg speelt, de andere wacht. Klassieke LNI-matchvorm.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Gemengd",
-          "desc": "Beide ploegen spelen samen in dezelfde improvisatie."
+          "desc": "Beide ploegen spelen samen in dezelfde improvisatie.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Vergelijkend",
-          "desc": "Elke ploeg speelt om beurten dezelfde opdracht. Publiek vergelijkt en stemt."
+          "desc": "Elke ploeg speelt om beurten dezelfde opdracht. Publiek vergelijkt en stemt.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Gemengd stom",
-          "desc": "Beide ploegen samen, maar in absolute stilte."
+          "desc": "Beide ploegen samen, maar in absolute stilte.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Vergelijkend gezongen",
-          "desc": "Elke ploeg bouwt minstens één gezongen passage in."
+          "desc": "Elke ploeg bouwt minstens één gezongen passage in.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Vergelijkend met rekwisiet",
-          "desc": "Een opgelegd rekwisiet moet centraal staan. Elk team gebruikt het op zijn eigen manier."
+          "desc": "Een opgelegd rekwisiet moet centraal staan. Elk team gebruikt het op zijn eigen manier.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         }
       ],
       "confirme": [
         {
           "name": "In de stijl van",
-          "desc": "Stijl of genre opgelegd: Hugo Claus, film noir, Coen-broers..."
+          "desc": "Stijl of genre opgelegd: Hugo Claus, film noir, Coen-broers...",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Gemengd met rekwisiet",
-          "desc": "Een opgelegd voorwerp moet centraal staan."
+          "desc": "Een opgelegd voorwerp moet centraal staan.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Achterstevoren",
-          "desc": "De ploeg moet de scène vanaf het einde spelen."
+          "desc": "De ploeg moet de scène vanaf het einde spelen.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Vergelijkend rijmend",
-          "desc": "Alle replica's moeten rijmen."
+          "desc": "Alle replica's moeten rijmen.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Vergelijkend stom",
-          "desc": "Geen woorden: alleen gebaren en expressie vertellen het verhaal."
+          "desc": "Geen woorden: alleen gebaren en expressie vertellen het verhaal.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Gemengd met personage",
-          "desc": "Een opgelegd personagetype moet in de eerste minuut verschijnen."
+          "desc": "Een opgelegd personagetype moet in de eerste minuut verschijnen.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Vergelijkend met opdracht",
-          "desc": "Elk team speelt het thema met een andere, gelote opdracht."
+          "desc": "Elk team speelt het thema met een andere, gelote opdracht.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Gemengd in volzinnen",
-          "desc": "Spelers mogen alleen in volledige, hele zinnen spreken — geen onderbrekingen."
+          "desc": "Spelers mogen alleen in volledige, hele zinnen spreken — geen onderbrekingen.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         }
       ],
       "expert": [
         {
           "name": "Gezongen & gedanst",
-          "desc": "Mini-musical: afwisseling van dialoog, zang en choreografie, alles geïmproviseerd."
+          "desc": "Mini-musical: afwisseling van dialoog, zang en choreografie, alles geïmproviseerd.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Stijl + tijdperk",
-          "desc": "Auteursstijl én historisch tijdperk opgelegd. Beide moeten leesbaar zijn."
+          "desc": "Auteursstijl én historisch tijdperk opgelegd. Beide moeten leesbaar zijn.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "In versvorm",
-          "desc": "Alle replica's in vers (jambisch of alexandrijns)."
+          "desc": "Alle replica's in vers (jambisch of alexandrijns).",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Zonder hoofdrol",
-          "desc": "De improvisatie moet werken zonder identificeerbare hoofdfiguur."
+          "desc": "De improvisatie moet werken zonder identificeerbare hoofdfiguur.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Stelling-impro",
-          "desc": "De improvisatie moet een vooraf aangekondigde filosofische stelling verdedigen."
+          "desc": "De improvisatie moet een vooraf aangekondigde filosofische stelling verdedigen.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Tijdslus",
-          "desc": "De scène gaat vooruit en terug elke 30 seconden. Duizelingwekkende lus."
+          "desc": "De scène gaat vooruit en terug elke 30 seconden. Duizelingwekkende lus.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Vergelijkend stom + geluiden",
-          "desc": "Eén team speelt stom, het andere alleen met geluidseffecten. Zelfde thema, tegengestelde lezingen."
+          "desc": "Eén team speelt stom, het andere alleen met geluidseffecten. Zelfde thema, tegengestelde lezingen.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "In de stijl van Tsjechov",
-          "desc": "Laat-19e-eeuwse Russische stijl: aristocratische verveling, samovars, geladen stiltes, monologen."
+          "desc": "Laat-19e-eeuwse Russische stijl: aristocratische verveling, samovars, geladen stiltes, monologen.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         }
       ]
     }
@@ -549,75 +729,111 @@
   "categories": [
     {
       "name": "Gemengd",
-      "desc": "Beide ploegen samen, in numeriek evenwicht, op hetzelfde thema."
+      "desc": "Beide ploegen samen, in numeriek evenwicht, op hetzelfde thema.",
+      "minPlayers": 2,
+      "maxPlayers": 99
     },
     {
       "name": "Vergelijkend",
-      "desc": "Elke ploeg speelt om beurten dezelfde opdracht. Publiek vergelijkt en stemt."
+      "desc": "Elke ploeg speelt om beurten dezelfde opdracht. Publiek vergelijkt en stemt.",
+      "minPlayers": 1,
+      "maxPlayers": 99
     },
     {
       "name": "In de stijl van",
-      "desc": "Stijl of genre opgelegd (Claus, film noir, Tarantino...)."
+      "desc": "Stijl of genre opgelegd (Claus, film noir, Tarantino...).",
+      "minPlayers": 2,
+      "maxPlayers": 99
     },
     {
       "name": "Vergelijkend in de stijl van",
-      "desc": "Elke ploeg speelt het thema in de opgelegde stijl, op haar eigen manier."
+      "desc": "Elke ploeg speelt het thema in de opgelegde stijl, op haar eigen manier.",
+      "minPlayers": 1,
+      "maxPlayers": 99
     },
     {
       "name": "Gezongen",
-      "desc": "Improvisatie geheel of gedeeltelijk gezongen."
+      "desc": "Improvisatie geheel of gedeeltelijk gezongen.",
+      "minPlayers": 2,
+      "maxPlayers": 99
     },
     {
       "name": "Vergelijkend gezongen",
-      "desc": "Elke ploeg biedt haar eigen gezongen versie van hetzelfde thema."
+      "desc": "Elke ploeg biedt haar eigen gezongen versie van hetzelfde thema.",
+      "minPlayers": 1,
+      "maxPlayers": 99
     },
     {
       "name": "Stom",
-      "desc": "Geen gesproken woord: alleen het gebaar vertelt."
+      "desc": "Geen gesproken woord: alleen het gebaar vertelt.",
+      "minPlayers": 2,
+      "maxPlayers": 99
     },
     {
       "name": "Stom met muziek",
-      "desc": "Stomme scène, maar het schrijven wordt streng gevormd door een opgelegde muzikale sfeer."
+      "desc": "Stomme scène, maar het schrijven wordt streng gevormd door een opgelegde muzikale sfeer.",
+      "minPlayers": 1,
+      "maxPlayers": 99
     },
     {
       "name": "Rijmend",
-      "desc": "Alle replica's moeten rijmen."
+      "desc": "Alle replica's moeten rijmen.",
+      "minPlayers": 2,
+      "maxPlayers": 99
     },
     {
       "name": "Vergelijkend rijmend",
-      "desc": "Elke ploeg levert haar eigen rijmende versie van het thema."
+      "desc": "Elke ploeg levert haar eigen rijmende versie van het thema.",
+      "minPlayers": 1,
+      "maxPlayers": 99
     },
     {
       "name": "Met rekwisiet",
-      "desc": "Een opgelegd voorwerp moet centraal staan."
+      "desc": "Een opgelegd voorwerp moet centraal staan.",
+      "minPlayers": 2,
+      "maxPlayers": 99
     },
     {
       "name": "Met dwangopgave",
-      "desc": "Een willekeurige opgave geldt voor één of beide ploegen."
+      "desc": "Een willekeurige opgave geldt voor één of beide ploegen.",
+      "minPlayers": 1,
+      "maxPlayers": 99
     },
     {
       "name": "Zonder thema, zonder caucus",
-      "desc": "Geen thema aangekondigd, geen voorbereidingstijd. Pure spontane invention."
+      "desc": "Geen thema aangekondigd, geen voorbereidingstijd. Pure spontane invention.",
+      "minPlayers": 1,
+      "maxPlayers": 99
     },
     {
       "name": "Bokspringen",
-      "desc": "Vier verschillende impro's, telkens een ander thema. De 1ª met één speler; per ronde één meer."
+      "desc": "Vier verschillende impro's, telkens een ander thema. De 1ª met één speler; per ronde één meer.",
+      "minPlayers": 4,
+      "maxPlayers": 4
     },
     {
       "name": "Videoway",
-      "desc": "Gemengd met 4 TV-kanalen (F1-F4), verschillende inhoud per kanaal. Scheidsrechter springt vrij."
+      "desc": "Gemengd met 4 TV-kanalen (F1-F4), verschillende inhoud per kanaal. Scheidsrechter springt vrij.",
+      "minPlayers": 4,
+      "maxPlayers": 99
     },
     {
       "name": "Zintuiglijk",
-      "desc": "Eén van de vijf zintuigen van een speler wordt geprikkeld. Die gewaarwording vormt de hele scène."
+      "desc": "Eén van de vijf zintuigen van een speler wordt geprikkeld. Die gewaarwording vormt de hele scène.",
+      "minPlayers": 1,
+      "maxPlayers": 99
     },
     {
       "name": "Stelling",
-      "desc": "De improvisatie moet een vooraf aangekondigde filosofische stelling verdedigen."
+      "desc": "De improvisatie moet een vooraf aangekondigde filosofische stelling verdedigen.",
+      "minPlayers": 2,
+      "maxPlayers": 99
     },
     {
       "name": "Vrij",
-      "desc": "Geen formele beperking, alleen het thema. Volledige vrijheid."
+      "desc": "Geen formele beperking, alleen het thema. Volledige vrijheid.",
+      "minPlayers": 1,
+      "maxPlayers": 99
     }
   ],
   "durations": {

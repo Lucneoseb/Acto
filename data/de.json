@@ -4,281 +4,417 @@
       "debutant": [
         {
           "name": "Der Spiegel",
-          "desc": "Zwei Spieler einander gegenüber. Einer führt langsame Bewegungen, der andere spiegelt sie perfekt."
+          "desc": "Zwei Spieler einander gegenüber. Einer führt langsame Bewegungen, der andere spiegelt sie perfekt.",
+          "minPlayers": 2,
+          "maxPlayers": 2
         },
         {
           "name": "Yes, and...",
-          "desc": "Jedes Angebot wird angenommen und ergänzt. Die goldene Regel des Impro: niemals blockieren."
+          "desc": "Jedes Angebot wird angenommen und ergänzt. Die goldene Regel des Impro: niemals blockieren.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Wort für Wort",
-          "desc": "Im Kreis fügt jeder Spieler ein Wort hinzu. Eine Geschichte gemeinsam aufbauen, ohne zu zögern."
+          "desc": "Im Kreis fügt jeder Spieler ein Wort hinzu. Eine Geschichte gemeinsam aufbauen, ohne zu zögern.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Freeze",
-          "desc": "Zwei spielen aus einer Pose. Jemand klatscht, friert die Szene ein, ersetzt einen Spieler — neue Szene."
+          "desc": "Zwei spielen aus einer Pose. Jemand klatscht, friert die Szene ein, ersetzt einen Spieler — neue Szene.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Emotionsachterbahn",
-          "desc": "Der Spielleiter ruft jede Minute eine Emotion. Die Spieler kippen sofort in diese Tonalität."
+          "desc": "Der Spielleiter ruft jede Minute eine Emotion. Die Spieler kippen sofort in diese Tonalität.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Unsichtbares Objekt",
-          "desc": "Ein Spieler handhabt ein unsichtbares Objekt. Andere raten und ergänzen neue Anwendungen."
+          "desc": "Ein Spieler handhabt ein unsichtbares Objekt. Andere raten und ergänzen neue Anwendungen.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Drei Charaktere",
-          "desc": "Drei Spieler kommen herein und etablieren ihre Figur in 30 Sekunden über Haltung und Stimme."
+          "desc": "Drei Spieler kommen herein und etablieren ihre Figur in 30 Sekunden über Haltung und Stimme.",
+          "minPlayers": 3,
+          "maxPlayers": 3
         },
         {
           "name": "Fragenkreis",
-          "desc": "Ein Spieler in der Mitte. Andere bombardieren ihn mit schnellen Fragen, präzise zu beantworten."
+          "desc": "Ein Spieler in der Mitte. Andere bombardieren ihn mit schnellen Fragen, präzise zu beantworten.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Gemischt",
-          "desc": "Die ganze Truppe spielt das Thema gemeinsam, ohne Mannschaftsaufteilung. (Aus Match-Kategorie adaptiert)"
+          "desc": "Die ganze Truppe spielt das Thema gemeinsam, ohne Mannschaftsaufteilung. (Aus Match-Kategorie adaptiert)",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Vergleich",
-          "desc": "Zwei Untergruppen der Truppe spielen dieselbe Vorlage nacheinander. Die 2. Version muss sich von der 1. unterscheiden. (Aus Match-Kategorie adaptiert)"
+          "desc": "Zwei Untergruppen der Truppe spielen dieselbe Vorlage nacheinander. Die 2. Version muss sich von der 1. unterscheiden. (Aus Match-Kategorie adaptiert)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Mit Requisit",
-          "desc": "Ein vorgegebenes Objekt muss zentral für die kollektive Improvisation sein. Die ganze Truppe lässt es auf der Bühne wirken. (Aus Match-Kategorie adaptiert)"
+          "desc": "Ein vorgegebenes Objekt muss zentral für die kollektive Improvisation sein. Die ganze Truppe lässt es auf der Bühne wirken. (Aus Match-Kategorie adaptiert)",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Frei",
-          "desc": "Zwei Untergruppen spielen dasselbe Thema nacheinander ohne Formvorgabe. Vollkommene Freiheit. (Aus Match-Kategorie adaptiert)"
+          "desc": "Zwei Untergruppen spielen dasselbe Thema nacheinander ohne Formvorgabe. Vollkommene Freiheit. (Aus Match-Kategorie adaptiert)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Die Stühle",
-          "desc": "Ein Team hat 30 Sek., um aus Stühlen eine Struktur zu bauen. Ein anderes Team hat 40 Sek., um darauf eine Improvisation vorzubereiten. (Tadam Impro)"
+          "desc": "Ein Team hat 30 Sek., um aus Stühlen eine Struktur zu bauen. Ein anderes Team hat 40 Sek., um darauf eine Improvisation vorzubereiten. (Tadam Impro)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Die Grabrede",
-          "desc": "Jeder improvisiert eine Trauerrede für sein Haustier. Feierlich, komisch, oder beides. (Tadam Impro)"
+          "desc": "Jeder improvisiert eine Trauerrede für sein Haustier. Feierlich, komisch, oder beides. (Tadam Impro)",
+          "minPlayers": 1,
+          "maxPlayers": 99
         },
         {
           "name": "Thema verkörpern",
-          "desc": "Die Gruppe ist in Bewegung, ein Leiter ruft ein Thema (Museum, Pyramiden...). Die Gruppe stellt es sofort dar. (Tadam Impro)"
+          "desc": "Die Gruppe ist in Bewegung, ein Leiter ruft ein Thema (Museum, Pyramiden...). Die Gruppe stellt es sofort dar. (Tadam Impro)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Schräges Gespräch",
-          "desc": "Zwei Spieler improvisieren eine schräge Situation: ein Vogel erklärt einem anderen Vogel den Baum, ein Floh streitet mit einem Hund. (Tadam Impro)"
+          "desc": "Zwei Spieler improvisieren eine schräge Situation: ein Vogel erklärt einem anderen Vogel den Baum, ein Floh streitet mit einem Hund. (Tadam Impro)",
+          "minPlayers": 2,
+          "maxPlayers": 2
         },
         {
           "name": "Der Betrunkene",
           "desc": "Ein Zuschauer (oder Schauspieler) spielt den « Betrunkenen », der die Szene mit absurden Vorschlägen unterbricht, die die Improvisierenden in die Geschichte einarbeiten müssen.",
-          "needsAudience": true
+          "needsAudience": true,
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Die menschliche Maschine",
-          "desc": "Einer nach dem anderen treten die Spieler ein und fügen eine sich wiederholende Geste oder einen Klang hinzu. Die Maschine baut sich organisch auf."
+          "desc": "Einer nach dem anderen treten die Spieler ein und fügen eine sich wiederholende Geste oder einen Klang hinzu. Die Maschine baut sich organisch auf.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "ABC",
-          "desc": "Eine Szene, in der jede Replik mit dem nächsten Buchstaben des Alphabets beginnt. A, B, C... bis Z."
+          "desc": "Eine Szene, in der jede Replik mit dem nächsten Buchstaben des Alphabets beginnt. A, B, C... bis Z.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Der Bus",
-          "desc": "Eine Bushaltestelle. Bei jeder Ankunft steigt eine neue Figur mit ihrer eigenen Welt ein. Die Szene wandelt sich jedes Mal."
+          "desc": "Eine Bushaltestelle. Bei jeder Ankunft steigt eine neue Figur mit ihrer eigenen Welt ein. Die Szene wandelt sich jedes Mal.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Pantomime",
-          "desc": "Eine vollständig pantomimisch gespielte Szene zu einem vorgegebenen Thema. (Dramaction)"
+          "desc": "Eine vollständig pantomimisch gespielte Szene zu einem vorgegebenen Thema. (Dramaction)",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Wandernde Emotion",
-          "desc": "Ein Spieler überträgt schweigend eine Emotion durch eine Geste an seinen Nachbarn, der sie weitergibt. (Dramaction)"
+          "desc": "Ein Spieler überträgt schweigend eine Emotion durch eine Geste an seinen Nachbarn, der sie weitergibt. (Dramaction)",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Anfang-Mitte-Ende in 30 Sek.",
-          "desc": "Eine Impro beginnen, den Konflikt verschieben und abschließen — alles in 30 Sekunden. (Impro-Exo)"
+          "desc": "Eine Impro beginnen, den Konflikt verschieben und abschließen — alles in 30 Sekunden. (Impro-Exo)",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Gespräch mit wechselnder Emotion",
           "desc": "Ein Dialog zu zweit. Alle 1-2 Minuten ruft ein Leiter eine Emotion. Die Spieler kippen sofort um. (MentorShow)",
-          "needsAudience": true
+          "needsAudience": true,
+          "minPlayers": 2,
+          "maxPlayers": 2
         }
       ],
       "confirme": [
         {
           "name": "Pause-Weiter",
-          "desc": "Spielleiter stoppt die Szene, ändert ein Element (Ort, Zeit, Status), und lässt sie weiterlaufen."
+          "desc": "Spielleiter stoppt die Szene, ändert ein Element (Ort, Zeit, Status), und lässt sie weiterlaufen.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Drei vorgegebene Wörter",
-          "desc": "Drei zufällige Wörter müssen natürlich in die Szene eingebaut werden."
+          "desc": "Drei zufällige Wörter müssen natürlich in die Szene eingebaut werden.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Statusspiel",
-          "desc": "Jede Figur hat einen versteckten Sozialstatus (1-10). Das Publikum muss raten."
+          "desc": "Jede Figur hat einen versteckten Sozialstatus (1-10). Das Publikum muss raten.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Synchronisation",
-          "desc": "Zwei mimen, zwei andere sprechen für sie von außerhalb der Bühne."
+          "desc": "Zwei mimen, zwei andere sprechen für sie von außerhalb der Bühne.",
+          "minPlayers": 4,
+          "maxPlayers": 4
         },
         {
           "name": "Expertenrunde",
-          "desc": "Eine Expertenrunde zu einem absurden Thema beantwortet Publikumsfragen ernsthaft."
+          "desc": "Eine Expertenrunde zu einem absurden Thema beantwortet Publikumsfragen ernsthaft.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Letztes Wort, erstes Wort",
-          "desc": "Jede Replik beginnt mit dem letzten Wort der vorigen."
+          "desc": "Jede Replik beginnt mit dem letzten Wort der vorigen.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Rückwärtsgeschichte",
-          "desc": "Eine Geschichte vom Ende her erzählen und Szene für Szene zurückgehen."
+          "desc": "Eine Geschichte vom Ende her erzählen und Szene für Szene zurückgehen.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Genremix",
-          "desc": "Spielleiter wechselt das Genre alle 30 Sekunden (Western, Krimi, Romanze, Horror...)."
+          "desc": "Spielleiter wechselt das Genre alle 30 Sekunden (Western, Krimi, Romanze, Horror...).",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "In der Art von",
-          "desc": "Alle spielen das Thema in einem vorgegebenen Autoren- oder Genrestil: Goethe, Film noir, Tarantino... (Aus Match-Kategorie adaptiert)"
+          "desc": "Alle spielen das Thema in einem vorgegebenen Autoren- oder Genrestil: Goethe, Film noir, Tarantino... (Aus Match-Kategorie adaptiert)",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Stumm",
-          "desc": "Kein gesprochenes Wort — nur die kollektive Inszenierung erzählt. Höchste Konzentration. (Aus Match-Kategorie adaptiert)"
+          "desc": "Kein gesprochenes Wort — nur die kollektive Inszenierung erzählt. Höchste Konzentration. (Aus Match-Kategorie adaptiert)",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Stumm mit Musik",
-          "desc": "Stumme Improvisation, aber das Schreiben wird streng durch die vorgegebene Musikstimmung geprägt. (Dramaction)"
+          "desc": "Stumme Improvisation, aber das Schreiben wird streng durch die vorgegebene Musikstimmung geprägt. (Dramaction)",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Mit Pflicht-Vorgabe",
-          "desc": "Zwei Untergruppen spielen dasselbe Thema nacheinander, jede mit einer anderen zufällig gezogenen Vorgabe. (Aus Match-Kategorie adaptiert)"
+          "desc": "Zwei Untergruppen spielen dasselbe Thema nacheinander, jede mit einer anderen zufällig gezogenen Vorgabe. (Aus Match-Kategorie adaptiert)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Ohne Thema, ohne Caucus",
-          "desc": "Kein Thema angekündigt, keine Vorbereitungszeit. Reine Spontaninvention. (Dramaction)"
+          "desc": "Kein Thema angekündigt, keine Vorbereitungszeit. Reine Spontaninvention. (Dramaction)",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Bockspringen",
-          "desc": "Vier verschiedene Improvisationen, ein Thema pro Impro. Die 1. mit einem Spieler, bei jeder folgenden Impro kommt einer dazu. (Dramaction)"
+          "desc": "Vier verschiedene Improvisationen, ein Thema pro Impro. Die 1. mit einem Spieler, bei jeder folgenden Impro kommt einer dazu. (Dramaction)",
+          "minPlayers": 4,
+          "maxPlayers": 4
         },
         {
           "name": "Sensorisch",
-          "desc": "Einer der fünf Sinne eines Improvisators wird während der Szene gereizt. Diese Empfindung muss das ganze Schreiben prägen. (Dramaction)"
+          "desc": "Einer der fünf Sinne eines Improvisators wird während der Szene gereizt. Diese Empfindung muss das ganze Schreiben prägen. (Dramaction)",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Vergleich in der Art von",
-          "desc": "Zwei Untergruppen der Truppe spielen dasselbe Thema nacheinander im vorgegebenen Stil, jede auf ihre eigene Weise. (Aus Match-Kategorie adaptiert)"
+          "desc": "Zwei Untergruppen der Truppe spielen dasselbe Thema nacheinander im vorgegebenen Stil, jede auf ihre eigene Weise. (Aus Match-Kategorie adaptiert)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Dreifachstatus",
-          "desc": "Jede Figur hat ein Geheimnis, ein Ziel und ein Hindernis. Alle drei werden im Lauf der Szene enthüllt."
+          "desc": "Jede Figur hat ein Geheimnis, ein Ziel und ein Hindernis. Alle drei werden im Lauf der Szene enthüllt.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Umgekehrte Szene",
-          "desc": "Man beginnt mit dem Höhepunkt und arbeitet sich bis zur ersten Begegnung der Figuren zurück."
+          "desc": "Man beginnt mit dem Höhepunkt und arbeitet sich bis zur ersten Begegnung der Figuren zurück.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Der verstimmte Chor",
-          "desc": "Ein Chor auf der Bühne — ein Mitglied ist verstimmt oder aus dem Takt. Das ganze Drama entsteht durch ihn. (Wikiversité)"
+          "desc": "Ein Chor auf der Bühne — ein Mitglied ist verstimmt oder aus dem Takt. Das ganze Drama entsteht durch ihn. (Wikiversité)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Schauspieler hinter den Kulissen",
-          "desc": "Eine Szene spielt hinter den Kulissen, während die « Aufführung » auf der Bühne läuft. Spiel im Spiel. (Wikiversité)"
+          "desc": "Eine Szene spielt hinter den Kulissen, während die « Aufführung » auf der Bühne läuft. Spiel im Spiel. (Wikiversité)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Der defekte Aufzug",
-          "desc": "Engster Raum, mehrere Figuren, Kammerspiel erzwungen. Ein Klassiker. (Wikiversité)"
+          "desc": "Engster Raum, mehrere Figuren, Kammerspiel erzwungen. Ein Klassiker. (Wikiversité)",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Die Lehrerkonferenz",
-          "desc": "Eine Lehrersitzung, in der jeder Lehrer eine versteckte Agenda und einen Lieblingsschüler hat."
+          "desc": "Eine Lehrersitzung, in der jeder Lehrer eine versteckte Agenda und einen Lieblingsschüler hat.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Rückkehr in die Vergangenheit",
-          "desc": "In einem entscheidenden Moment klatscht ein Spieler. Die Szene springt eine Minute zurück und wird anders gespielt."
+          "desc": "In einem entscheidenden Moment klatscht ein Spieler. Die Szene springt eine Minute zurück und wird anders gespielt.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Gezogene Figur",
-          "desc": "Jeder Spieler zieht einen Figurentyp (Clown, Verführer, Paranoiker), den er spielen muss, ohne ihn zu benennen."
+          "desc": "Jeder Spieler zieht einen Figurentyp (Clown, Verführer, Paranoiker), den er spielen muss, ohne ihn zu benennen.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         }
       ],
       "expert": [
         {
           "name": "Harold",
-          "desc": "Lange Form: drei parallele Szenen verflechten sich und nähren einander. Format Del Close."
+          "desc": "Lange Form: drei parallele Szenen verflechten sich und nähren einander. Format Del Close.",
+          "minPlayers": 6,
+          "maxPlayers": 99
         },
         {
           "name": "Gesungene Improvisation",
-          "desc": "Vollständig gesungene Szene mit improvisierter Melodie und Strophe/Refrain-Struktur."
+          "desc": "Vollständig gesungene Szene mit improvisierter Melodie und Strophe/Refrain-Struktur.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "20 Minuten ohne Schnitt",
-          "desc": "Eine einzige Szene, zwanzig Minuten, keine Unterbrechung. Eine ganze Welt halten."
+          "desc": "Eine einzige Szene, zwanzig Minuten, keine Unterbrechung. Eine ganze Welt halten.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Pirandello-Spiegel",
-          "desc": "Die Figuren erkennen, dass sie improvisiert sind — und müssen die Szene trotzdem fortsetzen."
+          "desc": "Die Figuren erkennen, dass sie improvisiert sind — und müssen die Szene trotzdem fortsetzen.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Zwei Zeitebenen",
-          "desc": "Eine Szene wird gespielt und zehn Jahre später mit den Konsequenzen wiederholt."
+          "desc": "Eine Szene wird gespielt und zehn Jahre später mit den Konsequenzen wiederholt.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Stumme Show",
-          "desc": "15-Minuten-Spektakel ohne ein einziges Wort. Klare Handlung, echte Auflösung."
+          "desc": "15-Minuten-Spektakel ohne ein einziges Wort. Klare Handlung, echte Auflösung.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Theater im Theater",
-          "desc": "Die Figuren improvisieren ihrerseits ein Stück innerhalb der Szene. Drei Fiktionsebenen."
+          "desc": "Die Figuren improvisieren ihrerseits ein Stück innerhalb der Szene. Drei Fiktionsebenen.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Beckettsch",
-          "desc": "Lange absurde Form: gehaltene Stille, Warten, sich entleerende Sprache. Im Stil von Godot."
+          "desc": "Lange absurde Form: gehaltene Stille, Warten, sich entleerende Sprache. Im Stil von Godot.",
+          "minPlayers": 2,
+          "maxPlayers": 99
         },
         {
           "name": "Gesungen",
-          "desc": "Improvisation ganz oder teilweise gesungen von der ganzen Truppe, improvisierte Melodien und Texte im Kollektiv. (Aus Match-Kategorie adaptiert)"
+          "desc": "Improvisation ganz oder teilweise gesungen von der ganzen Truppe, improvisierte Melodien und Texte im Kollektiv. (Aus Match-Kategorie adaptiert)",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Gereimt",
-          "desc": "Alle Repliken reimen sich. Achtsilbler oder Alexandriner je nach Niveau. Die ganze Truppe hält das Metrum. (Aus Match-Kategorie adaptiert)"
+          "desc": "Alle Repliken reimen sich. Achtsilbler oder Alexandriner je nach Niveau. Die ganze Truppe hält das Metrum. (Aus Match-Kategorie adaptiert)",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Videoway",
-          "desc": "Gemischt mit vier TV-Kanälen (F1-F4), unterschiedlicher Inhalt pro Kanal. Der Schiedsrichter springt ohne vordefinierte Reihenfolge zwischen den Kanälen. (Dramaction)"
+          "desc": "Gemischt mit vier TV-Kanälen (F1-F4), unterschiedlicher Inhalt pro Kanal. Der Schiedsrichter springt ohne vordefinierte Reihenfolge zwischen den Kanälen. (Dramaction)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Thesen",
-          "desc": "Die kollektive Improvisation muss eine vorab angekündigte philosophische These verteidigen."
+          "desc": "Die kollektive Improvisation muss eine vorab angekündigte philosophische These verteidigen.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Vergleich gesungen",
-          "desc": "Zwei Untergruppen der Truppe bieten nacheinander ihre gesungene Version desselben Themas. (Aus Match-Kategorie adaptiert)"
+          "desc": "Zwei Untergruppen der Truppe bieten nacheinander ihre gesungene Version desselben Themas. (Aus Match-Kategorie adaptiert)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Vergleich gereimt",
-          "desc": "Zwei Untergruppen der Truppe liefern nacheinander ihre gereimte Version des Themas. (Aus Match-Kategorie adaptiert)"
+          "desc": "Zwei Untergruppen der Truppe liefern nacheinander ihre gereimte Version des Themas. (Aus Match-Kategorie adaptiert)",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Der Feuerball",
-          "desc": "Alle Spieler auf der Bühne. Bei jedem Höhepunkt löst sich ein Duo für eine Mini-Szene und kehrt dann zur Gruppe zurück."
+          "desc": "Alle Spieler auf der Bühne. Bei jedem Höhepunkt löst sich ein Duo für eine Mini-Szene und kehrt dann zur Gruppe zurück.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Geteiltes Monolog",
-          "desc": "Ein langer Monolog wird von jedem Spieler übernommen, der ihn verformt und bereichert, während er dieselbe Figur verkörpert."
+          "desc": "Ein langer Monolog wird von jedem Spieler übernommen, der ihn verformt und bereichert, während er dieselbe Figur verkörpert.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Impro-Oper",
-          "desc": "Rezitative und Arien im Wechsel gesungen, vollständig improvisiertes Libretto, Opernstimmen."
+          "desc": "Rezitative und Arien im Wechsel gesungen, vollständig improvisiertes Libretto, Opernstimmen.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Das Haus (Del Close)",
-          "desc": "Lange Form, in der jede Szene Themen eröffnet, die die folgenden aufgreifen und vertiefen."
+          "desc": "Lange Form, in der jede Szene Themen eröffnet, die die folgenden aufgreifen und vertiefen.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Das Dekonstruierte",
-          "desc": "Eine einzelne Szene wird gespielt, dann auseinandergenommen und aus mehreren erzählerischen Blickwinkeln neu begonnen."
+          "desc": "Eine einzelne Szene wird gespielt, dann auseinandergenommen und aus mehreren erzählerischen Blickwinkeln neu begonnen.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         },
         {
           "name": "Tschechowsch",
-          "desc": "Lange Form à la Tschechow: kein Höhepunkt, Figuren, die einander verfehlen, Untätigkeit als Motor."
+          "desc": "Lange Form à la Tschechow: kein Höhepunkt, Figuren, die einander verfehlen, Untätigkeit als Motor.",
+          "minPlayers": 3,
+          "maxPlayers": 99
         }
       ]
     },
@@ -286,95 +422,139 @@
       "debutant": [
         {
           "name": "Einzelmannschaft",
-          "desc": "Eine Mannschaft spielt, die andere wartet. Klassische LNI-Matchform."
+          "desc": "Eine Mannschaft spielt, die andere wartet. Klassische LNI-Matchform.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Gemischt",
-          "desc": "Beide Mannschaften spielen zusammen in derselben Improvisation."
+          "desc": "Beide Mannschaften spielen zusammen in derselben Improvisation.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Vergleich",
-          "desc": "Jede Mannschaft spielt nacheinander dieselbe Vorlage. Das Publikum vergleicht und stimmt ab."
+          "desc": "Jede Mannschaft spielt nacheinander dieselbe Vorlage. Das Publikum vergleicht und stimmt ab.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Gemischt stumm",
-          "desc": "Beide Mannschaften gemeinsam, aber in absoluter Stille."
+          "desc": "Beide Mannschaften gemeinsam, aber in absoluter Stille.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Vergleich gesungen",
-          "desc": "Jede Mannschaft baut mindestens eine gesungene Passage ein."
+          "desc": "Jede Mannschaft baut mindestens eine gesungene Passage ein.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Vergleich mit Requisit",
-          "desc": "Ein vorgegebenes Requisit muss zentral sein. Jedes Team nutzt es auf seine Weise."
+          "desc": "Ein vorgegebenes Requisit muss zentral sein. Jedes Team nutzt es auf seine Weise.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         }
       ],
       "confirme": [
         {
           "name": "In der Art von",
-          "desc": "Stil oder Genre vorgegeben: Shakespeare, Film Noir, Coen-Brüder..."
+          "desc": "Stil oder Genre vorgegeben: Shakespeare, Film Noir, Coen-Brüder...",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Gemischt mit Requisit",
-          "desc": "Ein vorgegebenes Objekt muss zentral sein."
+          "desc": "Ein vorgegebenes Objekt muss zentral sein.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Rückwärts",
-          "desc": "Die Szene wird vom Ende her gespielt."
+          "desc": "Die Szene wird vom Ende her gespielt.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Vergleich gereimt",
-          "desc": "Alle Repliken müssen sich reimen."
+          "desc": "Alle Repliken müssen sich reimen.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Vergleich stumm",
-          "desc": "Keine Worte: nur Gesten und Mimik erzählen."
+          "desc": "Keine Worte: nur Gesten und Mimik erzählen.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Mit vorgegebener Figur",
-          "desc": "Ein vorgegebener Figurentyp muss in der ersten Minute erscheinen."
+          "desc": "Ein vorgegebener Figurentyp muss in der ersten Minute erscheinen.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Vergleich mit Auflage",
-          "desc": "Jedes Team spielt das Thema mit einer anders ausgelosten Auflage."
+          "desc": "Jedes Team spielt das Thema mit einer anders ausgelosten Auflage.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Gemischt in ganzen Sätzen",
-          "desc": "Die Spieler dürfen nur in vollständigen Sätzen sprechen – keine Unterbrechung."
+          "desc": "Die Spieler dürfen nur in vollständigen Sätzen sprechen – keine Unterbrechung.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         }
       ],
       "expert": [
         {
           "name": "Gesungen & getanzt",
-          "desc": "Mini-Musical: Wechsel von Dialog, Gesang und Choreographie, alles improvisiert."
+          "desc": "Mini-Musical: Wechsel von Dialog, Gesang und Choreographie, alles improvisiert.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Stil + Epoche",
-          "desc": "Autorenstil und historische Epoche vorgegeben. Beides muss erkennbar sein."
+          "desc": "Autorenstil und historische Epoche vorgegeben. Beides muss erkennbar sein.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "In Versen",
-          "desc": "Alle Repliken in Versen (Jambisch oder Alexandriner)."
+          "desc": "Alle Repliken in Versen (Jambisch oder Alexandriner).",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Heldenlos",
-          "desc": "Die Improvisation muss ohne erkennbare Hauptfigur funktionieren. Reines Ensemble."
+          "desc": "Die Improvisation muss ohne erkennbare Hauptfigur funktionieren. Reines Ensemble.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Thesen-Impro",
-          "desc": "Die Improvisation muss eine zuvor angekündigte philosophische These verteidigen."
+          "desc": "Die Improvisation muss eine zuvor angekündigte philosophische These verteidigen.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Zeitschleife",
-          "desc": "Die Szene geht vor und springt alle 30 Sekunden zurück. Schwindelerregender Loop."
+          "desc": "Die Szene geht vor und springt alle 30 Sekunden zurück. Schwindelerregender Loop.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "Vergleich stumm + Geräusche",
-          "desc": "Ein Team spielt stumm, das andere nur mit Geräuschen. Gleiches Thema, gegensätzliche Lesarten."
+          "desc": "Ein Team spielt stumm, das andere nur mit Geräuschen. Gleiches Thema, gegensätzliche Lesarten.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         },
         {
           "name": "In der Art von Tschechow",
-          "desc": "Russischer Stil des späten 19. Jh.: aristokratische Langeweile, Samoware, schwere Stille, Monologe."
+          "desc": "Russischer Stil des späten 19. Jh.: aristokratische Langeweile, Samoware, schwere Stille, Monologe.",
+          "minPlayers": 4,
+          "maxPlayers": 99
         }
       ]
     }
@@ -549,75 +729,111 @@
   "categories": [
     {
       "name": "Gemischt",
-      "desc": "Beide Mannschaften spielen zusammen, ausgewogen, am selben Thema."
+      "desc": "Beide Mannschaften spielen zusammen, ausgewogen, am selben Thema.",
+      "minPlayers": 2,
+      "maxPlayers": 99
     },
     {
       "name": "Vergleich",
-      "desc": "Jede Mannschaft spielt dieselbe Vorlage nacheinander. Das Publikum vergleicht und stimmt ab."
+      "desc": "Jede Mannschaft spielt dieselbe Vorlage nacheinander. Das Publikum vergleicht und stimmt ab.",
+      "minPlayers": 1,
+      "maxPlayers": 99
     },
     {
       "name": "In der Art von",
-      "desc": "Stil oder Genre vorgegeben (Goethe, Noir, Tarantino...)."
+      "desc": "Stil oder Genre vorgegeben (Goethe, Noir, Tarantino...).",
+      "minPlayers": 2,
+      "maxPlayers": 99
     },
     {
       "name": "Vergleich in der Art von",
-      "desc": "Jede Mannschaft spielt das Thema im vorgegebenen Stil, auf ihre eigene Weise."
+      "desc": "Jede Mannschaft spielt das Thema im vorgegebenen Stil, auf ihre eigene Weise.",
+      "minPlayers": 1,
+      "maxPlayers": 99
     },
     {
       "name": "Gesungen",
-      "desc": "Improvisation ganz oder teilweise gesungen."
+      "desc": "Improvisation ganz oder teilweise gesungen.",
+      "minPlayers": 2,
+      "maxPlayers": 99
     },
     {
       "name": "Vergleich gesungen",
-      "desc": "Jede Mannschaft bietet ihre eigene gesungene Version desselben Themas."
+      "desc": "Jede Mannschaft bietet ihre eigene gesungene Version desselben Themas.",
+      "minPlayers": 1,
+      "maxPlayers": 99
     },
     {
       "name": "Stumm",
-      "desc": "Kein gesprochenes Wort: nur Gesten erzählen."
+      "desc": "Kein gesprochenes Wort: nur Gesten erzählen.",
+      "minPlayers": 2,
+      "maxPlayers": 99
     },
     {
       "name": "Stumm mit Musik",
-      "desc": "Stumme Szene, aber das Schreiben wird streng durch eine vorgegebene Musikstimmung geprägt."
+      "desc": "Stumme Szene, aber das Schreiben wird streng durch eine vorgegebene Musikstimmung geprägt.",
+      "minPlayers": 1,
+      "maxPlayers": 99
     },
     {
       "name": "Gereimt",
-      "desc": "Alle Repliken müssen sich reimen."
+      "desc": "Alle Repliken müssen sich reimen.",
+      "minPlayers": 2,
+      "maxPlayers": 99
     },
     {
       "name": "Vergleich gereimt",
-      "desc": "Jede Mannschaft liefert ihre eigene gereimte Version des Themas."
+      "desc": "Jede Mannschaft liefert ihre eigene gereimte Version des Themas.",
+      "minPlayers": 1,
+      "maxPlayers": 99
     },
     {
       "name": "Mit Requisit",
-      "desc": "Ein vorgegebenes Objekt muss zentral sein."
+      "desc": "Ein vorgegebenes Objekt muss zentral sein.",
+      "minPlayers": 2,
+      "maxPlayers": 99
     },
     {
       "name": "Mit Pflicht-Vorgabe",
-      "desc": "Eine zufällige Vorgabe gilt für eine oder beide Mannschaften."
+      "desc": "Eine zufällige Vorgabe gilt für eine oder beide Mannschaften.",
+      "minPlayers": 1,
+      "maxPlayers": 99
     },
     {
       "name": "Ohne Thema, ohne Caucus",
-      "desc": "Kein Thema angekündigt, keine Vorbereitungszeit. Reine Spontaninvention."
+      "desc": "Kein Thema angekündigt, keine Vorbereitungszeit. Reine Spontaninvention.",
+      "minPlayers": 1,
+      "maxPlayers": 99
     },
     {
       "name": "Bockspringen",
-      "desc": "Vier verschiedene Improvisationen, ein Thema pro Impro. Erste mit einem Spieler; pro Runde einer mehr."
+      "desc": "Vier verschiedene Improvisationen, ein Thema pro Impro. Erste mit einem Spieler; pro Runde einer mehr.",
+      "minPlayers": 4,
+      "maxPlayers": 4
     },
     {
       "name": "Videoway",
-      "desc": "Gemischt mit 4 TV-Kanälen (F1-F4), unterschiedlicher Inhalt pro Kanal. Schiedsrichter springt frei."
+      "desc": "Gemischt mit 4 TV-Kanälen (F1-F4), unterschiedlicher Inhalt pro Kanal. Schiedsrichter springt frei.",
+      "minPlayers": 4,
+      "maxPlayers": 99
     },
     {
       "name": "Sensorisch",
-      "desc": "Einer der fünf Sinne eines Improvisators wird gereizt. Diese Empfindung prägt die ganze Szene."
+      "desc": "Einer der fünf Sinne eines Improvisators wird gereizt. Diese Empfindung prägt die ganze Szene.",
+      "minPlayers": 1,
+      "maxPlayers": 99
     },
     {
       "name": "Thesen",
-      "desc": "Die Improvisation muss eine vorab angekündigte philosophische These verteidigen."
+      "desc": "Die Improvisation muss eine vorab angekündigte philosophische These verteidigen.",
+      "minPlayers": 2,
+      "maxPlayers": 99
     },
     {
       "name": "Frei",
-      "desc": "Keine Formvorgabe, nur das Thema. Vollkommene Freiheit."
+      "desc": "Keine Formvorgabe, nur das Thema. Vollkommene Freiheit.",
+      "minPlayers": 1,
+      "maxPlayers": 99
     }
   ],
   "durations": {
