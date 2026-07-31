@@ -4543,13 +4543,27 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   .auth-oauth { gap: 0.45rem; }
 }
 
-/* iOS zoome automatiquement dès qu'un champ fait moins de 16 px.
-   On garantit 16 px au focus sur tous les contrôles de saisie. */
+/* iOS zoome automatiquement dès qu'un champ fait moins de 16 px, et ne dézoome
+   jamais seul : la mise en page reste décalée jusqu'au rechargement.
+
+   Cette protection existait déjà — et ne servait à rien. Sélecteurs d'éléments
+   nus, spécificité (0,0,1) : la moindre règle de classe la battait, où qu'elle
+   soit dans le fichier. Mesuré sur les pages publiques :
+     login.html        authLangSelect       13,6 px  (.auth-lang select)
+     warmups.html      warmupTypeFilter     13,6 px
+     inspirations.html inspireFilterLocale  13,6 px  (.inspire-locale-select)
+     inspirations.html inspireQuery         15,2 px  (.inspire-search input)
+   Quatre champs de recherche et de filtre — précisément ce qu'on touche sur un
+   téléphone.
+
+   `!important` est ici délibéré : ce n'est pas une préférence esthétique mais un
+   plancher imposé par le navigateur. Sans lui, la prochaine classe ajoutée
+   rouvrira le trou en silence, comme les quatre précédentes. */
 @media (max-width: 900px) {
   input[type="text"], input[type="email"], input[type="password"],
   input[type="number"], input[type="search"], input[type="date"],
   input[type="tel"], input[type="url"], select, textarea {
-    font-size: max(16px, 1rem);
+    font-size: max(16px, 1rem) !important;
   }
 }
 
