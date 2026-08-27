@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=2026072948" />
+<link rel="stylesheet" href="styles.css?v=2026072949" />
 </head>
 <body>
   <!-- Stage backdrop -->
@@ -117,11 +117,11 @@
         <div class="form-row">
           <label class="auth-field">
             <span id="authSignupPrenomLabel"></span>
-            <input type="text" id="authSignupPrenom" autocomplete="given-name" required />
+            <input type="text" id="authSignupPrenom" autocomplete="given-name" />
           </label>
           <label class="auth-field">
             <span id="authSignupNomLabel"></span>
-            <input type="text" id="authSignupNom" autocomplete="family-name" required />
+            <input type="text" id="authSignupNom" autocomplete="family-name" />
           </label>
         </div>
         <fieldset class="auth-field auth-field-fieldset">
@@ -130,17 +130,17 @@
             <label for="authSignupDobDay" class="visually-hidden">Jour</label>
             <input type="text" inputmode="numeric" autocomplete="bday-day"
                    id="authSignupDobDay" maxlength="2" pattern="[0-9]*"
-                   placeholder="JJ" required />
+                   placeholder="JJ" />
             <span class="auth-dob-sep" aria-hidden="true">/</span>
             <label for="authSignupDobMonth" class="visually-hidden">Mois</label>
             <input type="text" inputmode="numeric" autocomplete="bday-month"
                    id="authSignupDobMonth" maxlength="2" pattern="[0-9]*"
-                   placeholder="MM" required />
+                   placeholder="MM" />
             <span class="auth-dob-sep" aria-hidden="true">/</span>
             <label for="authSignupDobYear" class="visually-hidden">Année</label>
             <input type="text" inputmode="numeric" autocomplete="bday-year"
                    id="authSignupDobYear" maxlength="4" pattern="[0-9]*"
-                   placeholder="AAAA" required />
+                   placeholder="AAAA" />
           </div>
         </fieldset>
         <label class="auth-field">
@@ -197,9 +197,9 @@
           crossorigin="anonymous"></script>
   <!-- Only what the login form needs: config + utils + the i18n bundle + the
        auth controller. No app.js (the Match rapide) — this page is login-only. -->
-  <script src="./js/config.js?v=2026072948"></script>
-  <script src="./js/utils.js?v=2026072948"></script>
-  <script src="./data/all.js?v=2026072948"></script>
-  <script src="./js/auth.js?v=2026072948"></script>
+  <script src="./js/config.js?v=2026072949"></script>
+  <script src="./js/utils.js?v=2026072949"></script>
+  <script src="./data/all.js?v=2026072949"></script>
+  <script src="./js/auth.js?v=2026072949"></script>
 </body>
 </html>

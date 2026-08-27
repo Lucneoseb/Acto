@@ -120,9 +120,13 @@
     setText("authResendBtn",           t.authResendEmail);
     setText("authBackToLoginBtn",      t.authBackToLogin);
     setText("authSignupTitle",         t.authSignupTitle);
-    setText("authSignupPrenomLabel",   t.authPrenom);
-    setText("authSignupNomLabel",      t.authNom);
-    setText("authSignupDobLabel",      t.authDob);
+    // Ces trois champs sont facultatifs À L'INSCRIPTION seulement : les mêmes
+    // clés servent aux réglages du compte, où la mention n'aurait pas de sens.
+    // On suffixe donc ici, sans toucher aux libellés de base.
+    const opt = t.authOptional ? " " + t.authOptional : "";
+    setText("authSignupPrenomLabel",   t.authPrenom + opt);
+    setText("authSignupNomLabel",      t.authNom + opt);
+    setText("authSignupDobLabel",      t.authDob + opt);
     setText("authSignupStageNameLabel", t.authStageName);
     const sStage = $("authSignupStageName");
     if (sStage) sStage.placeholder = t.authStageNamePlaceholder || "";
@@ -409,17 +413,33 @@
       }
     }
 
-    if (!email || !pass || !confirm || !prenom || !nom || !nom_scene
-        || !dayStr || !monthStr || !yearStr) {
+    /* Prénom, nom et date de naissance sont FACULTATIFS depuis le 2026-07-29.
+       Neuf champs avant d'avoir rien vu de l'application, c'est beaucoup pour
+       quelqu'un à qui on vient de partager un lien. Restent obligatoires :
+       l'email et le mot de passe (l'identité de connexion) et le nom de scène,
+       qui sert à identifier un joueur dans les feuilles de match.
+
+       La base était déjà prête : le déclencheur handle_new_user écrit
+       coalesce(prenom,'') et nullif(date_naissance,'')::date, et la colonne
+       date_naissance a été rendue nullable. Aucune migration nécessaire. */
+    const dobRempli = !!(dayStr || monthStr || yearStr);
+
+    if (!email || !pass || !confirm || !nom_scene) {
       return showError("authSignupError", t.authErrorRequired);
     }
     if (!emailValid(email)) return showError("authSignupError", t.authErrorEmailFormat);
     if (pass.length < 8)    return showError("authSignupError", t.authErrorPasswordShort);
     if (pass !== confirm)   return showError("authSignupError", t.authErrorPasswordMismatch);
-    if (!dobValid)          return showError("authSignupError", t.authErrorDobInvalid);
-    const age = ageFromDob(dob);
-    if (isNaN(age))         return showError("authSignupError", t.authErrorDobInvalid);
-    if (age < 13)           return showError("authSignupError", t.authErrorDobYoung);
+    // Une date entamée doit rester valide : mieux vaut refuser un 31/02 que
+    // d'enregistrer une date fausse en silence.
+    if (dobRempli) {
+      if (!dayStr || !monthStr || !yearStr || !dobValid) {
+        return showError("authSignupError", t.authErrorDobInvalid);
+      }
+      const age = ageFromDob(dob);
+      if (isNaN(age)) return showError("authSignupError", t.authErrorDobInvalid);
+      if (age < 13)   return showError("authSignupError", t.authErrorDobYoung);
+    }
 
     showError("authSignupError", "");
     const btn = $("authSignupSubmitBtn");

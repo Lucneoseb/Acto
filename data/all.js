@@ -367,7 +367,8 @@ window.IMPRO_BUNDLE = {
       "authTryWarmup": "🔥 Un échauffement au hasard",
       "authTryInspire": "🎭 Des vidéos d’impro",
       "authConfirmResent": "Email de confirmation renvoyé. Vérifie ta boîte mail (et les indésirables).",
-      "homeBtn": "Accueil"
+      "homeBtn": "Accueil",
+      "authOptional": "(facultatif)"
     },
     "it": {
       "title": "Impro",
@@ -705,7 +706,8 @@ window.IMPRO_BUNDLE = {
       "authConfirmResent": "Email di conferma inviata di nuovo. Controlla la posta (anche lo spam).",
       "inspireShare": "Copia il link",
       "inspireViews": "visualizzazioni",
-      "homeBtn": "Home"
+      "homeBtn": "Home",
+      "authOptional": "(facoltativo)"
     },
     "en": {
       "title": "Impro",
@@ -1043,7 +1045,8 @@ window.IMPRO_BUNDLE = {
       "authTryWarmup": "🔥 A random warm-up",
       "authTryInspire": "🎭 Improv videos",
       "authConfirmResent": "Confirmation email resent. Check your inbox (and your spam folder).",
-      "homeBtn": "Home"
+      "homeBtn": "Home",
+      "authOptional": "(optional)"
     },
     "de": {
       "title": "Impro",
@@ -1381,7 +1384,8 @@ window.IMPRO_BUNDLE = {
       "authConfirmResent": "Bestätigungs-E-Mail erneut gesendet. Prüfe dein Postfach (auch den Spam-Ordner).",
       "inspireShare": "Link kopieren",
       "inspireViews": "Aufrufe",
-      "homeBtn": "Start"
+      "homeBtn": "Start",
+      "authOptional": "(optional)"
     },
     "es": {
       "title": "Impro",
@@ -1719,7 +1723,8 @@ window.IMPRO_BUNDLE = {
       "authConfirmResent": "Email de confirmación reenviado. Revisa tu bandeja (y el spam).",
       "inspireShare": "Copiar el enlace",
       "inspireViews": "visitas",
-      "homeBtn": "Inicio"
+      "homeBtn": "Inicio",
+      "authOptional": "(opcional)"
     },
     "pt": {
       "title": "Impro",
@@ -2057,7 +2062,8 @@ window.IMPRO_BUNDLE = {
       "authConfirmResent": "Email de confirmação reenviado. Verifica a tua caixa de entrada (e o spam).",
       "inspireShare": "Copiar a ligação",
       "inspireViews": "visualizações",
-      "homeBtn": "Início"
+      "homeBtn": "Início",
+      "authOptional": "(opcional)"
     },
     "nl": {
       "title": "Impro",
@@ -2395,7 +2401,8 @@ window.IMPRO_BUNDLE = {
       "authConfirmResent": "Bevestigingsmail opnieuw verzonden. Controleer je inbox (en je spammap).",
       "inspireShare": "Link kopiëren",
       "inspireViews": "weergaven",
-      "homeBtn": "Start"
+      "homeBtn": "Start",
+      "authOptional": "(optioneel)"
     }
   },
   "data": {
