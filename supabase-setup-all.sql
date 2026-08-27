@@ -3427,10 +3427,18 @@ create trigger insp_sanitize_video_url_trg
   before insert or update on public.inspiration_videos
   for each row execute function public.insp_sanitize_video_url();
 
--- Clean any already-stored unsafe URLs.
-update public.inspiration_videos
-   set video_url = null
- where video_url is not null and video_url !~* '^\s*https?://';
+-- NE PAS RÉACTIVER SANS RÉFLÉCHIR. Le nettoyage ponctuel ci-dessous vient de
+-- migrate-inspiration-engagement.sql, où il ne s'exécutait QU'UNE FOIS. Replié
+-- ici le 2026-07-29, il est devenu rejouable à chaque exécution de ce fichier —
+-- or ce fichier est présenté comme la référence « sûre à ré-exécuter ». Une
+-- exécution de routine effaçait donc définitivement l'URL de toute vidéo dont
+-- l'adresse ne commence pas par http(s)://, sans avertissement ni retour arrière.
+-- Le déclencheur insp_sanitize_video_url_trg ci-dessus protège déjà les
+-- nouvelles lignes ; ce rattrapage n'a plus lieu d'être.
+--
+-- update public.inspiration_videos
+--    set video_url = null
+--  where video_url is not null and video_url !~* '^\s*https?://';
 
 
 -- ----------------------------------------------------------------------------

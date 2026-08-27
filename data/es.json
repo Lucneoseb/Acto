@@ -4,79 +4,13 @@
       "debutant": [
         {
           "name": "El espejo",
-          "desc": "Dos jugadores frente a frente. Uno hace movimientos lentos, el otro lo imita en espejo perfecto.",
+          "desc": "Dos jugadores frente a frente. Uno hace movimientos lentos, el otro lo imita como un espejo perfecto. Se acelera progresivamente. (Tadam Impro)",
           "minPlayers": 2,
           "maxPlayers": 2
         },
         {
-          "name": "Yes, and...",
-          "desc": "Toda propuesta se acepta y se enriquece. La regla de oro: nunca bloquear.",
-          "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Palabra a palabra",
-          "desc": "En círculo, una palabra cada uno. La historia se construye colectivamente, sin titubear.",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Freeze",
-          "desc": "Dos juegan desde una postura. Cualquiera puede aplaudir, congelar la escena, sustituir y reiniciar.",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Montaña rusa emocional",
-          "desc": "El director grita una emoción cada minuto. Los jugadores cambian de tono al instante.",
-          "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Objeto invisible",
-          "desc": "Un jugador maneja un objeto invisible. Los demás adivinan y proponen nuevos usos.",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Tres personajes",
-          "desc": "Tres jugadores entran y establecen su personaje en 30 segundos por postura y voz.",
-          "minPlayers": 3,
-          "maxPlayers": 3
-        },
-        {
-          "name": "Círculo de preguntas",
-          "desc": "Un jugador en el centro. Los demás le bombardean con preguntas rápidas a contestar con precisión.",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Mixta",
-          "desc": "Toda la troupe juega el tema en conjunto, sin división por equipos. (Adaptado de categoría de match)",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Comparada",
-          "desc": "Dos subgrupos de la troupe juegan la misma propuesta por turno. La 2ª versión debe diferenciarse de la 1ª. (Adaptado de categoría de match)",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Con utilería",
-          "desc": "Un objeto impuesto debe ser central en la improvisación colectiva. Toda la troupe lo hace funcionar en escena. (Adaptado de categoría de match)",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Libre",
-          "desc": "Dos subgrupos juegan el mismo tema por turno sin restricción de forma. Libertad total. (Adaptado de categoría de match)",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
           "name": "Las sillas",
-          "desc": "Un equipo dispone de 30 s para construir una estructura con sillas. Otro equipo dispone de 40 s para preparar una improvisación a partir de esa estructura. (Tadam Impro)",
+          "desc": "Un equipo tiene 30 s para construir una estructura con sillas. Otro equipo tiene 40 s para preparar una impro a partir de esa estructura. (Tadam Impro)",
           "minPlayers": 4,
           "maxPlayers": 99
         },
@@ -87,210 +21,276 @@
           "maxPlayers": 99
         },
         {
-          "name": "Encarnar el tema",
-          "desc": "El grupo está en movimiento, un líder lanza un tema (museo, pirámides...). El grupo lo recrea de inmediato. (Tadam Impro)",
+          "name": "Historia colectiva",
+          "desc": "En círculo, una palabra cada uno. La historia se construye colectivamente, sin dudar ni rectificar.",
+          "minPlayers": 3,
+          "maxPlayers": 99
+        },
+        {
+          "name": "El tema a encarnar",
+          "desc": "El grupo está en movimiento y un animador lanza un tema (museo, pirámides...). El grupo lo recrea de inmediato. (Tadam Impro)",
           "minPlayers": 4,
           "maxPlayers": 99
         },
         {
-          "name": "Conversación rara",
-          "desc": "Dos jugadores improvisan una situación delirante: un pájaro que le explica el árbol a otro pájaro, una pulga que discute con un perro. (Tadam Impro)",
+          "name": "Conversación extraña",
+          "desc": "Dos jugadores improvisan una situación insólita: un pájaro que le explica el árbol a otro pájaro, una pulga que discute con un perro. (Tadam Impro)",
           "minPlayers": 2,
           "maxPlayers": 2
         },
         {
-          "name": "El borracho",
-          "desc": "Un miembro del público (o un actor) interpreta al « borracho » que interrumpe la escena con sugerencias absurdas que los improvisadores deben integrar para hacer avanzar la historia.",
-          "needsAudience": true,
+          "name": "Yes, and...",
+          "desc": "Toda propuesta se acepta y se enriquece. Regla de oro de la impro según InFamily: nunca bloquear.",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        },
+        {
+          "name": "El objeto imaginario",
+          "desc": "Un jugador manipula un objeto invisible. Los demás adivinan cuál es y lo relanzan añadiéndole un uso.",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        },
+        {
+          "name": "El tipo borracho",
+          "desc": "Un miembro del público (o un actor) hace de «tipo borracho» que interrumpe la escena con sugerencias absurdas que los improvisadores deben integrar para hacer avanzar la historia.",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Círculo de preguntas",
+          "desc": "Un jugador en el centro del círculo. Los demás le hacen preguntas en ráfaga. Él responde con precisión a cada una. (Dramaction)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Emociones a la orden",
+          "desc": "El animador lanza una emoción. Los jugadores cambian de inmediato y la justifican en escena.",
           "minPlayers": 3,
           "maxPlayers": 99
         },
         {
           "name": "La máquina humana",
-          "desc": "Uno a uno, los jugadores entran y añaden un gesto o sonido repetitivo. La máquina se construye de manera orgánica.",
+          "desc": "Uno a uno, los jugadores entran y añaden un gesto/sonido repetitivo. La máquina se construye de forma orgánica.",
           "minPlayers": 3,
           "maxPlayers": 99
         },
         {
           "name": "ABC",
-          "desc": "Una escena en la que cada réplica empieza con la siguiente letra del abecedario. A, B, C... hasta la Z.",
+          "desc": "Una escena en la que cada réplica empieza por la letra siguiente del alfabeto. A, B, C... hasta la Z.",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 4
         },
         {
           "name": "El autobús",
-          "desc": "Una parada de autobús. A cada llegada, un nuevo personaje sube con su propio universo. La escena muta cada vez.",
-          "minPlayers": 3,
+          "desc": "Una parada de autobús. En cada llegada, un nuevo personaje sube con su universo. La escena muta cada vez.",
+          "minPlayers": 2,
           "maxPlayers": 99
         },
         {
           "name": "Pantomima",
           "desc": "Una escena enteramente mimada a partir de un tema. (Dramaction)",
-          "minPlayers": 2,
+          "minPlayers": 1,
           "maxPlayers": 99
         },
         {
+          "name": "Tres personajes",
+          "desc": "Tres jugadores entran y componen su personaje en menos de 30 segundos, solo con la postura y la voz.",
+          "minPlayers": 3,
+          "maxPlayers": 3
+        },
+        {
           "name": "Emoción que pasa",
-          "desc": "Un jugador transmite una emoción en silencio a su vecino mediante un gesto, que la transmite a su vez. (Dramaction)",
+          "desc": "Un jugador transmite en silencio una emoción a su vecino mediante un gesto, y este la transmite a su vez. (Dramaction)",
+          "needsAudience": true,
+          "minPlayers": 3,
+          "maxPlayers": 99
+        },
+        {
+          "name": "El Freeze",
+          "desc": "Dos jugadores improvisan a partir de una postura. En cualquier momento, otro da una palmada para congelar la escena y sustituir a un jugador. (Impro-Exo)",
           "minPlayers": 3,
           "maxPlayers": 99
         },
         {
           "name": "Principio-medio-final en 30 s",
-          "desc": "Comenzar una improvisación, mover la apuesta y concluir — todo en 30 segundos cronometrados. (Impro-Exo)",
+          "desc": "Empezar una impro, hacer evolucionar el conflicto y concluir, todo en 30 segundos cronometrados. (Impro-Exo)",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 3
         },
         {
           "name": "Conversación con emoción cambiante",
-          "desc": "Una conversación a dúo. Cada 1-2 minutos, un líder grita una emoción. Los jugadores cambian al instante. (MentorShow)",
-          "needsAudience": true,
+          "desc": "Una conversación en dúo. Cada 1-2 minutos, un animador grita una emoción. Los jugadores cambian. (MentorShow)",
           "minPlayers": 2,
           "maxPlayers": 2
+        },
+        {
+          "name": "Mixta",
+          "desc": "Todos los jugadores de la compañía entran juntos y juegan el tema sin dividirse en equipos. (Categoría de match adaptada)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Comparada",
+          "desc": "Dos subgrupos de la compañía juegan sucesivamente la misma propuesta. La 2.ª versión debe distinguirse de la 1.ª. (Categoría de match adaptada)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Comparada libre",
+          "desc": "Dos subgrupos juegan sucesivamente el mismo tema, sin ninguna restricción de forma. Libertad total. (Categoría de match adaptada)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Mixta con accesorio",
+          "desc": "Un objeto impuesto debe ser central en la improvisación colectiva. Toda la compañía lo domestica en escena. (Categoría de match adaptada)",
+          "needsAudience": true,
+          "minPlayers": 3,
+          "maxPlayers": 99
         }
       ],
       "confirme": [
         {
-          "name": "Pausa-reanuda",
-          "desc": "El director detiene la escena, cambia un elemento (lugar, época, estatus), y la reanuda.",
+          "name": "Pausa-Reanudación",
+          "desc": "El animador detiene la escena, cambia un elemento (lugar, época, estatus) y la hace continuar.",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 6
         },
         {
-          "name": "Tres palabras forzadas",
-          "desc": "Tres palabras al azar deben colocarse naturalmente en la escena.",
+          "name": "Tres palabras impuestas",
+          "desc": "Tres palabras sorteadas deben colocarse con naturalidad en la escena.",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 6
         },
         {
-          "name": "Juego de estatus",
-          "desc": "Cada personaje tiene un estatus oculto (1 a 10). El público debe adivinarlo.",
+          "name": "El estatus",
+          "desc": "Cada personaje tiene un estatus social oculto (del 1 al 10). El público debe adivinarlo.",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 6
         },
         {
           "name": "Doblaje",
-          "desc": "Dos miman, los otros dos hablan por ellos desde fuera del escenario.",
+          "desc": "Dos jugadores miman y otros dos hablan por ellos desde fuera del escenario.",
           "minPlayers": 4,
           "maxPlayers": 4
         },
         {
-          "name": "Panel de expertos",
-          "desc": "Un panel de expertos en un tema absurdo responde con seriedad a preguntas del público.",
-          "minPlayers": 3,
-          "maxPlayers": 99
+          "name": "Conferencia de expertos",
+          "desc": "Un panel de expertos en un tema absurdo responde con total seriedad a las preguntas del público.",
+          "minPlayers": 2,
+          "maxPlayers": 6
         },
         {
-          "name": "Última palabra primera",
-          "desc": "Cada réplica empieza con la última palabra de la anterior.",
+          "name": "Last word, first word",
+          "desc": "Cada réplica debe empezar por la última palabra de la anterior.",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 4
         },
         {
           "name": "Historia al revés",
-          "desc": "Contar una historia desde el final hacia el principio, escena por escena.",
+          "desc": "Contar una historia empezando por el final y remontando escena por escena.",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 8
         },
         {
           "name": "Géneros mezclados",
-          "desc": "El director cambia de género cada 30 segundos (western, negra, romance, horror...).",
+          "desc": "El animador cambia de género cada 30 segundos (western, policíaco, romance, terror...).",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 6
         },
         {
-          "name": "A la manera de",
-          "desc": "Todos juegan el tema en un estilo de autor o género impuesto: Lorca, cine negro, Tarantino... (Adaptado de categoría de match)",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Muda",
-          "desc": "Ninguna palabra hablada — solo la puesta en escena colectiva cuenta la historia. Concentración extrema. (Adaptado de categoría de match)",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Muda con música",
-          "desc": "Improvisación muda, pero la escritura está rigurosamente moldeada por la atmósfera musical impuesta. (Dramaction)",
+          "name": "El triple estatus",
+          "desc": "Cada personaje tiene un secreto, un objetivo y un obstáculo. Todos se revelan a lo largo de la escena.",
           "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Con restricción",
-          "desc": "Dos subgrupos juegan el mismo tema por turno, cada uno con una restricción distinta sacada al azar. (Adaptado de categoría de match)",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Sin tema ni caucus",
-          "desc": "Ningún tema anunciado, ningún tiempo de preparación. Pura invención inmediata. (Dramaction)",
-          "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Saltacabras",
-          "desc": "Cuatro improvisaciones distintas, un tema cada una. La 1ª con un jugador, se añade uno en cada impro siguiente. (Dramaction)",
-          "minPlayers": 4,
-          "maxPlayers": 4
-        },
-        {
-          "name": "Sensorial",
-          "desc": "Uno de los cinco sentidos de un improvisador es estimulado durante la escena. Esa sensación debe moldear toda la escritura. (Dramaction)",
-          "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Comparada a la manera de",
-          "desc": "Dos subgrupos de la troupe juegan por turno el mismo tema en el estilo impuesto, cada uno a su manera. (Adaptado de categoría de match)",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Triple estatus",
-          "desc": "Cada personaje tiene un secreto, un objetivo y un obstáculo. Los tres se revelan durante la escena.",
-          "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 5
         },
         {
           "name": "Escena invertida",
-          "desc": "Se empieza por el clímax y se retrocede hasta el encuentro de los personajes.",
+          "desc": "Se empieza por el clímax y se remonta hasta el encuentro de los personajes.",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 6
         },
         {
           "name": "El coro desafinado",
-          "desc": "Un coro en escena — un miembro está desafinado o fuera de ritmo. Todo el drama nace de él. (Wikiversité)",
+          "desc": "Un coro en escena: un miembro desafina o va fuera de ritmo. Todo el drama viene de él. (Wikiversité)",
           "minPlayers": 4,
           "maxPlayers": 99
         },
         {
-          "name": "Actores entre bambalinas",
-          "desc": "Una escena se desarrolla entre bambalinas mientras el « espectáculo » sucede en escena. Mise en abyme. (Wikiversité)",
-          "minPlayers": 4,
-          "maxPlayers": 99
+          "name": "Actores entre bastidores",
+          "desc": "Una escena se juega entre bastidores mientras el «espectáculo» ocurre en el escenario. Puesta en abismo. (Wikiversité)",
+          "minPlayers": 3,
+          "maxPlayers": 12
         },
         {
           "name": "El ascensor averiado",
-          "desc": "Espacio ultra reducido, varios personajes, encierro forzoso. Un clásico. (Wikiversité)",
+          "desc": "Espacio ultrarreducido, varios personajes, el encierro es forzoso. Un clásico. (Wikiversité)",
           "minPlayers": 3,
-          "maxPlayers": 99
+          "maxPlayers": 8
         },
         {
           "name": "La reunión de profes",
           "desc": "Una reunión de docentes donde cada profe tiene una agenda oculta y un alumno favorito.",
           "minPlayers": 3,
+          "maxPlayers": 8
+        },
+        {
+          "name": "El regreso al pasado",
+          "desc": "En un momento clave, un jugador da una palmada. La escena retrocede 1 minuto y se vuelve a jugar de otra manera.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "El personaje sorteado",
+          "desc": "Cada jugador saca un tipo de personaje (payaso, seductor, paranoico) que debe interpretar sin nombrarlo.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Mixta a la manera de",
+          "desc": "Todo el mundo juega el tema en un estilo de autor o de género impuesto: Molière, Audiard, cine negro... (Categoría de match adaptada)",
+          "minPlayers": 3,
           "maxPlayers": 99
         },
         {
-          "name": "Vuelta al pasado",
-          "desc": "En un momento clave, un jugador da una palmada. La escena retrocede un minuto y se rejuega de otra manera.",
+          "name": "Comparada a la manera de",
+          "desc": "Dos subgrupos juegan sucesivamente el mismo tema en el estilo impuesto, cada uno a su manera. (Categoría de match adaptada)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Mixta sin palabras",
+          "desc": "Ni una palabra pronunciada: solo la puesta en escena colectiva cuenta la historia. Concentración extrema. (Categoría de match adaptada)",
+          "minPlayers": 3,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Sin palabras con apoyo musical",
+          "desc": "Impro muda, pero la escritura está rigurosamente influida por el ambiente musical impuesto. (Dramaction)",
+          "minPlayers": 1,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Comparada con restricción",
+          "desc": "Dos subgrupos juegan sucesivamente el mismo tema, cada uno con una restricción sorteada distinta. (Categoría de match adaptada)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Sin tema ni caucus",
+          "desc": "Ningún tema anunciado, ningún tiempo de concertación. Pura inventiva inmediata. (Dramaction)",
           "minPlayers": 2,
           "maxPlayers": 99
         },
         {
-          "name": "Personaje al azar",
-          "desc": "Cada jugador saca un tipo de personaje (payaso, seductor, paranoico) que debe interpretar sin nombrarlo.",
+          "name": "Salto de rana",
+          "desc": "Cuatro impros distintas, un tema por impro. La 1.ª con un jugador; se añade uno más en cada impro siguiente. (Dramaction)",
+          "minPlayers": 4,
+          "maxPlayers": 4
+        },
+        {
+          "name": "Sensorial",
+          "desc": "Uno de los cinco sentidos de un improvisador se estimula durante la escena. Esa sensación debe alimentar toda la escritura. (Dramaction)",
           "minPlayers": 2,
           "maxPlayers": 99
         }
@@ -298,121 +298,121 @@
       "expert": [
         {
           "name": "El Harold",
-          "desc": "Forma larga: tres escenas paralelas se entrelazan y se nutren. Formato Del Close.",
-          "minPlayers": 6,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Improvisación cantada",
-          "desc": "Escena íntegramente cantada con melodía improvisada y estructura estrofa/estribillo.",
-          "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Veinte minutos sin corte",
-          "desc": "Una sola escena, veinte minutos, sin interrupción. Sostener un mundo entero.",
-          "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Espejo Pirandello",
-          "desc": "Los personajes toman conciencia de que son improvisados, pero deben continuar la escena.",
-          "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Dos tiempos",
-          "desc": "Una escena se juega y luego se rejugar diez años después con sus consecuencias.",
-          "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Espectáculo mudo",
-          "desc": "Espectáculo de 15 minutos, sin una sola palabra. Trama clara, resolución real.",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Teatro dentro del teatro",
-          "desc": "Los personajes improvisan a su vez una pieza dentro de la escena. Tres niveles de ficción.",
+          "desc": "Formato largo: tres escenas en paralelo se entrelazan, se responden y se alimentan entre sí. Formato de Del Close.",
           "minPlayers": 4,
+          "maxPlayers": 10
+        },
+        {
+          "name": "La bola de fuego",
+          "desc": "Todos los jugadores en escena. En cada momento fuerte, un dúo se destaca para una miniescena y luego vuelve al grupo.",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "La improvisación cantada",
+          "desc": "Una escena enteramente cantada con melodía improvisada, rimas y estructura de estrofa/estribillo.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "El monólogo compartido",
+          "desc": "Cada jugador retoma un largo monólogo, lo deforma y lo enriquece asumiendo el mismo personaje.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Forma libre de 20 minutos",
+          "desc": "Una sola escena, veinte minutos, sin interrupción ni cambio. Sostener un mundo entero.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "La ópera impro",
+          "desc": "Recitativos y arias cantados en alternancia, libreto enteramente improvisado, voces líricas.",
+          "minPlayers": 2,
+          "maxPlayers": 10
+        },
+        {
+          "name": "El espejo Pirandello",
+          "desc": "Los personajes toman conciencia de que son improvisados... pero deben continuar la escena igualmente.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Escena en dos tiempos",
+          "desc": "Una escena se juega y luego se vuelve a jugar diez años más tarde, con las consecuencias lógicas de la primera.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Improvisación muda",
+          "desc": "Espectáculo de 15 minutos, íntegramente sin palabras, con una intriga clara y resuelta.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "El teatro dentro del teatro",
+          "desc": "Los personajes improvisan a su vez una obra dentro de la escena. Tres niveles de ficción superpuestos.",
+          "minPlayers": 3,
+          "maxPlayers": 8
+        },
+        {
+          "name": "La Casa (Del Close)",
+          "desc": "Formato largo donde cada escena abre temas que las siguientes retoman y profundizan.",
+          "minPlayers": 4,
+          "maxPlayers": 10
+        },
+        {
+          "name": "El Deconstructed",
+          "desc": "Se juega una sola escena y luego se desmenuza y se rehace desde varios ángulos narrativos.",
+          "minPlayers": 3,
+          "maxPlayers": 10
+        },
+        {
+          "name": "Chejoviana",
+          "desc": "Formato largo al estilo Chéjov: sin clímax, personajes que se desencuentran, la inacción como motor.",
+          "minPlayers": 3,
           "maxPlayers": 99
         },
         {
           "name": "Beckettiana",
-          "desc": "Forma larga absurda: silencios habitados, espera, lenguaje que se vacía. Estilo Godot.",
+          "desc": "Formato largo absurdo: silencios habitados, espera, lenguaje que se vacía. Al estilo de Esperando a Godot.",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 6
         },
         {
-          "name": "Cantada",
-          "desc": "Improvisación entera o parcialmente cantada por toda la troupe, melodías y letras improvisadas en colectivo. (Adaptado de categoría de match)",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Rimada",
-          "desc": "Todas las réplicas riman. Octosílabos o alejandrinos según el nivel. Toda la troupe sostiene la métrica. (Adaptado de categoría de match)",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Videoway",
-          "desc": "Mixta con cuatro canales TV (F1-F4), contenido distinto por canal. El árbitro salta entre canales sin orden predefinido. (Dramaction)",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "De tesis",
-          "desc": "La improvisación colectiva debe defender una tesis filosófica anunciada de antemano.",
+          "name": "Mixta cantada",
+          "desc": "Improvisación cantada entera o parcialmente por toda la compañía, melodías y letras improvisadas en colectivo. (Categoría de match adaptada)",
           "minPlayers": 3,
           "maxPlayers": 99
         },
         {
           "name": "Comparada cantada",
-          "desc": "Dos subgrupos de la troupe proponen sucesivamente su versión cantada del mismo tema. (Adaptado de categoría de match)",
+          "desc": "Dos subgrupos proponen sucesivamente su versión cantada del mismo tema. (Categoría de match adaptada)",
           "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Mixta rimada",
+          "desc": "Todas las réplicas riman. Octosílabos o alejandrinos según el nivel. Toda la compañía sostiene la métrica. (Categoría de match adaptada)",
+          "minPlayers": 3,
           "maxPlayers": 99
         },
         {
           "name": "Comparada rimada",
-          "desc": "Dos subgrupos de la troupe entregan sucesivamente su versión rimada del tema. (Adaptado de categoría de match)",
+          "desc": "Dos subgrupos entregan sucesivamente su versión rimada del tema. (Categoría de match adaptada)",
           "minPlayers": 4,
           "maxPlayers": 99
         },
         {
-          "name": "La bola de fuego",
-          "desc": "Todos los jugadores en escena. En cada momento álgido, un dúo se separa para una miniescena y luego vuelve al grupo.",
+          "name": "Videoway",
+          "desc": "Mixta con cuatro canales de TV (F1-F4), un contenido distinto por canal. El animador salta de un canal a otro sin orden predefinido. (Dramaction)",
           "minPlayers": 4,
-          "maxPlayers": 99
+          "maxPlayers": 12
         },
         {
-          "name": "Monólogo compartido",
-          "desc": "Un largo monólogo es retomado por cada jugador, que lo deforma y enriquece manteniendo el mismo personaje.",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Ópera improvisada",
-          "desc": "Recitativos y arias cantados alternadamente, libreto enteramente improvisado, voces líricas.",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "La Casa (Del Close)",
-          "desc": "Forma larga en la que cada escena abre temas que las siguientes retoman y profundizan.",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "El Deconstructed",
-          "desc": "Una sola escena se juega y luego se desmonta y se vuelve a empezar desde varios ángulos narrativos.",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Chejoviana",
-          "desc": "Forma larga a la Chéjov: sin clímax, personajes que se desencuentran, la inacción como motor.",
+          "name": "Mixta con tesis",
+          "desc": "La improvisación colectiva debe defender una tesis filosófica anunciada de antemano.",
           "minPlayers": 3,
           "maxPlayers": 99
         }
@@ -421,140 +421,140 @@
     "match": {
       "debutant": [
         {
-          "name": "Equipo único",
-          "desc": "Un equipo juega, el otro espera. Forma clásica del match LNI.",
-          "minPlayers": 4,
+          "name": "Improvisación simple",
+          "desc": "Un equipo juega, el otro espera. Forma clásica del match de impro de la LNI.",
+          "minPlayers": 1,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Improvisación mixta",
+          "desc": "Los dos equipos juegan juntos en la misma improvisación, en equilibrio numérico.",
+          "minPlayers": 2,
           "maxPlayers": 99
         },
         {
-          "name": "Mixta",
-          "desc": "Ambos equipos juegan juntos en la misma improvisación.",
-          "minPlayers": 4,
+          "name": "Improvisación comparada",
+          "desc": "Cada equipo juega por turnos la misma propuesta. El público compara y vota.",
+          "minPlayers": 2,
           "maxPlayers": 99
         },
         {
-          "name": "Comparada",
-          "desc": "Cada equipo juega la misma propuesta por turno. El público compara y vota.",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Mixta muda",
-          "desc": "Ambos equipos juntos, pero en silencio absoluto.",
-          "minPlayers": 4,
+          "name": "Mixta sin palabras",
+          "desc": "Los dos equipos juntos, pero en silencio absoluto durante toda la escena.",
+          "minPlayers": 2,
           "maxPlayers": 99
         },
         {
           "name": "Comparada cantada",
-          "desc": "Cada equipo incluye al menos un pasaje cantado.",
-          "minPlayers": 4,
+          "desc": "Cada equipo juega el tema integrando al menos un pasaje cantado.",
+          "minPlayers": 2,
           "maxPlayers": 99
         },
         {
-          "name": "Comparada con utilería",
-          "desc": "Un objeto impuesto debe ser central. Cada equipo lo usa a su manera.",
-          "minPlayers": 4,
+          "name": "Comparada con accesorio",
+          "desc": "Un accesorio impuesto debe ser central. Cada equipo lo usa a su manera.",
+          "minPlayers": 2,
           "maxPlayers": 99
         }
       ],
       "confirme": [
         {
           "name": "A la manera de",
-          "desc": "Estilo o género impuesto: Lorca, García Márquez, cine negro...",
-          "minPlayers": 4,
+          "desc": "Estilo de autor o de género impuesto: Molière, Audiard, cine negro... (Categoría clásica de la LNI)",
+          "minPlayers": 1,
           "maxPlayers": 99
         },
         {
-          "name": "Mixta con utilería",
-          "desc": "Un objeto impuesto debe ser central en la improvisación.",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Improvisación a la inversa",
-          "desc": "El equipo debe jugar la escena empezando por el final.",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Comparada rimada",
-          "desc": "Todas las réplicas deben rimar.",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Comparada muda",
-          "desc": "Sin palabras: solo el gesto y la expresión cuentan la historia.",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Mixta con personaje",
-          "desc": "Un tipo de personaje impuesto debe aparecer en el primer minuto.",
-          "minPlayers": 4,
+          "name": "Mixta con accesorio",
+          "desc": "Un objeto impuesto debe ser central en la improvisación. Los dos equipos negocian en escena.",
+          "minPlayers": 2,
           "maxPlayers": 99
         },
         {
           "name": "Comparada con restricción",
           "desc": "Cada equipo juega el tema con una restricción sorteada distinta.",
-          "minPlayers": 4,
-          "maxPlayers": 99
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Mixta con personaje impuesto",
+          "desc": "Un tipo de personaje impuesto debe aparecer desde el primer minuto.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Improvisación al revés",
+          "desc": "El equipo debe jugar la escena empezando por el final y remontando hacia atrás.",
+          "minPlayers": 2,
+          "maxPlayers": 6
         },
         {
           "name": "Mixta por frases",
-          "desc": "Los jugadores solo pueden hablar con frases enteras y completas, sin interrumpir.",
-          "minPlayers": 4,
-          "maxPlayers": 99
+          "desc": "Los jugadores solo pueden hablar con frases enteras y completas: nada de interrupciones.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Comparada rimada",
+          "desc": "Todas las réplicas deben rimar (octosílabos o rima pareada).",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Comparada muda",
+          "desc": "Ninguna palabra: solo el gesto y la expresión cuentan la historia.",
+          "minPlayers": 2,
+          "maxPlayers": 8
         }
       ],
       "expert": [
         {
           "name": "Cantada y bailada",
-          "desc": "Mini-musical: alternancia de diálogo, canto y coreografía improvisados.",
-          "minPlayers": 4,
+          "desc": "Mini-musical: alternancia de diálogos, canciones y coreografías improvisadas. Estilo Broadway impro.",
+          "minPlayers": 2,
           "maxPlayers": 99
         },
         {
-          "name": "Estilo + época",
-          "desc": "Estilo de autor Y época histórica impuestos. Ambos deben leerse claramente.",
-          "minPlayers": 4,
+          "name": "A la manera de + época",
+          "desc": "Estilo de autor Y época histórica impuestos. Los dos deben ser legibles desde la entrada.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Mixta en alejandrinos",
+          "desc": "Todas las réplicas en alejandrinos (12 sílabas), rima pareada o cruzada. Nivel clásico.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Comparada silenciosa + sonorizada",
+          "desc": "Un equipo juega muda, el otro únicamente con efectos sonoros. Mismo tema, lecturas inversas.",
+          "minPlayers": 2,
           "maxPlayers": 99
         },
         {
-          "name": "En verso",
-          "desc": "Todas las réplicas en verso (endecasílabo o alejandrinos).",
-          "minPlayers": 4,
+          "name": "Sin héroe",
+          "desc": "La improvisación debe funcionar sin un personaje principal identificable. Coralidad total.",
+          "minPlayers": 3,
           "maxPlayers": 99
         },
         {
-          "name": "Sin protagonista",
-          "desc": "La improvisación debe funcionar sin personaje principal identificable.",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "De tesis",
-          "desc": "La improvisación debe defender una tesis filosófica anunciada de antemano.",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Bucle temporal",
-          "desc": "La escena avanza y retrocede 30 segundos repetidamente. Bucle vertiginoso.",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Comparada muda + efectos",
-          "desc": "Un equipo juega en silencio, el otro solo con efectos sonoros. Mismo tema, lecturas opuestas.",
-          "minPlayers": 4,
-          "maxPlayers": 99
+          "name": "Con tesis",
+          "desc": "La improvisación debe defender una tesis filosófica anunciada de antemano por el árbitro.",
+          "minPlayers": 2,
+          "maxPlayers": 8
         },
         {
           "name": "A la manera de Chéjov",
-          "desc": "Estilo ruso de finales del s. XIX: hastío aristocrático, samovares, silencios cargados, monólogos.",
-          "minPlayers": 4,
-          "maxPlayers": 99
+          "desc": "Estilo ruso de finales del siglo XIX: aburrimiento aristocrático, samovares, silencios cargados, monólogos.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Marcha atrás temporal",
+          "desc": "La escena avanza y luego retrocede cada 30 segundos. Bucle vertiginoso.",
+          "minPlayers": 2,
+          "maxPlayers": 6
         }
       ]
     }

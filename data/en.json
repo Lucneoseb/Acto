@@ -4,293 +4,293 @@
       "debutant": [
         {
           "name": "The Mirror",
-          "desc": "Two players face each other. One leads slow movements, the other mirrors perfectly. Speed up gradually.",
+          "desc": "Two players face each other. One makes slow movements, the other mirrors them exactly. Speed up gradually. (Tadam Impro)",
           "minPlayers": 2,
           "maxPlayers": 2
         },
         {
-          "name": "Yes, and...",
-          "desc": "Every offer is accepted and built upon. The golden rule of improv: never block.",
-          "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Word at a time",
-          "desc": "In a circle, each player adds one word. Build a story together without hesitating.",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Freeze",
-          "desc": "Two players improvise from a posture. Anyone can clap to freeze, replace a player, and restart the scene.",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Emotional rollercoaster",
-          "desc": "Moderator shouts an emotion every minute. Players shift their tone instantly.",
-          "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Invisible object",
-          "desc": "One player handles an invisible object. Others must guess and add new uses.",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Three characters",
-          "desc": "Three players enter and establish their character within 30 seconds via posture and voice.",
-          "minPlayers": 3,
-          "maxPlayers": 3
-        },
-        {
-          "name": "Question circle",
-          "desc": "One player in the middle. Others bombard them with rapid-fire questions to be answered precisely.",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Mixed",
-          "desc": "All troupe members play the theme together, no team split. (Adapted match category)",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Compared",
-          "desc": "Two subgroups of the troupe play the same proposition in succession. The 2nd version must differ from the 1st. (Adapted match category)",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "With prop",
-          "desc": "An imposed object must be central to the collective improvisation. The whole troupe makes it work on stage. (Adapted match category)",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Free",
-          "desc": "Two subgroups play the same theme in succession with no form constraint. Total freedom. (Adapted match category)",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "The chairs",
+          "name": "The Chairs",
           "desc": "One team has 30s to build a structure out of chairs. Another team has 40s to prepare an improv based on that structure. (Tadam Impro)",
           "minPlayers": 4,
           "maxPlayers": 99
         },
         {
-          "name": "The eulogy",
+          "name": "The Eulogy",
           "desc": "Each player improvises a tribute speech for their pet. Solemn tone, funny, or both. (Tadam Impro)",
           "minPlayers": 1,
           "maxPlayers": 99
         },
         {
-          "name": "Embody the theme",
-          "desc": "The group is in motion; a leader calls out a theme (museum, pyramids...). The group instantly recreates it. (Tadam Impro)",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Weird conversation",
-          "desc": "Two players improvise an offbeat situation: a bird explaining a tree to another bird, a flea arguing with a dog. (Tadam Impro)",
-          "minPlayers": 2,
-          "maxPlayers": 2
-        },
-        {
-          "name": "The drunk guy",
-          "desc": "An audience member (or actor) plays the « drunk guy » who interrupts the scene with absurd suggestions the improvisers must work in to push the story forward.",
-          "needsAudience": true,
+          "name": "Collective Story",
+          "desc": "In a circle, one word each. The story is built collectively, with no hesitation and no going back.",
           "minPlayers": 3,
           "maxPlayers": 99
         },
         {
-          "name": "The human machine",
-          "desc": "One by one, players enter and add a repetitive gesture/sound. The machine builds itself organically.",
+          "name": "Embody the Theme",
+          "desc": "The group moves around, a leader calls out a theme (museum, pyramids...). The group recreates it immediately. (Tadam Impro)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Odd Conversation",
+          "desc": "Two players improvise an offbeat situation: a bird explaining trees to another bird, a flea arguing with a dog. (Tadam Impro)",
+          "minPlayers": 2,
+          "maxPlayers": 2
+        },
+        {
+          "name": "Yes, and...",
+          "desc": "Every offer is accepted and built on. The golden rule of improv according to InFamily: never block.",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        },
+        {
+          "name": "The Imaginary Object",
+          "desc": "One player handles an invisible object. The others guess what it is and send it back with a new use added.",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        },
+        {
+          "name": "The Drunk Guy",
+          "desc": "An audience member (or an actor) plays the \"drunk guy\", interrupting the scene with absurd suggestions the improvisers must work in to move the story forward.",
+          "minPlayers": 2,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Question Circle",
+          "desc": "One player stands in the middle of the circle. The others fire questions at them. They answer each one precisely. (Dramaction)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Emotions on Cue",
+          "desc": "The leader calls out an emotion. The players switch to it instantly and justify it on stage.",
+          "minPlayers": 3,
+          "maxPlayers": 99
+        },
+        {
+          "name": "The Human Machine",
+          "desc": "One by one, players step in and add a repeating gesture/sound. The machine builds itself organically.",
           "minPlayers": 3,
           "maxPlayers": 99
         },
         {
           "name": "ABC",
-          "desc": "A scene where each line begins with the next letter of the alphabet. A, B, C... up to Z.",
+          "desc": "A scene where each line starts with the next letter of the alphabet. A, B, C... all the way to Z.",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 4
         },
         {
-          "name": "The bus",
-          "desc": "A bus stop. With each arrival a new character boards with their own universe. The scene mutates every time.",
-          "minPlayers": 3,
+          "name": "The Bus",
+          "desc": "A bus stop. At each arrival, a new character gets on with their own world. The scene shifts every time.",
+          "minPlayers": 2,
           "maxPlayers": 99
         },
         {
           "name": "Pantomime",
           "desc": "A scene played entirely in mime from a given theme. (Dramaction)",
-          "minPlayers": 2,
+          "minPlayers": 1,
           "maxPlayers": 99
         },
         {
-          "name": "Passing emotion",
-          "desc": "A player silently transmits an emotion to their neighbour through a gesture, who passes it on in turn. (Dramaction)",
+          "name": "Three Characters",
+          "desc": "Three players enter and establish their character in under 30 seconds, through posture and voice alone.",
+          "minPlayers": 3,
+          "maxPlayers": 3
+        },
+        {
+          "name": "Passing the Emotion",
+          "desc": "One player silently passes an emotion to their neighbour through a gesture, who passes it on in turn. (Dramaction)",
+          "needsAudience": true,
           "minPlayers": 3,
           "maxPlayers": 99
         },
         {
-          "name": "Beginning-middle-end in 30s",
-          "desc": "Start an impro, shift the stakes, and wrap it up — all in 30 seconds flat. (Impro-Exo)",
-          "minPlayers": 2,
+          "name": "Freeze",
+          "desc": "Two players improvise starting from a frozen pose. At any moment, another claps to freeze the scene and replace a player. (Impro-Exo)",
+          "minPlayers": 3,
           "maxPlayers": 99
         },
         {
-          "name": "Shifting-emotion conversation",
-          "desc": "A two-person conversation. Every 1-2 minutes a leader shouts an emotion. The players shift instantly. (MentorShow)",
-          "needsAudience": true,
+          "name": "Beginning-Middle-End in 30s",
+          "desc": "Start an improv, shift the stakes, and wrap it up — all in 30 seconds flat. (Impro-Exo)",
+          "minPlayers": 2,
+          "maxPlayers": 3
+        },
+        {
+          "name": "Shifting-Emotion Conversation",
+          "desc": "A conversation between two players. Every 1-2 minutes, a leader shouts out an emotion. The players switch. (MentorShow)",
           "minPlayers": 2,
           "maxPlayers": 2
+        },
+        {
+          "name": "Mixed",
+          "desc": "All the players of the troupe come on together and play the theme without splitting into teams. (Match category, adapted)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Compared",
+          "desc": "Two subgroups of the troupe play the same prompt one after the other. The 2nd version must stand apart from the 1st. (Match category, adapted)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Free Compared",
+          "desc": "Two subgroups play the same theme one after the other, with no constraint on form. Total freedom. (Match category, adapted)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Mixed with Prop",
+          "desc": "A required object must be central to the collective improv. The whole troupe makes it their own on stage. (Match category, adapted)",
+          "needsAudience": true,
+          "minPlayers": 3,
+          "maxPlayers": 99
         }
       ],
       "confirme": [
         {
           "name": "Pause-Resume",
-          "desc": "Moderator stops the scene, changes one element (place, era, status), and restarts.",
+          "desc": "The leader stops the scene, changes one element (place, era, status), and has it resume.",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 6
         },
         {
-          "name": "Three forced words",
-          "desc": "Three random words must be naturally placed in the scene.",
+          "name": "Three Required Words",
+          "desc": "Three words drawn at random must be worked naturally into the scene.",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 6
         },
         {
-          "name": "Status game",
-          "desc": "Each character has a hidden social status (1 to 10). Audience must guess.",
+          "name": "Status",
+          "desc": "Each character has a hidden social status (1 to 10). The audience has to guess it.",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 6
         },
         {
           "name": "Dubbing",
-          "desc": "Two mime, two others speak for them from offstage.",
+          "desc": "Two players mime, two others speak for them from off the stage.",
           "minPlayers": 4,
           "maxPlayers": 4
         },
         {
-          "name": "Expert panel",
-          "desc": "Panel of experts on an absurd topic answers audience questions earnestly.",
-          "minPlayers": 3,
-          "maxPlayers": 99
+          "name": "Expert Panel",
+          "desc": "A panel of experts on an absurd subject answers the audience's questions in complete seriousness.",
+          "minPlayers": 2,
+          "maxPlayers": 6
         },
         {
           "name": "Last word, first word",
-          "desc": "Each line begins with the last word of the previous line.",
+          "desc": "Each line must begin with the last word of the previous one.",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 4
         },
         {
-          "name": "Reverse story",
-          "desc": "Tell the story starting from the ending and moving backwards.",
+          "name": "Backwards Story",
+          "desc": "Tell a story starting from the end and working back scene by scene.",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 8
         },
         {
-          "name": "Mixed genres",
-          "desc": "Moderator switches genre every 30 seconds (western, noir, romance, horror...).",
+          "name": "Mixed Genres",
+          "desc": "The leader switches genre every 30 seconds (western, crime, romance, horror...).",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 6
         },
         {
-          "name": "In the manner of",
-          "desc": "Everyone plays the theme in an imposed author or genre style: Shakespeare, film noir, Audiard... (Adapted match category)",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Silent",
-          "desc": "No word spoken — only the collective staging tells the story. Extreme focus. (Adapted match category)",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Silent with music",
-          "desc": "Silent improv, but the writing is rigorously influenced by the imposed musical ambience. (Dramaction)",
+          "name": "Triple Status",
+          "desc": "Each character has a secret, a goal and an obstacle. All three come out during the scene.",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 5
         },
         {
-          "name": "Forced constraint",
-          "desc": "Two subgroups play the same theme in succession, each with a different constraint drawn at random. (Adapted match category)",
+          "name": "Reversed Scene",
+          "desc": "Start at the climax and work back to the moment the characters first met.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "The Off-Key Choir",
+          "desc": "A choir on stage — one member is off-key or out of time. All the drama comes from them. (Wikiversité)",
           "minPlayers": 4,
           "maxPlayers": 99
         },
         {
-          "name": "No theme, no caucus",
-          "desc": "No theme announced, no preparation time. Pure immediate invention. (Dramaction)",
+          "name": "Actors in the Wings",
+          "desc": "A scene plays out in the wings while the 'show' goes on onstage. Mise en abyme. (Wikiversité)",
+          "minPlayers": 3,
+          "maxPlayers": 12
+        },
+        {
+          "name": "The Stuck Elevator",
+          "desc": "An extremely confined space, several characters, a forced huis clos. A classic. (Wikiversité)",
+          "minPlayers": 3,
+          "maxPlayers": 8
+        },
+        {
+          "name": "The Teachers' Meeting",
+          "desc": "A staff meeting where every teacher has a hidden agenda and a favourite pupil.",
+          "minPlayers": 3,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Rewind",
+          "desc": "At a key moment, a player claps. The scene jumps back 1 minute and replays differently.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "The Drawn Character",
+          "desc": "Each player draws a character type (clown, seducer, paranoiac) and must play it without naming it.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Mixed, In the Style Of",
+          "desc": "Everyone plays the theme in an imposed author's style or genre: Molière, Audiard, film noir... (Adapted match category)",
+          "minPlayers": 3,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Compared, In the Style Of",
+          "desc": "Two sub-groups play the same theme one after the other in the imposed style, each in their own way. (Adapted match category)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Wordless Mixed",
+          "desc": "Not a word spoken: the collective staging alone tells the story. Extreme focus. (Adapted match category)",
+          "minPlayers": 3,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Wordless with Musical Support",
+          "desc": "A silent impro, but the storytelling is strictly shaped by the imposed musical atmosphere. (Dramaction)",
+          "minPlayers": 1,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Compared with Constraint",
+          "desc": "Two sub-groups play the same theme one after the other, each with a different constraint drawn at random. (Adapted match category)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "No Theme, No Caucus",
+          "desc": "No theme announced, no caucus. Pure on-the-spot invention. (Dramaction)",
           "minPlayers": 2,
           "maxPlayers": 99
         },
         {
           "name": "Leapfrog",
-          "desc": "Four different impros, one theme each. The 1st with one player, one is added at each subsequent impro. (Dramaction)",
+          "desc": "Four different impros, one theme per impro. The 1st with one player, then one more player is added for each impro that follows. (Dramaction)",
           "minPlayers": 4,
           "maxPlayers": 4
         },
         {
           "name": "Sensory",
-          "desc": "One of the five senses of an improviser is stimulated during the scene. That sensation must drive the whole writing. (Dramaction)",
-          "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Compared in the manner of",
-          "desc": "Two subgroups of the troupe play the same theme in succession in the imposed style, each in their own way. (Adapted match category)",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Triple status",
-          "desc": "Each character has a secret, a goal, and an obstacle. All three are revealed during the scene.",
-          "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Reversed scene",
-          "desc": "Start at the climax and work back to the moment the characters first meet.",
-          "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "The off-key choir",
-          "desc": "A choir onstage — one member is off-key or out of rhythm. The whole drama comes from them. (Wikiversité)",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Actors backstage",
-          "desc": "A scene plays out backstage while the « show » is happening onstage. Mise en abyme. (Wikiversité)",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "The broken elevator",
-          "desc": "Ultra-cramped space, several characters, forced confinement. A classic. (Wikiversité)",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "The teachers' meeting",
-          "desc": "A staff meeting where each teacher has a hidden agenda and a favourite pupil.",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Back to the past",
-          "desc": "At a key moment, a player claps. The scene rewinds one minute and replays differently.",
-          "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Drawn character",
-          "desc": "Each player draws a character type (clown, seducer, paranoiac) and must play it without naming it.",
+          "desc": "One of the five senses of one improviser is stimulated during the scene. That sensation must feed the whole story. (Dramaction)",
           "minPlayers": 2,
           "maxPlayers": 99
         }
@@ -298,121 +298,121 @@
       "expert": [
         {
           "name": "The Harold",
-          "desc": "Long form: three parallel scenes weave and feed each other. Del Close format.",
-          "minPlayers": 6,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Sung improvisation",
-          "desc": "Fully sung scene with improvised melody, rhymes and verse/chorus structure.",
-          "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Twenty-minute one-shot",
-          "desc": "Single 20-minute scene, no breaks, no resets. Hold an entire world.",
-          "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Pirandello mirror",
-          "desc": "Characters realize they are improvised, but must continue the scene anyway.",
-          "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Two timelines",
-          "desc": "Scene plays out, then replays ten years later with the consequences.",
-          "minPlayers": 2,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Silent show",
-          "desc": "15-minute spectacle with no dialogue at all. Clear plot, real resolution.",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Theatre within theatre",
-          "desc": "Characters improvise their own play inside the main scene. Three layers of fiction.",
+          "desc": "Long form: three parallel scenes interweave, answer and feed each other. Del Close format.",
           "minPlayers": 4,
+          "maxPlayers": 10
+        },
+        {
+          "name": "The Fireball",
+          "desc": "All the players on stage. At each high point, a duo breaks away for a mini-scene, then returns to the group.",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Sung Improvisation",
+          "desc": "A scene entirely sung, with improvised melody, rhymes and a verse/chorus structure.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "The Shared Monologue",
+          "desc": "A long monologue is picked up by each player in turn, who distorts and enriches it while playing the same character.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "20-Minute Free Form",
+          "desc": "A single scene, twenty minutes, with no interruption and no switch. Holding up an entire world.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Impro Opera",
+          "desc": "Sung recitatives and arias in alternation, a fully improvised libretto, operatic voices.",
+          "minPlayers": 2,
+          "maxPlayers": 10
+        },
+        {
+          "name": "The Pirandello Mirror",
+          "desc": "The characters realise they are being improvised... but have to carry on with the scene anyway.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Scene in Two Movements",
+          "desc": "A scene is played, then replayed ten years later with the logical consequences of the first.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Silent Improvisation",
+          "desc": "A 15-minute show, entirely without words, with a clear plot that gets resolved.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Theatre Within the Theatre",
+          "desc": "The characters in turn improvise a play inside the scene. Three layers of fiction stacked on top of each other.",
+          "minPlayers": 3,
+          "maxPlayers": 8
+        },
+        {
+          "name": "The House (Del Close)",
+          "desc": "A long form where each scene opens themes that the following ones pick up and deepen.",
+          "minPlayers": 4,
+          "maxPlayers": 10
+        },
+        {
+          "name": "The Deconstructed",
+          "desc": "A single scene is played, then taken apart and started over from several narrative angles.",
+          "minPlayers": 3,
+          "maxPlayers": 10
+        },
+        {
+          "name": "Chekhovian",
+          "desc": "Long form in the manner of Chekhov: no climax, characters who keep missing each other, inaction as the engine.",
+          "minPlayers": 3,
           "maxPlayers": 99
         },
         {
           "name": "Beckettian",
-          "desc": "Long-form absurd: lived silences, waiting, language emptying out. Godot-style.",
+          "desc": "Absurdist long form: inhabited silences, waiting, language draining itself. In the vein of Waiting for Godot.",
           "minPlayers": 2,
-          "maxPlayers": 99
+          "maxPlayers": 6
         },
         {
-          "name": "Sung",
-          "desc": "Improvisation entirely or partially sung by the whole troupe, improvised melodies and lyrics in collective. (Adapted match category)",
+          "name": "Sung mixed",
+          "desc": "An impro sung entirely or partly by the whole troupe, with melodies and lyrics improvised collectively. (Adapted match category)",
           "minPlayers": 3,
           "maxPlayers": 99
         },
         {
-          "name": "Rhymed",
-          "desc": "All lines rhyme. Octosyllables or alexandrines per level. The whole troupe holds the meter. (Adapted match category)",
+          "name": "Sung compared",
+          "desc": "Two sub-groups perform their sung version of the same theme one after the other. (Adapted match category)",
+          "minPlayers": 4,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Rhymed mixed",
+          "desc": "Every line rhymes. Octosyllables or alexandrines depending on level. The whole troupe holds the metre. (Adapted match category)",
           "minPlayers": 3,
+          "maxPlayers": 99
+        },
+        {
+          "name": "Rhymed compared",
+          "desc": "Two sub-groups deliver their rhymed version of the theme one after the other. (Adapted match category)",
+          "minPlayers": 4,
           "maxPlayers": 99
         },
         {
           "name": "Videoway",
-          "desc": "Mixed with four TV channels (F1-F4), different content per channel. The host jumps between channels with no pre-defined order. (Dramaction)",
+          "desc": "A mixed impro with four TV channels (F1-F4), each channel a different content. The leader jumps from one channel to another in no set order. (Dramaction)",
           "minPlayers": 4,
-          "maxPlayers": 99
+          "maxPlayers": 12
         },
         {
-          "name": "Thesis",
-          "desc": "The collective improvisation must defend a philosophical thesis announced in advance.",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Compared sung",
-          "desc": "Two subgroups of the troupe successively offer their sung version of the same theme. (Adapted match category)",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Compared rhymed",
-          "desc": "Two subgroups of the troupe successively deliver their rhymed version of the theme. (Adapted match category)",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "The Fireball",
-          "desc": "All players onstage. At each high beat, a duo breaks out for a mini-scene, then returns to the group.",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Shared monologue",
-          "desc": "A long monologue is picked up by each player, who distorts and enriches it while staying the same character.",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Improvised opera",
-          "desc": "Sung recitatives and arias in alternation, fully improvised libretto, operatic voices.",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "The House (Del Close)",
-          "desc": "Long form where each scene opens themes that following scenes pick up and deepen.",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "The Deconstructed",
-          "desc": "A single scene is played, then taken apart and restarted from several narrative angles.",
-          "minPlayers": 3,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Chekhovian",
-          "desc": "Long-form Chekhov style: no climax, characters who miss each other, inaction as the engine.",
+          "name": "Thesis mixed",
+          "desc": "The collective impro must argue a philosophical thesis announced in advance.",
           "minPlayers": 3,
           "maxPlayers": 99
         }
@@ -421,140 +421,140 @@
     "match": {
       "debutant": [
         {
-          "name": "Single team",
-          "desc": "One team plays, the other waits. Classic LNI match form.",
-          "minPlayers": 4,
+          "name": "Single improv",
+          "desc": "One team plays, the other waits. The classic form of the LNI impro match.",
+          "minPlayers": 1,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Mixed improv",
+          "desc": "Both teams play together in the same impro, with equal numbers on each side.",
+          "minPlayers": 2,
           "maxPlayers": 99
         },
         {
-          "name": "Mixed",
-          "desc": "Both teams play together in the same improvisation.",
-          "minPlayers": 4,
+          "name": "Compared improv",
+          "desc": "Each team plays the same brief in turn. The audience compares and votes.",
+          "minPlayers": 2,
           "maxPlayers": 99
         },
         {
-          "name": "Compared",
-          "desc": "Each team performs the same prompt in turn. Audience compares and votes.",
-          "minPlayers": 4,
+          "name": "Wordless mixed",
+          "desc": "Both teams together, but in absolute silence for the whole scene.",
+          "minPlayers": 2,
           "maxPlayers": 99
         },
         {
-          "name": "Mixed silent",
-          "desc": "Both teams together, but in absolute silence.",
-          "minPlayers": 4,
+          "name": "Sung compared",
+          "desc": "Each team plays the theme, working in at least one sung passage.",
+          "minPlayers": 2,
           "maxPlayers": 99
         },
         {
-          "name": "Compared sung",
-          "desc": "Each team includes at least one sung passage.",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Compared with prop",
-          "desc": "An imposed prop must be central. Each team uses it in its own way.",
-          "minPlayers": 4,
+          "name": "Compared with a prop",
+          "desc": "An imposed prop must be central. Each team uses it its own way.",
+          "minPlayers": 2,
           "maxPlayers": 99
         }
       ],
       "confirme": [
         {
-          "name": "In the manner of",
-          "desc": "Style or genre imposed: Shakespeare, film noir, Coen Brothers...",
-          "minPlayers": 4,
+          "name": "In the style of",
+          "desc": "An imposed author or genre style: Molière, Audiard, film noir... (Classic LNI category)",
+          "minPlayers": 1,
           "maxPlayers": 99
         },
         {
-          "name": "Mixed with prop",
-          "desc": "An imposed object must be central to the improvisation.",
-          "minPlayers": 4,
+          "name": "Mixed with a prop",
+          "desc": "An imposed object must be central to the impro. The two teams negotiate it on stage.",
+          "minPlayers": 2,
           "maxPlayers": 99
         },
         {
-          "name": "Reverse improvisation",
-          "desc": "Team must play starting from the ending.",
-          "minPlayers": 4,
-          "maxPlayers": 99
+          "name": "Compared with a constraint",
+          "desc": "Each team plays the theme with a different randomly drawn constraint.",
+          "minPlayers": 2,
+          "maxPlayers": 8
         },
         {
-          "name": "Compared rhymed",
-          "desc": "All lines must rhyme.",
-          "minPlayers": 4,
-          "maxPlayers": 99
+          "name": "Mixed with an imposed character",
+          "desc": "An imposed character type must appear within the first minute.",
+          "minPlayers": 2,
+          "maxPlayers": 8
         },
         {
-          "name": "Compared silent",
-          "desc": "No words: only gesture and expression tell the story.",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Mixed with character",
-          "desc": "An imposed character type must appear in the first minute.",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Compared with constraint",
-          "desc": "Each team plays the theme with a different randomly-drawn constraint.",
-          "minPlayers": 4,
-          "maxPlayers": 99
+          "name": "Backwards improv",
+          "desc": "The team must play the scene starting from the end and working back.",
+          "minPlayers": 2,
+          "maxPlayers": 6
         },
         {
           "name": "Mixed in full sentences",
           "desc": "Players may only speak in whole, complete sentences — no interrupting.",
-          "minPlayers": 4,
-          "maxPlayers": 99
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Rhymed compared",
+          "desc": "Every line must rhyme (octosyllables or rhyming couplets).",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Silent compared",
+          "desc": "Not a word spoken: gesture and expression alone tell the story.",
+          "minPlayers": 2,
+          "maxPlayers": 8
         }
       ],
       "expert": [
         {
-          "name": "Sung & danced",
-          "desc": "Mini-musical: alternating dialogue, song and choreography, all improvised.",
-          "minPlayers": 4,
+          "name": "Sung and danced",
+          "desc": "A mini-musical: improvised dialogue, songs and choreography in alternation. Broadway impro style.",
+          "minPlayers": 2,
           "maxPlayers": 99
         },
         {
-          "name": "Style + era",
-          "desc": "Both an authorial style and a historical era are imposed. Both must read clearly.",
-          "minPlayers": 4,
+          "name": "In the style of + period",
+          "desc": "An author's style AND a historical period, both imposed. Both must be readable from the first entrance.",
+          "minPlayers": 2,
+          "maxPlayers": 8
+        },
+        {
+          "name": "Mixed in alexandrines",
+          "desc": "Every line in alexandrines (12 syllables), in couplets or alternating rhyme. Classical level.",
+          "minPlayers": 2,
+          "maxPlayers": 6
+        },
+        {
+          "name": "Compared silent + sound effects",
+          "desc": "One team plays silently, the other in sound effects only. Same theme, opposite readings.",
+          "minPlayers": 2,
           "maxPlayers": 99
         },
         {
-          "name": "Mixed in verse",
-          "desc": "All lines in verse (iambic pentameter or alexandrines).",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "Heroless",
-          "desc": "Improvisation must work without an identifiable lead. Pure ensemble.",
-          "minPlayers": 4,
+          "name": "No hero",
+          "desc": "The impro must work with no identifiable lead character. Pure ensemble playing.",
+          "minPlayers": 3,
           "maxPlayers": 99
         },
         {
           "name": "Thesis improv",
-          "desc": "Improvisation must defend a philosophical thesis announced beforehand.",
-          "minPlayers": 4,
-          "maxPlayers": 99
+          "desc": "The impro must argue a philosophical thesis announced in advance by the referee.",
+          "minPlayers": 2,
+          "maxPlayers": 8
         },
         {
-          "name": "Time loop",
-          "desc": "Scene moves forward then rewinds 30 seconds, repeatedly. Vertiginous loop.",
-          "minPlayers": 4,
-          "maxPlayers": 99
+          "name": "In the style of Chekhov",
+          "desc": "Late-19th-century Russian style: aristocratic boredom, samovars, loaded silences, monologues.",
+          "minPlayers": 2,
+          "maxPlayers": 8
         },
         {
-          "name": "Compared silent + sound effects",
-          "desc": "One team plays silently, the other only with sound effects. Same theme, opposite readings.",
-          "minPlayers": 4,
-          "maxPlayers": 99
-        },
-        {
-          "name": "In the manner of Chekhov",
-          "desc": "Late-19th-century Russian style: aristocratic ennui, samovars, loaded silences, monologues.",
-          "minPlayers": 4,
-          "maxPlayers": 99
+          "name": "Time backpedal",
+          "desc": "The scene moves forward then rewinds every 30 seconds. A dizzying loop.",
+          "minPlayers": 2,
+          "maxPlayers": 6
         }
       ]
     }
