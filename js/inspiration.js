@@ -97,8 +97,18 @@
         '<h1 class="insp1-title">' + esc(v.title || "") + '</h1>' +
         (v.channel ? '<p class="insp1-chan">' + esc(v.channel) + '</p>' : '') +
         (tags.length ? '<div class="insp1-tags">' + tags.join("") + '</div>' : '') +
-        (emb ? '<div class="insp1-video"><iframe src="' + esc(emb) + '" title="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>'
-             : (safeUrl ? '<p><a class="insp1-watch" href="' + esc(safeUrl) + '" target="_blank" rel="noopener noreferrer">' + esc(s("watch")) + '</a></p>' : '')) +
+        // Le lecteur intégré ET le lien, jamais l'un OU l'autre. C'était un
+        // ou-exclusif : dès que embedUrl() savait construire une URL — donc
+        // pour toute vidéo YouTube — le lien de secours n'était plus rendu.
+        // Or la CSP du site interdisait justement d'encadrer youtube.com
+        // (`default-src 'self'` sans `frame-src`) : l'iframe était bloquée, le
+        // lien absent, et la vidéo devenait tout simplement inatteignable.
+        // La CSP est corrigée dans _headers, mais on garde le lien : un
+        // bloqueur de contenu, un mode restreint ou une future directive
+        // rateraient à nouveau la cible, et une vidéo sans porte de sortie est
+        // le pire résultat possible sur une page qui n'existe que pour elle.
+        (emb ? '<div class="insp1-video"><iframe src="' + esc(emb) + '" title="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>' : '') +
+        (safeUrl ? '<p><a class="insp1-watch" href="' + esc(safeUrl) + '" target="_blank" rel="noopener noreferrer">' + esc(s("watch")) + '</a></p>' : '') +
         (v.notes ? '<p class="insp1-notes">' + esc(v.notes) + '</p>' : '') +
         '<p class="insp1-views">👁 ' + esc(s("views").replace("{n}", (v.view_count || 0) + 1)) + '</p>' +
         '<div class="insp1-actions">' +
