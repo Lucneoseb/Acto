@@ -1229,3 +1229,9 @@
   .disp-star-name { font-size: clamp(1rem, 6vh, 2rem); }
   .disp-star-label { font-size: clamp(0.6rem, 2.4vh, 0.9rem); }
 }
+
+/* « Proposer un échauffement / un exercice » depuis la page coaching : deux
+   boutons côte à côte, qui passent l'un sous l'autre sur téléphone. */
+.suite-propose { border-top: 1px dashed color-mix(in srgb, #ffffff 14%, transparent); padding-top: 0.8rem; }
+.suite-propose-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.suite-propose-row .suite-btn { flex: 1 1 12rem; min-height: 44px; }

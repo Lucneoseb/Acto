@@ -152,5 +152,14 @@
     if (typeof dlg.showModal === "function") { try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } } else dlg.setAttribute("open", "");
   }
 
-  window.ActoContribute = { mount: mount };
+  /* `open(typeKey)` : ouvrir directement le formulaire d'un type, depuis une
+     autre page. Le formulaire est un <dialog> autonome posé sur document.body,
+     donc la page appelante reste en place — c'est ce qui permet de proposer un
+     échauffement ou un exercice EN PLEINE préparation d'un coaching, sans
+     perdre le déroulé en cours. */
+  window.ActoContribute = {
+    mount: mount,
+    open: function (typeKey) { var ty = typeByKey(typeKey); if (ty) openForm(ty); return !!ty; },
+    available: available
+  };
 })();

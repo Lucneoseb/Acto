@@ -6,7 +6,7 @@
  *   #/           → Accueil (4 section cards)
  *   #/match/*    → Match section (js/suite/match.js)
  *   #/show       → Spectacle (stub, Phase 4)
- *   #/train      → Entraînement (stub, Phase 4)
+ *   #/train      → Coaching (ex-Entraînement ; l'identifiant interne reste `training`)
  *   #/discover   → Découverte (stub, Phase 4)
  */
 (function () {

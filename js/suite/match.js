@@ -31,6 +31,7 @@
       totalTimeKey: "prepTotalTime", totalTimeHelpKey: "prepTotalTimeHelp",
       listTitleKey: "matchListTitle", listEmptyKey: "matchListEmpty",
       confirmDeleteKey: "confirmDeleteMatch",
+      saveLabelKey: "saveTitleLabel", savePhKey: "saveTitlePlaceholder",
       improFields: ["category", "theme", "players", "duration"],
       newSession: function (o) { return S.sessions.newMatch(o); }
     },
@@ -44,6 +45,7 @@
       totalTimeKey: "prepShowTime", totalTimeHelpKey: "prepShowTimeHelp",
       listTitleKey: "showListTitle", listEmptyKey: "showListEmpty",
       confirmDeleteKey: "confirmDeleteShow",
+      saveLabelKey: "saveTitleLabelShow", savePhKey: "saveTitlePlaceholderShow",
       improFields: ["category", "theme", "duration"],
       newSession: function (o) { return S.sessions.newShow(o); }
     },
@@ -55,6 +57,7 @@
       prepTitleKey: "trainPrepTitle", setlistTitleKey: "trainSetlistTitle", launchKey: "trainLaunch", generateKey: "trainGenerate",
       listTitleKey: "trainListTitle", listEmptyKey: "trainListEmpty",
       confirmDeleteKey: "confirmDeleteTrain",
+      saveLabelKey: "saveTitleLabelTrain", savePhKey: "saveTitlePlaceholderTrain",
       improFields: null,    // training fields depend on segment type
       newSession: function (o) { return S.sessions.newTraining(o); }
     }
@@ -203,6 +206,7 @@
           '<label class="suite-label">' + esc(t("trainNbExercises")) + '</label>' +
           stepperHTML("nbExercises", prep.nbExercises, 0, 30) +
         '</div>';
+      body += proposeBlock();
     } else {
       // match + show share the time → derived-count form
       body +=
@@ -276,6 +280,7 @@
     if (titleIn) titleIn.oninput = function () { prep.title = titleIn.value; };
     var dateIn = form.querySelector("#prepDate");
     if (dateIn) dateIn.oninput = function () { prep.matchDate = dateIn.value; };
+    wirePropose();
     form.onsubmit = function (e) { e.preventDefault(); doGenerate(); };
     var teamsBtn = root.querySelector('[data-act="edit-teams"]');
     if (teamsBtn) teamsBtn.onclick = function () {
@@ -376,6 +381,7 @@
       '</div>' +
       (K.hasTeams ? teamsCard(current.teams) : "") +
       (kind !== "training" ? settingsCard() : "") +
+      (kind === "training" ? proposeBlock() : "") +
       '<div class="suite-setlist">' + cards + addBtns + '</div>' +
       '<div class="suite-sticky-actions">' +
         '<button class="suite-btn suite-btn-ghost" data-act="regen">' + esc(t("setlistRegenerate")) + '</button>' +
@@ -385,6 +391,7 @@
       '</div>';
 
     wireEditor();
+    wirePropose();
     if (collab) collabPush();   // any editor re-render = a possible mutation → sync (debounced, no-op while applying remote)
   }
 
@@ -855,12 +862,38 @@
       toast(t("savedToast"));
       return;
     }
-    var def = tf("saveTitlePlaceholder", { date: new Date().toLocaleDateString(S.locale()) });
-    askText(t("saveTitleLabel"), def).then(function (name) {
+    // Le libellé et le nom par défaut suivent la SECTION : « Nom du coaching /
+    // Coaching du 05/09/2026 », et non « Nom du match » pour les trois.
+    var def = tf(K.savePhKey || "saveTitlePlaceholder", { date: new Date().toLocaleDateString(S.locale()) });
+    askText(t(K.saveLabelKey || "saveTitleLabel"), def).then(function (name) {
       if (name == null) return;
       current.title = (name || def).trim();
       persistSession(current);
       toast(t("savedToast"));
+    });
+  }
+
+  /* Proposer du contenu SANS quitter le coaching. Le hub #/contribute existait
+     déjà, mais il fallait abandonner la préparation en cours pour y aller. Le
+     formulaire est un <dialog> autonome : on l'ouvre par-dessus, on revient
+     exactement où on était. La relecture admin reste inchangée. */
+  function proposeBlock() {
+    var C = window.ActoContribute;
+    if (!C || !C.available || !C.available()) return "";
+    return '<div class="suite-field suite-propose">' +
+      '<p class="suite-sub">💡 ' + esc(t("trainProposeHint")) + '</p>' +
+      '<div class="suite-propose-row">' +
+        '<button type="button" class="suite-btn suite-btn-ghost" data-act="propose-warmup">🔥 ' + esc(t("trainProposeWarmup")) + '</button>' +
+        '<button type="button" class="suite-btn suite-btn-ghost" data-act="propose-exercise">🎭 ' + esc(t("trainProposeExercise")) + '</button>' +
+      '</div></div>';
+  }
+  function wirePropose() {
+    if (!root) return;
+    [].forEach.call(root.querySelectorAll('[data-act^="propose-"]'), function (b) {
+      b.onclick = function () {
+        var C = window.ActoContribute;
+        if (C && C.open) C.open(b.getAttribute("data-act").replace("propose-", ""));
+      };
     });
   }
 
@@ -1432,14 +1465,58 @@
     if (c && collabCanEdit()) { try { Promise.resolve(c.rpc("save_shared_resource", { p_id: id, p_title: data.title || "", p_data: data })).then(function (r) { if (r && r.error) console.warn("[collab] save", r.error); }); } catch (e) { /* ignore */ } }
     try { if (collab.channel && collabCanEdit()) collab.channel.send({ type: "broadcast", event: "edit", payload: { data: data } }); } catch (e) { /* ignore */ }
   }
+  /* Édition à plusieurs : ce qui rendait la chose « messy », et ce qui change.
+
+     Avant, chaque modification diffusait l'instantané COMPLET de la session,
+     sans numéro de version. Trois défauts mesurables en découlaient :
+      1. Deux modifications dans la même seconde : la dernière arrivée écrasait
+         l'autre, silencieusement — parfois avec un état déjà périmé.
+      2. Un instantané reçu déclenchait un re-rendu intégral de l'éditeur : le
+         champ dans lequel on tapait était détruit sous les doigts.
+      3. Chaque arrivant disait « hello » et TOUS les pairs répondaient par leur
+         état complet en même temps : tempête d'écrasements, dernier gagnant.
+
+     Maintenant :
+      - `rev` est un compteur de Lamport : incrémenté à chaque édition locale,
+        aligné sur le maximum reçu. Un instantané n'est appliqué que s'il est
+        strictement plus récent — jamais de retour en arrière.
+      - Un instantané reçu pendant qu'on tape est mis en attente et appliqué à
+        la sortie du champ, pas au milieu de la frappe.
+      - Au « hello », seul le PROPRIÉTAIRE répond : une source, pas N. */
   function collabPush() {
     if (!collab || collab.applyingRemote || !collabCanEdit()) return;
+    current.rev = Math.max(current.rev || 0, collab.seenRev || 0) + 1;
+    current.revBy = collabMe();
     if (collab.pushTimer) clearTimeout(collab.pushTimer);
     collab.pushTimer = setTimeout(function () { collab.pushTimer = null; collabPushNow(); }, 700);
   }
   function collabApplyRemote(data) {
     if (!collab || !data || !root) return;
-    if (collab.pushTimer) { clearTimeout(collab.pushTimer); collab.pushTimer = null; }  // remote edit supersedes a not-yet-sent local push
+    // 1) Jamais de retour en arrière : un instantané qui n'est pas strictement
+    //    plus récent est ignoré. À `rev` égal (même génération éditée des deux
+    //    côtés), on départage par l'auteur — stable, identique des deux côtés.
+    var lr = current ? (current.rev || 0) : 0, rr = data.rev || 0;
+    var perime = rr < lr || (rr === lr && String(data.revBy || "") <= String((current && current.revBy) || ""));
+    if (current && current.collabId === collab.id && perime) return;
+    collab.seenRev = Math.max(collab.seenRev || 0, rr);
+    // 2) On ne détruit pas un champ en cours de saisie : on garde le DERNIER
+    //    instantané reçu et on l'applique quand le champ perd le focus.
+    var ae = document.activeElement;
+    if (ae && root.contains(ae) && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) {
+      collab.pendingRemote = data;
+      if (!collab.pendingHook) {
+        collab.pendingHook = true;
+        ae.addEventListener("blur", function onBlur() {
+          ae.removeEventListener("blur", onBlur);
+          if (!collab) return;
+          collab.pendingHook = false;
+          var d = collab.pendingRemote; collab.pendingRemote = null;
+          if (d) collabApplyRemote(d);
+        });
+      }
+      return;
+    }
+    if (collab.pushTimer) { clearTimeout(collab.pushTimer); collab.pushTimer = null; }
     collab.applyingRemote = true;
     current = data;
     current.collabId = collab.id;
@@ -1449,7 +1526,21 @@
   }
   function updateCollabBadge() {
     var el = root && root.querySelector(".suite-collab-badge");
-    if (el && collab) { var n = collabPeerCount(); el.textContent = "👥 " + tf("collabActive", { n: n }); el.classList.toggle("is-solo", n <= 1); }
+    if (!el || !collab) return;
+    var n = collabPeerCount();
+    // Le compte seul ne disait pas QUI est là. On liste les noms de scène des
+    // pairs présents (hors soi) : le « 3 en édition » devient concret.
+    var noms = [];
+    try {
+      var moi = collabMe();
+      Object.keys(collab.peers || {}).forEach(function (k) {
+        (collab.peers[k] || []).forEach(function (pr) {
+          if (pr && pr.name && pr.name !== moi && noms.indexOf(pr.name) < 0) noms.push(pr.name);
+        });
+      });
+    } catch (e) { /* ignore */ }
+    el.textContent = "👥 " + tf("collabActive", { n: n }) + (noms.length ? " · " + noms.join(", ") : "");
+    el.classList.toggle("is-solo", n <= 1);
   }
   function collabStart(id, role) {
     collabTeardown();
@@ -1460,7 +1551,11 @@
     // so an id-only snooper can at most inject transient edits, never persist them.
     var ch = c.channel("acto-resource:" + id, { config: { broadcast: { self: false }, presence: { key: id } } });
     ch.on("broadcast", { event: "edit" }, function (msg) { if (msg && msg.payload && msg.payload.data) collabApplyRemote(msg.payload.data); });
-    ch.on("broadcast", { event: "hello" }, function () { if (collab && !collab.applyingRemote) collabPushNow(); });
+    // Seul le propriétaire répond au « hello » d'un arrivant : avant, chaque
+    // pair renvoyait son état complet au même instant, et le dernier à arriver
+    // l'emportait — parfois avec une version périmée. Sans propriétaire en
+    // ligne, l'arrivant a de toute façon chargé la version serveur au montage.
+    ch.on("broadcast", { event: "hello" }, function () { if (collab && !collab.applyingRemote && collab.role === "owner") collabPushNow(); });
     ch.on("presence", { event: "sync" }, function () { if (collab) { collab.peers = ch.presenceState(); updateCollabBadge(); } });
     ch.subscribe(function (status) {
       if (status === "SUBSCRIBED") {
