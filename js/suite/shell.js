@@ -22,15 +22,54 @@
   }
   function t(k) { return S.t(k); }
 
-  /* ---------- routing ---------- */
-  function parseHash() {
-    var h = (location.hash || "").replace(/^#\/?/, "");
-    var parts = h.split("/").filter(Boolean);
+  /* ---------- routing ----------
+     Adresses lisibles et tapables : /coaching, /coaching/preparer, /match/direct…
+     Avant : welcome.html#/train/edit — un identifiant interne (« train ») dans
+     un hash, impossible à deviner et sans rapport avec ce qu'affiche la page.
+
+     Le hash reste accepté partout : les modules appellent encore
+     navigate("#/train/edit"), et les anciens liens doivent marcher. Il est
+     converti à la volée vers le chemin propre, sans rechargement.
+
+     Côté serveur, _redirects réécrit ces chemins vers welcome.html ; et si la
+     réécriture manquait, index.html (repli 404) transmet le chemin demandé par
+     sessionStorage — voir normaliseAtBoot(). */
+  var PUB_SECTION = { home: "studio", match: "match", show: "spectacle", train: "coaching",
+                      discover: "decouverte", contribute: "contribuer", teams: "equipes", collab: "collab" };
+  var PUB_SUB     = { prepare: "preparer", list: "liste", edit: "deroule", live: "direct" };
+  var INT_SECTION = {}, INT_SUB = {};
+  Object.keys(PUB_SECTION).forEach(function (k) { INT_SECTION[PUB_SECTION[k]] = k; });
+  Object.keys(PUB_SUB).forEach(function (k) { INT_SUB[PUB_SUB[k]] = k; });
+
+  function fromHash(h) {
+    var parts = String(h || "").replace(/^#\/?/, "").split("/").filter(Boolean);
     return { section: parts[0] || "home", sub: parts.slice(1).join("/") };
   }
-  function navigate(hash) {
-    if (location.hash === hash) render();
-    else location.hash = hash;
+  function fromPath(p) {
+    var parts = String(p || "").split("/").filter(Boolean);
+    if (!parts.length) return null;
+    var sec = INT_SECTION[parts[0]];
+    if (!sec) return null;                       // /welcome, /welcome.html, autre page
+    var rest = parts.slice(1);
+    if (rest.length && INT_SUB[rest[0]]) rest[0] = INT_SUB[rest[0]];
+    return { section: sec, sub: rest.join("/") };
+  }
+  function toPath(r) {
+    var sec = PUB_SECTION[r.section] || r.section;
+    var sub = r.sub ? r.sub.split("/") : [];
+    if (sub.length && PUB_SUB[sub[0]]) sub[0] = PUB_SUB[sub[0]];
+    return "/" + [sec].concat(sub).join("/");
+  }
+  function parseRoute() { return fromPath(location.pathname) || fromHash(location.hash); }
+  var parseHash = parseRoute;   // nom historique, gardé pour les lecteurs du fichier
+
+  function navigate(target) {
+    var r = (typeof target === "string" && target.charAt(0) === "#") ? fromHash(target) : (fromPath(target) || fromHash(""));
+    var path = toPath(r);
+    if (location.pathname === path && !location.hash) { render(); return; }
+    try { history.pushState({ acto: 1 }, "", path); }
+    catch (e) { location.hash = "#/" + [r.section === "home" ? "" : r.section, r.sub].filter(Boolean).join("/"); return; }
+    render();
   }
 
   // route section → program kind
@@ -203,6 +242,39 @@
     applyStaticChrome();
     render();
   });
-  window.addEventListener("hashchange", render);
+  /* Chemin propre dès le démarrage : un ancien lien en hash est converti sans
+     rechargement ; un chemin transmis par index.html (repli si le serveur ne
+     réécrit pas) est repris ; /welcome nu devient /studio. */
+  (function normaliseAtBoot() {
+    var handoff = null;
+    try { handoff = sessionStorage.getItem("acto:route"); if (handoff) sessionStorage.removeItem("acto:route"); } catch (e) { /* ignore */ }
+    var r = handoff ? fromPath(handoff) : null;
+    if (!r && location.hash && location.hash.length > 1) r = fromHash(location.hash);
+    if (!r && !fromPath(location.pathname)) r = { section: "home", sub: "" };
+    if (r) {
+      var path = toPath(r);
+      if (location.pathname !== path || location.hash) { try { history.replaceState({ acto: 1 }, "", path); } catch (e) { /* ignore */ } }
+    }
+  })();
+  // Les liens de l en-tete portent un vrai href (/studio) pour rester des liens,
+  // mais un clic passe par le routeur : pas de rechargement de page.
+  document.addEventListener("click", function (ev) {
+    var a = ev.target && ev.target.closest && ev.target.closest("a[data-nav]");
+    if (!a || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button) return;
+    ev.preventDefault(); navigate(a.getAttribute("data-nav"));
+  });
+  window.addEventListener("popstate", render);
+  // Un #/… tapé ou reçu : on le convertit en chemin propre plutôt que de le laisser.
+  // Seuls les hash de route (#/…) sont convertis ; une ancre de page (#suiteMain,
+  // cible du lien d'évitement) n'est pas une route.
+  window.addEventListener("hashchange", function () { if (location.hash.indexOf("#/") === 0) navigate(location.hash); else if (!location.hash) render(); });
+  // Lien d'évitement : focus direct sur <main>, sans toucher à l'adresse.
+  document.addEventListener("click", function (e) {
+    var a = e.target && e.target.closest && e.target.closest("a.skip-link");
+    if (!a) return;
+    var cible = document.getElementById("suiteMain");
+    if (!cible) return;
+    e.preventDefault(); cible.focus(); cible.scrollIntoView({ block: "start" });
+  });
   render();
 })();

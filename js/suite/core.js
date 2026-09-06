@@ -628,6 +628,34 @@
   /* ============================================================
      PUBLIC API
      ============================================================ */
+  /* Nom accessible des dialogues. Chaque module crée ses <dialog> avec un
+     <h2 class="suite-dialog-title"> mais sans aria-labelledby : un lecteur
+     d'écran annonçait « dialogue », sans titre. Un seul observateur ici plutôt
+     qu'une retouche dans les quatorze sites de création — et il couvre les
+     dialogues à venir. */
+  (function nameDialogs() {
+    if (typeof MutationObserver !== "function" || !document.body) return;
+    var n = 0;
+    function name(dlg) {
+      if (!dlg || dlg.getAttribute("aria-labelledby") || dlg.getAttribute("aria-label")) return;
+      var h = dlg.querySelector("h1, h2, h3, .suite-dialog-title");
+      if (!h) return;
+      if (!h.id) h.id = "suite-dlg-title-" + (++n);
+      dlg.setAttribute("aria-labelledby", h.id);
+    }
+    new MutationObserver(function (muts) {
+      muts.forEach(function (m) {
+        [].forEach.call(m.addedNodes, function (node) {
+          if (node.nodeType !== 1) return;
+          if (node.tagName === "DIALOG") name(node);
+          else if (node.closest && node.closest("dialog")) name(node.closest("dialog"));   // contenu injecté après l'ajout
+          else if (node.querySelectorAll) [].forEach.call(node.querySelectorAll("dialog"), name);
+        });
+      });
+    }).observe(document.body, { childList: true, subtree: true });
+    [].forEach.call(document.querySelectorAll("dialog"), name);
+  })();
+
   window.ActoSuite = {
     // locale + i18n
     locale: locale,

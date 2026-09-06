@@ -16,7 +16,7 @@
     --teal: #6dd3c5;
     --ink: #f5f0ea;
     --ink-muted: rgba(245, 240, 234, 0.65);
-    --ink-faint: rgba(245, 240, 234, 0.35);
+    --ink-faint: rgba(245, 240, 234, 0.52); /* 0.35 = 2.9:1 ; 0.52 ≈ 5:1 (AA) */
     --row-border: rgba(255, 255, 255, 0.08);
   }
   * { box-sizing: border-box; }
@@ -97,7 +97,6 @@
     border: 1px solid rgba(255,255,255,0.15);
     color: var(--ink); padding: 0.55rem 0.8rem;
     border-radius: 10px; font: inherit; font-size: 0.9rem;
-    outline: none;
   }
   .toolbar input[type="search"]:focus { border-color: rgba(245,196,81,0.5); }
   .toolbar .count {
@@ -205,7 +204,6 @@
     font: inherit;
   }
   .admin-login-field input:focus {
-    outline: none;
     border-color: var(--gold-soft);
     box-shadow: 0 0 0 2px rgba(218,165,32,0.25);
   }
@@ -280,7 +278,6 @@
   .bundle-add-field input:focus,
   .bundle-add-field select:focus,
   .bundle-add-field textarea:focus {
-    outline: none;
     border-color: var(--gold-soft);
     box-shadow: 0 0 0 2px rgba(218,165,32,0.25);
   }
@@ -584,7 +581,6 @@
     padding: 0.35rem 0.5rem;
     border-radius: 6px;
     font: inherit; font-size: 0.82rem;
-    outline: none;
     resize: vertical;
     min-height: 32px;
   }
@@ -894,6 +890,35 @@
     #inspireTableAdmin tbody td.actions .btn { min-width: 5rem; font-size: 0.75rem; padding: 0.45rem 0.55rem; }
   }
 
+  /* ─── 2 quinquies. En-tête en PORTRAIT ─────────────────────────────────────
+     Mesuré : 197 à 245 px sur 812, soit 24 à 30 % de l'écran avant la moindre
+     donnée — quatre rangées de boutons. Même traitement qu'en paysage : une
+     seule rangée qui défile dans sa propre boîte, cibles à 44 px conservées. */
+  @media (max-width: 900px) {
+    header.bar { flex-wrap: nowrap; align-items: center; gap: 0.5rem; }
+    header.bar h1 { flex: 0 1 auto; min-width: 4rem; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1.15rem; }
+    header.bar > div { flex: 1 1 0; min-width: 0; }
+    header.bar .who { display: none; }
+    header.bar .actions { margin-top: 0 !important; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    header.bar .actions::-webkit-scrollbar { display: none; }
+    header.bar .actions > * { flex: 0 0 auto; }
+  }
+
+  /* ─── 2 sexies. Cartes en paysage : libellé et valeur alignés ──────────────
+     Dans une colonne, les valeurs partaient à des abscisses différentes parce
+     que le libellé est un ::before à `min-width: 5.5rem` que les longs
+     (« IMPROS LANCÉES ») dépassent. Chaque cellule devient une mini-grille à
+     deux colonnes : les valeurs s'alignent, quelle que soit la longueur du
+     libellé. Le titre et les actions gardent leur pleine largeur. */
+  @media (max-width: 900px) and (max-height: 500px) {
+    .table-wrap table.profiles tbody td:not(:first-child):not(.actions):not(.empty),
+    #inspireTableAdmin tbody td:not(:first-child):not(.actions):not(.empty) {
+      display: grid; grid-template-columns: minmax(6.5rem, 8rem) 1fr; align-items: baseline; column-gap: 0.4rem;
+    }
+    .table-wrap table.profiles tbody td:not(:first-child):not(.actions):not(.empty)::before,
+    #inspireTableAdmin tbody td:not(:first-child):not(.actions):not(.empty)::before { min-width: 0; margin-right: 0; }
+  }
+
   /* ─── 3. iOS zoomait la page à chaque focus ────────────────────────────────
      Safari iOS zoome dès qu'un champ passe sous 16 px, et ne dézoome jamais
      seul : la mise en page reste décalée jusqu'au rechargement. 22 des 48
@@ -949,7 +974,6 @@
     border: 1px solid rgba(255,255,255,0.15);
     color: var(--ink); padding: 0.55rem 0.8rem;
     border-radius: 10px; font: inherit; font-size: 0.9rem;
-    outline: none;
   }
   .submission-filters input[type="search"]:focus,
   #inspireFilterText:focus,
@@ -1019,9 +1043,17 @@
     .bundle-add-dialog .dlg-body { padding: 0.7rem 1rem; gap: 0.6rem; }
     .bundle-add-dialog .dlg-actions { padding: 0.55rem 1rem; }
   }
+  /* ─── Focus clavier visible + lien d'évitement (a11y) ───────────────────── */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  :where(input, select, textarea):focus-visible { outline-offset: 1px; }
+  #adminApp:focus, [data-skip-target]:focus { outline: none; }
+  .skip-link { position: absolute; left: 0.75rem; top: -100px; z-index: 1000; padding: 0.6rem 1rem; border-radius: 10px;
+    background: var(--gold); color: #1a0f2b; font: 600 0.9rem/1 "Inter", sans-serif; text-decoration: none; }
+  .skip-link:focus { top: 0.75rem; }
 </style>
 </head>
 <body>
+<a class="skip-link" href="#adminApp" id="adminSkip">Aller au contenu</a>
 
 <div id="loadingGate" class="gate"><div class="gate-card"><h2>Chargement…</h2></div></div>
 
@@ -1055,7 +1087,7 @@
   </div>
 </div>
 
-<div id="adminApp" class="wrap" hidden>
+<div id="adminApp" class="wrap" role="main" hidden>
   <header class="bar">
     <h1>Acto · <span class="h1-tableau">Tableau de bord</span><span class="h1-impro">Impro</span><span class="h1-inspirations">Inspirations</span><span class="h1-warmups">Échauffement</span></h1>
     <div>
@@ -1088,21 +1120,21 @@
     <table class="profiles" id="profilesTable">
       <thead>
         <tr>
-          <th data-sort="email">Email</th>
-          <th data-sort="prenom">Prénom</th>
-          <th data-sort="nom">Nom</th>
-          <th data-sort="nom_scene">Nom de scène</th>
-          <th data-sort="age" class="numeric">Âge</th>
-          <th data-sort="login_count" class="numeric">Conn.</th>
-          <th data-sort="last_login_at">Dernière conn.</th>
-          <th data-sort="total_impros_generated" class="numeric">Impros gén.</th>
-          <th data-sort="total_impros_played" class="numeric">Impros lancées</th>
-          <th data-sort="participation_count" class="numeric">Impros jouées</th>
-          <th data-sort="total_impro_seconds" class="numeric">Tps impro</th>
-          <th data-sort="total_records_count" class="numeric">Enregis.</th>
-          <th data-sort="total_record_seconds" class="numeric">Tps record</th>
-          <th data-sort="created_at">Inscrit le</th>
-          <th data-sort="is_admin">Rôle</th>
+          <th scope="col" data-sort="email">Email</th>
+          <th scope="col" data-sort="prenom">Prénom</th>
+          <th scope="col" data-sort="nom">Nom</th>
+          <th scope="col" data-sort="nom_scene">Nom de scène</th>
+          <th scope="col" data-sort="age" class="numeric">Âge</th>
+          <th scope="col" data-sort="login_count" class="numeric">Conn.</th>
+          <th scope="col" data-sort="last_login_at">Dernière conn.</th>
+          <th scope="col" data-sort="total_impros_generated" class="numeric">Impros gén.</th>
+          <th scope="col" data-sort="total_impros_played" class="numeric">Impros lancées</th>
+          <th scope="col" data-sort="participation_count" class="numeric">Impros jouées</th>
+          <th scope="col" data-sort="total_impro_seconds" class="numeric">Tps impro</th>
+          <th scope="col" data-sort="total_records_count" class="numeric">Enregis.</th>
+          <th scope="col" data-sort="total_record_seconds" class="numeric">Tps record</th>
+          <th scope="col" data-sort="created_at">Inscrit le</th>
+          <th scope="col" data-sort="is_admin">Rôle</th>
         </tr>
       </thead>
       <tbody id="profilesBody">
@@ -1152,26 +1184,26 @@
   <div class="toolbar"><span class="count" id="inspRankCount"></span></div>
   <div class="table-wrap">
     <table class="profiles" id="inspRankTable">
-      <thead><tr><th>Titre</th><th>Type</th><th>👁 Vues</th><th>Notes</th><th>Moyenne (A=6 … F=1)</th></tr></thead>
+      <thead><tr><th scope="col">Titre</th><th scope="col">Type</th><th scope="col">👁 Vues</th><th scope="col">Notes</th><th scope="col">Moyenne (A=6 … F=1)</th></tr></thead>
       <tbody id="inspRankBody"></tbody>
     </table>
   </div>
 
   <h2 class="section-title">🎬 Journal des impros lancées</h2>
   <div class="toolbar">
-    <input type="search" id="eventSearch" placeholder="Rechercher (exercice, contrainte, thème, email)…" autocomplete="off" />
-    <select id="eventFilterMode" class="btn">
+    <input type="search" id="eventSearch" placeholder="Rechercher (exercice, contrainte, thème, email)…" autocomplete="off" / aria-label="Rechercher (exercice, contrainte, thème, email)…">
+    <select id="eventFilterMode" class="btn" aria-label="Filtrer par mode">
       <option value="">Tous modes</option>
       <option value="troupe">Troupe</option>
       <option value="match">Match</option>
     </select>
-    <select id="eventFilterLevel" class="btn">
+    <select id="eventFilterLevel" class="btn" aria-label="Tous niveaux">
       <option value="">Tous niveaux</option>
       <option value="debutant">Débutant</option>
       <option value="confirme">Confirmé</option>
       <option value="expert">Expert</option>
     </select>
-    <select id="eventFilterRecorded" class="btn">
+    <select id="eventFilterRecorded" class="btn" aria-label="Tous">
       <option value="">Tous</option>
       <option value="yes">Enregistrés</option>
       <option value="no">Non enregistrés</option>
@@ -1183,17 +1215,17 @@
     <table class="profiles events" id="eventsTable">
       <thead>
         <tr>
-          <th data-event-sort="launched_at">Date</th>
-          <th data-event-sort="email">Email</th>
-          <th data-event-sort="mode">Mode</th>
-          <th data-event-sort="level">Niveau</th>
-          <th data-event-sort="exercise_name">Exercice</th>
-          <th data-event-sort="constraint_name">Contrainte</th>
-          <th data-event-sort="theme_name">Thème</th>
-          <th data-event-sort="duration_planned_seconds" class="numeric">Prévu</th>
-          <th data-event-sort="duration_played_seconds" class="numeric">Joué</th>
-          <th data-event-sort="was_recorded">Enregistré</th>
-          <th data-event-sort="participants_label">Participants</th>
+          <th scope="col" data-event-sort="launched_at">Date</th>
+          <th scope="col" data-event-sort="email">Email</th>
+          <th scope="col" data-event-sort="mode">Mode</th>
+          <th scope="col" data-event-sort="level">Niveau</th>
+          <th scope="col" data-event-sort="exercise_name">Exercice</th>
+          <th scope="col" data-event-sort="constraint_name">Contrainte</th>
+          <th scope="col" data-event-sort="theme_name">Thème</th>
+          <th scope="col" data-event-sort="duration_planned_seconds" class="numeric">Prévu</th>
+          <th scope="col" data-event-sort="duration_played_seconds" class="numeric">Joué</th>
+          <th scope="col" data-event-sort="was_recorded">Enregistré</th>
+          <th scope="col" data-event-sort="participants_label">Participants</th>
         </tr>
       </thead>
       <tbody id="eventsBody">
@@ -1209,26 +1241,26 @@
   <div data-view="impro">
   <h2 class="section-title">📝 Soumissions utilisateurs</h2>
   <div class="submission-filters">
-    <select id="submissionFilterStatus" class="btn">
+    <select id="submissionFilterStatus" class="btn" aria-label="En attente">
       <option value="pending" selected>En attente</option>
       <option value="approved">Approuvées</option>
       <option value="rejected">Rejetées</option>
       <option value="">Toutes</option>
     </select>
-    <select id="submissionFilterKind" class="btn">
+    <select id="submissionFilterKind" class="btn" aria-label="Tous types">
       <option value="">Tous types</option>
       <option value="theme">Thèmes</option>
       <option value="category">Catégories</option>
       <option value="constraint">Contraintes</option>
       <option value="exercise">Exercices</option>
     </select>
-    <select id="submissionFilterMode" class="btn">
+    <select id="submissionFilterMode" class="btn" aria-label="Tous modes">
       <option value="">Tous modes</option>
       <option value="troupe">Troupe</option>
       <option value="match">Match</option>
     </select>
     <!-- Language filter — populated by JS from IMPRO_BUNDLE.locales. -->
-    <select id="submissionFilterLocale" class="btn">
+    <select id="submissionFilterLocale" class="btn" aria-label="Toutes langues">
       <option value="">Toutes langues</option>
     </select>
     <span class="count" id="submissionCount"></span>
@@ -1237,16 +1269,16 @@
     <table class="profiles submissions" id="submissionsTable">
       <thead>
         <tr>
-          <th>Date</th>
-          <th>Type</th>
-          <th>Mode</th>
-          <th>Niveau</th>
-          <th>Langue</th>
-          <th>Texte proposé</th>
-          <th>Description</th>
-          <th>Email</th>
-          <th>Statut</th>
-          <th>Actions</th>
+          <th scope="col">Date</th>
+          <th scope="col">Type</th>
+          <th scope="col">Mode</th>
+          <th scope="col">Niveau</th>
+          <th scope="col">Langue</th>
+          <th scope="col">Texte proposé</th>
+          <th scope="col">Description</th>
+          <th scope="col">Email</th>
+          <th scope="col">Statut</th>
+          <th scope="col">Actions</th>
         </tr>
       </thead>
       <tbody id="submissionsBody">
@@ -1267,18 +1299,18 @@
     Consulte les thèmes / catégories / contraintes / exercices fournis par défaut et masque ceux qui ne te plaisent pas. La sélection est par langue et s'applique immédiatement aux générations futures.
   </p>
   <div class="submission-filters">
-    <select id="bundleFilterLocale" class="btn"></select>
-    <select id="bundleFilterKind" class="btn">
+    <select id="bundleFilterLocale" class="btn" aria-label="Filtrer par langue"></select>
+    <select id="bundleFilterKind" class="btn" aria-label="Thèmes">
       <option value="theme" selected>Thèmes</option>
       <option value="category">Catégories</option>
       <option value="constraint">Contraintes</option>
       <option value="exercise">Exercices</option>
     </select>
-    <select id="bundleFilterMode" class="btn" hidden>
+    <select id="bundleFilterMode" class="btn" hidden aria-label="Troupe">
       <option value="troupe" selected>Troupe</option>
       <option value="match">Match</option>
     </select>
-    <select id="bundleFilterLevel" class="btn">
+    <select id="bundleFilterLevel" class="btn" aria-label="Débutant">
       <option value="debutant" selected>Débutant</option>
       <option value="confirme">Confirmé</option>
       <option value="expert">Expert</option>
@@ -1294,10 +1326,10 @@
     <table class="profiles bundled-list" id="bundledTable">
       <thead>
         <tr>
-          <th data-sort-bundled="name"   style="width:40%;">Texte</th>
-          <th data-sort-bundled="desc">Description</th>
-          <th data-sort-bundled="state">État</th>
-          <th>Action</th>
+          <th scope="col" data-sort-bundled="name"   style="width:40%;">Texte</th>
+          <th scope="col" data-sort-bundled="desc">Description</th>
+          <th scope="col" data-sort-bundled="state">État</th>
+          <th scope="col">Action</th>
         </tr>
       </thead>
       <tbody id="bundledBody">
@@ -1324,7 +1356,7 @@
       = effacement définitif.
     </p>
     <div class="submission-filters">
-      <select id="inspireFilterStatus" class="btn">
+      <select id="inspireFilterStatus" class="btn" aria-label="Toutes">
         <!-- Default: show ALL entries (incl. approved seed + pending submissions).
              The pulsing "N en attente" badge next to the title still surfaces
              user submissions waiting for review, but the table doesn't hide
@@ -1334,7 +1366,7 @@
         <option value="approved">Approuvées (publiques)</option>
         <option value="rejected">Cachées</option>
       </select>
-      <select id="inspireFilterType" class="btn">
+      <select id="inspireFilterType" class="btn" aria-label="Tous types">
         <option value="">Tous types</option>
         <option value="chaine">Chaîne</option>
         <option value="match_impro">Match d'impro</option>
@@ -1344,7 +1376,7 @@
         <option value="cabaret">Cabaret</option>
         <option value="format_court">Format court</option>
       </select>
-      <select id="inspireFilterLocale" class="btn">
+      <select id="inspireFilterLocale" class="btn" aria-label="Toutes langues">
         <option value="">Toutes langues</option>
         <option value="fr">🇫🇷 Français</option>
         <option value="en">🇬🇧 English</option>
@@ -1354,7 +1386,7 @@
         <option value="nl">🇳🇱 Nederlands</option>
         <option value="it">🇮🇹 Italiano</option>
       </select>
-      <input type="search" id="inspireFilterText" placeholder="Recherche titre / troupe…" />
+      <input type="search" id="inspireFilterText" placeholder="Recherche titre / troupe…" / aria-label="Recherche titre / troupe…">
       <button class="btn btn-primary" id="inspireAddAdminBtn" type="button" style="margin-left:auto;">+ Ajouter une inspiration</button>
       <button class="btn" id="inspireExportCsvBtn" type="button" title="Exporter la liste filtrée en CSV">⬇ Export CSV</button>
       <span class="count" id="inspireCount"></span>
@@ -1363,18 +1395,18 @@
       <table class="profiles" id="inspireTableAdmin">
         <thead>
           <tr>
-            <th data-sort-inspire="title">Titre</th>
-            <th data-sort-inspire="channel">Chaîne / Troupe</th>
-            <th data-sort-inspire="content_type">Type</th>
-            <th data-sort-inspire="nature">Nat.</th>
-            <th data-sort-inspire="category">Catégorie</th>
-            <th data-sort-inspire="theme">Thème</th>
-            <th data-sort-inspire="duration_text">Durée</th>
-            <th data-sort-inspire="locale">Langue</th>
-            <th data-sort-inspire="video_url">URL</th>
-            <th data-sort-inspire="submitted_by">Soumis par</th>
-            <th data-sort-inspire="status">État</th>
-            <th>Actions</th>
+            <th scope="col" data-sort-inspire="title">Titre</th>
+            <th scope="col" data-sort-inspire="channel">Chaîne / Troupe</th>
+            <th scope="col" data-sort-inspire="content_type">Type</th>
+            <th scope="col" data-sort-inspire="nature">Nat.</th>
+            <th scope="col" data-sort-inspire="category">Catégorie</th>
+            <th scope="col" data-sort-inspire="theme">Thème</th>
+            <th scope="col" data-sort-inspire="duration_text">Durée</th>
+            <th scope="col" data-sort-inspire="locale">Langue</th>
+            <th scope="col" data-sort-inspire="video_url">URL</th>
+            <th scope="col" data-sort-inspire="submitted_by">Soumis par</th>
+            <th scope="col" data-sort-inspire="status">État</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody id="inspireBodyAdmin">
@@ -1401,20 +1433,20 @@
       la ré-afficher plus tard) · Supprimer = effacement définitif.
     </p>
     <div class="submission-filters">
-      <select id="warmupFilterStatus" class="btn">
+      <select id="warmupFilterStatus" class="btn" aria-label="Toutes">
         <option value="" selected>Toutes</option>
         <option value="pending">En attente</option>
         <option value="approved">Approuvées (publiques)</option>
         <option value="rejected">Cachées</option>
       </select>
-      <select id="warmupFilterType" class="btn">
+      <select id="warmupFilterType" class="btn" aria-label="Tous types">
         <option value="">Tous types</option>
         <option value="Échauffement">Échauffement</option>
         <option value="Mise en train">Mise en train</option>
         <option value="Atelier">Atelier</option>
         <option value="Situation de jeu">Situation de jeu</option>
       </select>
-      <select id="warmupFilterLocale" class="btn">
+      <select id="warmupFilterLocale" class="btn" aria-label="Toutes langues">
         <option value="">Toutes langues</option>
         <option value="fr">🇫🇷 Français</option>
         <option value="en">🇬🇧 English</option>
@@ -1424,7 +1456,7 @@
         <option value="nl">🇳🇱 Nederlands</option>
         <option value="it">🇮🇹 Italiano</option>
       </select>
-      <input type="search" id="warmupFilterText" placeholder="Recherche nom / description…" />
+      <input type="search" id="warmupFilterText" placeholder="Recherche nom / description…" / aria-label="Recherche nom / description…">
       <button class="btn btn-primary" id="warmupAddAdminBtn" type="button" style="margin-left:auto;">+ Ajouter un exercice</button>
       <button class="btn" id="warmupExportCsvBtn" type="button" title="Exporter la liste filtrée en CSV">⬇ Export CSV</button>
       <span class="count" id="warmupCount"></span>
@@ -1433,17 +1465,17 @@
       <table class="profiles" id="warmupTableAdmin">
         <thead>
           <tr>
-            <th data-sort-warmup="name">Nom</th>
-            <th data-sort-warmup="type">Type</th>
-            <th data-sort-warmup="subtype">Sous-type</th>
-            <th data-sort-warmup="description">Description</th>
-            <th data-sort-warmup="duration_seconds">Durée</th>
-            <th data-sort-warmup="participants">Participants</th>
-            <th data-sort-warmup="source">Source</th>
-            <th data-sort-warmup="locale">Langue</th>
-            <th data-sort-warmup="submitted_by">Soumis par</th>
-            <th data-sort-warmup="status">État</th>
-            <th>Actions</th>
+            <th scope="col" data-sort-warmup="name">Nom</th>
+            <th scope="col" data-sort-warmup="type">Type</th>
+            <th scope="col" data-sort-warmup="subtype">Sous-type</th>
+            <th scope="col" data-sort-warmup="description">Description</th>
+            <th scope="col" data-sort-warmup="duration_seconds">Durée</th>
+            <th scope="col" data-sort-warmup="participants">Participants</th>
+            <th scope="col" data-sort-warmup="source">Source</th>
+            <th scope="col" data-sort-warmup="locale">Langue</th>
+            <th scope="col" data-sort-warmup="submitted_by">Soumis par</th>
+            <th scope="col" data-sort-warmup="status">État</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody id="warmupBodyAdmin">
@@ -1458,9 +1490,9 @@
      + Ajouter button next to the inspirations filters. Submitting calls
      admin_add_inspiration_video — the row lands with status='approved'
      so it appears immediately on the public page. -->
-<dialog id="inspireAddDialog" class="bundle-add-dialog">
+<dialog id="inspireAddDialog" class="bundle-add-dialog" aria-labelledby="inspireAddDialogTitle">
   <form method="dialog" class="dlg-head">
-    <h2>Ajouter une inspiration</h2>
+    <h2 id="inspireAddDialogTitle">Ajouter une inspiration</h2>
     <button type="button" class="dlg-close" id="inspireAddCloseBtn" aria-label="Fermer">✕</button>
   </form>
   <form id="inspireAddForm" class="bundle-add-form" novalidate>
@@ -1568,9 +1600,9 @@
      + Ajouter button next to the warmups filters. Submitting calls
      admin_add_warmup_exercise — the row lands with status='approved'
      so it appears immediately on the public page. -->
-<dialog id="warmupAddDialog" class="bundle-add-dialog">
+<dialog id="warmupAddDialog" class="bundle-add-dialog" aria-labelledby="warmupAddDialogTitle">
   <form method="dialog" class="dlg-head">
-    <h2>Ajouter un exercice</h2>
+    <h2 id="warmupAddDialogTitle">Ajouter un exercice</h2>
     <button type="button" class="dlg-close" id="warmupAddCloseBtn" aria-label="Fermer">✕</button>
   </form>
   <form id="warmupAddForm" class="bundle-add-form" novalidate>
@@ -1640,9 +1672,9 @@
      category / constraint / exercise into the pool without a redeploy.
      Backed by the add_bundled_item RPC which writes an approved
      user_submission. -->
-<dialog id="bundleAddDialog" class="bundle-add-dialog">
+<dialog id="bundleAddDialog" class="bundle-add-dialog" aria-labelledby="bundleAddDialogTitle">
   <form method="dialog" class="dlg-head">
-    <h2>Ajouter un item</h2>
+    <h2 id="bundleAddDialogTitle">Ajouter un item</h2>
     <button type="button" class="dlg-close" id="bundleAddCloseBtn" aria-label="Fermer">✕</button>
   </form>
   <form id="bundleAddForm" class="bundle-add-form" novalidate>
@@ -1701,7 +1733,7 @@
      dire, et Safari propose « Empêcher cette page d'ouvrir d'autres boîtes de
      dialogue » dès la deuxième — auquel cas l'édition échouait en silence.
      Un seul formulaire : on voit les deux champs, on annule ou on valide. -->
-<dialog id="quickEditDialog" class="bundle-add-dialog">
+<dialog id="quickEditDialog" class="bundle-add-dialog" aria-labelledby="quickEditTitle">
   <form method="dialog" class="dlg-head">
     <h2 id="quickEditTitle">Modifier</h2>
     <button type="button" class="dlg-close" id="quickEditCloseBtn" aria-label="Fermer">✕</button>
@@ -1728,15 +1760,13 @@
 <!-- Pinned + SRI: protects against a jsDelivr compromise or typosquat that
      would otherwise execute attacker code with the user's session JWT in
      reach. Bump both `@VERSION` and the integrity hash together. -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.js"
-        integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"
-        crossorigin="anonymous"></script>
-<script src="./js/config.js?v=2026090501"></script>
-<script src="./js/utils.js?v=2026090501"></script>
+<script src="/vendor/supabase-js-2.47.10.min.js" integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"></script>
+<script src="./js/config.js?v=2026090507"></script>
+<script src="./js/utils.js?v=2026090507"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=2026090501"></script>
+<script src="./data/all.js?v=2026090507"></script>
 <script>
 (function () {
   "use strict";
@@ -1759,8 +1789,8 @@
 
   const $ = (id) => document.getElementById(id);
   let allProfiles = [];
-  let sortKey = "last_login_at";
-  let sortDir = "desc";
+  let sortKey = restoreSort("profiles", "key", "last_login_at");
+  let sortDir = restoreSort("profiles", "dir", "desc");
 
   function showGate(which) {
     ["loadingGate","loginGate","forbiddenGate","adminApp"].forEach(id => {
@@ -1844,6 +1874,7 @@
   }
 
   function applyFilter() {
+    saveSort("profiles", sortKey, sortDir);
     const q = ($("searchInput").value || "").toLowerCase().trim();
     const filtered = q
       ? allProfiles.filter(r =>
@@ -1924,8 +1955,8 @@
   // ----- Events analytics -----
   let allEvents = [];
   let profilesById = {};
-  let eventSortKey = "launched_at";
-  let eventSortDir = "desc";
+  let eventSortKey = restoreSort("events", "key", "launched_at");
+  let eventSortDir = restoreSort("events", "dir", "desc");
   let allParticipants = [];                // raw rows from impro_participants
   let participantsByEvent = {};            // event_id → array of { user_id?, nom_scene_text }
   let participationCountByUser = {};       // user_id → number of impros they participated in
@@ -2148,6 +2179,7 @@
   }
 
   function renderEvents() {
+    saveSort("events", eventSortKey, eventSortDir);
     const filtered = applyEventFilters();
     const sorted = sortEvents(filtered);
     $("eventCount").textContent = sorted.length + " / " + allEvents.length;
@@ -2450,10 +2482,11 @@
 
   // Sort state for the inspirations admin table. Default = latest first
   // (created_at desc) which matches the initial DB query order.
-  let inspireSortKey = null;
-  let inspireSortDir = "asc";
+  let inspireSortKey = restoreSort("inspirations", "key", null);
+  let inspireSortDir = restoreSort("inspirations", "dir", "asc");
 
   function renderInspirations() {
+    saveSort("inspirations", inspireSortKey, inspireSortDir);
     refreshInspirePendingBadge();
     const status = $("inspireFilterStatus").value;
     const type   = $("inspireFilterType").value;
@@ -2819,8 +2852,8 @@
      RPCs.
      ============================================================ */
   let allWarmups = [];
-  let warmupSortKey = null;
-  let warmupSortDir = "asc";
+  let warmupSortKey = restoreSort("warmups", "key", null);
+  let warmupSortDir = restoreSort("warmups", "dir", "asc");
   const WARMUP_TYPES = ["Échauffement", "Mise en train", "Atelier", "Situation de jeu"];
 
   async function loadWarmups() {
@@ -2871,6 +2904,7 @@
   }
 
   function renderWarmups() {
+    saveSort("warmups", warmupSortKey, warmupSortDir);
     refreshWarmupPendingBadge();
     const status = $("warmupFilterStatus").value;
     const type   = $("warmupFilterType").value;
@@ -3262,10 +3296,11 @@
   }
 
   // Sort state for the bundled list. null key = source order.
-  let bundledSortKey = null;
-  let bundledSortDir = "asc";
+  let bundledSortKey = restoreSort("bundled", "key", null);
+  let bundledSortDir = restoreSort("bundled", "dir", "asc");
 
   function renderBundled() {
+    saveSort("bundled", bundledSortKey, bundledSortDir);
     const locale = $("bundleFilterLocale").value;
     const kind   = $("bundleFilterKind").value;
     const showHidden = $("bundleShowHidden").checked;
@@ -3896,8 +3931,68 @@
     });
   }
 
+  /* ─── Filtres et recherches persistants ────────────────────────────────────
+     Vingt champs de filtre et de recherche, tous remis à zéro à chaque
+     rechargement — et « Rafraîchir » recharge. Un admin qui suit les
+     soumissions « en attente » en français les re-sélectionnait à chaque fois.
+     On mémorise chaque champ par son id, et on restaure AVANT les premiers
+     rendus (wireViewRouter tourne avant les chargements de données), donc le
+     premier affichage est déjà filtré. */
+  const FILTRES_CLE = "acto-admin:filtres:v1";
+
+  /* Lien d'évitement (« Aller au contenu »). Câblé ici, hors de l'init : il doit
+     marcher dès le chargement, y compris sur l'écran de connexion — l'init ne
+     tourne qu'après l'authentification. Toujours sans passer par le hash :
+     #adminApp serait lu comme un nom de vue par le routeur. */
+  (function wireSkipLink() {
+    const skip = document.getElementById("adminSkip");
+    if (!skip) return;
+    skip.addEventListener("click", ev => {
+      ev.preventDefault();
+      const cible = [...document.querySelectorAll("#adminApp > [data-view]")].find(el => el.offsetParent) || document.getElementById("adminApp");
+      if (!cible) return;
+      cible.setAttribute("data-skip-target", ""); cible.tabIndex = -1; cible.focus(); cible.scrollIntoView({ block: "start" });
+    });
+  })();
+  function lireFiltres() { try { return JSON.parse(localStorage.getItem(FILTRES_CLE) || "{}") || {}; } catch (e) { return {}; } }
+  function champsFiltres() { return document.querySelectorAll('input[id*="Filter"], select[id*="Filter"], input[id*="Search"], input[id*="ShowHidden"]'); }
+  function restaurerFiltres() {
+    const m = lireFiltres();
+    champsFiltres().forEach(el => {
+      // nom accessible : ces champs n'ont pas de <label> ; le placeholder (ou
+      // la première option d'un select, « Tous les types ») en tient lieu
+      if (!el.getAttribute("aria-label") && !el.getAttribute("aria-labelledby") && !(el.id && document.querySelector('label[for="' + el.id + '"]'))) {
+        const nom = el.placeholder || el.title || (el.options && el.options[0] ? el.options[0].textContent.trim() : "");
+        if (nom) el.setAttribute("aria-label", nom);
+      }
+      if (!(el.id in m)) return;
+      if (el.type === "checkbox") el.checked = !!m[el.id]; else el.value = m[el.id];
+    });
+  }
+  function memoriserFiltre(el) {
+    if (!el || !el.id) return;
+    const m = lireFiltres();
+    m[el.id] = (el.type === "checkbox") ? !!el.checked : el.value;
+    try { localStorage.setItem(FILTRES_CLE, JSON.stringify(m)); } catch (e) { /* stockage plein ou privé : on vit sans */ }
+  }
+  function wireFiltresPersistants() {
+    restaurerFiltres();
+    // délégation : un seul écouteur, qui couvre aussi les champs ajoutés plus tard
+    document.addEventListener("change", ev => { const el = ev.target; if (el && el.matches && el.matches('[id*="Filter"], [id*="Search"], [id*="ShowHidden"]')) memoriserFiltre(el); });
+    document.addEventListener("input",  ev => { const el = ev.target; if (el && el.matches && el.matches('input[id*="Search"], input[id*="FilterText"]')) memoriserFiltre(el); });
+  }
+
+  /* Tri persistant : les 5 tableaux repartaient de leur tri par defaut a chaque
+     rechargement. Restaure a la declaration, memorise a chaque rendu (chaque
+     clic d en-tete finit par un rendu). Fonctions declarees, donc disponibles
+     avant leur ligne : les etats sont initialises en tete de module. */
+  function lireTris() { try { return JSON.parse(localStorage.getItem("acto-admin:tris:v1") || "{}") || {}; } catch (e) { return {}; } }
+  function restoreSort(nom, champ, defaut) { const t = lireTris()[nom]; return (t && t[champ] !== undefined) ? t[champ] : defaut; }
+  function saveSort(nom, key, dir) { try { const t = lireTris(); t[nom] = { key: key, dir: dir }; localStorage.setItem("acto-admin:tris:v1", JSON.stringify(t)); } catch (e) { /* ignore */ } }
+
   function wireViewRouter() {
-    if (__cable.router) { setView(viewFromHash()); return; }   // la vue, oui ; le cablage, une seule fois
+    if (__cable.router) { setView(viewFromHash()); return; }
+    wireFiltresPersistants();   // la vue, oui ; le cablage, une seule fois
     __cable.router = true;
     wireTableLabels();
     wireDialogErrors();

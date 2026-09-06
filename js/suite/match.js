@@ -31,6 +31,7 @@
       totalTimeKey: "prepTotalTime", totalTimeHelpKey: "prepTotalTimeHelp",
       listTitleKey: "matchListTitle", listEmptyKey: "matchListEmpty",
       confirmDeleteKey: "confirmDeleteMatch",
+      savedKey: "savedToast",
       saveLabelKey: "saveTitleLabel", savePhKey: "saveTitlePlaceholder",
       improFields: ["category", "theme", "players", "duration"],
       newSession: function (o) { return S.sessions.newMatch(o); }
@@ -45,6 +46,7 @@
       totalTimeKey: "prepShowTime", totalTimeHelpKey: "prepShowTimeHelp",
       listTitleKey: "showListTitle", listEmptyKey: "showListEmpty",
       confirmDeleteKey: "confirmDeleteShow",
+      savedKey: "savedToastShow",
       saveLabelKey: "saveTitleLabelShow", savePhKey: "saveTitlePlaceholderShow",
       improFields: ["category", "theme", "duration"],
       newSession: function (o) { return S.sessions.newShow(o); }
@@ -57,6 +59,7 @@
       prepTitleKey: "trainPrepTitle", setlistTitleKey: "trainSetlistTitle", launchKey: "trainLaunch", generateKey: "trainGenerate",
       listTitleKey: "trainListTitle", listEmptyKey: "trainListEmpty",
       confirmDeleteKey: "confirmDeleteTrain",
+      savedKey: "savedToastTrain",
       saveLabelKey: "saveTitleLabelTrain", savePhKey: "saveTitlePlaceholderTrain",
       improFields: null,    // training fields depend on segment type
       newSession: function (o) { return S.sessions.newTraining(o); }
@@ -859,7 +862,7 @@
     // Already named (in the prep form)? Save straight away. Otherwise ask.
     if (current.title && current.title.trim()) {
       persistSession(current);
-      toast(t("savedToast"));
+      toast(t(K.savedKey || "savedToast"));
       return;
     }
     // Le libellé et le nom par défaut suivent la SECTION : « Nom du coaching /
@@ -869,7 +872,7 @@
       if (name == null) return;
       current.title = (name || def).trim();
       persistSession(current);
-      toast(t("savedToast"));
+      toast(t(K.savedKey || "savedToast"));
     });
   }
 
@@ -1107,6 +1110,7 @@
   function toast(msg) {
     var el = document.createElement("div");
     el.className = "suite-toast";
+    el.setAttribute("role", "status"); el.setAttribute("aria-live", "polite");   // annoncé par les lecteurs d'écran
     el.textContent = msg;
     document.body.appendChild(el);
     setTimeout(function () { el.classList.add("is-in"); }, 10);

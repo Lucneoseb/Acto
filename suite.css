@@ -1235,3 +1235,8 @@
 .suite-propose { border-top: 1px dashed color-mix(in srgb, #ffffff 14%, transparent); padding-top: 0.8rem; }
 .suite-propose-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .suite-propose-row .suite-btn { flex: 1 1 12rem; min-height: 44px; }
+/* Plancher tactile 44 px pour la navigation et les petits boutons du Studio :
+   onglets de section a 37 px, boutons mini a 38 px. Au doigt seulement. */
+@media (pointer: coarse) {
+  .suite-navpill, .suite-btn-mini, .suite-btn.suite-btn-mini { min-height: 44px !important; }
+}

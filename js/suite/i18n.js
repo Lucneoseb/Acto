@@ -107,7 +107,7 @@
     cloudMine: "Sur mon compte",
     cloudRestore: "Récupérer",
     cloudUpdate: "Mettre à jour",
-    cloudOverwriteLocal: "Une version de ce match existe déjà sur cet appareil. La remplacer par celle du compte ?",
+    cloudOverwriteLocal: "Une version existe déjà sur cet appareil. La remplacer par celle du compte ?",
     cloudSaved: "Sur mon compte",
     cloudLocalOnly: "Cet appareil seulement",
     cloudPush: "Sauvegarder sur mon compte",
@@ -246,7 +246,7 @@
     challengeTo: "À {name}", challengeFromName: "De {name}",
     challengeRelink: "Revoir le lien", challengeRelever: "Relever",
     liveGetReady: "Préparez-vous…",
-    liveWaiting: "En attente du match…",
+    liveWaiting: "En attente du direct…",
     liveDoneTitle: "Match terminé",
     liveWinner: "{team} l'emporte !",
     liveDraw: "Match nul",
@@ -387,7 +387,17 @@
     saveTitlePlaceholderTrain: "Coaching du {date}",
     trainProposeWarmup: "Proposer un échauffement",
     trainProposeExercise: "Proposer un exercice",
-    trainProposeHint: "Une idée pendant la préparation ? Elle sera relue par un admin avant d'entrer dans le catalogue."
+    trainProposeHint: "Une idée pendant la préparation ? Elle sera relue par un admin avant d'entrer dans le catalogue.",
+    savedToastShow: "Spectacle enregistré ✓",
+    savedToastTrain: "Coaching enregistré ✓",
+    liveConfirmFinishShow: "Terminer le spectacle ?",
+    liveConfirmFinishTrain: "Terminer le coaching ?",
+    liveDoneTitleShow: "Spectacle terminé",
+    liveDoneTitleTrain: "Coaching terminé",
+    skipToContent: "Aller au contenu",
+    a11yScoreMinus: "Retirer un point",
+    a11yScorePlus: "Ajouter un point",
+    a11yFullscreen: "Plein écran"
   };
 
   var EN = {
@@ -613,7 +623,7 @@
     challengeTo: "To {name}", challengeFromName: "From {name}",
     challengeRelink: "View the link", challengeRelever: "Take it",
     liveGetReady: "Get ready…",
-    liveWaiting: "Waiting for the match…",
+    liveWaiting: "Waiting for the live session…",
     liveDoneTitle: "Match over",
     liveWinner: "{team} wins!",
     liveDraw: "Draw",
@@ -749,7 +759,17 @@
     saveTitlePlaceholderTrain: "Coaching {date}",
     trainProposeWarmup: "Suggest a warm-up",
     trainProposeExercise: "Suggest an exercise",
-    trainProposeHint: "Got an idea while preparing? An admin will review it before it joins the catalogue."
+    trainProposeHint: "Got an idea while preparing? An admin will review it before it joins the catalogue.",
+    savedToastShow: "Show saved ✓",
+    savedToastTrain: "Coaching saved ✓",
+    liveConfirmFinishShow: "Finish the show?",
+    liveConfirmFinishTrain: "Finish the coaching?",
+    liveDoneTitleShow: "Show over",
+    liveDoneTitleTrain: "Coaching over",
+    skipToContent: "Skip to content",
+    a11yScoreMinus: "Remove one point",
+    a11yScorePlus: "Add one point",
+    a11yFullscreen: "Full screen"
   };
 
 
@@ -911,7 +931,7 @@
     defiDownload: "Video herunterladen", defiSharedTitle: "Herausforderung gemeistert!",
     defiSharedSub: "Dein Video wurde auf deinem gewählten Weg geteilt. Der Absender bekommt es direkt.",
     liveGetReady: "Macht euch bereit…",
-    liveWaiting: "Warten auf das Match…",
+    liveWaiting: "Warten auf die Live-Sitzung…",
     liveDoneTitle: "Match beendet",
     liveWinner: "{team} gewinnt!",
     liveDraw: "Unentschieden",
@@ -1170,7 +1190,17 @@
     saveTitlePlaceholderTrain: "Coaching vom {date}",
     trainProposeWarmup: "Eine Aufwärmübung vorschlagen",
     trainProposeExercise: "Eine Übung vorschlagen",
-    trainProposeHint: "Eine Idee beim Vorbereiten? Ein Admin prüft sie, bevor sie in den Katalog kommt."
+    trainProposeHint: "Eine Idee beim Vorbereiten? Ein Admin prüft sie, bevor sie in den Katalog kommt.",
+    savedToastShow: "Show gespeichert ✓",
+    savedToastTrain: "Coaching gespeichert ✓",
+    liveConfirmFinishShow: "Show beenden?",
+    liveConfirmFinishTrain: "Coaching beenden?",
+    liveDoneTitleShow: "Show beendet",
+    liveDoneTitleTrain: "Coaching beendet",
+    skipToContent: "Zum Inhalt springen",
+    a11yScoreMinus: "Einen Punkt abziehen",
+    a11yScorePlus: "Einen Punkt hinzufügen",
+    a11yFullscreen: "Vollbild"
   };
 
   var ES = {
@@ -1332,7 +1362,7 @@
     defiDownload: "Descargar el vídeo", defiSharedTitle: "¡Reto completado!",
     defiSharedSub: "Tu vídeo se compartió por el medio que elegiste. El retador lo recibirá directamente.",
     liveGetReady: "Preparaos…",
-    liveWaiting: "Esperando el match…",
+    liveWaiting: "Esperando el directo…",
     liveDoneTitle: "Match terminado",
     liveWinner: "¡Gana {team}!",
     liveDraw: "Empate",
@@ -1590,7 +1620,17 @@
     saveTitlePlaceholderTrain: "Coaching del {date}",
     trainProposeWarmup: "Proponer un calentamiento",
     trainProposeExercise: "Proponer un ejercicio",
-    trainProposeHint: "¿Una idea durante la preparación? Un admin la revisará antes de incluirla en el catálogo."
+    trainProposeHint: "¿Una idea durante la preparación? Un admin la revisará antes de incluirla en el catálogo.",
+    savedToastShow: "Espectáculo guardado ✓",
+    savedToastTrain: "Coaching guardado ✓",
+    liveConfirmFinishShow: "¿Terminar el espectáculo?",
+    liveConfirmFinishTrain: "¿Terminar el coaching?",
+    liveDoneTitleShow: "Espectáculo terminado",
+    liveDoneTitleTrain: "Coaching terminado",
+    skipToContent: "Ir al contenido",
+    a11yScoreMinus: "Quitar un punto",
+    a11yScorePlus: "Añadir un punto",
+    a11yFullscreen: "Pantalla completa"
   };
 
   var PT = {
@@ -1752,7 +1792,7 @@
     defiDownload: "Descarregar o vídeo", defiSharedTitle: "Desafio cumprido!",
     defiSharedSub: "O teu vídeo foi partilhado da forma que escolheste. O lançador vai recebê-lo diretamente.",
     liveGetReady: "Preparem-se…",
-    liveWaiting: "À espera do combate…",
+    liveWaiting: "À espera do direto…",
     liveDoneTitle: "Combate terminado",
     liveWinner: "{team} vence!",
     liveDraw: "Empate",
@@ -2010,7 +2050,17 @@
     saveTitlePlaceholderTrain: "Coaching de {date}",
     trainProposeWarmup: "Propor um aquecimento",
     trainProposeExercise: "Propor um exercício",
-    trainProposeHint: "Uma ideia durante a preparação? Um admin vai revê-la antes de entrar no catálogo."
+    trainProposeHint: "Uma ideia durante a preparação? Um admin vai revê-la antes de entrar no catálogo.",
+    savedToastShow: "Espetáculo guardado ✓",
+    savedToastTrain: "Coaching guardado ✓",
+    liveConfirmFinishShow: "Terminar o espetáculo?",
+    liveConfirmFinishTrain: "Terminar o coaching?",
+    liveDoneTitleShow: "Espetáculo terminado",
+    liveDoneTitleTrain: "Coaching terminado",
+    skipToContent: "Ir para o conteúdo",
+    a11yScoreMinus: "Retirar um ponto",
+    a11yScorePlus: "Adicionar um ponto",
+    a11yFullscreen: "Ecrã inteiro"
   };
 
   var NL = {
@@ -2172,7 +2222,7 @@
     defiDownload: "Video downloaden", defiSharedTitle: "Uitdaging volbracht!",
     defiSharedSub: "Je video is gedeeld op de manier die je koos. De afzender krijgt hem rechtstreeks.",
     liveGetReady: "Maak je klaar…",
-    liveWaiting: "Wachten op de match…",
+    liveWaiting: "Wachten op de live-sessie…",
     liveDoneTitle: "Match afgelopen",
     liveWinner: "{team} wint!",
     liveDraw: "Gelijkspel",
@@ -2430,7 +2480,17 @@
     saveTitlePlaceholderTrain: "Coaching van {date}",
     trainProposeWarmup: "Een warming-up voorstellen",
     trainProposeExercise: "Een oefening voorstellen",
-    trainProposeHint: "Een idee tijdens het voorbereiden? Een admin bekijkt het voor het in de catalogus komt."
+    trainProposeHint: "Een idee tijdens het voorbereiden? Een admin bekijkt het voor het in de catalogus komt.",
+    savedToastShow: "Voorstelling opgeslagen ✓",
+    savedToastTrain: "Coaching opgeslagen ✓",
+    liveConfirmFinishShow: "De voorstelling beëindigen?",
+    liveConfirmFinishTrain: "De coaching beëindigen?",
+    liveDoneTitleShow: "Voorstelling afgelopen",
+    liveDoneTitleTrain: "Coaching afgelopen",
+    skipToContent: "Naar de inhoud",
+    a11yScoreMinus: "Een punt aftrekken",
+    a11yScorePlus: "Een punt toevoegen",
+    a11yFullscreen: "Volledig scherm"
   };
 
   var IT = {
@@ -2592,7 +2652,7 @@
     defiDownload: "Scarica il video", defiSharedTitle: "Sfida completata!",
     defiSharedSub: "Il tuo video è stato condiviso nel modo che hai scelto. Il mittente lo riceverà direttamente.",
     liveGetReady: "Preparatevi…",
-    liveWaiting: "In attesa del match…",
+    liveWaiting: "In attesa della diretta…",
     liveDoneTitle: "Match terminato",
     liveWinner: "{team} vince!",
     liveDraw: "Pareggio",
@@ -2850,7 +2910,17 @@
     saveTitlePlaceholderTrain: "Coaching del {date}",
     trainProposeWarmup: "Proponi un riscaldamento",
     trainProposeExercise: "Proponi un esercizio",
-    trainProposeHint: "Un'idea durante la preparazione? Un admin la rivedrà prima di inserirla nel catalogo."
+    trainProposeHint: "Un'idea durante la preparazione? Un admin la rivedrà prima di inserirla nel catalogo.",
+    savedToastShow: "Spettacolo salvato ✓",
+    savedToastTrain: "Coaching salvato ✓",
+    liveConfirmFinishShow: "Terminare lo spettacolo?",
+    liveConfirmFinishTrain: "Terminare il coaching?",
+    liveDoneTitleShow: "Spettacolo terminato",
+    liveDoneTitleTrain: "Coaching terminato",
+    skipToContent: "Vai al contenuto",
+    a11yScoreMinus: "Togli un punto",
+    a11yScorePlus: "Aggiungi un punto",
+    a11yFullscreen: "Schermo intero"
   };
 
   // de/es/pt/nl/it are filled to match the 7-locale set. Until translated

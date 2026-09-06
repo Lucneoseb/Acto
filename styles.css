@@ -19,7 +19,7 @@
   --gold-soft:      #fde08a;
   --ink:            #f5f0ea;
   --ink-muted:      rgba(245, 240, 234, 0.65);
-  --ink-faint:      rgba(245, 240, 234, 0.35);
+  --ink-faint:      rgba(245, 240, 234, 0.52); /* 0.35 donnait 2.9:1 sur le fond ; 0.52 ≈ 5:1 (AA) */
 
   /* Mode accents */
   --troupe:         #6dd3c5;
@@ -460,7 +460,6 @@ input, textarea {
   min-width: 0;
   background: none;
   border: none;
-  outline: none;
   font-size: 0.95rem;
   font-weight: 500;
 }
@@ -526,7 +525,6 @@ textarea {
   border-radius: var(--radius-md);
   font-size: 0.95rem;
   resize: vertical;
-  outline: none;
   transition: border-color 0.3s, background 0.3s;
 }
 
@@ -644,7 +642,6 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
   border-radius: var(--radius-md);
   font: inherit;
   font-size: 0.95rem;
-  outline: none;
 }
 .roster-team-name input[type="text"]:focus {
   border-color: rgba(245, 196, 81, 0.55);
@@ -692,7 +689,6 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
   border-radius: var(--radius-sm);
   font: inherit;
   font-size: 0.9rem;
-  outline: none;
   cursor: pointer;
 }
 .saved-teams-row select:focus { border-color: rgba(245, 196, 81, 0.5); }
@@ -733,7 +729,6 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
   border-radius: var(--radius-md);
   font: inherit;
   font-size: 0.95rem;
-  outline: none;
 }
 .roster-search-row input:focus,
 .roster-adhoc-row input:focus {
@@ -771,7 +766,7 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
 }
 .roster-search-item:last-child { border-bottom: 0; }
 .roster-search-item:hover,
-.roster-search-item:focus { background: rgba(245, 196, 81, 0.1); outline: none; }
+.roster-search-item:focus { background: rgba(245, 196, 81, 0.1); }
 .roster-search-stage { font-weight: 600; color: var(--ink); }
 .roster-search-prenom { color: var(--ink-muted); font-size: 0.85rem; }
 
@@ -1489,7 +1484,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-md);
   font-size: 0.95rem;
-  outline: none;
 }
 #langSelect:focus { border-color: var(--gold); }
 
@@ -1666,7 +1660,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   height: 6px;
   border-radius: 999px;
   background: linear-gradient(90deg, var(--troupe), var(--gold), var(--match));
-  outline: none;
   cursor: pointer;
 }
 .duration-manual input[type="range"]::-webkit-slider-thumb {
@@ -1894,7 +1887,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   height: 6px;
   border-radius: 999px;
   background: linear-gradient(90deg, var(--c-audience), var(--gold));
-  outline: none;
   cursor: pointer;
 }
 .audience-interval-row input[type="range"]::-webkit-slider-thumb {
@@ -2268,7 +2260,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   border-radius: var(--radius-md);
   font: inherit;
   font-size: 0.95rem;
-  outline: none;
 }
 .edit-value-dialog input[type="text"]:focus,
 .edit-value-dialog textarea:focus {
@@ -2284,7 +2275,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   border-radius: var(--radius-md);
   font: inherit;
   font-size: 0.95rem;
-  outline: none;
   resize: vertical;
   min-height: 4.4rem;
   line-height: 1.4;
@@ -2479,7 +2469,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   line-height: 1.55;
   resize: vertical;
   min-height: 180px;
-  outline: none;
   transition: border-color 0.15s, background 0.15s;
 }
 .themes-dialog textarea:focus {
@@ -2605,7 +2594,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   background: rgba(245, 196, 81, 0.18);
   border-color: var(--gold);
   color: var(--gold);
-  outline: none;
   transform: translateY(-1px);
 }
 .footer-support-btn:active {
@@ -3367,7 +3355,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   border-radius: var(--radius-sm);
   font: inherit;
   font-size: 0.85rem;
-  outline: none;
   resize: vertical;
 }
 .recorder-participant-row textarea { min-height: 2.4rem; }
@@ -3442,7 +3429,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   border-radius: var(--radius-sm);
   font: inherit;
   font-size: 0.8rem;
-  outline: none;
 }
 .recorder-actors-add-input:focus { border-color: rgba(245, 196, 81, 0.55); }
 .recorder-actors-add-btn {
@@ -4208,7 +4194,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   color: var(--ink);
   font: inherit;
   font-size: 0.95rem;
-  outline: none;
   transition: border-color 0.15s, background 0.15s;
 }
 .auth-field input:focus {
@@ -4504,7 +4489,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
 }
 #deleteAccountDialog input[type="text"]:focus {
   border-color: rgba(255, 100, 110, 0.6);
-  outline: none;
 }
 
 /* ==========================================================
@@ -4601,3 +4585,32 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   .auth-hero-tagline { display: none; }
   .auth-try { margin-top: 0.6rem; }
 }
+/* Plancher tactile 44 px — au doigt seulement. styles.css n avait AUCUNE regle
+   pointer: coarse ; les icones des cartes faisaient 28 px. Meme statut que le
+   plancher 16 px : contrainte d usage, pas preference, d ou le !important. */
+@media (pointer: coarse) {
+  .card-reroll, .card-edit { min-width: 44px !important; min-height: 44px !important; }
+  .footer-support-btn { min-height: 44px !important; }
+}
+
+/* ─── Focus clavier visible partout (a11y) ──────────────────────────────────
+   Les `outline: none` posés sur les champs (dix occurrences) ont été retirés :
+   ils supprimaient l'anneau de focus clavier sans le remplacer, et n'ont plus
+   d'objet depuis que les navigateurs ne dessinent l'anneau que sur
+   :focus-visible (jamais au clic souris). Un seul anneau doré ; les anneaux
+   spécifiques déjà définis (.recorder-record, .suite-input…) ont une
+   spécificité supérieure et restent. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+:where(input:not([type="range"]), select, textarea):focus-visible { outline-offset: 1px; }
+input[type="range"]:focus-visible { outline-offset: 4px; }
+/* cible du lien d'évitement : focusable par script, sans anneau */
+#suiteMain:focus, #adminApp:focus, [data-skip-target]:focus { outline: none; }
+
+/* ─── Lien d'évitement (« Aller au contenu ») ───────────────────────────────
+   Invisible jusqu'au premier Tab, puis affiché en haut à gauche. */
+.skip-link {
+  position: absolute; left: 0.75rem; top: -100px; z-index: 1000;
+  padding: 0.6rem 1rem; border-radius: var(--radius-md);
+  background: var(--gold); color: #1a0f2b; font: 600 0.9rem/1 "Inter", sans-serif; text-decoration: none;
+}
+.skip-link:focus { top: 0.75rem; }

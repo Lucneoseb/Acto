@@ -119,5 +119,10 @@ The `mcp__Claude_in_Chrome__*` tools are available. Standard loop:
 - **Two Supabase clients.** `js/auth.js` exports `window.actoSupabase`;
   `admin.html` creates its own client. Each page owns its own
   session via `localStorage` — don't try to share state between them.
-- **Publishable key + SDK version.** Both pages load
-  `@supabase/supabase-js@2` from jsDelivr — keep that pin in sync.
+- **Publishable key + SDK version.** The Supabase SDK is **self-hosted** since
+  2026-09-05: `vendor/supabase-js-2.47.10.min.js`, loaded by all 11 pages with
+  the same SRI hash it had on jsDelivr (verified byte-identical on import).
+  `qrcode-generator` lives in `vendor/` too, so no page loads any third-party
+  script and the CSP `script-src` is `'self'` only. To upgrade the SDK:
+  download the UMD build, compute `sha384` (base64), replace the file AND the
+  `integrity` attribute in every page, keep the pin identical everywhere.

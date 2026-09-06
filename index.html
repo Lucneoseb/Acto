@@ -8,7 +8,7 @@
 <!-- Acto's entry point now sends everyone to the Studio (/welcome), which is
      login-gated and itself bounces signed-out visitors to the login page
      (/login). Kept as a tiny redirect so old /index.html links still work. -->
-<meta http-equiv="refresh" content="0; url=welcome.html" />
+<meta http-equiv="refresh" content="0; url=/welcome.html" />
 <title>Acto — The Impro Studio</title>
 <style>
   html, body { height: 100%; margin: 0; background: #0c0814; color: #f5f0ea;
@@ -19,7 +19,16 @@
 <script>
   // Immediate client-side redirect (covers browsers that ignore meta-refresh
   // timing). location.replace so Back doesn't trap the user on this page.
-  try { window.location.replace("welcome.html"); } catch (e) { window.location.href = "welcome.html"; }
+  // Cette page est aussi le repli 404 de Cloudflare (not_found_handling) :
+  // pour /coaching/preparer elle est servie AVEC ce chemin dans l'adresse. On
+  // le transmet au Studio plutôt que de le perdre, et on redirige en ABSOLU :
+  // un « welcome.html » relatif depuis /coaching/… viserait /coaching/welcome.html,
+  // introuvable → retour ici → boucle.
+  try {
+    var chemin = window.location.pathname + window.location.search + window.location.hash;
+    if (chemin && chemin !== "/" && chemin.indexOf("/index.html") !== 0) sessionStorage.setItem("acto:route", chemin);
+  } catch (e) { /* ignore */ }
+  try { window.location.replace("/welcome.html"); } catch (e) { window.location.href = "/welcome.html"; }
 </script>
 </head>
 <body>

@@ -349,7 +349,7 @@
   }
   function toggleScores() { sess.showScores = !sess.showScores; persist(); renderPresenter(); broadcast(); }
   function finish() {
-    if (!window.confirm(t("liveConfirmFinish"))) return;
+    if (!window.confirm(t("liveConfirmFinish" + kindSfx(sess && sess.kind)))) return;
     phase = "done"; finished = true; clearTick(); tRunning = false; persist(); renderPresenter(); broadcast();
     recordResults();
   }
@@ -824,9 +824,9 @@
         '<span class="live-team-nm">' + esc(nm) + '</span>' +
       '</div>' +
       '<div class="live-score-row">' +
-        '<button class="live-score-btn" data-act="dec" data-team="' + i + '">−</button>' +
+        '<button class="live-score-btn" data-act="dec" data-team="' + i + '" aria-label="' + esc(t("a11yScoreMinus")) + '">−</button>' +
         '<span class="live-score-val">' + (tm.score || 0) + '</span>' +
-        '<button class="live-score-btn" data-act="inc" data-team="' + i + '">+</button>' +
+        '<button class="live-score-btn" data-act="inc" data-team="' + i + '" aria-label="' + esc(t("a11yScorePlus")) + '">+</button>' +
       '</div>' +
       '<div class="live-pens">' + dots + '</div>' +
     '</div>';
@@ -835,14 +835,14 @@
   function doneScreen() {
     var a = sess.teams[0], b = sess.teams[1];
     var msg;
-    if (!sess.scoring) msg = t("liveDoneTitle");
+    if (!sess.scoring) msg = t("liveDoneTitle" + kindSfx(sess.kind));
     else if ((a.score || 0) === (b.score || 0)) msg = t("liveDraw");
     else {
       var w = (a.score || 0) > (b.score || 0) ? a : b;
       msg = tf("liveWinner", { team: w.name || (w === a ? t("teamA") : t("teamB")) });
     }
     return '<div class="live-done">' +
-      '<div class="live-done-title">' + esc(t("liveDoneTitle")) + '</div>' +
+      '<div class="live-done-title">' + esc(t("liveDoneTitle" + kindSfx(sess.kind))) + '</div>' +
       (sess.scoring ? '<div class="live-done-score">' + (a.score || 0) + ' – ' + (b.score || 0) + '</div>' : '') +
       '<div class="live-done-msg">' + esc(msg) + '</div>' +
     '</div>';
@@ -1019,7 +1019,7 @@
       else { var w = (a.score || 0) > (b.score || 0) ? a : b; msg = tf("liveWinner", { team: w.name || "" }); }
       dRoot.innerHTML =
         '<div class="disp-overlay">' +
-          '<div class="disp-overlay-label">' + esc(t("liveDoneTitle")) + '</div>' +
+          '<div class="disp-overlay-label">' + esc(t("liveDoneTitle" + kindSfx(dSnap && dSnap.kind))) + '</div>' +
           (snap.scoring ? '<div class="disp-final">' + (a.score || 0) + ' – ' + (b.score || 0) + '</div>' : '') +
           (msg ? '<div class="disp-winner">' + esc(msg) + '</div>' : '') +
         '</div>';
@@ -1090,7 +1090,7 @@
         '<div class="rec-controls">' +
           '<button class="suite-btn suite-btn-primary rec-toggle" id="recToggle" data-act="rec-toggle">⏺ ' + esc(t("recStart")) + '</button>' +
           '<span class="rec-status" id="recStatus"></span>' +
-          '<button class="suite-btn suite-btn-ghost" data-act="rec-fs">⛶</button>' +
+          '<button class="suite-btn suite-btn-ghost" data-act="rec-fs" aria-label="' + esc(t("a11yFullscreen")) + '" title="' + esc(t("a11yFullscreen")) + '">⛶</button>' +
           '<button class="suite-back" data-act="rec-back">' + esc(t("liveBack")) + '</button>' +
         '</div>' +
         '<div class="rec-msg" id="recMsg" hidden></div>' +
@@ -1122,7 +1122,7 @@
     var showScore = snap.scoring && snap.showScores;
     var clock = '<div id="recClock" class="rec-clock">' + esc(S.formatSec(displayRemaining())) + '</div>';
     var seg = snap.seg;
-    var headline = (snap.phase === "done") ? t("liveDoneTitle") : (seg ? (seg.title || "") : t("liveGetReady"));
+    var headline = (snap.phase === "done") ? t("liveDoneTitle" + kindSfx(snap.kind)) : (seg ? (seg.title || "") : t("liveGetReady"));
     var subline = (snap.phase === "done") ? "" : (seg ? (seg.subtitle || "") : "");
     // Solo layout (Spectacle / no teams): the show title identifies the recording.
     var teamsRow = (snap.teams && snap.teams.length >= 2)
@@ -1204,6 +1204,10 @@
   /* ============================================================
      cleanup (called by the router before every navigation)
      ============================================================ */
+  // Suffixe de clé i18n selon la section (« Terminer le match ? » n'a aucun
+  // sens sur un coaching) : "" pour match, "Show", "Train".
+  function kindSfx(k) { return k === "show" ? "Show" : k === "training" ? "Train" : ""; }
+
   function cleanup() {
     document.body.classList.remove("suite-live-mode", "suite-display-mode", "suite-record-mode");
     clearTick();

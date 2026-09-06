@@ -861,7 +861,7 @@
     const teamA = $("#teamA"), teamB = $("#teamB"), teamTroupe = $("#teamTroupe");
     if (teamA) teamA.placeholder = t.teamA ?? "";
     if (teamB) teamB.placeholder = t.teamB ?? "";
-    if (teamTroupe) teamTroupe.placeholder = t.teamTroupe ?? "";
+    if (teamTroupe) { teamTroupe.placeholder = t.teamTroupe ?? ""; teamTroupe.setAttribute("aria-label", t.teamTroupe ?? ""); }
 
     setText("themesModeRandomLabel", t.themesModeRandom);
     setText("themesModeCustomLabel", t.themesModeCustom);

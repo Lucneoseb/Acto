@@ -1,0 +1,15 @@
+# Adresses lisibles du Studio → une seule page, welcome.html (réécriture 200,
+# l'adresse reste telle que tapée). Le routeur de js/suite/shell.js lit le
+# chemin. Ne pas mettre de 301 ici : on veut garder /coaching dans la barre.
+/studio          /welcome.html  200
+/match           /welcome.html  200
+/match/*         /welcome.html  200
+/spectacle       /welcome.html  200
+/spectacle/*     /welcome.html  200
+/coaching        /welcome.html  200
+/coaching/*      /welcome.html  200
+/decouverte      /welcome.html  200
+/decouverte/*    /welcome.html  200
+/contribuer      /welcome.html  200
+/equipes         /welcome.html  200
+/collab/*        /welcome.html  200
