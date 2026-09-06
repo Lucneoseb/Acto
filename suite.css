@@ -1240,3 +1240,65 @@
 @media (pointer: coarse) {
   .suite-navpill, .suite-btn-mini, .suite-btn.suite-btn-mini { min-height: 44px !important; }
 }
+
+/* ─── Titre renommable (✎) et export texte ─────────────────────────────────── */
+.suite-h1-row { flex: 1 1 100%; display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+.suite-h1-row .suite-h1 { flex: 1 1 auto; min-width: 0; }
+.suite-rename { flex: 0 0 auto; }
+.suite-export-row { margin-top: 0.8rem; display: flex; }
+.suite-export-row .suite-btn { flex: 1 1 auto; }
+.suite-export-dialog { max-width: min(760px, 92vw); width: min(760px, 92vw); }
+.suite-export-dialog .suite-dialog-body { box-sizing: border-box; }
+.suite-export-text { width: 100%; box-sizing: border-box; min-height: 16rem; resize: vertical;
+  font: 0.82rem/1.45 ui-monospace, "SF Mono", Menlo, Consolas, monospace; white-space: pre; overflow: auto; }
+@media (pointer: coarse) { .suite-rename { min-width: 44px !important; min-height: 44px !important; } }
+
+/* ─── Barre d'actions de l'éditeur sur téléphone ──────────────────────────────
+   Mesuré à 375 px : quatre boutons (« Tout régénérer », « Collaborateurs »,
+   « Enregistrer », « Lancer le coaching ») ne tiennent pas sur une ligne ;
+   la page débordait à 519 px et le navigateur mobile dézoomait tout l'éditeur.
+   Deux rangées de deux, boutons libres de rétrécir. */
+@media (max-width: 520px) {
+  .suite-sticky-actions { flex-wrap: wrap; }
+  .suite-sticky-actions .suite-btn { flex: 1 1 calc(50% - 0.25rem); min-width: 0; padding-left: 0.6rem; padding-right: 0.6rem; }
+}
+
+
+
+/* ─── Découverte : section « Le match d'impro » + article long ─────────────── */
+.suite-discover-feature {
+  border-radius: var(--radius-lg);
+  border: 1px solid color-mix(in srgb, var(--gold) 35%, transparent);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--gold) 10%, transparent), color-mix(in srgb, #ffffff 2%, transparent));
+  padding: 1.1rem 1.2rem; margin-bottom: 1rem;
+}
+.suite-discover-feature .suite-discover-h { font-size: 1.5rem; }
+.suite-discover-feature ul { margin: 0.6rem 0 0.9rem; padding-left: 1.1rem; color: var(--ink-muted); line-height: 1.5; font-size: 0.92rem; }
+.suite-discover-feature li { margin: 0.25rem 0; }
+.suite-discover-feature .suite-btn { min-height: 44px; }
+.suite-article { max-width: 46rem; color: var(--ink); line-height: 1.6; font-size: 0.98rem; }
+.suite-article-intro { font-size: 1.05rem; color: var(--ink); margin: 0 0 1rem; }
+.suite-article-note { font-size: 0.85rem; color: var(--ink-muted); border-left: 3px solid var(--gold); padding-left: 0.7rem; margin: 0 0 1rem; }
+.suite-article-toc { border: 1px solid color-mix(in srgb, #ffffff 11%, transparent); border-radius: var(--radius-md); padding: 0.8rem 1rem; margin-bottom: 1.4rem; background: color-mix(in srgb, #ffffff 4%, transparent); }
+.suite-article-toc-h { font: 400 1.1rem/1 "Bebas Neue", sans-serif; letter-spacing: 0.04em; color: var(--gold); margin-bottom: 0.4rem; }
+.suite-article-toc ol { margin: 0; padding-left: 1.2rem; columns: 2; column-gap: 1.5rem; font-size: 0.92rem; }
+.suite-article-toc li { margin: 0.2rem 0; break-inside: avoid; }
+.suite-article-toc a { color: var(--ink-muted); text-decoration: none; }
+.suite-article-toc a:hover { color: var(--gold); }
+.suite-article-sec { margin: 0 0 1.6rem; scroll-margin-top: 1rem; }
+.suite-article-sec:focus { outline: none; }
+.suite-article h2.suite-h2 { margin: 0 0 0.6rem; }
+.suite-article h3 { font: 600 1rem/1.3 "Inter", sans-serif; color: var(--gold-soft); margin: 1rem 0 0.4rem; }
+.suite-article p { margin: 0 0 0.8rem; color: var(--ink-muted); }
+.suite-article ul { margin: 0 0 0.9rem; padding-left: 1.2rem; color: var(--ink-muted); }
+.suite-article li { margin: 0.3rem 0; }
+.suite-article dl { margin: 0 0 0.9rem; display: grid; grid-template-columns: minmax(7rem, 11rem) 1fr; gap: 0.35rem 0.9rem; }
+.suite-article dt { font-weight: 600; color: var(--ink); }
+.suite-article dd { margin: 0; color: var(--ink-muted); }
+.suite-article-foot { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1.2rem; }
+@media (max-width: 520px) {
+  .suite-article-toc ol { columns: 1; }
+  .suite-article dl { grid-template-columns: 1fr; gap: 0.15rem 0; }
+  .suite-article dd { margin-bottom: 0.55rem; }
+}
+\n

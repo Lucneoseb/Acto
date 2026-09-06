@@ -57,6 +57,7 @@
       blankBtnKey: "trainBlankBtn", blankDescKey: "trainBlankDesc",
       listBtnKey: "trainListBtn", listDescKey: "trainListDesc",
       prepTitleKey: "trainPrepTitle", setlistTitleKey: "trainSetlistTitle", launchKey: "trainLaunch", generateKey: "trainGenerate",
+      nameKey: "prepTrainName", namePhKey: "saveTitlePlaceholderTrain", dateKey: "prepTrainDate",
       listTitleKey: "trainListTitle", listEmptyKey: "trainListEmpty",
       confirmDeleteKey: "confirmDeleteTrain",
       savedKey: "savedToastTrain",
@@ -189,15 +190,17 @@
         '</div>' +
       '</div>';
 
-    // Name + date of the match (match + show only — a training is a quick rehearsal).
-    var metaField = (kind !== "training")
-      ? '<div class="suite-field suite-meta-row">' +
+    // Nom + date, pour les trois sections — le coaching aussi : sans nom, un
+    // coaching partagé s'affichait « — » chez le collaborateur. Le placeholder
+    // EST le nom retenu si le champ reste vide (« Coaching du 06/09/2026 »).
+    var namePh = tf(K.namePhKey, { date: new Date().toLocaleDateString(S.locale()) });
+    var metaField =
+        '<div class="suite-field suite-meta-row">' +
           '<label class="suite-meta-col"><span class="suite-label">' + esc(t(K.nameKey)) + '</span>' +
-            '<input type="text" class="suite-input" id="prepTitle" value="' + esc(prep.title || "") + '" placeholder="' + esc(t(K.namePhKey)) + '" maxlength="120" /></label>' +
+            '<input type="text" class="suite-input" id="prepTitle" value="' + esc(prep.title || "") + '" placeholder="' + esc(namePh) + '" maxlength="120" /></label>' +
           '<label class="suite-meta-col suite-meta-date"><span class="suite-label">' + esc(t(K.dateKey)) + '</span>' +
             '<input type="date" class="suite-input" id="prepDate" value="' + esc(prep.matchDate || "") + '" /></label>' +
-        '</div>'
-      : "";
+        '</div>';
     var body = metaField + levelField;
     if (K.prepVariant === "training") {
       body +=
@@ -301,6 +304,11 @@
         var res = S.gen.buildTrainingSetlist({ level: prep.level, nbWarmups: prep.nbWarmups, nbExercises: prep.nbExercises });
         var session = K.newSession({ level: prep.level, nbWarmups: prep.nbWarmups, nbExercises: prep.nbExercises });
         session.setlist = res.setlist;
+        // Nommé dès la naissance : « Coaching du 06/09/2026 » si le champ est
+        // resté vide. Visible dans l'éditeur, dans les listes et chez les
+        // collaborateurs ; modifiable à tout moment (✎ dans l'éditeur).
+        session.title = (prep.title || "").trim() || tf(K.savePhKey, { date: new Date().toLocaleDateString(S.locale()) });
+        session.matchDate = prep.matchDate || "";
         current = session;
         navigate(homeRoute() + "/edit");
       });
@@ -378,7 +386,10 @@
     root.innerHTML =
       '<div class="suite-section-head">' +
         '<button class="suite-back" data-act="back">← ' + esc(t(K.titleKey)) + '</button>' +
-        '<h1 class="suite-h1">' + esc(current.title || t(K.setlistTitleKey)) + '</h1>' +
+        '<div class="suite-h1-row">' +
+          '<h1 class="suite-h1">' + esc(titleOrDefault(current.title, current.createdAt)) + '</h1>' +
+          ((!collab || collab.role !== "viewer") ? '<button class="suite-icon-btn suite-rename" data-act="rename" aria-label="' + esc(t("renameTitle")) + '" title="' + esc(t("renameTitle")) + '">✎</button>' : '') +
+        '</div>' +
         '<p class="suite-sub">' + esc(summary) + (current.matchDate ? ' · 📅 ' + esc(fmtMatchDate(current.matchDate)) : '') + '</p>' +
         (collab ? '<div class="suite-collab-badge' + (collabPeerCount() > 1 ? '' : ' is-solo') + '">👥 ' + esc(tf("collabActive", { n: collabPeerCount() })) + '</div>' + (collab.role === "viewer" ? '<div class="suite-collab-viewer">👁 ' + esc(t("collabViewerNote")) + '</div>' : '') : '') +
       '</div>' +
@@ -386,6 +397,7 @@
       (kind !== "training" ? settingsCard() : "") +
       (kind === "training" ? proposeBlock() : "") +
       '<div class="suite-setlist">' + cards + addBtns + '</div>' +
+      '<div class="suite-export-row"><button class="suite-btn suite-btn-ghost" data-act="export">📄 ' + esc(t("exportBtn")) + '</button></div>' +
       '<div class="suite-sticky-actions">' +
         '<button class="suite-btn suite-btn-ghost" data-act="regen">' + esc(t("setlistRegenerate")) + '</button>' +
         ((!collab || collab.role === "owner") ? '<button class="suite-btn suite-btn-ghost" data-act="collab">👥 ' + esc(t("collabBtn")) + '</button>' : '') +
@@ -612,6 +624,12 @@
         break;
       case "launch":
         launchOrResume();
+        break;
+      case "rename":
+        renameCurrent();
+        break;
+      case "export":
+        openExportDialog(current);
         break;
       case "edit-teams":
         openTeamsEditor(current.teams, function (teams) {
@@ -858,6 +876,144 @@
     cloudMirror(session, cloudWarn);
   }
 
+  // Nom affiché quand la session n'en a pas (anciennes sessions, match jamais
+  // nommé) : le même que le nom par défaut proposé à l'enregistrement.
+  function titleOrDefault(title, when) {
+    if (title) return title;
+    var d = when ? new Date(when) : new Date();
+    if (isNaN(d.getTime())) d = new Date();
+    return tf(K.savePhKey || "saveTitlePlaceholder", { date: d.toLocaleDateString(S.locale()) });
+  }
+
+  /* Renommer depuis l'éditeur. Le nom ne se donnait qu'à l'enregistrement : un
+     coaching partagé avant ça arrivait sans nom chez le collaborateur. Un
+     collaborateur éditeur peut renommer aussi ; un simple lecteur non. */
+  function renameCurrent() {
+    if (!current || (collab && collab.role === "viewer")) return;
+    var def = titleOrDefault(current.title, current.createdAt);
+    askText(t(K.saveLabelKey || "saveTitleLabel"), def).then(function (name) {
+      if (name == null) return;
+      var v = (name || def).trim();
+      if (!v || v === current.title) return;
+      current.title = v;
+      if (stillThere(current.id)) persistSession(current);   // déjà enregistrée : le nom suit (liste, compte)
+      renderEditor();                                         // et chez les collaborateurs (collabPush)
+    });
+  }
+
+  /* ---------- Export texte ----------
+     Le déroulé hors de l'appli : à coller dans le groupe de la troupe, à
+     imprimer, à archiver. Texte brut, pas de PDF : ça s'ouvre partout et ça
+     se copie. Trois sorties selon l'appareil : copier, partager (feuille de
+     partage mobile), télécharger un .txt. */
+  function slugFile(name) {
+    var b = String(name || "");
+    try { b = b.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); } catch (e) { /* vieux moteur : accents conservés puis filtrés */ }
+    b = b.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase().slice(0, 60);
+    return (b || "acto") + ".txt";
+  }
+  function wrapText(str, width, indent) {
+    var words = String(str || "").split(/\s+/), lines = [], line = "";
+    words.forEach(function (w) {
+      if (!w) return;
+      if (line && (line + " " + w).length > width) { lines.push(line); line = w; }
+      else line = line ? line + " " + w : w;
+    });
+    if (line) lines.push(line);
+    return lines.map(function (l) { return indent + l; }).join("\n");
+  }
+  function buildExportText(sess) {
+    var Kx = KINDS[sess.kind] || K;
+    var setlist = sess.setlist || [];
+    var nat = S.natureLabels();
+    var est = S.formatLong(S.gen.estimateTotalSec(setlist));
+    var title = titleOrDefault(sess.title, sess.createdAt);
+    var out = [title.toUpperCase(), new Array(Math.min(60, title.length) + 1).join("=")];
+    var meta = [];
+    if (sess.matchDate) meta.push("📅 " + fmtMatchDate(sess.matchDate));
+    meta.push(t("prepLevel") + " : " + levelLabel(sess.level));
+    meta.push((sess.kind === "training") ? tf("listMetaCount", { n: setlist.length }) + " · ~" + est : tf("setlistSummary", { n: setlist.length, time: est }));
+    out.push(meta.join("  ·  "));
+    if (Kx.hasTeams && sess.teams && sess.teams.length) out.push(t("teamsTitle") + " : " + sess.teams.map(function (tm) { return tm.name || "?"; }).join("  vs  "));
+    if (sess.kind !== "training") {
+      var fmtOpt = function (v, def) { return v == null ? S.formatSec(def) : (v ? S.formatSec(v) : t("valueNone")); };
+      var regl = [t("liveCaucusSet") + " : " + fmtOpt(sess.caucusSec, 30)];
+      if (Kx.scoring) regl.push(t("liveVoteSet") + " : " + fmtOpt(sess.voteSec, 20));
+      out.push(t("matchSettingsTitle") + " : " + regl.join(" · "));
+    }
+    out.push("");
+    setlist.forEach(function (seg, i) {
+      var head = segIndexLabel(seg, i);
+      var dur = seg.durationSec ? S.formatSec(seg.durationSec) : "";
+      if (seg.type === "warmup" || seg.type === "exercise") {
+        out.push(head + " — " + (S.gen.segTitle(seg) || t("valueNone")) + (dur ? "  (" + dur + ")" : ""));
+        var wt = (seg.type === "warmup" && seg.warmup && seg.warmup.wtype) || "";
+        if (wt) out.push("   [" + wt + "]");
+        var d = S.gen.segSubtitle(seg);
+        if (d) out.push(wrapText(d, 76, "   "));
+      } else {
+        var fields = Kx.improFields || ["category", "theme", "players", "duration"], parts = [];
+        parts.push(t("fieldCategory") + " : " + (seg.freeCategory ? t("freeCategory") : (seg.category ? seg.category.name : t("valueNone"))));
+        if (fields.indexOf("theme") >= 0)   parts.push(t("fieldTheme") + " : " + (seg.theme || t("valueNone")));
+        if (fields.indexOf("players") >= 0) parts.push(t("fieldPlayers") + " : " + (seg.players || t("valueNone")));
+        if (dur) parts.push(t("fieldDuration") + " : " + dur);
+        if (Kx.hasNature && seg.nature) parts.push(t("fieldNature") + " : " + (seg.nature === "comparee" ? nat.comparee : nat.mixte));
+        out.push(head);
+        out.push(wrapText(parts.join(" · "), 76, "   "));
+      }
+      out.push("");
+    });
+    out.push("—");
+    out.push(t("exportGenerated") + " · https://acto-theimprostudio.com");
+    return out.join("\n");
+  }
+  function openExportDialog(sess) {
+    if (!sess) return;
+    var text = buildExportText(sess);
+    var fname = slugFile(titleOrDefault(sess.title, sess.createdAt));
+    var dlg = document.createElement("dialog");
+    dlg.className = "suite-dialog suite-export-dialog";
+    dlg.innerHTML = '<div class="suite-dialog-body">' +
+      '<h2 class="suite-dialog-title">📄 ' + esc(t("exportTitle")) + '</h2>' +
+      '<textarea class="suite-input suite-export-text" readonly rows="12" aria-label="' + esc(t("exportTitle")) + '"></textarea>' +
+      '<div class="suite-dialog-actions">' +
+        '<button type="button" class="suite-btn suite-btn-ghost" data-r="copy">📋 ' + esc(t("exportCopy")) + '</button>' +
+        (navigator.share ? '<button type="button" class="suite-btn suite-btn-ghost" data-r="share">📤 ' + esc(t("exportShare")) + '</button>' : '') +
+        '<button type="button" class="suite-btn suite-btn-primary" data-r="download">⬇️ ' + esc(t("exportDownload")) + '</button>' +
+      '</div>' +
+      '<div class="suite-dialog-actions"><button type="button" class="suite-btn suite-btn-ghost" data-r="close">' + esc(t("commonClose")) + '</button></div>' +
+    '</div>';
+    document.body.appendChild(dlg);
+    var ta = dlg.querySelector("textarea"); ta.value = text;
+    function close() { try { if (dlg.open) dlg.close(); } catch (e) { /* ignore */ } dlg.remove(); }
+    dlg.querySelector('[data-r="close"]').onclick = close;
+    dlg.querySelector('[data-r="copy"]').onclick = function () {
+      var ok = function () { toast(t("exportCopied")); };
+      var ko = function () {
+        // repli : sélection + execCommand (WebView ancien, page non sécurisée)
+        try { ta.focus(); ta.select(); if (document.execCommand && document.execCommand("copy")) { ok(); return; } } catch (e) { /* ignore */ }
+        toast(t("exportCopyFail")); try { ta.focus(); ta.select(); } catch (e) { /* ignore */ }
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, ko); else ko();
+    };
+    var sh = dlg.querySelector('[data-r="share"]');
+    if (sh) sh.onclick = function () {
+      try { navigator.share({ title: titleOrDefault(sess.title, sess.createdAt), text: text }).catch(function () { /* annulé */ }); } catch (e) { /* ignore */ }
+    };
+    dlg.querySelector('[data-r="download"]').onclick = function () {
+      try {
+        var blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url; a.download = fname;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { try { URL.revokeObjectURL(url); } catch (e) { /* ignore */ } }, 1500);
+      } catch (e) { toast(t("exportCopyFail")); }
+    };
+    dlg.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); close(); } });
+    if (typeof dlg.showModal === "function") { try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } } else dlg.setAttribute("open", "");
+  }
+
   function openSaveDialog() {
     // Already named (in the prep form)? Save straight away. Otherwise ask.
     if (current.title && current.title.trim()) {
@@ -933,6 +1089,7 @@
         if (s) { current = s; navigate(homeRoute() + "/edit"); }
       };
       row.querySelector('[data-act="dup"]').onclick = function () { S.sessions.duplicate(id); renderList(); };
+      row.querySelector('[data-act="txt"]').onclick = function () { var s = null; try { s = S.sessions.get(id); } catch (e) {} if (s) openExportDialog(s); };
       row.querySelector('[data-act="del"]').onclick = function () {
         // Lire le pointeur miroir AVANT de supprimer la copie locale : sans ça
         // la ligne serveur survivait, le match réapparaissait sous « Sur mon
@@ -992,7 +1149,7 @@
         '<div class="suite-list">' + rows.map(function (x) {
           var maj = x.updated_at ? new Date(x.updated_at).toLocaleDateString(S.locale()) : "";
           return '<div class="suite-list-item suite-cloud-item" data-cid="' + esc(x.id) + '">' +
-            '<div class="suite-list-main"><span class="suite-list-title">' + esc(x.title || "—") + '</span>' +
+            '<div class="suite-list-main"><span class="suite-list-title">' + esc(titleOrDefault(x.title, x.updated_at)) + '</span>' +
             '<span class="suite-list-meta">' + esc(tf("listUpdated", { date: maj })) +
               ' · ' + esc(tf("listMetaCount", { n: x.nb_impros || 0 })) + '</span></div>' +
             '<div class="suite-list-actions"><button class="suite-btn suite-btn-mini" data-act="pull">' +
@@ -1037,7 +1194,7 @@
         '<div class="suite-list">' + rows.map(function (x) {
           var roleLbl = x.role === "viewer" ? t("collabRoleViewer") : t("collabRoleEditor");
           return '<div class="suite-list-item suite-shared-item" data-sid="' + esc(x.id) + '">' +
-            '<div class="suite-list-main"><span class="suite-list-title">' + esc(x.title || "—") + '</span>' +
+            '<div class="suite-list-main"><span class="suite-list-title">' + esc(titleOrDefault(x.title, x.updated_at)) + '</span>' +
             '<span class="suite-list-meta">' + esc(tf("sharedBy", { name: x.owner_name || "Acto" })) + ' · ' + esc(roleLbl) + '</span></div>' +
             '<div class="suite-list-actions"><button class="suite-btn suite-btn-mini" data-act="open">' + esc(t("listOpen")) + '</button></div></div>';
         }).join("") + '</div>';
@@ -1058,13 +1215,14 @@
       esc(mirrored ? "☁️ " + t("cloudSaved") : "📵 " + t("cloudLocalOnly")) + '</span>';
     return '<div class="suite-list-item" data-id="' + esc(e.id) + '">' +
       '<div class="suite-list-main">' +
-        '<span class="suite-list-title">' + esc(e.title || "—") + (e.matchDate ? ' <span class="suite-list-date">📅 ' + esc(fmtMatchDate(e.matchDate)) + '</span>' : '') + '</span>' +
+        '<span class="suite-list-title">' + esc(titleOrDefault(e.title, e.updatedAt)) + (e.matchDate ? ' <span class="suite-list-date">📅 ' + esc(fmtMatchDate(e.matchDate)) + '</span>' : '') + '</span>' +
         '<span class="suite-list-meta">' + esc(tf("listUpdated", { date: updated })) + ' · ' + esc(countLabel) + tag + '</span>' +
       '</div>' +
       '<div class="suite-list-actions">' +
         '<button class="suite-btn suite-btn-mini" data-act="open">' + esc(t("listOpen")) + '</button>' +
         (signed && !mirrored ? '<button class="suite-btn suite-btn-mini suite-btn-ghost" data-act="push">☁️ ' + esc(t("cloudPush")) + '</button>' : '') +
         '<button class="suite-btn suite-btn-mini suite-btn-ghost" data-act="dup">' + esc(t("listDuplicate")) + '</button>' +
+        '<button class="suite-btn suite-btn-mini suite-btn-ghost" data-act="txt">📄 ' + esc(t("exportBtnShort")) + '</button>' +
         '<button class="suite-btn suite-btn-mini suite-btn-danger" data-act="del">' + esc(t("listDelete")) + '</button>' +
       '</div>' +
     '</div>';

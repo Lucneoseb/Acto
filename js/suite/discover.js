@@ -6,7 +6,8 @@
  * bundled débutant exercises) that launch a timer-only run — no scores, no
  * teams. Reuses the suite design system + i18n.
  *
- * Route: #/discover (single page).
+ * Routes: #/discover (page) et #/discover/regles (article long « Le match
+ * d'impro : règles, déroulement, arbitrage », contenu dans rules-content.js).
  */
 (function () {
   "use strict";
@@ -47,7 +48,7 @@
      ============================================================ */
   function mount(container, sub, nav) {
     root = container; navigate = nav || navigate;
-    render();
+    if (sub === "regles" || sub === "rules") renderRules(); else render();
   }
 
   function contentCard(icon, title, body) {
@@ -86,6 +87,14 @@
         '<h1 class="suite-h1">✨ ' + esc(t("sectionDiscoverTitle")) + '</h1>' +
         '<button class="suite-btn suite-btn-mini suite-btn-ghost" data-act="rules">📜 ' + esc(t("discoverRulesBtn")) + '</button>' +
       '</div>' +
+      // Le match d'impro : la section demandée en tête de page, avec ses cinq
+      // règles essentielles et un « En savoir plus » vers l'article complet.
+      '<section class="suite-discover-feature" aria-labelledby="discoverMatchH">' +
+        '<div class="suite-discover-h" id="discoverMatchH"><span aria-hidden="true">🏆</span>' + esc(t("discoverMatchTitle")) + '</div>' +
+        '<p class="suite-discover-body">' + esc(t("discoverMatchTeaser")) + '</p>' +
+        '<ul>' + String(t("discoverMatchPoints") || "").split("\n").filter(Boolean).map(function (l) { return '<li>' + esc(l) + '</li>'; }).join("") + '</ul>' +
+        '<button class="suite-btn suite-btn-primary" data-act="match-rules" type="button">' + esc(t("sectionMoreInfo")) + ' →</button>' +
+      '</section>' +
       '<div class="suite-discover-grid">' +
         contentCard("🎭", t("discoverIntroTitle"), t("discoverIntroBody")) +
         contentCard("🛠️", t("discoverSetupTitle"), t("discoverSetupBody")) +
@@ -102,8 +111,12 @@
         '<div class="suite-exo-list">' + exCards + '</div>' +
       '</div>';
 
+    // Le bouton « Règles » de l'en-tête et le « En savoir plus » de la section
+    // mènent tous deux à l'article — l'ancien résumé en popup était trop court.
     var rulesBtn = root.querySelector('[data-act="rules"]');
-    if (rulesBtn) rulesBtn.onclick = function () { infoPopup(t("discoverRulesTitle"), t("discoverRulesBody")); };
+    if (rulesBtn) rulesBtn.onclick = function () { navigate("#/discover/regles"); };
+    var matchBtn = root.querySelector('[data-act="match-rules"]');
+    if (matchBtn) matchBtn.onclick = function () { navigate("#/discover/regles"); };
     var conceptsBtn = root.querySelector('[data-act="concepts"]');
     if (conceptsBtn) conceptsBtn.onclick = function () { infoPopup(t("discoverConceptsTitle"), t("discoverConceptsBody")); };
     root.querySelectorAll('[data-act="launch-exo"]').forEach(function (b) {
@@ -112,6 +125,61 @@
         if (e) openChrono(e);
       };
     });
+  }
+
+  /* ============================================================
+     ARTICLE : le match d'impro (règles, déroulement, arbitrage)
+     Contenu dans rules-content.js (fr, en) ; les autres langues reçoivent
+     l'anglais, avec un bandeau qui le dit.
+     ============================================================ */
+  function renderRules() {
+    var loc = S.locale(), C = window.ActoRulesContent || {};
+    var art = C[loc] || C.en || C.fr;
+    if (!art) { render(); return; }
+    var note = (art !== C[loc]) ? '<p class="suite-article-note">' + esc(t("rulesLangNote")) + '</p>' : "";
+    function blocks(bs) {
+      return (bs || []).map(function (b) {
+        if (b.p)  return '<p>' + esc(b.p) + '</p>';
+        if (b.h3) return '<h3>' + esc(b.h3) + '</h3>';
+        if (b.ul) return '<ul>' + b.ul.map(function (li) { return '<li>' + esc(li) + '</li>'; }).join("") + '</ul>';
+        if (b.dl) return '<dl>' + b.dl.map(function (d) { return '<dt>' + esc(d[0]) + '</dt><dd>' + esc(d[1]) + '</dd>'; }).join("") + '</dl>';
+        return "";
+      }).join("");
+    }
+    root.innerHTML =
+      '<div class="suite-section-head">' +
+        '<button class="suite-back" data-act="back">← ' + esc(t("sectionDiscoverTitle")) + '</button>' +
+        '<h1 class="suite-h1">🏆 ' + esc(art.title) + '</h1>' +
+      '</div>' +
+      '<article class="suite-article">' +
+        note +
+        '<p class="suite-article-intro">' + esc(art.intro) + '</p>' +
+        '<nav class="suite-article-toc" aria-label="' + esc(t("rulesToc")) + '"><div class="suite-article-toc-h">' + esc(t("rulesToc")) + '</div><ol>' +
+          art.sections.map(function (s) { return '<li><a href="#" data-sec="' + esc(s.id) + '">' + esc(s.h) + '</a></li>'; }).join("") +
+        '</ol></nav>' +
+        art.sections.map(function (s) {
+          return '<section class="suite-article-sec" id="regles-' + esc(s.id) + '"><h2 class="suite-h2">' + esc(s.h) + '</h2>' + blocks(s.blocks) + '</section>';
+        }).join("") +
+        '<div class="suite-article-foot">' +
+          '<button class="suite-btn suite-btn-primary" data-act="go-match" type="button">🏆 ' + esc(t("sectionMatchTitle")) + '</button>' +
+          '<button class="suite-btn suite-btn-ghost" data-act="back" type="button">← ' + esc(t("sectionDiscoverTitle")) + '</button>' +
+        '</div>' +
+      '</article>';
+    root.querySelectorAll('[data-act="back"]').forEach(function (b) { b.onclick = function () { navigate("#/discover"); }; });
+    var gm = root.querySelector('[data-act="go-match"]');
+    if (gm) gm.onclick = function () { navigate("#/match"); };
+    // Sommaire : défilement sans toucher au hash (le routeur le lirait)
+    root.querySelectorAll("[data-sec]").forEach(function (a) {
+      a.onclick = function (e) {
+        e.preventDefault();
+        var el = document.getElementById("regles-" + a.getAttribute("data-sec"));
+        if (!el) return;
+        el.setAttribute("tabindex", "-1");
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        try { el.focus({ preventScroll: true }); } catch (err) { /* ignore */ }
+      };
+    });
+    try { window.scrollTo(0, 0); } catch (e) { /* ignore */ }
   }
 
   /* ============================================================

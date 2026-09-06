@@ -397,7 +397,24 @@
     skipToContent: "Aller au contenu",
     a11yScoreMinus: "Retirer un point",
     a11yScorePlus: "Ajouter un point",
-    a11yFullscreen: "Plein écran"
+    a11yFullscreen: "Plein écran",
+    prepTrainName: "Nom du coaching",
+    prepTrainDate: "Date du coaching",
+    renameTitle: "Renommer",
+    exportBtn: "Exporter en texte",
+    exportBtnShort: "Texte",
+    exportTitle: "Export texte",
+    exportCopy: "Copier",
+    exportShare: "Partager",
+    exportDownload: "Télécharger (.txt)",
+    exportCopied: "Texte copié ✓",
+    exportCopyFail: "Copie impossible : sélectionne le texte et copie-le",
+    exportGenerated: "Généré avec Acto — The Impro Studio",
+    discoverMatchTitle: "Le match d'impro : règles et déroulement",
+    discoverMatchTeaser: "Deux équipes, un arbitre, un public qui vote. Le format le plus connu de l'impro théâtrale, né à Montréal en 1977.",
+    discoverMatchPoints: "L'arbitre tire une carte : thème, catégorie, nature (mixte ou comparée), nombre de joueurs, durée.\nCaucus de 20 à 30 secondes, coup de sifflet : l'impro commence.\nAu coup de sifflet final, le public vote avec ses cartons : un point à l'équipe préférée.\nL'arbitre sanctionne les fautes — obstruction, cabotinage, cliché… — et trois fautes donnent un point à l'adversaire.\nDeux ou trois périodes, des étoiles à la fin, et une pantoufle pour l'arbitre si le public n'est pas d'accord.",
+    rulesLangNote: "Cet article existe en français et en anglais.",
+    rulesToc: "Sommaire"
   };
 
   var EN = {
@@ -769,7 +786,24 @@
     skipToContent: "Skip to content",
     a11yScoreMinus: "Remove one point",
     a11yScorePlus: "Add one point",
-    a11yFullscreen: "Full screen"
+    a11yFullscreen: "Full screen",
+    prepTrainName: "Coaching name",
+    prepTrainDate: "Coaching date",
+    renameTitle: "Rename",
+    exportBtn: "Export as text",
+    exportBtnShort: "Text",
+    exportTitle: "Text export",
+    exportCopy: "Copy",
+    exportShare: "Share",
+    exportDownload: "Download (.txt)",
+    exportCopied: "Text copied ✓",
+    exportCopyFail: "Couldn't copy: select the text and copy it",
+    exportGenerated: "Generated with Acto — The Impro Studio",
+    discoverMatchTitle: "The impro match: rules and flow",
+    discoverMatchTeaser: "Two teams, a referee, an audience that votes. The best-known format of theatrical impro, born in Montréal in 1977.",
+    discoverMatchPoints: "The referee draws a card: theme, category, nature (mixed or compared), number of players, duration.\nA 20–30 second huddle, a whistle: the impro begins.\nAt the final whistle the audience votes with its cards: one point to the preferred team.\nThe referee calls fouls — obstruction, showboating, cliché… — and three fouls give a point to the opponent.\nTwo or three periods, stars at the end, and a slipper for the referee if the audience disagrees.",
+    rulesLangNote: "This article is available in French and English.",
+    rulesToc: "Contents"
   };
 
 
@@ -1200,7 +1234,24 @@
     skipToContent: "Zum Inhalt springen",
     a11yScoreMinus: "Einen Punkt abziehen",
     a11yScorePlus: "Einen Punkt hinzufügen",
-    a11yFullscreen: "Vollbild"
+    a11yFullscreen: "Vollbild",
+    prepTrainName: "Name des Coachings",
+    prepTrainDate: "Datum des Coachings",
+    renameTitle: "Umbenennen",
+    exportBtn: "Als Text exportieren",
+    exportBtnShort: "Text",
+    exportTitle: "Textexport",
+    exportCopy: "Kopieren",
+    exportShare: "Teilen",
+    exportDownload: "Herunterladen (.txt)",
+    exportCopied: "Text kopiert ✓",
+    exportCopyFail: "Kopieren nicht möglich: Text markieren und kopieren",
+    exportGenerated: "Erstellt mit Acto — The Impro Studio",
+    discoverMatchTitle: "Das Impro-Match: Regeln und Ablauf",
+    discoverMatchTeaser: "Zwei Teams, ein Schiedsrichter, ein Publikum, das abstimmt. Das bekannteste Format des Improtheaters, 1977 in Montréal entstanden.",
+    discoverMatchPoints: "Der Schiedsrichter zieht eine Karte: Thema, Kategorie, Art (gemischt oder verglichen), Spielerzahl, Dauer.\n20 bis 30 Sekunden Beratung, Pfiff: die Impro beginnt.\nBeim Schlusspfiff stimmt das Publikum mit Karten ab: ein Punkt für das bevorzugte Team.\nDer Schiedsrichter ahndet Fouls — Blockieren, Effekthascherei, Klischee … — und drei Fouls geben dem Gegner einen Punkt.\nZwei oder drei Drittel, Sterne am Ende, und ein Pantoffel für den Schiedsrichter, wenn das Publikum nicht einverstanden ist.",
+    rulesLangNote: "Dieser Artikel liegt auf Französisch und Englisch vor; hier die englische Fassung.",
+    rulesToc: "Inhalt"
   };
 
   var ES = {
@@ -1630,7 +1681,24 @@
     skipToContent: "Ir al contenido",
     a11yScoreMinus: "Quitar un punto",
     a11yScorePlus: "Añadir un punto",
-    a11yFullscreen: "Pantalla completa"
+    a11yFullscreen: "Pantalla completa",
+    prepTrainName: "Nombre del coaching",
+    prepTrainDate: "Fecha del coaching",
+    renameTitle: "Renombrar",
+    exportBtn: "Exportar como texto",
+    exportBtnShort: "Texto",
+    exportTitle: "Exportación de texto",
+    exportCopy: "Copiar",
+    exportShare: "Compartir",
+    exportDownload: "Descargar (.txt)",
+    exportCopied: "Texto copiado ✓",
+    exportCopyFail: "No se pudo copiar: selecciona el texto y cópialo",
+    exportGenerated: "Generado con Acto — The Impro Studio",
+    discoverMatchTitle: "El match de impro: reglas y desarrollo",
+    discoverMatchTeaser: "Dos equipos, un árbitro, un público que vota. El formato más conocido de la impro teatral, nacido en Montreal en 1977.",
+    discoverMatchPoints: "El árbitro saca una carta: tema, categoría, naturaleza (mixta o comparada), número de jugadores, duración.\nCaucus de 20 a 30 segundos, silbato: empieza la impro.\nAl silbato final, el público vota con sus cartones: un punto para el equipo preferido.\nEl árbitro sanciona las faltas — obstrucción, cabotinaje, cliché… — y tres faltas dan un punto al adversario.\nDos o tres periodos, estrellas al final, y una pantufla para el árbitro si el público no está de acuerdo.",
+    rulesLangNote: "Este artículo existe en francés y en inglés; aquí la versión inglesa.",
+    rulesToc: "Índice"
   };
 
   var PT = {
@@ -2060,7 +2128,24 @@
     skipToContent: "Ir para o conteúdo",
     a11yScoreMinus: "Retirar um ponto",
     a11yScorePlus: "Adicionar um ponto",
-    a11yFullscreen: "Ecrã inteiro"
+    a11yFullscreen: "Ecrã inteiro",
+    prepTrainName: "Nome do coaching",
+    prepTrainDate: "Data do coaching",
+    renameTitle: "Renomear",
+    exportBtn: "Exportar em texto",
+    exportBtnShort: "Texto",
+    exportTitle: "Exportação em texto",
+    exportCopy: "Copiar",
+    exportShare: "Partilhar",
+    exportDownload: "Transferir (.txt)",
+    exportCopied: "Texto copiado ✓",
+    exportCopyFail: "Não foi possível copiar: seleciona o texto e copia-o",
+    exportGenerated: "Gerado com Acto — The Impro Studio",
+    discoverMatchTitle: "O match de impro: regras e desenrolar",
+    discoverMatchTeaser: "Duas equipas, um árbitro, um público que vota. O formato mais conhecido da impro teatral, nascido em Montreal em 1977.",
+    discoverMatchPoints: "O árbitro tira uma carta: tema, categoria, natureza (mista ou comparada), número de jogadores, duração.\nCaucus de 20 a 30 segundos, apito: começa a impro.\nAo apito final, o público vota com os cartões: um ponto para a equipa preferida.\nO árbitro sanciona as faltas — obstrução, cabotinagem, cliché… — e três faltas dão um ponto ao adversário.\nDois ou três períodos, estrelas no fim, e uma pantufa para o árbitro se o público não concordar.",
+    rulesLangNote: "Este artigo existe em francês e em inglês; eis a versão inglesa.",
+    rulesToc: "Índice"
   };
 
   var NL = {
@@ -2490,7 +2575,24 @@
     skipToContent: "Naar de inhoud",
     a11yScoreMinus: "Een punt aftrekken",
     a11yScorePlus: "Een punt toevoegen",
-    a11yFullscreen: "Volledig scherm"
+    a11yFullscreen: "Volledig scherm",
+    prepTrainName: "Naam van de coaching",
+    prepTrainDate: "Datum van de coaching",
+    renameTitle: "Hernoemen",
+    exportBtn: "Als tekst exporteren",
+    exportBtnShort: "Tekst",
+    exportTitle: "Tekstexport",
+    exportCopy: "Kopiëren",
+    exportShare: "Delen",
+    exportDownload: "Downloaden (.txt)",
+    exportCopied: "Tekst gekopieerd ✓",
+    exportCopyFail: "Kopiëren mislukt: selecteer de tekst en kopieer die",
+    exportGenerated: "Gemaakt met Acto — The Impro Studio",
+    discoverMatchTitle: "De impro-match: regels en verloop",
+    discoverMatchTeaser: "Twee teams, een scheidsrechter, een publiek dat stemt. Het bekendste format van theaterimprovisatie, ontstaan in Montréal in 1977.",
+    discoverMatchPoints: "De scheidsrechter trekt een kaart: thema, categorie, aard (gemengd of vergeleken), aantal spelers, duur.\nEen caucus van 20 tot 30 seconden, een fluitsignaal: de impro begint.\nBij het eindsignaal stemt het publiek met kaarten: een punt voor het favoriete team.\nDe scheidsrechter bestraft fouten — obstructie, cabotinage, cliché … — en drie fouten geven de tegenstander een punt.\nTwee of drie periodes, sterren op het einde, en een pantoffel voor de scheidsrechter als het publiek het er niet mee eens is.",
+    rulesLangNote: "Dit artikel bestaat in het Frans en het Engels; hier de Engelse versie.",
+    rulesToc: "Inhoud"
   };
 
   var IT = {
@@ -2920,7 +3022,24 @@
     skipToContent: "Vai al contenuto",
     a11yScoreMinus: "Togli un punto",
     a11yScorePlus: "Aggiungi un punto",
-    a11yFullscreen: "Schermo intero"
+    a11yFullscreen: "Schermo intero",
+    prepTrainName: "Nome del coaching",
+    prepTrainDate: "Data del coaching",
+    renameTitle: "Rinomina",
+    exportBtn: "Esporta come testo",
+    exportBtnShort: "Testo",
+    exportTitle: "Esportazione testo",
+    exportCopy: "Copia",
+    exportShare: "Condividi",
+    exportDownload: "Scarica (.txt)",
+    exportCopied: "Testo copiato ✓",
+    exportCopyFail: "Copia non riuscita: seleziona il testo e copialo",
+    exportGenerated: "Generato con Acto — The Impro Studio",
+    discoverMatchTitle: "Il match di impro: regole e svolgimento",
+    discoverMatchTeaser: "Due squadre, un arbitro, un pubblico che vota. Il formato più noto dell'impro teatrale, nato a Montréal nel 1977.",
+    discoverMatchPoints: "L'arbitro pesca una carta: tema, categoria, natura (mista o comparata), numero di giocatori, durata.\nCaucus di 20–30 secondi, fischio: l'impro comincia.\nAl fischio finale il pubblico vota con i cartoncini: un punto alla squadra preferita.\nL'arbitro sanziona i falli — ostruzione, gigioneria, cliché… — e tre falli danno un punto all'avversario.\nDue o tre tempi, le stelle alla fine, e una pantofola per l'arbitro se il pubblico non è d'accordo.",
+    rulesLangNote: "Questo articolo esiste in francese e in inglese; ecco la versione inglese.",
+    rulesToc: "Indice"
   };
 
   // de/es/pt/nl/it are filled to match the 7-locale set. Until translated

@@ -31,6 +31,10 @@ stats, impro event log, and an admin dashboard all run on **Supabase**
 ├── CLAUDE.md              — this file
 ├── supabase-setup-all.sql — single idempotent SQL setup (the only one in use)
 ├── build-data.js          — Node script that regenerates data/all.js
+├── verify.js              — `node verify.js` avant chaque push : i18n, ?v=, SRI, routes, PWA, syntaxe
+├── sw.js                  — service worker « réseau d'abord » (hors ligne) ; procédure de désactivation en tête de fichier
+├── manifest.webmanifest   — PWA installable (icônes carrées dans assets/icon-*.png, générées depuis logo.png)
+├── vendor/                — Supabase SDK + qrcode-generator auto-hébergés (SRI dans chaque page)
 ├── assets/
 │   └── logo.png           — hero logo (also used as favicon today)
 ├── data/
@@ -126,3 +130,17 @@ The `mcp__Claude_in_Chrome__*` tools are available. Standard loop:
   script and the CSP `script-src` is `'self'` only. To upgrade the SDK:
   download the UMD build, compute `sha384` (base64), replace the file AND the
   `integrity` attribute in every page, keep the pin identical everywhere.
+
+
+## Avant de pousser
+
+```bash
+node verify.js
+```
+
+Quinze contrôles sans navigateur : parité des clés i18n (7 langues, i18n.js et
+ui.json), clés appelées sans traduction, `data/all.js` régénéré, un seul `?v=`
+sur toutes les pages, SRI des scripts vendorisés conforme au fichier, routes du
+Studio présentes dans `_redirects`/`_headers`/`sw.js`, manifeste et icônes,
+syntaxe de tous les scripts (admin inline compris). Code de sortie 1 en cas
+d'échec.

@@ -1,0 +1,17 @@
+{
+  "name": "Acto — The Impro Studio",
+  "short_name": "Acto",
+  "description": "Le studio d'impro : matchs, spectacles, coachings, échauffements et exercices.",
+  "lang": "fr",
+  "start_url": "/studio",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0c0814",
+  "theme_color": "#0c0814",
+  "icons": [
+    { "src": "/assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/assets/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/assets/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

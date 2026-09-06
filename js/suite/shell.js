@@ -263,6 +263,12 @@
     if (!a || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button) return;
     ev.preventDefault(); navigate(a.getAttribute("data-nav"));
   });
+  // Hors ligne (sw.js) : les échauffements ne sont chargés qu'à la demande,
+  // donc absents du cache tant qu'aucun coaching n'a été généré en ligne. On
+  // les préchauffe une fois la page posée ; le worker les garde.
+  setTimeout(function () {
+    try { if (S.gen && typeof S.gen.ensureWarmups === "function") Promise.resolve(S.gen.ensureWarmups()).catch(function () { /* hors ligne : tant pis */ }); } catch (e) { /* ignore */ }
+  }, 4000);
   window.addEventListener("popstate", render);
   // Un #/… tapé ou reçu : on le convertit en chemin propre plutôt que de le laisser.
   // Seuls les hash de route (#/…) sont convertis ; une ancre de page (#suiteMain,

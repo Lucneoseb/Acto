@@ -37,6 +37,46 @@
   window.actoConfig = CONFIG;
 
   /* ------------------------------------------------------------------
+     HORS LIGNE : service worker « réseau d'abord » (voir sw.js).
+     Inscrit après le chargement complet pour ne pas concurrencer les
+     ressources de la page. En ligne, il ne change rien à ce qui est servi ;
+     hors ligne, une page déjà visitée s'ouvre quand même (les coachings et
+     matchs préparés sont dans localStorage). ------------------------------- */
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("/sw.js").catch(function (e) { console.warn("[sw] inscription refusée", e && e.message); });
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     FILET : une erreur JS non rattrapée laisse souvent une page à moitié
+     rendue, sans rien à cliquer. On affiche une fois, discrètement, de quoi
+     recharger. Uniquement pour nos propres scripts (même origine) : une
+     extension de navigateur qui plante ne doit pas alarmer l'utilisateur. */
+  var actoErrShown = false;
+  window.addEventListener("error", function (ev) {
+    if (actoErrShown) return;
+    var src = ev && ev.filename ? String(ev.filename) : "";
+    if (!src || src.indexOf(location.origin) !== 0) return;
+    if (!ev.error && !ev.message) return;
+    actoErrShown = true;
+    var fr = (document.documentElement.lang || "fr").slice(0, 2) === "fr";
+    var d = document.createElement("div");
+    d.setAttribute("role", "alert");
+    d.style.cssText = "position:fixed;left:50%;bottom:calc(1rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:99998;" +
+      "display:flex;gap:.6rem;align-items:center;max-width:calc(100vw - 2rem);padding:.6rem .9rem;border-radius:12px;" +
+      "background:#2a0e2c;color:#f5f0ea;border:1px solid rgba(245,196,81,.5);box-shadow:0 8px 30px rgba(0,0,0,.5);" +
+      "font:500 .9rem/1.3 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;";
+    d.innerHTML = '<span>' + (fr ? "Un problème est survenu sur cette page." : "Something went wrong on this page.") + '</span>' +
+      '<button type="button" style="min-height:40px;padding:.4rem .8rem;border-radius:9px;border:1px solid rgba(245,196,81,.5);background:rgba(245,196,81,.14);color:#f5c451;font:600 .9rem/1 inherit;cursor:pointer;white-space:nowrap">' + (fr ? "Recharger" : "Reload") + '</button>' +
+      '<button type="button" aria-label="' + (fr ? "Fermer" : "Close") + '" style="min-height:40px;min-width:40px;border:none;background:none;color:#f5f0ea;font-size:1.1rem;cursor:pointer">✕</button>';
+    var btns = d.querySelectorAll("button");
+    btns[0].onclick = function () { location.reload(); };
+    btns[1].onclick = function () { d.remove(); };
+    (document.body || document.documentElement).appendChild(d);
+  });
+
+  /* ------------------------------------------------------------------
      FILET : le SDK Supabase vient d'un CDN, et un CDN, ça tombe.
 
      Mesuré : avec cdn.jsdelivr.net injoignable, /login rendait 0 caractère

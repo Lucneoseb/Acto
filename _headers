@@ -57,3 +57,10 @@
   Cache-Control: public, no-cache
 /collab/*
   Cache-Control: public, no-cache
+
+# Le service worker et le manifeste doivent être revalidés à chaque visite :
+# un sw.js mis en cache longtemps, c'est une mise à jour qui n'arrive jamais.
+/sw.js
+  Cache-Control: public, no-cache
+/manifest.webmanifest
+  Cache-Control: public, no-cache
