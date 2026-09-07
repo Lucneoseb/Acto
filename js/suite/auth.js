@@ -38,6 +38,18 @@
       reveal();
       // Build the top-corner account menu now that we know who's logged in.
       try { if (window.ActoAccount) window.ActoAccount.init(); } catch (e) { /* ignore */ }
+      // Invitations reçues par e-mail avant d'avoir (ou pendant qu'on avait
+      // déjà) un compte : seul le trigger d'inscription les transformait en
+      // accès, donc un compte existant ne voyait jamais le partage. On réclame
+      // les siennes à chaque ouverture — silencieux, et sans jamais bloquer.
+      try {
+        Promise.resolve(sb.rpc("claim_my_pending_collaborations")).then(function (r) {
+          if (r && !r.error && r.data > 0) {
+            window.actoClaimed = r.data;
+            try { window.dispatchEvent(new CustomEvent("acto:collab-claimed", { detail: { n: r.data } })); } catch (e) { /* ignore */ }
+          }
+        }, function () { /* migration pas encore passée : sans effet */ });
+      } catch (e) { /* ignore */ }
     } else {
       go(loginUrl());
     }

@@ -421,7 +421,8 @@
     collabInviteRole: "Accès accordé",
     collabAdded: "{name} ajouté ✓",
     collabInvited: "Invitation envoyée à {name} ✓",
-    collabPendingLong: "invitation en attente"
+    collabPendingLong: "invitation en attente",
+    collabClaimed: "{n} partage(s) reçu(s) ✓"
   };
 
   var EN = {
@@ -817,7 +818,8 @@
     collabInviteRole: "Access granted",
     collabAdded: "{name} added ✓",
     collabInvited: "Invitation sent to {name} ✓",
-    collabPendingLong: "invitation pending"
+    collabPendingLong: "invitation pending",
+    collabClaimed: "{n} shared item(s) received ✓"
   };
 
 
@@ -1272,7 +1274,8 @@
     collabInviteRole: "Gewährter Zugriff",
     collabAdded: "{name} hinzugefügt ✓",
     collabInvited: "Einladung an {name} gesendet ✓",
-    collabPendingLong: "Einladung ausstehend"
+    collabPendingLong: "Einladung ausstehend",
+    collabClaimed: "{n} Freigabe(n) erhalten ✓"
   };
 
   var ES = {
@@ -1726,7 +1729,8 @@
     collabInviteRole: "Acceso concedido",
     collabAdded: "{name} añadido ✓",
     collabInvited: "Invitación enviada a {name} ✓",
-    collabPendingLong: "invitación pendiente"
+    collabPendingLong: "invitación pendiente",
+    collabClaimed: "{n} elemento(s) compartido(s) recibido(s) ✓"
   };
 
   var PT = {
@@ -2180,7 +2184,8 @@
     collabInviteRole: "Acesso concedido",
     collabAdded: "{name} adicionado ✓",
     collabInvited: "Convite enviado a {name} ✓",
-    collabPendingLong: "convite pendente"
+    collabPendingLong: "convite pendente",
+    collabClaimed: "{n} partilha(s) recebida(s) ✓"
   };
 
   var NL = {
@@ -2634,7 +2639,8 @@
     collabInviteRole: "Toegekende toegang",
     collabAdded: "{name} toegevoegd ✓",
     collabInvited: "Uitnodiging verstuurd naar {name} ✓",
-    collabPendingLong: "uitnodiging in afwachting"
+    collabPendingLong: "uitnodiging in afwachting",
+    collabClaimed: "{n} gedeeld(e) item(s) ontvangen ✓"
   };
 
   var IT = {
@@ -3088,7 +3094,8 @@
     collabInviteRole: "Accesso concesso",
     collabAdded: "{name} aggiunto ✓",
     collabInvited: "Invito inviato a {name} ✓",
-    collabPendingLong: "invito in sospeso"
+    collabPendingLong: "invito in sospeso",
+    collabClaimed: "{n} condivisione/i ricevuta/e ✓"
   };
 
   // de/es/pt/nl/it are filled to match the 7-locale set. Until translated

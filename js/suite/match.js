@@ -1117,6 +1117,16 @@
     renderSharedWithMe();
   }
 
+  /* La réclamation des invitations (js/suite/auth.js) répond quelques centaines
+     de millisecondes après le premier rendu : sans ça, un partage tout juste
+     rattaché n'apparaissait qu'au rechargement suivant. */
+  window.addEventListener("acto:collab-claimed", function (e) {
+    if (!root || !root.querySelector("#sharedWrap")) return;   // pas sur la page liste
+    renderSharedWithMe();
+    var n = (e && e.detail && e.detail.n) || 1;
+    toast(tf("collabClaimed", { n: n }));
+  });
+
   /* « Sur mon compte » — mes sessions présentes sur le serveur mais ABSENTES de
      cet appareil (nouveau téléphone, cache vidé, autre navigateur). Sans ça, le
      miroir d'écriture ne servirait à rien : l'utilisateur ne verrait rien.
