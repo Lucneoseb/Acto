@@ -1813,6 +1813,11 @@
   // The Collaborators modal (owner-facing): who's on it + add by nom de scène
   // (direct access) or by email (pending invite) + role + remove.
   function showCollaborators(id) {
+    // Un second clic sur « Collaborateurs » (ou un double-clic) empilait un
+    // deuxième dialogue par-dessus le premier : deux listes, deux jeux de
+    // menus, et l'impression que rien ne répond.
+    var deja = document.querySelector("dialog.suite-collab-dialog");
+    if (deja) { try { if (deja.open) deja.close(); } catch (e) { /* ignore */ } deja.remove(); }
     var dlg = document.createElement("dialog");
     dlg.className = "suite-dialog suite-collab-dialog";
     dlg.innerHTML =
@@ -1845,7 +1850,14 @@
 
     function refresh() {
       Promise.resolve(sbClient().rpc("list_collaborators", { p_res: id })).then(function (r) {
-        if (r && r.error) { listEl.innerHTML = '<p class="suite-sub">' + esc(t("collabError")) + '</p>'; return; }
+        if (r && r.error) {
+          // Le message brut plutôt qu'un « Ressource introuvable » générique :
+          // sans lui, une liste qui ne s'affiche pas ne dit pas pourquoi.
+          console.warn("[collab] list_collaborators", r.error);
+          listEl.innerHTML = '<p class="suite-sub">' + esc(t("collabError")) + '</p>' +
+            '<p class="suite-sub suite-collab-sub">' + esc(String((r.error && r.error.message) || r.error)) + '</p>';
+          return;
+        }
         var rows = (r && r.data) || [];
         var html = '<div class="suite-collab-row is-owner"><span class="suite-collab-nm">' + esc(collabMe()) + '</span><span class="suite-collab-owner">' + esc(t("collabRoleOwner")) + '</span></div>';
         if (!rows.length) html += '<p class="suite-sub suite-collab-empty">' + esc(t("collabNone")) + '</p>';
@@ -1907,7 +1919,7 @@
     dlg.querySelector('[data-r="addemail"]').onclick = function () {
       var em = dlg.querySelector('[data-r="email"]').value.trim();
       if (!em || em.indexOf("@") < 1) return;
-      Promise.resolve(sbClient().rpc("add_collaborator", { p_res: id, p_user_id: null, p_email: em, p_label: null, p_role: roleChoisi() }))
+      Promise.resolve(sbClient().rpc("add_collaborator", { p_res: id, p_user_id: null, p_email: em, p_label: em, p_role: roleChoisi() }))
         .then(function (r) {
           if (r && r.error) { toast(t("collabError")); return; }
           dlg.querySelector('[data-r="email"]').value = "";
