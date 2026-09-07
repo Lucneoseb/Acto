@@ -500,7 +500,11 @@
       var etat = (pct > 100) ? "is-over" : (pct >= 80 ? "is-ok" : "is-low");
       jauge =
         '<div class="suite-fill">' +
-          '<div class="suite-fill-bar"><span class="suite-fill-in ' + etat + '" style="width:' + Math.min(100, pct) + '%"></span></div>' +
+          // role="progressbar" : sans lui, un lecteur d'écran ne voit qu'une boîte
+          // vide. aria-valuetext porte la phrase déjà écrite sous la barre.
+          '<div class="suite-fill-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.min(100, pct) +
+            '" aria-valuetext="' + esc(tf("trainFillLabel", { pct: pct, used: S.formatLong(total), total: S.formatLong(cible) })) + '">' +
+            '<span class="suite-fill-in ' + etat + '" style="width:' + Math.min(100, pct) + '%"></span></div>' +
           '<div class="suite-fill-txt ' + etat + '">' + esc(tf("trainFillLabel", { pct: pct, used: S.formatLong(total), total: S.formatLong(cible) })) + '</div>' +
         '</div>';
     }

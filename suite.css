@@ -1396,3 +1396,13 @@
 .live-session-txt.is-over { color: #ff9a93; }
 @media (prefers-reduced-motion: reduce) { .live-session-bar > span { transition: none; } }
 
+/* ─── Plancher tactile des boutons de choix ────────────────────────────────────
+   Mesuré : .suite-seg-opt (« Temps non défini », « 1 h 30 », les niveaux) faisait
+   30 px de haut — sous le plancher de 44 px appliqué au reste du site. Même
+   statut que les autres correctifs tactiles : au doigt seulement, la souris
+   garde des contrôles compacts. */
+@media (pointer: coarse) {
+  .suite-seg-opt { min-height: 44px !important; }
+  .suite-addseg { min-height: 44px !important; }
+}
+

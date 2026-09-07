@@ -199,7 +199,10 @@
       var disp = ov.querySelector("#exoChrono");
       if (disp) { disp.textContent = fmt(remaining); disp.className = "live-chrono " + cls(); }
       var bar = ov.querySelector("#exoBar");
-      if (bar) bar.style.width = (total > 0 ? (100 * (total - remaining) / total) : 0) + "%";
+      var pct = total > 0 ? Math.round(100 * (total - remaining) / total) : 0;
+      if (bar) bar.style.width = pct + "%";
+      var barW = ov.querySelector("#exoBarWrap");
+      if (barW) { barW.setAttribute("aria-valuenow", String(pct)); barW.setAttribute("aria-valuetext", fmt(remaining)); }
       var prim = ov.querySelector('[data-act="prim"]');
       if (prim) prim.textContent = running ? t("livePause") : (remaining > 0 && remaining < total ? t("liveResume") : t("liveStart"));
     }
@@ -220,7 +223,8 @@
         '<div class="suite-exo-title">' + esc(exo.name) + '</div>' +
         (exo.desc ? '<p class="suite-exo-paneldesc">' + esc(exo.desc) + '</p>' : '') +
         '<div id="exoChrono" class="live-chrono ' + cls() + '">' + fmt(remaining) + '</div>' +
-        '<div class="live-bar"><span id="exoBar" style="width:0%"></span></div>' +
+        '<div class="live-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="exoBarWrap">' +
+          '<span id="exoBar" style="width:0%"></span></div>' +
         '<div class="live-timer-btns">' +
           '<button class="suite-btn suite-btn-primary live-prim" data-act="prim">' + esc(t("liveStart")) + '</button>' +
           '<button class="suite-btn suite-btn-ghost" data-act="reset">' + esc(t("liveReset")) + '</button>' +

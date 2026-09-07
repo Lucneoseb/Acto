@@ -855,7 +855,9 @@
       if (e.ecart > 0 && etat !== "is-over") etat = "is-late";
     }
     return '<div class="live-session" id="liveSession">' +
-      '<div class="live-session-bar"><span id="liveSessionIn" class="' + etat + '" style="width:' + Math.min(100, e.pct) + '%"></span></div>' +
+      '<div class="live-session-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.min(100, e.pct) +
+        '" aria-valuetext="' + esc(txt) + '" id="liveSessionBar">' +
+        '<span id="liveSessionIn" class="' + etat + '" style="width:' + Math.min(100, e.pct) + '%"></span></div>' +
       '<div class="live-session-txt ' + etat + '" id="liveSessionTxt">' + esc(txt) + '</div>' +
     '</div>';
   }
@@ -874,6 +876,8 @@
       if (e.ecart > 0 && etat !== "is-over") etat = "is-late";
     }
     var inn = wrap.querySelector("#liveSessionIn"); if (inn) { inn.style.width = Math.min(100, e.pct) + "%"; inn.className = etat; }
+    var bar = wrap.querySelector("#liveSessionBar");
+    if (bar) { bar.setAttribute("aria-valuenow", String(Math.min(100, e.pct))); bar.setAttribute("aria-valuetext", txt); }
     var el = wrap.querySelector("#liveSessionTxt"); if (el) { el.textContent = txt; el.className = "live-session-txt " + etat; }
   }
 
@@ -882,6 +886,8 @@
     if (d) { d.textContent = S.formatSec(tRemaining); d.className = "live-chrono " + chronoClass(); }
     var bar = root && root.querySelector("#liveBar");
     if (bar) bar.style.width = (tTotal > 0 ? (100 * (tTotal - tRemaining) / tTotal) : 0) + "%";
+    var barW = root && root.querySelector("#liveBarWrap");
+    if (barW) { barW.setAttribute("aria-valuenow", String(tTotal > 0 ? Math.round(100 * (tTotal - tRemaining) / tTotal) : 0)); barW.setAttribute("aria-valuetext", S.formatSec(tRemaining)); }
     renderSession();   // l'avancement de séance bouge à chaque seconde, lui aussi
   }
 
@@ -925,7 +931,10 @@
       seanceHtml() +
       '<div class="live-chrono-wrap">' +
         '<div id="liveChrono" class="live-chrono ' + chronoClass() + '">' + esc(S.formatSec(tRemaining)) + '</div>' +
-        '<div class="live-bar"><span id="liveBar" style="width:' + (tTotal > 0 ? (100 * (tTotal - tRemaining) / tTotal) : 0) + '%"></span></div>' +
+        '<div class="live-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="liveBarWrap"' +
+          ' aria-valuenow="' + (tTotal > 0 ? Math.round(100 * (tTotal - tRemaining) / tTotal) : 0) + '"' +
+          ' aria-valuetext="' + esc(S.formatSec(tRemaining)) + '">' +
+          '<span id="liveBar" style="width:' + (tTotal > 0 ? (100 * (tTotal - tRemaining) / tTotal) : 0) + '%"></span></div>' +
         '<div class="live-timer-btns">' +
           '<button class="suite-btn suite-btn-primary live-prim" data-act="primary"' + (seg ? '' : ' disabled') + '>' + esc(primaryLabel) + '</button>' +
           '<button class="suite-btn suite-btn-ghost" data-act="reset">' + esc(t("liveReset")) + '</button>' +
