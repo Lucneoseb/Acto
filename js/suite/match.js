@@ -168,7 +168,11 @@
   /* ============================================================
      PREP FORM (variant by kind)
      ============================================================ */
+  // Durées de séance proposées ; 0 = « Temps non défini » (le déroulé n'est
+  // alors borné par rien, comme avant).
+  var TRAIN_DURATIONS = [0, 3600, 5400, 7200, 10800];
   var prep = {
+    trainTargetSec: 5400,
     title: "", matchDate: "",
     level: "debutant", totalSec: 3600, nbCompare: 2, nbCatLibre: 1, nbImprosManual: null,
     nbWarmups: 4, nbExercises: 4
@@ -206,6 +210,16 @@
     var body = metaField + levelField;
     if (K.prepVariant === "training") {
       body +=
+        '<div class="suite-field">' +
+          '<label class="suite-label">' + esc(t("trainTotalTime")) + '</label>' +
+          '<div class="suite-seg" data-seg="traintime">' +
+            TRAIN_DURATIONS.map(function (sec) {
+              return '<button type="button" class="suite-seg-opt' + (prep.trainTargetSec === sec ? " is-on" : "") +
+                '" data-tsec="' + sec + '">' + esc(sec ? S.formatLong(sec) : t("trainNoTime")) + '</button>';
+            }).join("") +
+          '</div>' +
+          '<p class="suite-help">' + esc(prep.trainTargetSec ? tf("trainTotalTimeHelp", { pct: Math.round(S.gen.TARGET_FILL * 100) }) : t("trainNoTimeHelp")) + '</p>' +
+        '</div>' +
         '<div class="suite-field">' +
           '<label class="suite-label">' + esc(t("trainNbWarmups")) + '</label>' +
           stepperHTML("nbWarmups", prep.nbWarmups, 0, 30) +
@@ -276,6 +290,9 @@
     form.querySelectorAll('[data-seg="total"] .suite-seg-opt').forEach(function (b) {
       b.onclick = function () { prep.totalSec = parseInt(b.getAttribute("data-sec"), 10); prep.nbImprosManual = null; renderPrep(); };
     });
+    form.querySelectorAll('[data-seg="traintime"] .suite-seg-opt').forEach(function (b) {
+      b.onclick = function () { prep.trainTargetSec = parseInt(b.getAttribute("data-tsec"), 10) || 0; renderPrep(); };
+    });
     wireSteppers(form, function (name, val) {
       if (name === "nbImpros") prep.nbImprosManual = val;
       else prep[name] = val;
@@ -303,8 +320,8 @@
       var btn = root.querySelector('#prepForm button[type="submit"]');
       if (btn) { btn.disabled = true; btn.textContent = t("trainLoading"); }
       S.gen.ensureWarmups().then(function () {
-        var res = S.gen.buildTrainingSetlist({ level: prep.level, nbWarmups: prep.nbWarmups, nbExercises: prep.nbExercises });
-        var session = K.newSession({ level: prep.level, nbWarmups: prep.nbWarmups, nbExercises: prep.nbExercises });
+        var res = S.gen.buildTrainingSetlist({ level: prep.level, nbWarmups: prep.nbWarmups, nbExercises: prep.nbExercises, targetSec: prep.trainTargetSec });
+        var session = K.newSession({ level: prep.level, nbWarmups: prep.nbWarmups, nbExercises: prep.nbExercises, targetSec: prep.trainTargetSec });
         session.setlist = res.setlist;
         // Nommé dès la naissance : « Coaching du 06/09/2026 » si le champ est
         // resté vide. Visible dans l'éditeur, dans les listes et chez les
@@ -312,6 +329,9 @@
         session.title = (prep.title || "").trim() || tf(K.savePhKey, { date: new Date().toLocaleDateString(S.locale()) });
         session.matchDate = prep.matchDate || "";
         current = session;
+        if (res.warnings && res.warnings.length) {
+          toast(res.warnings.map(function (w) { return tf(w.key, w.vars); }).join(" "));
+        }
         navigate(homeRoute() + "/edit");
       });
       return;
@@ -396,7 +416,7 @@
         (collab ? '<div class="suite-collab-badge' + (collabPeerCount() > 1 ? '' : ' is-solo') + '">👥 ' + esc(tf("collabActive", { n: collabPeerCount() })) + '</div>' + (collab.role === "viewer" ? '<div class="suite-collab-viewer">👁 ' + esc(t("collabViewerNote")) + '</div>' : '') : '') +
       '</div>' +
       (K.hasTeams ? teamsCard(current.teams) : "") +
-      (kind !== "training" ? settingsCard() : "") +
+      (kind !== "training" ? settingsCard() : trainTimeCard() + participantsCard()) +
       (kind === "training" ? proposeBlock() : "") +
       '<div class="suite-setlist">' + cards + addBtns + '</div>' +
       '<div class="suite-export-row"><button class="suite-btn suite-btn-ghost" data-act="export">📄 ' + esc(t("exportBtn")) + '</button></div>' +
@@ -409,6 +429,7 @@
 
     wireEditor();
     wirePropose();
+    if (kind === "training") wireParticipants();
     if (collab) collabPush();   // any editor re-render = a possible mutation → sync (debounced, no-op while applying remote)
   }
 
@@ -466,6 +487,96 @@
         voteField +
       '</div>' + scoresToggle +
     '</div>';
+  }
+
+  /* Durée de séance + taux de remplissage. Sans cible (« Temps non défini »),
+     on n'affiche qu'un sélecteur : rien à remplir, donc rien à jauger. */
+  function trainTimeCard() {
+    var cible = current.targetSec || 0;
+    var total = S.gen.estimateTotalSec(current.setlist || []);
+    var jauge = "";
+    if (cible > 0) {
+      var pct = Math.round((total / cible) * 100);
+      var etat = (pct > 100) ? "is-over" : (pct >= 80 ? "is-ok" : "is-low");
+      jauge =
+        '<div class="suite-fill">' +
+          '<div class="suite-fill-bar"><span class="suite-fill-in ' + etat + '" style="width:' + Math.min(100, pct) + '%"></span></div>' +
+          '<div class="suite-fill-txt ' + etat + '">' + esc(tf("trainFillLabel", { pct: pct, used: S.formatLong(total), total: S.formatLong(cible) })) + '</div>' +
+        '</div>';
+    }
+    return '<div class="suite-settings-card">' +
+      '<div class="suite-settings-title">⏱ ' + esc(t("trainTotalTime")) + '</div>' +
+      '<div class="suite-seg suite-seg-wrap" data-seg="traintime-edit">' +
+        TRAIN_DURATIONS.map(function (sec) {
+          return '<button type="button" class="suite-seg-opt' + (cible === sec ? " is-on" : "") +
+            '" data-act="set-target" data-tsec="' + sec + '">' + esc(sec ? S.formatLong(sec) : t("trainNoTime")) + '</button>';
+        }).join("") +
+      '</div>' + jauge +
+      (cible > 0 ? '<button type="button" class="suite-btn suite-btn-ghost suite-fill-redo" data-act="refit">🎯 ' + esc(t("trainRefit")) + '</button>' : '') +
+    '</div>';
+  }
+
+  /* Qui est présent. Sert à deux choses : le coach garde la trace de sa séance,
+     et chaque membre disposant d'un compte voit ses propres statistiques
+     (nombre de coachings suivis, exercices travaillés). Un participant sans
+     compte est gardé par son nom — il compte dans la séance, pas dans les
+     statistiques individuelles. */
+  function participantsCard() {
+    var list = current.participants || [];
+    var corps = list.length
+      ? '<div class="suite-part-list">' + list.map(function (p, i) {
+          return '<span class="suite-part-chip' + (p.user_id ? " is-linked" : "") + '">' +
+            (p.user_id ? '<span aria-hidden="true">🎭</span> ' : '') + esc(p.name) +
+            '<button type="button" class="suite-part-rm" data-act="part-rm" data-i="' + i + '" aria-label="' + esc(t("commonDelete")) + '">✕</button></span>';
+        }).join("") + '</div>'
+      : '<p class="suite-help">' + esc(t("partNone")) + '</p>';
+    return '<div class="suite-settings-card">' +
+      '<div class="suite-settings-title">👥 ' + esc(t("partTitle")) + ' <span class="suite-part-count">' + list.length + '</span></div>' +
+      corps +
+      '<div class="suite-part-add">' +
+        '<input class="suite-input" data-act="part-search" type="text" placeholder="' + esc(t("partSearchPh")) + '" autocomplete="off" />' +
+        '<div class="suite-part-results" data-r="part-results"></div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function wireParticipants() {
+    var input = root.querySelector('[data-act="part-search"]');
+    var res = root.querySelector('[data-r="part-results"]');
+    if (!input || !res) return;
+    function ajouter(p) {
+      current.participants = current.participants || [];
+      var deja = current.participants.some(function (x) {
+        return (p.user_id && x.user_id === p.user_id) || (!p.user_id && !x.user_id && x.name === p.name);
+      });
+      if (!deja) current.participants.push(p);
+      input.value = ""; res.innerHTML = "";
+      renderEditor();
+    }
+    input.oninput = debounceC(function () {
+      var q = input.value.trim();
+      if (q.length < 2) { res.innerHTML = ""; return; }
+      // Un nom libre reste possible : tout le monde n'a pas de compte.
+      var libre = '<button type="button" class="suite-part-res" data-free="1">✍️ ' + esc(tf("partAddFree", { name: q })) + '</button>';
+      var c = sbClient();
+      if (!c) { res.innerHTML = libre; wireRes(q); return; }
+      Promise.resolve(c.rpc("search_users_by_stage_name", { p_query: q })).then(function (r) {
+        var rows = (r && r.data) || [];
+        res.innerHTML = rows.slice(0, 5).map(function (u) {
+          return '<button type="button" class="suite-part-res" data-id="' + esc(u.id) + '" data-nm="' + esc(u.nom_scene || u.prenom || "") + '">🎭 ' +
+            esc(u.nom_scene || u.prenom || "") + '</button>';
+        }).join("") + libre;
+        wireRes(q);
+      }, function () { res.innerHTML = libre; wireRes(q); });
+    }, 260);
+    function wireRes(q) {
+      res.querySelectorAll(".suite-part-res").forEach(function (b) {
+        b.onclick = function () {
+          if (b.getAttribute("data-free")) ajouter({ name: q, user_id: null });
+          else ajouter({ name: b.getAttribute("data-nm") || q, user_id: b.getAttribute("data-id") });
+        };
+      });
+    }
   }
 
   function segIndexLabel(seg, i) {
@@ -629,6 +740,20 @@
         break;
       case "rename":
         renameCurrent();
+        break;
+      case "set-target":
+        current.targetSec = parseInt(btn.getAttribute("data-tsec"), 10) || 0;
+        renderEditor();
+        break;
+      case "part-rm":
+        (current.participants || []).splice(parseInt(btn.getAttribute("data-i"), 10), 1);
+        renderEditor();
+        break;
+      case "refit":
+        // Re-répartir sans retirer ce que l'utilisateur a verrouillé.
+        var av = S.gen.fitTrainingDurations(current.setlist || [], current.targetSec || 0);
+        renderEditor();
+        if (av.warnings && av.warnings.length) toast(av.warnings.map(function (w) { return tf(w.key, w.vars); }).join(" "));
         break;
       case "export":
         openExportDialog(current);
@@ -937,6 +1062,12 @@
     meta.push((sess.kind === "training") ? tf("listMetaCount", { n: setlist.length }) + " · ~" + est : tf("setlistSummary", { n: setlist.length, time: est }));
     out.push(meta.join("  ·  "));
     if (Kx.hasTeams && sess.teams && sess.teams.length) out.push(t("teamsTitle") + " : " + sess.teams.map(function (tm) { return tm.name || "?"; }).join("  vs  "));
+    // Les participants — comptes Acto ET noms saisis à la main : la feuille
+    // imprimée doit dire qui était là, pas seulement qui a un compte.
+    if (sess.participants && sess.participants.length) {
+      out.push(t("partTitle") + " (" + sess.participants.length + ") : " +
+        sess.participants.map(function (p) { return p.name || "?"; }).join(", "));
+    }
     if (sess.kind !== "training") {
       var fmtOpt = function (v, def) { return v == null ? S.formatSec(def) : (v ? S.formatSec(v) : t("valueNone")); };
       var regl = [t("liveCaucusSet") + " : " + fmtOpt(sess.caucusSec, 30)];

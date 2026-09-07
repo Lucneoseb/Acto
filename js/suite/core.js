@@ -417,7 +417,72 @@
     var segs = [], i;
     for (i = 0; i < nw; i++) { var w = newWarmupSegment(level); fillSegment(w, level); segs.push(w); }
     for (i = 0; i < ne; i++) { var e = newExerciseSegment(level); fillSegment(e, level); segs.push(e); }
-    return { setlist: segs, warnings: [] };
+    var warnings = [];
+    if (opts.targetSec > 0) warnings = fitTrainingDurations(segs, opts.targetSec).warnings;
+    return { setlist: segs, warnings: warnings };
+  }
+
+  /* Répartit les durées pour occuper TARGET_FILL de la séance. Le reste n'est
+     pas du temps perdu : c'est ce qu'on passe à expliquer, débriefer, souffler —
+     du temps qui n'apparaît pas dans le déroulé. Une séance calée à 100 %
+     déborde toujours.
+
+     Chaque bloc garde son poids relatif (un exercice tiré à 6 min reste plus
+     long qu'un tiré à 2 min), arrondi au pas de 30 s, avec un plancher à 60 s.
+     Les durées verrouillées (🔒) ne bougent pas : c'est le sens du cadenas. */
+  var TARGET_FILL = 0.90;
+  var FIT_MIN_SEC = 60;         // en dessous, un exercice n'a pas le temps d'exister
+  var FIT_MAX_SEC = 900;        // 15 min : au-delà, mieux vaut ajouter un bloc que l'étirer
+  function fitTrainingDurations(setlist, targetSec) {
+    var warnings = [];
+    if (!setlist || !setlist.length || !(targetSec > 0)) return { warnings: warnings };
+
+    var libres = [], figes = 0, dejaPris = 0;
+    setlist.forEach(function (s) {
+      if (s.locks && s.locks.duration) { figes++; dejaPris += (s.durationSec || 0); }
+      else libres.push(s);
+    });
+    if (!libres.length) { warnings.push({ key: "trainFitAllLocked", vars: {} }); return { warnings: warnings }; }
+
+    var aRepartir = Math.round(targetSec * TARGET_FILL) - setlist.length * OVERHEAD_SEC - dejaPris;
+    var pas = 30;
+
+    // 1) part proportionnelle au tirage initial (un exercice tiré long le reste),
+    //    arrondie au pas et bornée.
+    var poids = libres.reduce(function (n, s) { return n + (s.durationSec || FIT_MIN_SEC); }, 0) || libres.length;
+    libres.forEach(function (s) {
+      var v = Math.round((((s.durationSec || FIT_MIN_SEC) / poids) * aRepartir) / pas) * pas;
+      s.durationSec = Math.max(FIT_MIN_SEC, Math.min(FIT_MAX_SEC, v));
+    });
+
+    // 2) l'arrondi et les bornes laissent un écart : on le distribue par pas de
+    //    30 s, au lieu de le faire absorber au dernier bloc — sinon il devenait
+    //    deux fois plus long que les autres.
+    function somme() { return libres.reduce(function (n, s) { return n + s.durationSec; }, 0); }
+    var garde = 400;
+    while (somme() < aRepartir && garde-- > 0) {
+      var court = null;
+      libres.forEach(function (s) { if (s.durationSec < FIT_MAX_SEC && (!court || s.durationSec < court.durationSec)) court = s; });
+      if (!court) break;                       // tout est au plafond
+      court.durationSec += pas;
+    }
+    garde = 400;
+    while (somme() > aRepartir && garde-- > 0) {
+      var long = null;
+      libres.forEach(function (s) { if (s.durationSec > FIT_MIN_SEC && (!long || s.durationSec > long.durationSec)) long = s; });
+      if (!long) break;                        // tout est au plancher
+      long.durationSec -= pas;
+    }
+
+    // 3) ce que l'utilisateur doit savoir : la séance ne tient pas, ou elle est
+    //    trop vide pour le temps réservé.
+    var total = somme() + dejaPris + setlist.length * OVERHEAD_SEC;
+    if (total > targetSec) warnings.push({ key: "trainFitTooShort", vars: { n: setlist.length } });
+    // On ne peut pas atteindre le taux visé : trop peu de blocs, ou tous au
+    // plafond de 15 min. Le dire, sinon la jauge reste basse sans explication.
+    else if (total < targetSec * TARGET_FILL * 0.95) warnings.push({ key: "trainFitTooFew", vars: { n: setlist.length } });
+    if (figes) warnings.push({ key: "trainFitLocked", vars: { n: figes } });
+    return { warnings: warnings };
   }
 
   /* ============================================================
@@ -628,6 +693,8 @@
       scoring: false, showScores: false, filming: false,
       display: { cointoss: "ask" }, teams: [],
       meta: { nbWarmups: opts.nbWarmups || 0, nbExercises: opts.nbExercises || 0 },
+      targetSec: opts.targetSec || 0,        // 0 = temps non défini
+
       setlist: [], cursor: 0, journal: []
     };
   }
@@ -691,6 +758,8 @@
       fillSegment: fillSegment,
       rerollField: rerollField,
       estimateTotalSec: estimateTotalSec,
+      fitTrainingDurations: fitTrainingDurations,
+      TARGET_FILL: TARGET_FILL,
       drawCategory: drawCategory,
       drawTheme: drawTheme,
       drawPlayers: drawPlayers,

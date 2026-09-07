@@ -35,7 +35,8 @@
      réécriture manquait, index.html (repli 404) transmet le chemin demandé par
      sessionStorage — voir normaliseAtBoot(). */
   var PUB_SECTION = { home: "studio", match: "match", show: "spectacle", train: "coaching",
-                      discover: "decouverte", contribute: "contribuer", teams: "equipes", collab: "collab" };
+                      discover: "decouverte", contribute: "contribuer", teams: "equipes", collab: "collab",
+                      defis: "defis" };
   var PUB_SUB     = { prepare: "preparer", list: "liste", edit: "deroule", live: "direct" };
   var INT_SECTION = {}, INT_SUB = {};
   Object.keys(PUB_SECTION).forEach(function (k) { INT_SECTION[PUB_SECTION[k]] = k; });
@@ -105,6 +106,13 @@
       return;
     }
 
+    if (r.section === "defis") {
+      syncSectionNav("defis");
+      window.ActoDefis.mount(rootEl, r.sub, navigate);
+      window.scrollTo(0, 0);
+      return;
+    }
+
     if (r.section === "contribute") {
       syncSectionNav("home");
       window.ActoContribute.mount(rootEl, r.sub, navigate);
@@ -130,7 +138,8 @@
     { id: "discover", route: "discover", icon: "✨", labelKey: "sectionDiscoverTitle" },
     { id: "match",    route: "match",    icon: "🏆", labelKey: "sectionMatchTitle" },
     { id: "show",     route: "show",     icon: "🎪", labelKey: "sectionShowTitle" },
-    { id: "train",    route: "train",    icon: "🏋️", labelKey: "sectionTrainTitle" }
+    { id: "train",    route: "train",    icon: "🏋️", labelKey: "sectionTrainTitle" },
+    { id: "defis",    route: "defis",    icon: "🎯", labelKey: "sectionDefiTitle" }
   ];
   function syncSectionNav(active) {
     var nav = document.getElementById("suiteSectionNav");
@@ -161,6 +170,7 @@
         launchCard("match", "🏆", t("sectionMatchTitle"), t("sectionMatchDesc"), false) +
         launchCard("show", "🎪", t("sectionShowTitle"), t("sectionShowDesc"), false) +
         launchCard("train", "🏋️", t("sectionTrainTitle"), t("sectionTrainDesc"), false) +
+        launchCard("defis", "🎯", t("sectionDefiTitle"), t("sectionDefiDesc"), false) +
       '</div>' +
       '<div class="suite-home-extra">' +
         // "Mes équipes" now lives on the Match page (teams are match rosters).
@@ -171,8 +181,8 @@
       c.onclick = go;
       c.onkeydown = function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } };
     });
-    var TITLE_KEY = { discover: "sectionDiscoverTitle", match: "sectionMatchTitle", show: "sectionShowTitle", train: "sectionTrainTitle" };
-    var INFO_KEY = { discover: "sectionDiscoverInfo", match: "sectionMatchInfo", show: "sectionShowInfo", train: "sectionTrainInfo" };
+    var TITLE_KEY = { discover: "sectionDiscoverTitle", match: "sectionMatchTitle", show: "sectionShowTitle", train: "sectionTrainTitle", defis: "sectionDefiTitle" };
+    var INFO_KEY = { discover: "sectionDiscoverInfo", match: "sectionMatchInfo", show: "sectionShowInfo", train: "sectionTrainInfo", defis: "sectionDefiInfo" };
     rootEl.querySelectorAll(".suite-launch-info").forEach(function (b) {
       b.onclick = function (e) {
         e.stopPropagation();

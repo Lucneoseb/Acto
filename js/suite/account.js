@@ -88,7 +88,8 @@
         var act = b.getAttribute("data-act");
         menuOpen = false; renderButton();
         if (act === "logout") doLogout();
-        else openSettings(act === "stats");
+        else if (act === "stats") openStats();
+        else openSettings();
       };
     });
   }
@@ -106,7 +107,7 @@
     return '<label class="suite-set-field"><span>' + esc(label) + '</span>' +
       '<input type="' + (type || "text") + '" class="suite-input" data-f="' + f + '" value="' + esc(val) + '" /></label>';
   }
-  function openSettings(scrollStats) {
+  function openSettings() {
     var p = profile || {};
     var dlg = document.createElement("dialog");
     dlg.className = "suite-dialog suite-acc-dialog";
@@ -126,9 +127,6 @@
       '<label class="suite-set-field"><span>' + esc(t("accountNewPassword")) + '</span><input type="password" class="suite-input" data-f="newpw" autocomplete="new-password" /></label>' +
       '<button type="button" class="suite-btn suite-btn-ghost" data-act="change-pw">' + esc(t("accountChangePassword")) + '</button>' +
       '<p class="suite-acc-msg" data-msg="pw" hidden></p>' +
-      '<hr class="suite-acc-sep" />' +
-      '<h3 class="suite-acc-h3">' + esc(t("accountStatsTitle")) + '</h3>' +
-      '<div class="suite-acc-stats" id="suiteAccStats">' + esc(t("commonLoading")) + '</div>' +
       '<hr class="suite-acc-sep" />' +
       '<button type="button" class="suite-btn suite-btn-danger suite-acc-del" data-act="delete">' + esc(t("accountDelete")) + '</button>' +
       '<p class="suite-acc-msg" data-msg="del" hidden></p>' +
@@ -171,21 +169,101 @@
         try { window.location.replace("login.html"); } catch (e) { window.location.href = "login.html"; }
       }).catch(function () { b.disabled = false; msg("del", t("accountDeleteError"), false); });
     };
-    // stats
-    if (sb()) {
-      Promise.resolve(sb().rpc("get_my_stats")).then(function (res) {
-        var el = dlg.querySelector("#suiteAccStats"); if (!el) return;
-        if (res && res.error) { el.textContent = "—"; return; }
-        var r = (Array.isArray(res.data) ? res.data[0] : res.data) || {};
-        el.innerHTML =
-          '<div class="suite-acc-stat">' + tf("accountStMatches", { n: r.matches || 0 }) + '</div>' +
-          '<div class="suite-acc-stat">' + (r.wins || 0) + ' ' + esc(t("accountStWins")) + ' · ' + (r.draws || 0) + ' ' + esc(t("accountStDraws")) + ' · ' + (r.losses || 0) + ' ' + esc(t("accountStLosses")) + '</div>' +
-          '<div class="suite-acc-stat">' + (r.gold || 0) + ' 🥇 · ' + (r.silver || 0) + ' 🥈 · ' + (r.bronze || 0) + ' 🥉</div>';
-      }).catch(function () { var el = dlg.querySelector("#suiteAccStats"); if (el) el.textContent = "—"; });
-    }
     dlg.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); close(); } });
     if (typeof dlg.showModal === "function") { try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } } else dlg.setAttribute("open", "");
-    if (scrollStats) { var s = dlg.querySelector("#suiteAccStats"); if (s && s.scrollIntoView) try { s.scrollIntoView(); } catch (e) {} }
+  }
+
+  /* ---------- fenêtre Statistiques ----------
+     Ce que la personne a réellement fait : combien de matchs, de spectacles, de
+     coachings, de défis — et pour les matchs, le détail victoires / étoiles.
+     Les compteurs par section viennent de get_my_activity (voir la migration
+     2026-09-activite) ; sans elle, la fenêtre montre les matchs seuls plutôt
+     que de rester vide. */
+  function statTile(icone, valeur, libelle) {
+    return '<div class="suite-stat-tile"><span class="suite-stat-ico" aria-hidden="true">' + icone + '</span>' +
+      '<span class="suite-stat-val">' + esc(String(valeur)) + '</span>' +
+      '<span class="suite-stat-lbl">' + esc(libelle) + '</span></div>';
+  }
+  function openStats() {
+    var dlg = document.createElement("dialog");
+    dlg.className = "suite-dialog suite-acc-dialog";
+    dlg.innerHTML = '<div class="suite-dialog-body suite-acc-dlgbody">' +
+      '<h2 class="suite-dialog-title">📊 ' + esc(t("accountStatsTitle")) + '</h2>' +
+      '<div class="suite-stat-grid" id="suiteStatGrid">' + esc(t("commonLoading")) + '</div>' +
+      '<div id="suiteStatMatch"></div>' +
+      '<div id="suiteStatMembers"></div>' +
+      '<div class="suite-dialog-actions"><button type="button" class="suite-btn suite-btn-ghost" data-act="close">' + esc(t("commonClose")) + '</button></div>' +
+    '</div>';
+    document.body.appendChild(dlg);
+    function close() { try { if (dlg.open) dlg.close(); } catch (e) { /* ignore */ } dlg.remove(); }
+    dlg.querySelector('[data-act="close"]').onclick = close;
+    dlg.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); close(); } });
+    if (typeof dlg.showModal === "function") { try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } } else dlg.setAttribute("open", "");
+
+    if (!sb()) { var g0 = dlg.querySelector("#suiteStatGrid"); if (g0) g0.textContent = "—"; return; }
+
+    // Compteurs par section (migration facultative : on dégrade proprement).
+    Promise.resolve(sb().rpc("get_my_activity")).then(function (res) {
+      var g = dlg.querySelector("#suiteStatGrid"); if (!g) return;
+      var a = (res && !res.error) ? ((Array.isArray(res.data) ? res.data[0] : res.data) || {}) : null;
+      if (!a) { g.innerHTML = '<p class="suite-sub">' + esc(t("accountStatsPending")) + '</p>'; return; }
+      g.innerHTML =
+        statTile("🏆", a.matches || 0, t("sectionMatchTitle")) +
+        statTile("🎪", a.shows || 0, t("sectionShowTitle")) +
+        statTile("🏋️", a.trainings || 0, t("sectionTrainTitle")) +
+        statTile("🎯", a.challenges || 0, t("sectionDefiTitle")) +
+        statTile("🎭", a.impros || 0, t("accountStImpros")) +
+        statTile("⏱", Math.round((a.played_seconds || 0) / 60), t("accountStMinutes"));
+    }, function () {
+      var g = dlg.querySelector("#suiteStatGrid"); if (g) g.innerHTML = '<p class="suite-sub">' + esc(t("accountStatsPending")) + '</p>';
+    });
+
+    /* Les membres que j'ai fait jouer. La RPC ne renvoie que MES séances, donc
+       la liste est vide pour qui n'a jamais animé : dans ce cas on n'affiche
+       rien du tout plutôt qu'un tableau désert. */
+    Promise.resolve(sb().rpc("get_member_activity")).then(function (res) {
+      var el = dlg.querySelector("#suiteStatMembers"); if (!el) return;
+      if (!res || res.error) return;                      // migration pas passée : section absente
+      var rows = res.data || [];
+      if (!rows.length) return;
+      el.innerHTML = '<h3 class="suite-acc-h3">👥 ' + esc(t("accountStMembers")) + '</h3>' +
+        '<p class="suite-acc-membershint">' + esc(t("accountStMembersHint")) + '</p>' +
+        '<div class="suite-members">' +
+          '<div class="suite-member suite-member-head">' +
+            '<span class="suite-member-nm">' + esc(t("accountStMemberName")) + '</span>' +
+            '<span class="suite-member-n" title="' + esc(t("sectionTrainTitle")) + '">🏋️</span>' +
+            '<span class="suite-member-n" title="' + esc(t("sectionMatchTitle")) + '">🏆</span>' +
+            '<span class="suite-member-n" title="' + esc(t("sectionShowTitle")) + '">🎪</span>' +
+            '<span class="suite-member-n" title="' + esc(t("accountStBlocks")) + '">🎭</span>' +
+          '</div>' +
+          rows.map(function (m) {
+            var vu = m.last_seen ? new Date(m.last_seen).toLocaleDateString(S.locale()) : "";
+            return '<div class="suite-member">' +
+              '<span class="suite-member-nm">' + esc(m.name || "—") +
+                (m.user_id ? '' : ' <span class="suite-member-free">' + esc(t("accountStNoAccount")) + '</span>') +
+                (vu ? '<span class="suite-member-seen">' + esc(tf("accountStLastSeen", { date: vu })) + '</span>' : '') +
+              '</span>' +
+              '<span class="suite-member-n">' + (m.trainings || 0) + '</span>' +
+              '<span class="suite-member-n">' + (m.matches || 0) + '</span>' +
+              '<span class="suite-member-n">' + (m.shows || 0) + '</span>' +
+              '<span class="suite-member-n">' + (m.blocks || 0) + '</span>' +
+            '</div>';
+          }).join("") +
+        '</div>';
+    }, function () { /* la section est un bonus : silence si indisponible */ });
+
+    // Détail des matchs : victoires / nuls / défaites et étoiles.
+    Promise.resolve(sb().rpc("get_my_stats")).then(function (res) {
+      var el = dlg.querySelector("#suiteStatMatch"); if (!el) return;
+      if (res && res.error) return;
+      var r = (Array.isArray(res.data) ? res.data[0] : res.data) || {};
+      if (!(r.matches > 0)) return;                   // aucun match joué : pas de bloc vide
+      el.innerHTML = '<h3 class="suite-acc-h3">🏆 ' + esc(t("accountStMatchDetail")) + '</h3>' +
+        '<div class="suite-acc-stats">' +
+          '<div class="suite-acc-stat">' + (r.wins || 0) + ' ' + esc(t("accountStWins")) + ' · ' + (r.draws || 0) + ' ' + esc(t("accountStDraws")) + ' · ' + (r.losses || 0) + ' ' + esc(t("accountStLosses")) + '</div>' +
+          '<div class="suite-acc-stat">' + (r.gold || 0) + ' 🥇 · ' + (r.silver || 0) + ' 🥈 · ' + (r.bronze || 0) + ' 🥉</div>' +
+        '</div>';
+    }).catch(function () { /* le détail est un bonus */ });
   }
 
   window.ActoAccount = { init: init };

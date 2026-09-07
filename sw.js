@@ -21,7 +21,7 @@
      self.addEventListener("activate", function (e) { e.waitUntil(self.registration.unregister().then(function () { return self.clients.matchAll(); }).then(function (cs) { cs.forEach(function (c) { c.navigate(c.url); }); })); });
 */
 var VERSION = "acto-cache-v1";
-var ROUTES_STUDIO = /^\/(studio|match|spectacle|coaching|decouverte|contribuer|equipes|collab)(\/|$)/;
+var ROUTES_STUDIO = /^\/(studio|match|spectacle|coaching|decouverte|contribuer|equipes|defis|collab)(\/|$)/;
 var TYPES_OK = /^(text\/|application\/(javascript|x-javascript|json|manifest\+json)|image\/|font\/)/;
 
 self.addEventListener("install", function () { self.skipWaiting(); });

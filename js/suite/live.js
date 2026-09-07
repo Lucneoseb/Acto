@@ -417,6 +417,42 @@
     if (!window.confirm(t("liveConfirmFinish" + kindSfx(sess && sess.kind)))) return;
     phase = "done"; finished = true; clearTick(); tRunning = false; persist(); renderPresenter(); broadcast();
     recordResults();
+    recordAttendance();
+  }
+
+  /* Feuille de présence de la séance — tous formats. Les matchs passent aussi
+     par record_match_results (résultats + étoiles) ; ici on note seulement QUI
+     était là, ce qui alimente les statistiques par membre du coach. */
+  function recordAttendance() {
+    var sb = window.actoSuiteSb;
+    if (!sb || !window.actoUser || !sess) return;
+    var P = S.players, gens = [];
+    (sess.participants || []).forEach(function (p) {
+      if (p && p.name) gens.push({ user_id: p.user_id || "", name: p.name });
+    });
+    // Un match/spectacle n'a pas de liste de participants : on prend les
+    // joueurs présents des équipes.
+    if (!gens.length) {
+      (sess.teams || []).forEach(function (tm) {
+        (tm.players || []).forEach(function (p) {
+          if (!P.present(p)) return;
+          gens.push({ user_id: P.userId(p) || "", name: P.name(p) });
+        });
+      });
+    }
+    if (!gens.length) return;                      // rien à consigner
+    var kindSql = sess.kind === "training" ? "entrainement" : (sess.kind === "show" ? "spectacle" : "match");
+    try {
+      Promise.resolve(sb.rpc("record_session_attendance", {
+        p_session_uid: sess.runId || sess.id,
+        p_kind: kindSql,
+        p_title: sess.title || "",
+        p_blocks: (sess.setlist || []).length,
+        p_seconds: S.gen.estimateTotalSec(sess.setlist || []),
+        p_participants: gens
+      })).then(function (r) { if (r && r.error) console.warn("[live] présence", r.error.message || r.error); },
+               function () { /* migration pas encore passée : sans effet */ });
+    } catch (e) { /* ignore */ }
   }
 
   function joinUrl(mode) {

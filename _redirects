@@ -13,5 +13,6 @@
 /decouverte      /welcome       200
 /decouverte/*    /welcome       200
 /contribuer      /welcome       200
+/defis           /welcome       200
 /equipes         /welcome       200
 /collab/*        /welcome       200

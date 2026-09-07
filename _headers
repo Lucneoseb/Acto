@@ -55,6 +55,8 @@
   Cache-Control: public, no-cache
 /contribuer
   Cache-Control: public, no-cache
+/defis
+  Cache-Control: public, no-cache
 /equipes
   Cache-Control: public, no-cache
 /collab/*

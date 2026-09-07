@@ -1296,3 +1296,92 @@
   .suite-article dl { grid-template-columns: 1fr; gap: 0.15rem 0; }
   .suite-article dd { margin-bottom: 0.55rem; }
 }
+
+/* ─── Coaching : durée de séance et taux de remplissage ────────────────────── */
+.suite-seg-wrap { flex-wrap: wrap; }
+.suite-seg-wrap .suite-seg-opt { flex: 1 1 6rem; }
+.suite-fill { margin-top: 0.7rem; }
+.suite-fill-bar { height: 8px; border-radius: 999px; background: color-mix(in srgb, #ffffff 10%, transparent); overflow: hidden; }
+.suite-fill-in { display: block; height: 100%; border-radius: 999px; transition: width .25s ease; background: var(--gold); }
+.suite-fill-in.is-low  { background: color-mix(in srgb, var(--gold) 55%, transparent); }
+.suite-fill-in.is-ok   { background: var(--gold); }
+.suite-fill-in.is-over { background: #e4534f; }
+.suite-fill-txt { margin-top: 0.35rem; font-size: 0.84rem; color: var(--ink-muted); }
+.suite-fill-txt.is-over { color: #ff9a93; }
+.suite-fill-redo { margin-top: 0.7rem; width: 100%; min-height: 44px; }
+@media (prefers-reduced-motion: reduce) { .suite-fill-in { transition: none; } }
+
+/* ─── Section Défis ────────────────────────────────────────────────────────── */
+.suite-defi-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--gold) 8%, transparent), color-mix(in srgb, #ffffff 2%, transparent));
+  padding: 1.1rem 1.2rem; margin: 0.6rem 0 1rem;
+}
+.suite-defi-h { font: 400 1.3rem/1 "Bebas Neue", sans-serif; letter-spacing: .02em; color: var(--gold); margin-bottom: 0.7rem; }
+.suite-defi-rows { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+.suite-defi-row { display: flex; align-items: baseline; gap: 0.7rem; }
+.suite-defi-l { flex: 0 0 auto; min-width: 6.5rem; font-size: 0.74rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint); }
+.suite-defi-v { flex: 1 1 auto; min-width: 0; font-weight: 600; color: var(--ink); }
+.suite-defi-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.suite-defi-actions .suite-btn { flex: 1 1 10rem; min-height: 44px; }
+.suite-defi-links { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.suite-defi-links .suite-btn { flex: 1 1 10rem; }
+@media (max-width: 420px) { .suite-defi-row { flex-direction: column; gap: 0.1rem; } .suite-defi-l { min-width: 0; } }
+
+/* ─── Fenêtre Statistiques ─────────────────────────────────────────────────── */
+.suite-stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+.suite-stat-tile {
+  display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+  padding: 0.7rem 0.4rem; border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, #ffffff 11%, transparent);
+  background: color-mix(in srgb, #ffffff 4%, transparent);
+}
+.suite-stat-ico { font-size: 1.2rem; line-height: 1; }
+.suite-stat-val { font: 400 1.6rem/1 "Bebas Neue", sans-serif; color: var(--gold); }
+.suite-stat-lbl { font-size: 0.72rem; text-align: center; color: var(--ink-muted); line-height: 1.2; }
+@media (max-width: 380px) { .suite-stat-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* ─── Participants d'une séance ────────────────────────────────────────────── */
+.suite-part-count { font: 600 0.8rem/1 "Inter", sans-serif; color: var(--ink-faint); }
+.suite-part-list { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.2rem 0 0.7rem; }
+.suite-part-chip {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.35rem 0.4rem 0.35rem 0.6rem; border-radius: 999px;
+  border: 1px solid color-mix(in srgb, #ffffff 14%, transparent);
+  background: color-mix(in srgb, #ffffff 5%, transparent);
+  font-size: 0.86rem; color: var(--ink);
+}
+.suite-part-chip.is-linked { border-color: color-mix(in srgb, var(--gold) 40%, transparent); }
+.suite-part-rm { appearance: none; border: none; background: none; cursor: pointer; color: var(--ink-faint); font-size: 0.9rem; line-height: 1; padding: 0.2rem; }
+.suite-part-rm:hover { color: #ff9a93; }
+.suite-part-add { position: relative; }
+.suite-part-results { display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.35rem; }
+.suite-part-res {
+  appearance: none; cursor: pointer; text-align: left; width: 100%; box-sizing: border-box;
+  border: 1px solid color-mix(in srgb, #ffffff 11%, transparent); background: color-mix(in srgb, #ffffff 4%, transparent);
+  border-radius: 10px; padding: 0.45rem 0.6rem; color: var(--ink); font: 600 0.86rem/1.2 "Inter", sans-serif;
+}
+.suite-part-res:hover { border-color: var(--gold); }
+@media (pointer: coarse) { .suite-part-rm { min-width: 32px !important; min-height: 32px !important; } .suite-part-res { min-height: 44px !important; } }
+
+/* ─── « Mes statistiques » : membres que j'ai fait jouer ────────────────────── */
+.suite-acc-membershint { margin: 0 0 0.5rem; font-size: 0.8rem; color: var(--ink-faint); line-height: 1.4; }
+.suite-members { display: flex; flex-direction: column; gap: 0.3rem; }
+.suite-member {
+  display: grid; grid-template-columns: 1fr repeat(4, 2.2rem); align-items: center; gap: 0.3rem;
+  padding: 0.45rem 0.6rem; border-radius: 10px;
+  border: 1px solid color-mix(in srgb, #ffffff 10%, transparent);
+  background: color-mix(in srgb, #ffffff 3%, transparent);
+}
+.suite-member-head {
+  border: none; background: none; padding-bottom: 0.1rem;
+  font-size: 0.72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint);
+}
+.suite-member-nm { min-width: 0; display: flex; flex-direction: column; gap: 0.05rem; font-weight: 600; font-size: 0.88rem; color: var(--ink); }
+.suite-member-head .suite-member-nm { font-weight: 400; font-size: inherit; color: inherit; }
+.suite-member-free { font-size: 0.7rem; font-weight: 400; font-style: italic; color: var(--ink-faint); }
+.suite-member-seen { font-size: 0.7rem; font-weight: 400; color: var(--ink-faint); }
+.suite-member-n { text-align: center; font: 600 0.92rem/1 "Inter", sans-serif; color: var(--gold-soft); }
+.suite-member-head .suite-member-n { color: var(--ink-faint); font-size: 0.9rem; }
+
