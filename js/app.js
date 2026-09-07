@@ -943,6 +943,8 @@
     setText("recorderConfirmNo",    t.recordConfirmStopNo);
     setText("recorderPreviewTitle", t.recordPreviewTitle);
     setText("recorderExitBtn",      t.recordExitBtn);
+    const __quitBtn = document.getElementById("recorderQuitBtn");
+    if (__quitBtn) { __quitBtn.setAttribute("aria-label", t.recordExitBtn || "Fermer"); __quitBtn.title = t.recordExitBtn || "Fermer"; }
     const __dl = document.getElementById("recorderDownloadLink");
     if (__dl) __dl.textContent = t.recordDownload || "";
     setText("settingsLabelText",t.settings);
@@ -3142,6 +3144,31 @@
     const __recExitFallback = $("#recorderExitBtnFallback");
     if (__recExitFallback) __recExitFallback.addEventListener("click", recClose);
 
+    // Sortie toujours accessible : la croix en haut à gauche et la touche Échap.
+    // Un enregistrement en cours demande confirmation — on ne perd pas une prise
+    // sur une touche pressée par erreur.
+    function recQuit() {
+      const t = store.ui;
+      if (rec.isRecording && !window.confirm(t.recordConfirmStopTitle || "Arrêter l'enregistrement ?")) return;
+      recClose();
+    }
+    const __recQuitBtn = $("#recorderQuitBtn");
+    if (__recQuitBtn) {
+      __recQuitBtn.addEventListener("click", recQuit);
+      __recQuitBtn.setAttribute("aria-label", (store.ui && store.ui.recordExitBtn) || "Fermer");
+      __recQuitBtn.title = (store.ui && store.ui.recordExitBtn) || "Fermer";
+    }
+    document.addEventListener("keydown", (ev) => {
+      if (ev.key !== "Escape") return;
+      const m = $("#recorderModal");
+      if (!m || m.hidden) return;
+      // une popup interne (confirmation d'arrêt, aperçu) se ferme d'abord
+      const conf = $("#recorderConfirm");
+      if (conf && !conf.hidden) { recCancelStop(); return; }
+      ev.preventDefault();
+      recQuit();
+    });
+
     // Match Comparée: tirage banner flip button.
     const __tirageFlip = $("#tirageFlipBtn");
     if (__tirageFlip) __tirageFlip.addEventListener("click", flipFirstStarter);
@@ -4208,7 +4235,10 @@
       rec.startedAt = Date.now();
       rec.isPaused = false;
       statsRecordStartTracking();
-      if (!state.chronoRunning && state.chronoRemaining > 0) chronoStart();
+      // Seulement si la cérémonie d'intro est passée (rec._chronoArmed est posé
+      // au GO). Une pause pendant l'intro suivie d'une reprise démarrait le
+      // chrono tout de suite et brûlait jusqu'à 20 s d'impro avant le départ.
+      if (rec._chronoArmed && !state.chronoRunning && state.chronoRemaining > 0) chronoStart();
       recRefreshPauseLabel();
     }
   }
@@ -4619,6 +4649,35 @@
   // (recAgain removed — exit & re-open instead)
   async function recSwitchCamera() {
     rec.facingMode = (rec.facingMode === "environment") ? "user" : "environment";
+    // La boucle de dessin doit être annulée AVANT de repartir : recStartCamera
+    // écrase rec.rafId sans arrêter l'ancienne, qui se ré-arme toute seule —
+    // deux rendus en parallèle jusqu'à la fermeture de l'enregistreur.
+    if (rec.rafId) { cancelAnimationFrame(rec.rafId); rec.rafId = null; }
+
+    // Pendant un enregistrement, la piste AUDIO est celle que le MediaRecorder
+    // a reçue à l'ouverture (le composite = canvas + cette piste). L'arrêter
+    // rendait tout le reste de la vidéo muet : on ne remplace que la vidéo.
+    if (rec.isRecording && rec.stream && rec.stream.getAudioTracks().length) {
+      const audioTracks = rec.stream.getAudioTracks();
+      rec.stream.getVideoTracks().forEach(t => { try { t.stop(); } catch (e) {} });
+      try {
+        const v = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: rec.facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false
+        });
+        rec.stream = new MediaStream(audioTracks.concat(v.getVideoTracks()));
+        if (rec.videoEl) {
+          rec.videoEl.srcObject = rec.stream;
+          await rec.videoEl.play().catch(() => {});
+        }
+      } catch (e) {
+        const t = store.ui;
+        recShowError((t.recordCamError || "Camera error") + " (" + (e && e.name ? e.name : "Error") + ")", "");
+      }
+      recDrawLoop();
+      return;
+    }
+
     if (rec.stream) rec.stream.getTracks().forEach(t => { try { t.stop(); } catch (e) {} });
     rec.stream = null;
     await recStartCamera();

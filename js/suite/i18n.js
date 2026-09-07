@@ -417,7 +417,11 @@
     rulesToc: "Sommaire",
     storageFull: "Stockage plein : impossible d'enregistrer sur cet appareil. Libère de l'espace ou sauvegarde sur ton compte.",
     duplicateSuffix: "(copie)",
-    teamsDeleteError: "Suppression impossible : réessaie dans un instant."
+    teamsDeleteError: "Suppression impossible : réessaie dans un instant.",
+    collabInviteRole: "Accès accordé",
+    collabAdded: "{name} ajouté ✓",
+    collabInvited: "Invitation envoyée à {name} ✓",
+    collabPendingLong: "invitation en attente"
   };
 
   var EN = {
@@ -809,7 +813,11 @@
     rulesToc: "Contents",
     storageFull: "Storage full: can't save on this device. Free some space or save to your account.",
     duplicateSuffix: "(copy)",
-    teamsDeleteError: "Couldn't delete: try again in a moment."
+    teamsDeleteError: "Couldn't delete: try again in a moment.",
+    collabInviteRole: "Access granted",
+    collabAdded: "{name} added ✓",
+    collabInvited: "Invitation sent to {name} ✓",
+    collabPendingLong: "invitation pending"
   };
 
 
@@ -1260,7 +1268,11 @@
     rulesToc: "Inhalt",
     storageFull: "Speicher voll: Speichern auf diesem Gerät nicht möglich. Platz freigeben oder im Konto speichern.",
     duplicateSuffix: "(Kopie)",
-    teamsDeleteError: "Löschen fehlgeschlagen: versuch es gleich noch einmal."
+    teamsDeleteError: "Löschen fehlgeschlagen: versuch es gleich noch einmal.",
+    collabInviteRole: "Gewährter Zugriff",
+    collabAdded: "{name} hinzugefügt ✓",
+    collabInvited: "Einladung an {name} gesendet ✓",
+    collabPendingLong: "Einladung ausstehend"
   };
 
   var ES = {
@@ -1710,7 +1722,11 @@
     rulesToc: "Índice",
     storageFull: "Almacenamiento lleno: no se puede guardar en este dispositivo. Libera espacio o guarda en tu cuenta.",
     duplicateSuffix: "(copia)",
-    teamsDeleteError: "No se pudo eliminar: inténtalo de nuevo en un momento."
+    teamsDeleteError: "No se pudo eliminar: inténtalo de nuevo en un momento.",
+    collabInviteRole: "Acceso concedido",
+    collabAdded: "{name} añadido ✓",
+    collabInvited: "Invitación enviada a {name} ✓",
+    collabPendingLong: "invitación pendiente"
   };
 
   var PT = {
@@ -2160,7 +2176,11 @@
     rulesToc: "Índice",
     storageFull: "Armazenamento cheio: impossível guardar neste aparelho. Liberta espaço ou guarda na tua conta.",
     duplicateSuffix: "(cópia)",
-    teamsDeleteError: "Não foi possível eliminar: tenta novamente daqui a pouco."
+    teamsDeleteError: "Não foi possível eliminar: tenta novamente daqui a pouco.",
+    collabInviteRole: "Acesso concedido",
+    collabAdded: "{name} adicionado ✓",
+    collabInvited: "Convite enviado a {name} ✓",
+    collabPendingLong: "convite pendente"
   };
 
   var NL = {
@@ -2610,7 +2630,11 @@
     rulesToc: "Inhoud",
     storageFull: "Opslag vol: opslaan op dit toestel lukt niet. Maak ruimte vrij of sla op in je account.",
     duplicateSuffix: "(kopie)",
-    teamsDeleteError: "Verwijderen mislukt: probeer het zo opnieuw."
+    teamsDeleteError: "Verwijderen mislukt: probeer het zo opnieuw.",
+    collabInviteRole: "Toegekende toegang",
+    collabAdded: "{name} toegevoegd ✓",
+    collabInvited: "Uitnodiging verstuurd naar {name} ✓",
+    collabPendingLong: "uitnodiging in afwachting"
   };
 
   var IT = {
@@ -3060,7 +3084,11 @@
     rulesToc: "Indice",
     storageFull: "Spazio esaurito: impossibile salvare su questo dispositivo. Libera spazio o salva nel tuo account.",
     duplicateSuffix: "(copia)",
-    teamsDeleteError: "Eliminazione non riuscita: riprova tra un istante."
+    teamsDeleteError: "Eliminazione non riuscita: riprova tra un istante.",
+    collabInviteRole: "Accesso concesso",
+    collabAdded: "{name} aggiunto ✓",
+    collabInvited: "Invito inviato a {name} ✓",
+    collabPendingLong: "invito in sospeso"
   };
 
   // de/es/pt/nl/it are filled to match the 7-locale set. Until translated

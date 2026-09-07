@@ -3227,6 +3227,14 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   right: 0.7rem;
   z-index: 5;
 }
+/* Sortie de l'enregistreur : symétrique du bouton caméra, toujours visible —
+   y compris quand la caméra a été refusée et que la scène est noire. */
+.recorder-floating-tl {
+  position: absolute;
+  top: max(0.7rem, env(safe-area-inset-top));
+  left: 0.7rem;
+  z-index: 6;
+}
 
 /* REC indicator: floating bottom-right (only visible while recording) */
 .recorder-rec-indicator {
@@ -3361,6 +3369,7 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
 
 /* Re-enable just the switch-cam button (it now uses .recorder-floating-tr) */
 .recorder-floating-tr { display: inline-flex !important; }
+.recorder-floating-tl { display: inline-flex !important; }
 
 /* ==========================================================
    Recorder UI v6 — clean record button (white outline + full red circle)

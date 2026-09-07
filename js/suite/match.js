@@ -1810,6 +1810,13 @@
         '<h2 class="suite-dialog-title">👥 ' + esc(t("collabTitle")) + '</h2>' +
         '<p class="suite-dialog-text">' + esc(t("collabHelp2")) + '</p>' +
         '<div class="suite-collab-list" data-r="list"><p class="suite-sub">…</p></div>' +
+        // L'accès se choisit AVANT d'inviter : il était forcé à « Éditeur »,
+        // et il fallait le corriger après coup dans la liste.
+        '<div class="suite-collab-inviterole"><span class="suite-label">' + esc(t("collabInviteRole")) + '</span>' +
+          '<select class="suite-edit-select" data-r="newrole">' +
+            '<option value="editor">' + esc(t("collabRoleEditor")) + '</option>' +
+            '<option value="viewer">' + esc(t("collabRoleViewer")) + '</option>' +
+          '</select></div>' +
         '<div class="suite-field"><span class="suite-label">' + esc(t("collabAddByName")) + '</span>' +
           '<input class="suite-input" data-r="search" type="text" placeholder="' + esc(t("collabSearchPh")) + '" autocomplete="off" />' +
           '<div class="suite-collab-results" data-r="results"></div></div>' +
@@ -1823,6 +1830,7 @@
     document.body.appendChild(dlg);
     function close() { try { if (dlg.open) dlg.close(); } catch (e) { /* ignore */ } dlg.remove(); }
     var listEl = dlg.querySelector('[data-r="list"]'), search = dlg.querySelector('[data-r="search"]'), results = dlg.querySelector('[data-r="results"]');
+    function roleChoisi() { var s = dlg.querySelector('[data-r="newrole"]'); return (s && s.value === "viewer") ? "viewer" : "editor"; }
     dlg.querySelector('[data-r="close"]').onclick = close;
 
     function refresh() {
@@ -1832,16 +1840,32 @@
         var html = '<div class="suite-collab-row is-owner"><span class="suite-collab-nm">' + esc(collabMe()) + '</span><span class="suite-collab-owner">' + esc(t("collabRoleOwner")) + '</span></div>';
         if (!rows.length) html += '<p class="suite-sub suite-collab-empty">' + esc(t("collabNone")) + '</p>';
         html += rows.map(function (c) {
-          var pend = c.status === "pending" ? ' <span class="suite-collab-pending">' + esc(t("collabPending")) + '</span>' : '';
-          return '<div class="suite-collab-row"><span class="suite-collab-nm">' + esc(c.name) + pend + '</span>' +
+          // l'état est repris en sous-titre : pas de badge en double sur le nom
+          // nom au-dessus, état en dessous : le nom garde sa place même quand
+          // le menu de rôle est large (ou la ligne étroite sur téléphone)
+          var role = (c.role === "viewer") ? t("collabRoleViewer") : t("collabRoleEditor");
+          var etat = (c.status === "pending") ? (role + " · " + t("collabPendingLong")) : role;
+          return '<div class="suite-collab-row"><span class="suite-collab-nm-wrap">' +
+              '<span class="suite-collab-nm">' + esc(c.name) + '</span>' +
+              '<span class="suite-collab-sub">' + esc(etat) + '</span></span>' +
             '<select class="suite-edit-select suite-collab-rolesel" data-cid="' + esc(c.id) + '">' +
               '<option value="editor"' + (c.role !== "viewer" ? " selected" : "") + '>' + esc(t("collabRoleEditor")) + '</option>' +
               '<option value="viewer"' + (c.role === "viewer" ? " selected" : "") + '>' + esc(t("collabRoleViewer")) + '</option></select>' +
             '<button type="button" class="suite-btn suite-btn-mini" data-rm="' + esc(c.id) + '" aria-label="' + esc(t("commonDelete")) + '">✕</button></div>';
         }).join("");
         listEl.innerHTML = html;
-        [].forEach.call(listEl.querySelectorAll("[data-rm]"), function (b) { b.onclick = function () { Promise.resolve(sbClient().rpc("remove_collaborator", { p_res: id, p_collab: b.getAttribute("data-rm") })).then(refresh); }; });
-        [].forEach.call(listEl.querySelectorAll(".suite-collab-rolesel"), function (sel) { sel.onchange = function () { Promise.resolve(sbClient().rpc("set_collaborator_role", { p_res: id, p_collab: sel.getAttribute("data-cid"), p_role: sel.value })); }; });
+        [].forEach.call(listEl.querySelectorAll("[data-rm]"), function (b) {
+          b.onclick = function () {
+            Promise.resolve(sbClient().rpc("remove_collaborator", { p_res: id, p_collab: b.getAttribute("data-rm") }))
+              .then(function (r) { if (r && r.error) toast(t("collabError")); refresh(); }, function () { toast(t("collabError")); refresh(); });
+          };
+        });
+        [].forEach.call(listEl.querySelectorAll(".suite-collab-rolesel"), function (sel) {
+          sel.onchange = function () {
+            Promise.resolve(sbClient().rpc("set_collaborator_role", { p_res: id, p_collab: sel.getAttribute("data-cid"), p_role: sel.value }))
+              .then(function (r) { if (r && r.error) { toast(t("collabError")); } refresh(); }, function () { toast(t("collabError")); });
+          };
+        });
       }, function () { listEl.innerHTML = '<p class="suite-sub">' + esc(t("collabError")) + '</p>'; });
     }
     refresh();
@@ -1857,8 +1881,14 @@
         }).join("");
         [].forEach.call(results.querySelectorAll(".suite-collab-res"), function (b) {
           b.onclick = function () {
-            Promise.resolve(sbClient().rpc("add_collaborator", { p_res: id, p_user_id: b.getAttribute("data-id"), p_email: null, p_label: b.getAttribute("data-nm"), p_role: "editor" }))
-              .then(function () { search.value = ""; results.innerHTML = ""; refresh(); });
+            var nm = b.getAttribute("data-nm");
+            Promise.resolve(sbClient().rpc("add_collaborator", { p_res: id, p_user_id: b.getAttribute("data-id"), p_email: null, p_label: nm, p_role: roleChoisi() }))
+              .then(function (r) {
+                search.value = ""; results.innerHTML = "";
+                if (r && r.error) { toast(t("collabError")); return; }
+                toast(tf("collabAdded", { name: nm || "?" }));
+                refresh();
+              }, function () { toast(t("collabError")); });
           };
         });
       }, function () { results.innerHTML = ""; });
@@ -1867,8 +1897,13 @@
     dlg.querySelector('[data-r="addemail"]').onclick = function () {
       var em = dlg.querySelector('[data-r="email"]').value.trim();
       if (!em || em.indexOf("@") < 1) return;
-      Promise.resolve(sbClient().rpc("add_collaborator", { p_res: id, p_user_id: null, p_email: em, p_label: null, p_role: "editor" }))
-        .then(function () { dlg.querySelector('[data-r="email"]').value = ""; refresh(); });
+      Promise.resolve(sbClient().rpc("add_collaborator", { p_res: id, p_user_id: null, p_email: em, p_label: null, p_role: roleChoisi() }))
+        .then(function (r) {
+          if (r && r.error) { toast(t("collabError")); return; }
+          dlg.querySelector('[data-r="email"]').value = "";
+          toast(tf("collabInvited", { name: em }));
+          refresh();
+        }, function () { toast(t("collabError")); });
     };
 
     dlg.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); close(); } });

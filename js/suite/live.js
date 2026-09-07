@@ -48,7 +48,25 @@
      Supabase Realtime *private* channel with an RLS policy on realtime.messages
      that only lets the authenticated match owner broadcast (viewers read-only). */
   var _rt = null, _rtRole = null;   // null | 'pub' | 'sub'
+  var _rtPrive = null;              // null = pas encore décidé ; true/false = mode retenu
   function rtClient() { return window.actoSuiteSb || null; }
+  // Le canal privé n'est tenté que si le drapeau est levé ET si la migration
+  // correspondante a été appliquée. Au moindre échec d'abonnement on repasse en
+  // public : un direct qui ne s'affiche pas est bien pire qu'un canal ouvert.
+  function rtVeutPrive() {
+    if (_rtPrive === false) return false;
+    var c = window.actoConfig;
+    return !!(c && c.live && c.live.privateChannel);
+  }
+  function rtOptions(prive) {
+    var o = { config: { broadcast: { self: false } } };
+    if (prive) o.config.private = true;
+    return o;
+  }
+  // Realtime exige le jeton de session pour un canal privé (RLS côté serveur).
+  function rtAuthPrive(sb) {
+    try { if (sb.realtime && typeof sb.realtime.setAuth === "function") sb.realtime.setAuth(); } catch (e) { /* ignore */ }
+  }
   // Channel keyed by the match's JOIN CODE so ANY device (logged in or not) can
   // view by entering the code. Presenter → its own sess.joinCode; a viewer / the
   // public join page → window.actoJoinCode. Falls back to the account id (legacy).
@@ -94,11 +112,23 @@
   function rtEnsurePublisher() {
     if (_rt) return _rt;
     var sb = rtClient(), name = rtChannelName(); if (!sb || !name) return null;
+    var prive = rtVeutPrive();
     try {
-      _rt = sb.channel(name, { config: { broadcast: { self: false } } });
+      if (prive) rtAuthPrive(sb);
+      _rt = sb.channel(name, rtOptions(prive));
       // A late-joining subscriber pings 'hello' → resend the current snapshot.
       _rt.on("broadcast", { event: "hello" }, function () { broadcast(); });
-      _rt.subscribe();
+      _rt.subscribe(function (status) {
+        // Refus côté serveur (politique absente, migration pas passée) : on
+        // rebascule en public une fois pour toutes et on republie.
+        if (prive && (status === "CHANNEL_ERROR" || status === "TIMED_OUT")) {
+          console.warn("[live] canal privé refusé (" + status + ") — repli sur le canal public");
+          _rtPrive = false;
+          try { sb.removeChannel(_rt); } catch (e) { /* ignore */ }
+          _rt = null; _rtRole = null;
+          rtEnsurePublisher(); broadcast();
+        } else if (status === "SUBSCRIBED" && prive) { _rtPrive = true; }
+      });
       _rtRole = "pub";
     } catch (e) { _rt = null; }
     return _rt;
@@ -122,11 +152,22 @@
   }
   function rtSubscribe(onSnap) {
     var sb = rtClient(), name = rtChannelName(); if (!sb || !name) return null;
+    var prive = rtVeutPrive();
     try {
-      _rt = sb.channel(name, { config: { broadcast: { self: false } } });
+      if (prive) rtAuthPrive(sb);
+      _rt = sb.channel(name, rtOptions(prive));
       _rt.on("broadcast", { event: "snap" }, function (msg) { if (msg && msg.payload) onSnap(msg.payload); });
       _rt.subscribe(function (status) {
-        if (status === "SUBSCRIBED") { try { _rt.send({ type: "broadcast", event: "hello", payload: {} }); } catch (e) { /* ignore */ } }
+        if (status === "SUBSCRIBED") { if (prive) _rtPrive = true; try { _rt.send({ type: "broadcast", event: "hello", payload: {} }); } catch (e) { /* ignore */ } }
+        // Un écran public qui n'affiche rien serait le pire résultat : au moindre
+        // refus, on retombe sur le canal public.
+        else if (prive && (status === "CHANNEL_ERROR" || status === "TIMED_OUT")) {
+          console.warn("[live] canal privé refusé (" + status + ") — repli sur le canal public");
+          _rtPrive = false;
+          try { sb.removeChannel(_rt); } catch (e) { /* ignore */ }
+          _rt = null; _rtRole = null;
+          rtSubscribe(onSnap);
+        }
       });
       _rtRole = "sub";
     } catch (e) { _rt = null; }
@@ -970,6 +1011,7 @@
     document.body.classList.add("suite-display-mode");
     redraw = renderDisplay;
     startSubscriptions();
+    if (dTick) clearInterval(dTick);   // défense : un montage sans cleanup préalable laisserait tourner l'ancien
     dTick = setInterval(renderDisplayClock, 250);
     renderDisplay();
   }
@@ -1148,6 +1190,7 @@
     redraw = updateRecordInfo;
     recMounted = true;
     startSubscriptions();
+    if (dTick) clearInterval(dTick);
     dTick = setInterval(function () {
       var el = dRoot && dRoot.querySelector("#recClock"); if (el && dSnap) el.textContent = S.formatSec(displayRemaining());
       if (recState === "recording") updateRecStatus();   // keep the elapsed-time readout live

@@ -23,6 +23,14 @@
         return window.location.origin + window.location.pathname;
       }
     }),
+    live: Object.freeze({
+      // Canal Realtime privé pour le direct (écriture réservée à l'arbitre).
+      // À passer à true SEULEMENT après avoir exécuté
+      // migrate-2026-09-live-private.sql et testé un direct sur deux appareils.
+      // Si l'abonnement privé échoue, le client retombe tout seul sur le canal
+      // public — mais le tester avant une représentation reste la règle.
+      privateChannel: false
+    }),
     auth: Object.freeze({
       // Social sign-in buttons only render for the providers listed here. Add a
       // provider ONLY after you've enabled it in the Supabase dashboard
