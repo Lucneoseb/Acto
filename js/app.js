@@ -47,7 +47,10 @@
       delta_record_seconds: 0
     };
     try {
-      await window.actoSupabase.rpc("bump_stats", snapshot);
+      // supabase-js ne lève pas : l'erreur est dans la réponse. Sans ce test,
+      // un appel échoué comptait comme envoyé et les compteurs étaient perdus.
+      const r = await window.actoSupabase.rpc("bump_stats", snapshot);
+      if (r && r.error) throw r.error;
     } catch (e) {
       // Restore on error
       console.warn("stats flush failed", e);
@@ -175,11 +178,12 @@
     if (sec <= 0) return;
     improEvent.pendingSecondsToCommit = 0;
     try {
-      await window.actoSupabase.rpc("update_impro_event", {
+      const r = await window.actoSupabase.rpc("update_impro_event", {
         p_event_id: improEvent.id,
         p_add_played_seconds: sec,
         p_set_was_recorded: null
       });
+      if (r && r.error) throw r.error;
     } catch (e) {
       console.warn("update_impro_event (played) failed", e);
       improEvent.pendingSecondsToCommit += sec;
@@ -189,11 +193,12 @@
     if (!improEvent.id || improEvent.wasRecordedSent || !window.actoSupabase) return;
     improEvent.wasRecordedSent = true;
     try {
-      await window.actoSupabase.rpc("update_impro_event", {
+      const r = await window.actoSupabase.rpc("update_impro_event", {
         p_event_id: improEvent.id,
         p_add_played_seconds: 0,
         p_set_was_recorded: true
       });
+      if (r && r.error) throw r.error;
     } catch (e) {
       console.warn("update_impro_event (recorded) failed", e);
       improEvent.wasRecordedSent = false;
@@ -917,12 +922,12 @@
     if (!state.isGenerating) {
       const dash = t.emDash ?? "—";
       const place = t.placeholder ?? "—";
-      setReelPlaceholder("reel-exercise",   place);
-      setReelPlaceholder("reel-constraint", dash);
-      setReelPlaceholder("reel-theme",      dash);
-      setReelPlaceholder("reel-category",   dash);
-      setReelPlaceholder("reel-duration",   dash);
-      setReelPlaceholder("reel-players",    dash);
+      refreshReelPlaceholder("reel-exercise",   place);
+      refreshReelPlaceholder("reel-constraint", dash);
+      refreshReelPlaceholder("reel-theme",      dash);
+      refreshReelPlaceholder("reel-category",   dash);
+      refreshReelPlaceholder("reel-duration",   dash);
+      refreshReelPlaceholder("reel-players",    dash);
     }
 
     setText("footerText",       t.footer);
@@ -953,6 +958,13 @@
     const el = document.getElementById(id);
     if (el) el.innerHTML = `<div class="reel-item placeholder">${escapeHtml(txt)}</div>`;
   }
+  // Retraduit un tiret de repos SANS toucher à une carte tirée : applyTranslations
+  // tourne aussi à chaque événement d'auth (INITIAL_SESSION, TOKEN_REFRESHED) et
+  // effaçait le tirage en cours au beau milieu d'un match.
+  function refreshReelPlaceholder(id, txt) {
+    const el = document.getElementById(id);
+    if (el && (!el.firstElementChild || el.querySelector(".reel-item.placeholder"))) setReelPlaceholder(id, txt);
+  }
 
   /** Update the Nature banner (Match mode only) with the current value. */
   function refreshNatureBanner() {
@@ -982,6 +994,18 @@
     return "";
   }
 
+  /** « Comparée » se reconnaissait par /compar/ sur le libellé TRADUIT : tout
+   *  le flux Comparée (bannière de tirage, équipe qui commence, caméra) était
+   *  mort en allemand (Vergleichend) et en néerlandais (Vergeleken). On compare
+   *  au libellé natureComparee de toutes les langues du bundle. */
+  function isNatureComparee(v) {
+    if (!v) return false;
+    if (/compar/i.test(v)) return true;
+    const B = (typeof IMPRO_BUNDLE !== "undefined" ? IMPRO_BUNDLE : window.IMPRO_BUNDLE) || {};
+    const ui = B.ui || {};
+    return Object.keys(ui).some(l => ui[l] && ui[l].natureComparee === v);
+  }
+
   /** Show / update / hide the "🎲 X commence" banner depending on the
    *  current nature pick. Hidden in Mixte / Troupe / un-generated. */
   function refreshTirageBanner() {
@@ -989,7 +1013,7 @@
     if (!el) return;
     const t = store.ui;
     const isComparee = state.mode === "match"
-      && /compar/i.test(state.currentNature || "");
+      && isNatureComparee(state.currentNature);
     if (!isComparee || !state.firstStarter) {
       el.hidden = true;
       return;
@@ -1941,6 +1965,7 @@
     if (state.chronoRemaining <= 0) return;
     audio();
     state.chronoRunning = true;
+    { const disp = $("#chronoDisplay"); if (disp) disp.classList.remove("ended"); }   // relance après la fin : plus de rouge « terminé » figé
     statsImproStartTracking();
     const startBtn = $("#chronoStartBtn"), pauseBtn = $("#chronoPauseBtn");
     if (startBtn) startBtn.disabled = true;
@@ -2893,7 +2918,7 @@
           // fresh setup, so we re-roll the first-starter and clear
           // the "this team has already recorded" tracking. Mixte wins
           // → these are no-ops (the banner just hides).
-          if (state.mode === "match" && /compar/i.test(state.currentNature || "")) {
+          if (state.mode === "match" && isNatureComparee(state.currentNature)) {
             state.firstStarter = (Math.random() < 0.5) ? "a" : "b";
             state.currentRecordingTeam = state.firstStarter;
             state.recordedTeamsSet = new Set();
@@ -4247,7 +4272,7 @@
                  || ($("#teamB") && $("#teamB").value) || "";
       const aSlug = slugForFilename(aName, 20);
       const bSlug = slugForFilename(bName, 20);
-      const isComparee = /compar/i.test(state.currentNature || "");
+      const isComparee = isNatureComparee(state.currentNature);
       if (isComparee && state.currentRecordingTeam) {
         // Comparée → solo team name in the filename.
         const sideSlug = (state.currentRecordingTeam === "a") ? aSlug : bSlug;
@@ -4279,7 +4304,7 @@
     if (el) {
       const t = store.ui;
       const isCompareeMatch = state.mode === "match"
-        && /compar/i.test(state.currentNature || "");
+        && isNatureComparee(state.currentNature);
       if (!isCompareeMatch || !state.currentRecordingTeam) {
         el.hidden = true;
       } else {
@@ -4302,7 +4327,7 @@
     if (!sel) return;
     const t = store.ui;
     const isCompareeMatch = state.mode === "match"
-      && /compar/i.test(state.currentNature || "");
+      && isNatureComparee(state.currentNature);
     // Idle = the user hasn't pressed the big red button yet. Once
     // rec.isRecording flips true, we lock the picker.
     const isIdle = !rec.isRecording;
@@ -4333,7 +4358,7 @@
     if (!btn) return;
     const t = store.ui;
     const isComparee = state.mode === "match"
-      && /compar/i.test(state.currentNature || "");
+      && isNatureComparee(state.currentNature);
     const oneDone = state.recordedTeamsSet && state.recordedTeamsSet.size === 1;
     if (!isComparee || !oneDone) { btn.hidden = true; return; }
     btn.textContent = t.recordOtherTeamBtn || "🎬 Record the other team";
@@ -4564,7 +4589,7 @@
     // Match Comparée: remember which team we just recorded so the
     // "Record the other team" CTA can appear on the preview popup
     // when exactly one of the two teams is done.
-    if (state.mode === "match" && /compar/i.test(state.currentNature || "")
+    if (state.mode === "match" && isNatureComparee(state.currentNature)
         && state.currentRecordingTeam) {
       state.recordedTeamsSet.add(state.currentRecordingTeam);
     }

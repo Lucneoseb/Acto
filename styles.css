@@ -1373,11 +1373,17 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
 
 .top-actions {
   position: fixed;
-  top: 1.25rem;
-  right: 1.25rem;
+  /* safe-area : en PWA plein écran, la barre passait sous l'encoche */
+  top: calc(1.25rem + env(safe-area-inset-top, 0px));
+  right: calc(1.25rem + env(safe-area-inset-right, 0px));
   z-index: 50;
   display: flex;
   gap: 0.5rem;
+  /* six boutons connecté : entre 640 et 750 px la barre débordait de l'écran ;
+     même remède que .suite-topbar dans suite.css */
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: calc(100vw - 2.5rem);
 }
 .top-trigger {
   display: inline-flex;
@@ -4554,7 +4560,9 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
 /* Les dialogs étaient dimensionnées en vh : la barre d'URL mobile les
    coupait en haut ET en bas. svh = hauteur réellement visible. */
 @supports (height: 100svh) {
-  dialog { max-height: min(92svh, 100% - 2rem); }
+  /* `dialog` seul (0,0,1) perdait contre toutes les classes en vh : règle morte.
+     `dialog[class]` (0,1,1) passe devant. */
+  dialog, dialog[class] { max-height: min(92svh, 100% - 2rem); }
 }
 
 /* ==========================================================
@@ -4614,3 +4622,19 @@ input[type="range"]:focus-visible { outline-offset: 4px; }
   background: var(--gold); color: #1a0f2b; font: 600 0.9rem/1 "Inter", sans-serif; text-decoration: none;
 }
 .skip-link:focus { top: 0.75rem; }
+
+/* ─── prefers-reduced-motion : animations infinies coupées ────────────────────
+   Pulsation du chrono en zone rouge, clignotement REC, étincelles, dérives
+   du fond : pénibles pour qui a demandé moins de mouvement. Le rouleau de
+   tirage reste (il porte l'information). */
+@media (prefers-reduced-motion: reduce) {
+  .spotlight,
+  .hero-mask,
+  .generate-icon,
+  .footer-heart,
+  .chrono-display.danger,
+  .hero-logo,
+  .recorder-rec-dot,
+  .recorder-chrono-chip.danger,
+  .recorder-record[data-recording="true"] { animation: none !important; }
+}

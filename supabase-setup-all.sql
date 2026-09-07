@@ -167,6 +167,40 @@ create trigger profiles_set_updated_at
   before update on public.profiles
   for each row execute function public.set_updated_at();
 
+-- 1.3 bis GARDE-FOU is_admin (audit 2026-09-06). La politique
+--     « update_own_profile » autorise l'utilisateur à modifier SA ligne, sans
+--     restriction de colonne : un simple PATCH /rest/v1/profiles?id=eq.<moi>
+--     {"is_admin": true} suffisait à devenir administrateur (idem par
+--     delete + insert). Le drapeau ne bouge désormais que depuis une session
+--     déjà admin, ou hors PostgREST (éditeur SQL du tableau de bord, où
+--     auth.uid() est nul) — c'est là qu'on promeut le premier compte.
+create or replace function public.guard_profile_admin_flag()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if tg_op = 'INSERT' then
+    if new.is_admin and auth.uid() is not null and not public.is_admin() then
+      new.is_admin := false;
+    end if;
+    return new;
+  end if;
+  if new.is_admin is distinct from old.is_admin
+     and auth.uid() is not null
+     and not public.is_admin() then
+    raise exception 'is_admin ne peut être modifié que par un administrateur';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists profiles_guard_admin_flag on public.profiles;
+create trigger profiles_guard_admin_flag
+  before insert or update on public.profiles
+  for each row execute function public.guard_profile_admin_flag();
+
 -- 1.4 SELF-DELETE RPC — lets the authenticated user nuke their own auth row.
 --     Cascades onto profiles via the FK on delete cascade.
 create or replace function public.delete_my_account()
@@ -514,9 +548,13 @@ begin
     raise exception 'not authenticated';
   end if;
   q := nullif(trim(coalesce(p_query, '')), '');
-  if q is null or length(q) < 2 then
+  -- Les jokers de LIKE (% et _) sont neutralisés : « %% » passait le minimum
+  -- de 2 caractères et renvoyait tout l'annuaire, 20 lignes par 20. Et il
+  -- faut 2 caractères alphanumériques, pas 2 signes de ponctuation.
+  if q is null or length(regexp_replace(q, '[^[:alnum:]]', '', 'g')) < 2 then
     return;
   end if;
+  q := replace(replace(replace(q, '\', '\\'), '%', '\%'), '_', '\_');
   -- Search ONLY on stage name + first name. We deliberately drop matching
   -- on email + last name: those would let an authenticated attacker
   -- enumerate the directory by domain (e.g. @gimbalcube.com → list every
@@ -656,6 +694,9 @@ begin
   end if;
   if p_kind not in ('theme','category','constraint','exercise') then
     raise exception 'invalid kind: %', p_kind;
+  end if;
+  if p_locale is null or p_locale not in ('fr','en','de','es','pt','nl','it') then
+    raise exception 'invalid locale: %', p_locale;
   end if;
   -- Whitelist enums so a tampered client can't pollute the analytics with
   -- arbitrary mode/level strings. Empty/null are allowed (theme has no
@@ -872,6 +913,9 @@ begin
   if p_kind not in ('theme','category','constraint','exercise') then
     raise exception 'invalid kind: %', p_kind;
   end if;
+  if p_locale is null or p_locale not in ('fr','en','de','es','pt','nl','it') then
+    raise exception 'invalid locale: %', p_locale;
+  end if;
   v_text := nullif(trim(coalesce(p_text, '')), '');
   if v_text is null then
     raise exception 'text is empty';
@@ -942,6 +986,9 @@ begin
   end if;
   if p_kind not in ('theme','category','constraint','exercise') then
     raise exception 'invalid kind: %', p_kind;
+  end if;
+  if p_locale is null or p_locale not in ('fr','en','de','es','pt','nl','it') then
+    raise exception 'invalid locale: %', p_locale;
   end if;
   v_orig := nullif(trim(coalesce(p_original_text, '')), '');
   v_new  := nullif(trim(coalesce(p_new_text, '')), '');
@@ -1032,6 +1079,9 @@ begin
   if p_kind not in ('theme','category','constraint','exercise') then
     raise exception 'invalid kind: %', p_kind;
   end if;
+  if p_locale is null or p_locale not in ('fr','en','de','es','pt','nl','it') then
+    raise exception 'invalid locale: %', p_locale;
+  end if;
   v_text := nullif(trim(coalesce(p_text, '')), '');
   if v_text is null then
     raise exception 'text is empty';
@@ -1083,6 +1133,9 @@ begin
   end if;
   if p_kind not in ('theme','category','constraint','exercise') then
     raise exception 'invalid kind: %', p_kind;
+  end if;
+  if p_locale is null or p_locale not in ('fr','en','de','es','pt','nl','it') then
+    raise exception 'invalid locale: %', p_locale;
   end if;
   v_text := nullif(trim(coalesce(p_text, '')), '');
   if v_text is null then
@@ -1260,22 +1313,11 @@ drop policy if exists "admins_write_app_secrets"  on public.app_secrets;
 drop policy if exists "admins_update_app_secrets" on public.app_secrets;
 drop policy if exists "admins_delete_app_secrets" on public.app_secrets;
 
-create policy "admins_read_app_secrets"
-  on public.app_secrets for select
-  using (public.is_admin());
-
-create policy "admins_write_app_secrets"
-  on public.app_secrets for insert
-  with check (public.is_admin());
-
-create policy "admins_update_app_secrets"
-  on public.app_secrets for update
-  using (public.is_admin())
-  with check (public.is_admin());
-
-create policy "admins_delete_app_secrets"
-  on public.app_secrets for delete
-  using (public.is_admin());
+-- Aucune politique (audit 2026-09-06) : RLS activée sans politique = aucun
+-- accès par PostgREST, même pour un admin. La clé API Resend n'a pas à être
+-- lisible depuis un navigateur — seul le trigger d'e-mail (security definer)
+-- la lit, et il contourne RLS. On l'écrit depuis l'éditeur SQL du tableau de
+-- bord, comme indiqué plus haut.
 
 -- 6.2 EMAIL TRIGGER FUNCTION
 -- Fires after each insert into user_submissions. Reads the four secrets,
@@ -2132,8 +2174,15 @@ alter table public.challenges enable row level security;
 
 -- Sender fully manages their own; a targeted (logged-in) recipient can read theirs.
 drop policy if exists challenges_sender_all on public.challenges;
+-- Lecture + suppression seulement : l'insertion et les changements d'état
+-- passent par les RPC (create_challenge génère le jeton et applique les
+-- garde-fous ; mark_challenge_* tiennent les horodatages). Un « for all »
+-- laissait le client contourner tout ça par un simple insert.
 create policy challenges_sender_all on public.challenges
-  for all using (sender_id = auth.uid()) with check (sender_id = auth.uid());
+  for select using (sender_id = auth.uid());
+drop policy if exists challenges_sender_delete on public.challenges;
+create policy challenges_sender_delete on public.challenges
+  for delete using (sender_id = auth.uid());
 drop policy if exists challenges_recipient_read on public.challenges;
 create policy challenges_recipient_read on public.challenges
   for select using (recipient_user_id = auth.uid());
@@ -2356,6 +2405,7 @@ begin
   if auth.uid() is null then raise exception 'auth required'; end if;
   if p_type not in ('match', 'entrainement', 'spectacle') then raise exception 'bad type'; end if;
   if p_data is null or jsonb_typeof(p_data) <> 'object' then raise exception 'bad data'; end if;
+  if pg_column_size(p_data) > 2097152 then raise exception 'data too large (max 2 MB)'; end if;   -- un déroulé pèse quelques Ko ; 2 Mo = logos en data-URL compris
   insert into public.shared_resources(owner_id, resource_type, title, data, updated_by)
     values (auth.uid(), p_type, coalesce(p_title, ''), p_data, auth.uid())
     returning id into v_id;
@@ -2370,6 +2420,7 @@ begin
   if auth.uid() is null then raise exception 'auth required'; end if;
   if not public.can_edit_resource(p_id) then raise exception 'not allowed'; end if;
   if p_data is null or jsonb_typeof(p_data) <> 'object' then raise exception 'bad data'; end if;
+  if pg_column_size(p_data) > 2097152 then raise exception 'data too large (max 2 MB)'; end if;   -- un déroulé pèse quelques Ko ; 2 Mo = logos en data-URL compris
   update public.shared_resources
      set data = p_data, title = coalesce(p_title, title), updated_at = now(), updated_by = auth.uid()
    where id = p_id
@@ -2454,7 +2505,10 @@ begin
   if auth.uid() is null or not public.can_access_resource(p_res) then raise exception 'not allowed'; end if;
   return query
     select c.id, c.user_id,
-           coalesce(nullif(btrim(p.nom_scene), ''), nullif(btrim(p.prenom), ''), nullif(btrim(c.invited_label), ''), c.invited_email, '—'),
+           -- l'e-mail d'un invité en attente n'est montré qu'au propriétaire :
+           -- un simple collaborateur n'a pas à voir les adresses des autres
+           coalesce(nullif(btrim(p.nom_scene), ''), nullif(btrim(p.prenom), ''), nullif(btrim(c.invited_label), ''),
+                    case when public.is_resource_owner(p_res) then c.invited_email end, '—'),
            c.role, c.status
     from public.resource_collaborators c
     left join public.profiles p on p.id = c.user_id

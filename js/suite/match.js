@@ -115,7 +115,9 @@
       if (!current || current.kind !== kind) { navigate(homeRoute() + "/prepare"); return; }
       // Re-subscribe if this is a shared resource (e.g. after a locale-change re-render
       // tore the channel down) so the owner doesn't silently leave the collab session.
-      if (current.collabId && !collab) collabStart(current.collabId, "owner");
+      // Avec le rôle mémorisé au montage : un collaborateur revenu du direct
+      // redevenait « owner » côté client et son 💾 créait un miroir à son nom.
+      if (current.collabId && !collab) collabStart(current.collabId, current.collabRole || "owner");
       renderEditor();
     } else renderLanding();
   }
@@ -872,7 +874,7 @@
   function cloudWarn(ok) { if (!ok) toast(t("cloudSaveFailed")); }
   // Sauvegarde unique : local (référence) + miroir de compte (best-effort).
   function persistSession(session) {
-    S.sessions.save(session);
+    if (!S.sessions.save(session)) toast(t("storageFull"));   // quota local plein : on le dit, et on tente quand même le compte
     cloudMirror(session, cloudWarn);
   }
 
@@ -1598,8 +1600,12 @@
     // cloudId exclu aussi : c'est un pointeur LOCAL vers le miroir de compte.
     // Embarque dans le payload, un collaborateur heriterait de l'id de la
     // ressource du proprietaire et ecrirait dedans en enregistrant chez lui.
-    for (var k in s) { if (s.hasOwnProperty(k) && k !== "collabId" && k !== "collabToken" && k !== "cloudId") out[k] = s[k]; }
+    for (var k in s) { if (s.hasOwnProperty(k) && k !== "collabId" && k !== "collabToken" && k !== "cloudId" && k !== "collabRole") out[k] = s[k]; }
     return out;
+  }
+  function collabPresenceKey() {
+    if (!collabPresenceKey.v) collabPresenceKey.v = ((window.actoUser && window.actoUser.id) || "anon") + ":" + Math.random().toString(36).slice(2, 8);
+    return collabPresenceKey.v;
   }
   function collabMe() {
     var u = window.actoUser || {};
@@ -1617,6 +1623,7 @@
     collabReq = {};   // invalidate any in-flight mount/create resolution (even before collab exists)
     if (!collab) return;
     if (collab.pushTimer) { clearTimeout(collab.pushTimer); collab.pushTimer = null; collabPushNow(); }  // flush the last queued edit on exit
+    if (collab.pendingTimer) { clearTimeout(collab.pendingTimer); collab.pendingTimer = null; }
     try { var c = sbClient(); if (c && collab.channel) c.removeChannel(collab.channel); } catch (e) { /* ignore */ }
     collab = null;
   }
@@ -1653,7 +1660,7 @@
     collab.pushTimer = setTimeout(function () { collab.pushTimer = null; collabPushNow(); }, 700);
   }
   function collabApplyRemote(data) {
-    if (!collab || !data || !root) return;
+    if (!collab || !data || !root || !isSession(data)) return;   // structure inattendue : on ignore plutôt que de planter l'éditeur
     // 1) Jamais de retour en arrière : un instantané qui n'est pas strictement
     //    plus récent est ignoré. À `rev` égal (même génération éditée des deux
     //    côtés), on départage par l'auteur — stable, identique des deux côtés.
@@ -1666,6 +1673,20 @@
     var ae = document.activeElement;
     if (ae && root.contains(ae) && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) {
       collab.pendingRemote = data;
+      // Si le champ en cours de saisie est détruit sans « blur » (re-rendu,
+      // navigation), le crochet ci-dessous ne se déclenche jamais et la synchro
+      // reste figée. Filet : on revérifie régulièrement et on applique dès
+      // que plus aucun champ du déroulé n'a le focus.
+      if (collab.pendingTimer) clearTimeout(collab.pendingTimer);
+      (function rearm() {
+        collab.pendingTimer = setTimeout(function () {
+          if (!collab || !collab.pendingRemote) return;
+          var a2 = document.activeElement;
+          if (a2 && root && root.contains(a2) && /^(INPUT|TEXTAREA|SELECT)$/.test(a2.tagName)) { rearm(); return; }
+          var d = collab.pendingRemote; collab.pendingRemote = null;
+          collabApplyRemote(d);
+        }, 1500);
+      })();
       if (!collab.pendingHook) {
         collab.pendingHook = true;
         ae.addEventListener("blur", function onBlur() {
@@ -1680,8 +1701,19 @@
     }
     if (collab.pushTimer) { clearTimeout(collab.pushTimer); collab.pushTimer = null; }
     collab.applyingRemote = true;
+    // Le payload est « nettoyé » (sans cloudId ni rôle) : le propriétaire
+    // perdait son pointeur de miroir à la première édition reçue, et son
+    // prochain 💾 créait une SECONDE ligne serveur. On conserve ce qui est
+    // local à cet appareil.
+    var garde = (current && current.collabId === collab.id)
+      ? { cloudId: current.cloudId, cloudUpdatedAt: current.cloudUpdatedAt, collabRole: current.collabRole } : null;
     current = data;
     current.collabId = collab.id;
+    if (garde) {
+      if (garde.cloudId) current.cloudId = garde.cloudId;
+      if (garde.cloudUpdatedAt) current.cloudUpdatedAt = garde.cloudUpdatedAt;
+      if (garde.collabRole) current.collabRole = garde.collabRole;
+    }
     if (current.kind && KINDS[current.kind]) { kind = current.kind; K = KINDS[kind]; }
     renderEditor();
     collab.applyingRemote = false;
@@ -1711,7 +1743,10 @@
     // Public broadcast channel keyed by the resource id (low-latency live edits +
     // presence). The DURABLE store is RLS + role gated server-side (save_shared_resource),
     // so an id-only snooper can at most inject transient edits, never persist them.
-    var ch = c.channel("acto-resource:" + id, { config: { broadcast: { self: false }, presence: { key: id } } });
+    // Clé de présence PAR PAIR : avec la clé commune (l'id de la ressource),
+    // tous les pairs se rangeaient sous la même entrée et le badge disait
+    // « 1 en édition » quel que soit le nombre de participants.
+    var ch = c.channel("acto-resource:" + id, { config: { broadcast: { self: false }, presence: { key: collabPresenceKey() } } });
     ch.on("broadcast", { event: "edit" }, function (msg) { if (msg && msg.payload && msg.payload.data) collabApplyRemote(msg.payload.data); });
     // Seul le propriétaire répond au « hello » d'un arrivant : avant, chaque
     // pair renvoyait son état complet au même instant, et le dernier à arriver
@@ -1743,6 +1778,7 @@
       current.collabId = current.cloudId;
       S.sessions.save(current);
       collabStart(current.collabId, "owner");
+      collabPushNow();   // l'état courant, même non enregistré, devient la version partagée : l'invité ne charge pas une version périmée
       onReady(current.collabId);
       return;
     }
@@ -1851,8 +1887,8 @@
   }
   function mountCollab(container, nav, sub) {
     root = container; navigate = nav || navigate;
+    collabTeardown();   // d'abord : il envoie la dernière édition en attente, qui a besoin de `current`
     editing = null; current = null;
-    collabTeardown();
     var id = String(sub || "").split("/")[0];
     if (!id) { navigate("#/match"); return; }
     kind = "match"; K = KINDS.match;
@@ -1871,8 +1907,10 @@
         if (collabReq !== myReq || !r) return;    // stale resolution → ignore
         if (r.error || !r.data || !r.data[0] || !r.data[0].data) { renderCollabError(); return; }
         var row = r.data[0];
+        if (!isSession(row.data)) { renderCollabError(); return; }
         current = row.data;
         current.collabId = id;
+        current.collabRole = row.my_role || "editor";   // mémorisé pour les retours du direct (voir mount)
         // Le propriétaire qui ouvre SON match par le lien collab : la ligne
         // partagée EST son miroir de compte. Sans ce rattachement, son prochain
         // 💾 créait une SECONDE ligne serveur et les deux copies divergeaient

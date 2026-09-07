@@ -68,7 +68,7 @@
     var path = toPath(r);
     if (location.pathname === path && !location.hash) { render(); return; }
     try { history.pushState({ acto: 1 }, "", path); }
-    catch (e) { location.hash = "#/" + [r.section === "home" ? "" : r.section, r.sub].filter(Boolean).join("/"); return; }
+    catch (e) { location.hash = "#/" + [r.section === "home" ? "" : r.section, r.sub].filter(Boolean).join("/"); render(); return; }   // sans render(), la page restait figée quand pushState échoue
     render();
   }
 
@@ -249,7 +249,7 @@
     var handoff = null;
     try { handoff = sessionStorage.getItem("acto:route"); if (handoff) sessionStorage.removeItem("acto:route"); } catch (e) { /* ignore */ }
     var r = handoff ? fromPath(handoff) : null;
-    if (!r && location.hash && location.hash.length > 1) r = fromHash(location.hash);
+    if (!r && location.hash.indexOf("#/") === 0) r = fromHash(location.hash);   // une ancre de page (#suiteMain) n'est pas une route
     if (!r && !fromPath(location.pathname)) r = { section: "home", sub: "" };
     if (r) {
       var path = toPath(r);

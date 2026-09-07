@@ -324,7 +324,9 @@
       .then(function (r) { if (!r.ok) throw new Error("no locale file"); return r.json(); })
       .catch(function () { return fetch("./data/warmups-fr.json").then(function (r) { return r.json(); }); })
       .then(function (j) { _warmups = (j && j.exercises) || []; return _warmups; })
-      .catch(function () { _warmups = []; return _warmups; });
+      // Échec réseau : on ne retient RIEN, sinon la liste vide restait
+      // « chargée » pour toute la session et plus aucun échauffement ne sortait.
+      .catch(function () { _warmups = null; _warmupsLoading = null; return []; });
     return _warmupsLoading;
   }
   function drawWarmup() {
@@ -451,8 +453,12 @@
     if (!session.id) session.id = uid();
     if (!session.createdAt) session.createdAt = Date.now();
     session.updatedAt = Date.now();
+    // Quota plein (photos d'équipe en data-URL, vieux navigateur) : l'échec
+    // était avalé et l'index mis à jour quand même — une session fantôme dans
+    // la liste, et des modifications perdues sans un mot. On renvoie null,
+    // l'appelant prévient.
     try { localStorage.setItem(sessionKey(session.id), JSON.stringify(session)); }
-    catch (e) { /* ignore */ }
+    catch (e) { console.warn("[sessions] stockage impossible", e && e.message); return null; }
     var idx = readIndex();
     var entry = {
       id: session.id, kind: session.kind, title: session.title || "",
@@ -478,7 +484,7 @@
     var copy = JSON.parse(JSON.stringify(src));
     copy.id = uid();
     copy.createdAt = Date.now();
-    copy.title = (src.title || "") + " (copie)";
+    copy.title = (src.title || "") + " " + t("duplicateSuffix");
     // The duplicate MUST start un-shared — never alias the source's server resource,
     // else edits to the copy would overwrite the original shared_resources row.
     delete copy.collabId; delete copy.collabToken;
@@ -572,7 +578,8 @@
   }
 
   function newMatchSession(opts) {
-    var defs = (opts && opts.teams) ? opts.teams : loadDefaultTeams();
+    opts = opts || {};
+    var defs = opts.teams ? opts.teams : loadDefaultTeams();
     return {
       id: uid(),
       kind: "match",

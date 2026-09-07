@@ -271,9 +271,27 @@
     persist(); renderPresenter(); broadcast();
   }
 
-  function startImpro() { var seg = curSeg(); if (!seg) return; phase = "running"; timerStart(seg.durationSec || 90, "impro"); }
-  function doCaucus() { phase = "caucus"; timerStart((sess && sess.caucusSec) || CAUCUS_SEC, "caucus"); }
-  function doVote() { voteResult = null; phase = "vote"; timerStart((sess && sess.voteSec) || VOTE_SEC, "vote"); }
+  function startImpro() {
+    var seg = curSeg(); if (!seg) return;
+    var base = seg.durationSec || 90;
+    // « +30 s » pressé AVANT Démarrer : le chrono affichait 2:00 puis repartait
+    // à 1:30. Si le temps affiché a été rallongé sans être entamé, on le garde.
+    var sec = (!tRunning && tk !== "impro" && tRemaining === tTotal && tRemaining > base) ? tRemaining : base;
+    phase = "running"; timerStart(sec, "impro");
+  }
+  // Réglage « Aucun » (0 s) : « 0 || 30 » retombait sur 30 s. Zéro = on saute l'étape.
+  function optSec(v, def) { return (v == null) ? def : (+v || 0); }
+  function doCaucus() {
+    var c = optSec(sess && sess.caucusSec, CAUCUS_SEC);
+    if (c <= 0) { startImpro(); return; }
+    phase = "caucus"; timerStart(c, "caucus");
+  }
+  function doVote() {
+    voteResult = null;
+    var v = optSec(sess && sess.voteSec, VOTE_SEC);
+    if (v <= 0) { phase = "vote"; persist(); renderPresenter(); broadcast(); revealVote(); return; }
+    phase = "vote"; timerStart(v, "vote");
+  }
   // Pull the public tally (anon RPC) for the current impro and reveal it on the board.
   function revealVote() {
     var sb = window.actoSuiteSb, code = sess && sess.joinCode, round = cursor;
@@ -321,7 +339,7 @@
 
   function scoreDelta(team, d) {
     if (!sess.scoring) return;
-    var tm = sess.teams[team]; tm.score = Math.max(0, (tm.score || 0) + d);
+    var tm = sess.teams[team]; tm.score = Math.max(0, (Number(tm.score) || 0) + d);
     persist(); renderPresenter(); broadcast();
     if (finished) recordResults();   // a post-finish score correction flips outcomes
   }
@@ -763,7 +781,7 @@
         '</div>' +
         (sess.scoring && phase === "vote" && voteResult && voteResult.round === cursor
           ? '<div class="live-vote-result">📊 ' + esc(t("voteResultTitle")) + ' — ' +
-              '<b>' + voteResult.a + '</b> ' + esc(teamLabel(0)) + ' · <b>' + voteResult.b + '</b> ' + esc(teamLabel(1)) + '</div>'
+              '<b>' + (Number(voteResult.a) || 0) + '</b> ' + esc(teamLabel(0)) + ' · <b>' + (Number(voteResult.b) || 0) + '</b> ' + esc(teamLabel(1)) + '</div>'
           : '') +
       '</div>';
 
@@ -825,7 +843,7 @@
       '</div>' +
       '<div class="live-score-row">' +
         '<button class="live-score-btn" data-act="dec" data-team="' + i + '" aria-label="' + esc(t("a11yScoreMinus")) + '">−</button>' +
-        '<span class="live-score-val">' + (tm.score || 0) + '</span>' +
+        '<span class="live-score-val">' + (Number(tm.score) || 0) + '</span>' +
         '<button class="live-score-btn" data-act="inc" data-team="' + i + '" aria-label="' + esc(t("a11yScorePlus")) + '">+</button>' +
       '</div>' +
       '<div class="live-pens">' + dots + '</div>' +
@@ -948,7 +966,7 @@
     return '<div class="disp-team disp-team-' + (i === 0 ? "a" : "b") + '" style="--team:' + esc(tm.color || "#888") + '">' +
       (tm.logo ? '<img class="disp-logo" src="' + esc(tm.logo) + '" alt="" />' : '<div class="disp-logo disp-logo-ph"></div>') +
       '<div class="disp-team-nm">' + esc(nm) + '</div>' +
-      (showScore ? '<div class="disp-score">' + (tm.score || 0) + '</div>' : '') +
+      (showScore ? '<div class="disp-score">' + (Number(tm.score) || 0) + '</div>' : '') +
       pens +
     '</div>';
   }
@@ -1112,7 +1130,7 @@
     return '<div class="rec-team" style="--team:' + esc(tm.color || "#888") + '">' +
       (tm.logo ? '<img class="rec-team-logo" src="' + esc(tm.logo) + '" alt="" />' : '<span class="rec-team-dot" style="background:' + esc(tm.color || "#888") + '"></span>') +
       '<span class="rec-team-nm">' + esc(nm) + '</span>' +
-      (showScore ? '<span class="rec-team-sc">' + (tm.score || 0) + '</span>' : '') +
+      (showScore ? '<span class="rec-team-sc">' + (Number(tm.score) || 0) + '</span>' : '') +
     '</div>';
   }
   function updateRecordInfo() {

@@ -54,12 +54,26 @@
      LIBRARY
      ============================================================ */
   var root = null, navigate = function () {};
+  var mountReq = null;   // la réponse d'un list() tardif ne doit pas écraser une autre section
+
+  function toast(msg) {
+    var el = document.createElement("div");
+    el.className = "suite-toast"; el.setAttribute("role", "status"); el.setAttribute("aria-live", "polite");
+    el.textContent = msg; document.body.appendChild(el);
+    setTimeout(function () { el.classList.add("is-in"); }, 10);
+    setTimeout(function () { el.classList.remove("is-in"); }, 2600);
+    setTimeout(function () { el.remove(); }, 3000);
+  }
 
   function mount(container, nav) {
     root = container; navigate = nav || navigate;
+    var myReq = (mountReq = {});
     render([], "loading");
     if (!DB() || !DB().available()) { render([], "offline"); return; }
     DB().list().then(function (res) {
+      // On a navigué ailleurs pendant l'attente : la section affichée n'est
+      // plus la nôtre, on ne la remplace pas.
+      if (mountReq !== myReq || !root || !root.isConnected) return;
       if (res.error) { render([], "error"); return; }
       render(res.data || [], "ok");
     });
@@ -92,7 +106,10 @@
       b.onclick = function () {
         var tm = teams[+b.getAttribute("data-i")];
         if (!window.confirm(tf("teamsDeleteConfirm", { name: tm.name || t("teamsUnnamed") }))) return;
-        DB().remove(tm.id).then(function () { mount(root, navigate); });
+        DB().remove(tm.id).then(function (res) {
+          if (res && res.error) toast(t("teamsDeleteError"));   // avant : l'équipe réapparaissait sans un mot
+          mount(root, navigate);
+        }, function () { toast(t("teamsDeleteError")); mount(root, navigate); });
       };
     });
   }
@@ -266,6 +283,7 @@
       q.oninput = function () { clearTimeout(tmr); tmr = setTimeout(search, 250); };
       q.onkeydown = function (e) { if (e.key === "Enter") { e.preventDefault(); clearTimeout(tmr); search(); } };
       out.innerHTML = '<div class="link-hint">' + esc(t("teamsSearchHint")) + '</div>';
+      pop.addEventListener("cancel", function (e) { e.preventDefault(); try { if (pop.open) pop.close(); } catch (err) {} pop.remove(); });
       if (typeof pop.showModal === "function") { try { pop.showModal(); } catch (e) { pop.setAttribute("open", ""); } } else pop.setAttribute("open", "");
       setTimeout(function () { try { q.focus(); } catch (e) {} }, 30);
     }
@@ -290,6 +308,10 @@
     }
 
     render();
+    // Échap fermait le <dialog> natif sans le retirer du DOM : dialogues
+    // zombies (avec leurs photos en data-URL) empilés à chaque ouverture.
+    dlg.addEventListener("cancel", function (e) { e.preventDefault(); close(); });
+    dlg.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); close(); } });
     if (typeof dlg.showModal === "function") { try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } } else dlg.setAttribute("open", "");
   }
 
