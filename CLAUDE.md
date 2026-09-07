@@ -132,13 +132,41 @@ The `mcp__Claude_in_Chrome__*` tools are available. Standard loop:
   `integrity` attribute in every page, keep the pin identical everywhere.
 
 
+## Traductions : chargement par langue
+
+Les pages ne chargent plus les sept langues. `build-data.js` génère, à partir
+de `data/*.json` et de `js/suite/i18n.js` :
+
+```
+data/all.js              — les 7 langues (admin.html seul le charge encore :
+                           il modère les soumissions de toutes les langues)
+data/all-<code>.js       — une langue, qui FUSIONNE dans le bundle existant
+js/suite/i18n-<code>.js  — idem pour les chaînes du Studio
+```
+
+Chaque page charge **le français en synchrone** (c'est le repli de `t()`, il
+n'est pas optionnel) puis `js/suite/locale-loader.js`, qui ajoute la langue de
+l'utilisateur si elle diffère. Le Studio attend `window.actoLocaleReady` avant
+son premier rendu (sinon un germanophone verrait la page s'afficher en français
+puis basculer) ; les pages classiques sont re-traduites à l'arrivée du fichier,
+via `window.applyTranslations`, `window.actoTopbarI18n` et l'événement
+`acto:locale-ready`.
+
+Mesuré : 140 Ko compressés de traductions par page → 23 Ko pour un francophone,
+33 Ko pour les autres.
+
+**Conséquence à ne pas oublier : après toute édition de `js/suite/i18n.js` ou
+d'un `data/*.json`, relancer `node build-data.js`.** Sans ça, les pages servent
+les anciennes traductions sans le moindre signe visible — `node verify.js`
+attrape le cas (contrôle « fichiers générés »).
+
 ## Avant de pousser
 
 ```bash
 node verify.js
 ```
 
-Quinze contrôles sans navigateur : parité des clés i18n (7 langues, i18n.js et
+Seize contrôles sans navigateur : parité des clés i18n (7 langues, i18n.js et
 ui.json), clés appelées sans traduction, `data/all.js` régénéré, un seul `?v=`
 sur toutes les pages, SRI des scripts vendorisés conforme au fichier, routes du
 Studio présentes dans `_redirects`/`_headers`/`sw.js`, manifeste et icônes,

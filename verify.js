@@ -66,16 +66,43 @@ console.log("clés fantômes");
   else ok(appelees.size + " clés appelées, toutes connues");
 }
 
-/* ── 4. data/all.js régénéré depuis data/*.json ? ──────────────────────────── */
-console.log("data/all.js");
+/* ── 4. Fichiers générés à jour ──────────────────────────────────────────────
+   build-data.js produit data/all.js, les sept data/all-<lang>.js et les sept
+   js/suite/i18n-<lang>.js. Le Studio ne charge QUE les versions par langue :
+   éditer i18n.js ou un data/*.json sans régénérer ferait servir des
+   traductions périmées, sans le moindre signe visible.
+
+   On régénère dans un coin, on compare, puis on restaure l'état d'origine —
+   verify.js contrôle, il ne répare pas en douce. */
+console.log("fichiers générés");
 {
-  const avant = fs.readFileSync(path.join(ROOT, "data/all.js"));
+  const GENERES = ["data/all.js"]
+    .concat(LOCALES.map((l) => "data/all-" + l + ".js"))
+    .concat(LOCALES.map((l) => "js/suite/i18n-" + l + ".js"));
+  const avant = {};
+  GENERES.forEach((f) => { avant[f] = existe(f) ? fs.readFileSync(path.join(ROOT, f)) : null; });
+  let perimes = [], absents = [];
   try {
     execFileSync(process.execPath, [path.join(ROOT, "build-data.js")], { stdio: "ignore" });
-    const apres = fs.readFileSync(path.join(ROOT, "data/all.js"));
-    if (Buffer.compare(avant, apres) === 0) ok("à jour (identique à une régénération)");
-    else { fs.writeFileSync(path.join(ROOT, "data/all.js"), avant); ko("PAS à jour : lancer `node build-data.js` (fichier restauré tel quel)"); }
-  } catch (e) { fs.writeFileSync(path.join(ROOT, "data/all.js"), avant); ko("build-data.js a échoué : " + e.message); }
+    GENERES.forEach((f) => {
+      const apres = existe(f) ? fs.readFileSync(path.join(ROOT, f)) : null;
+      if (avant[f] === null) absents.push(f);
+      else if (!apres || Buffer.compare(avant[f], apres) !== 0) perimes.push(f);
+    });
+    // on remet exactement ce qui était là avant le contrôle
+    GENERES.forEach((f) => { if (avant[f] !== null) fs.writeFileSync(path.join(ROOT, f), avant[f]); });
+    if (absents.length) ko(absents.length + " fichier(s) manquant(s) : " + absents.slice(0, 3).join(", ") + " — lancer `node build-data.js`");
+    if (perimes.length) ko(perimes.length + " fichier(s) périmé(s) : " + perimes.slice(0, 4).join(", ") + " — lancer `node build-data.js`");
+    if (!absents.length && !perimes.length) ok(GENERES.length + " fichiers générés à jour (all.js + 7 langues × 2)");
+  } catch (e) {
+    GENERES.forEach((f) => { if (avant[f] !== null) fs.writeFileSync(path.join(ROOT, f), avant[f]); });
+    ko("build-data.js a échoué : " + e.message);
+  }
+  // le Studio doit charger le français + le chargeur, jamais les fichiers entiers
+  const w2 = lire("welcome.html");
+  if (/data\/all\.js/.test(w2) || /suite\/i18n\.js/.test(w2)) ko("welcome.html charge encore un bundle complet");
+  else if (!/all-fr\.js/.test(w2) || !/i18n-fr\.js/.test(w2) || !/locale-loader\.js/.test(w2)) ko("welcome.html : chargement par langue incomplet");
+  else ok("welcome.html charge fr + le chargeur de langue");
 }
 
 /* ── 5. ?v= identique sur toutes les pages ──────────────────────────────────── */

@@ -292,5 +292,13 @@
     if (!cible) return;
     e.preventDefault(); cible.focus(); cible.scrollIntoView({ block: "start" });
   });
-  render();
+  /* Premier rendu : on attend que la langue de l'utilisateur soit là. Sans
+     cette attente, un germanophone verrait la page s'afficher en français
+     (le repli) puis basculer sous ses yeux. La promesse se résout même en cas
+     d'échec du chargement — on reste alors en français plutôt que bloqué. */
+  if (window.actoLocaleReady && typeof window.actoLocaleReady.then === "function") {
+    window.actoLocaleReady.then(function () { render(); }, function () { render(); });
+  } else {
+    render();
+  }
 })();

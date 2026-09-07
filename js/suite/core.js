@@ -50,6 +50,17 @@
   function locale() { return _locale; }
   function setLocale(code) {
     if (!BUNDLE.locales[code] || code === _locale) return;
+    // La langue n'est peut-être pas encore dans la page (chargement à la
+    // demande, voir locale-loader.js) : on la récupère AVANT de prévenir les
+    // écouteurs, sinon l'interface se redessinerait en français.
+    var manque = !BUNDLE.data[code] && typeof window.actoLocaleLoad === "function";
+    if (manque) {
+      window.actoLocaleLoad(code).then(function () { appliqueLocale(code); });
+      return;
+    }
+    appliqueLocale(code);
+  }
+  function appliqueLocale(code) {
     _locale = code;
     try { localStorage.setItem(LOCALE_KEY, code); } catch (e) { /* ignore */ }
     for (var i = 0; i < _localeListeners.length; i++) {

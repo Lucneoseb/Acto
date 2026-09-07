@@ -22,6 +22,10 @@
     rulesLabelText:    "rulesBtn",
     inspireLabelText:  "inspireLabelText",
     warmupLabelText:   "warmupsPageTitle",
+    // quickgame.html emploie « warmupsLabelText » (avec s) pour le même bouton :
+    // les deux graphies existent dans les pages, on couvre les deux plutôt que
+    // de renommer un id que du JS de page cible peut-être ailleurs.
+    warmupsLabelText:  "warmupsPageTitle",
     quickWarmupLabelText: "quickWarmupBtn",
     settingsLabelText: "settings"
   };
