@@ -191,14 +191,6 @@ input, textarea {
   gap: 0;
 }
 
-.hero-mask {
-  font-size: 4rem;
-  margin-bottom: 0.75rem;
-  display: inline-block;
-  animation: maskFloat 6s ease-in-out infinite;
-  filter: drop-shadow(0 0 30px rgba(245, 196, 81, 0.5));
-}
-
 @keyframes maskFloat {
   0%, 100% { transform: translateY(0) rotate(-3deg); }
   50%      { transform: translateY(-10px) rotate(3deg); }
@@ -212,18 +204,6 @@ input, textarea {
   margin: 0;
   line-height: 0.95;
   text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-}
-
-.title-line {
-  display: block;
-}
-
-.title-accent {
-  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-soft) 50%, var(--crimson-bright) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(0 0 20px rgba(245, 196, 81, 0.3));
 }
 
 .subtitle {
@@ -313,12 +293,6 @@ input, textarea {
   letter-spacing: 0.01em;
 }
 
-.config-hint {
-  margin: -0.4rem 0 0.7rem;
-  font-size: 0.875rem;
-  color: var(--ink-muted);
-}
-
 /* ----------------------------------------
    Mode toggle
    ---------------------------------------- */
@@ -383,16 +357,6 @@ input, textarea {
 .mode-desc {
   font-size: 0.825rem;
   color: var(--ink-muted);
-}
-
-/* ----------------------------------------
-   Team inputs (match mode)
-   ---------------------------------------- */
-.team-inputs {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 0.85rem;
 }
 
 /* Match-mode team blocks (Team A row + VS divider + Team B row). Each row
@@ -535,15 +499,6 @@ textarea:focus {
 
 textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
 
-.theme-toggle-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 0.7rem;
-}
-
 .ghost-btn {
   padding: 0.5rem 0.95rem;
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -563,17 +518,6 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
   font-size: 0.825rem;
   color: var(--ink-faint);
   font-style: italic;
-}
-
-/* ----------------------------------------
-   Roster (team / troupe composition)
-   ---------------------------------------- */
-.roster-row {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  flex-wrap: wrap;
-  margin-top: 0.7rem;
 }
 .roster-edit-btn {
   appearance: none;
@@ -940,7 +884,6 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
 .card-constraint { --accent: var(--c-constraint); }
 .card-theme      { --accent: var(--c-theme); }
 .card-category   { --accent: var(--c-category); }
-.card-duration   { --accent: var(--c-duration); }
 .card-players    { --accent: var(--c-players); }
 
 .card::before {
@@ -1093,44 +1036,6 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
 }
 
 /* ----------------------------------------
-   Re-roll bar
-   ---------------------------------------- */
-.reroll-bar {
-  margin-top: 1.5rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 1rem 1.25rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-md);
-}
-
-.reroll-label {
-  font-size: 0.9rem;
-  color: var(--ink-muted);
-  font-style: italic;
-  margin-right: 0.4rem;
-}
-
-.reroll-btn {
-  padding: 0.45rem 0.85rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-sm);
-  font-size: 0.85rem;
-  font-weight: 500;
-  background: rgba(255, 255, 255, 0.03);
-  transition: all 0.2s;
-}
-
-.reroll-btn:hover {
-  border-color: var(--gold);
-  background: rgba(245, 196, 81, 0.1);
-  transform: translateY(-1px);
-}
-
-/* ----------------------------------------
    Footer
    ---------------------------------------- */
 .footer {
@@ -1138,12 +1043,6 @@ textarea::placeholder { color: var(--ink-faint); white-space: pre-line; }
   padding: 2.5rem 1.5rem 3rem;
   color: var(--ink-faint);
   font-size: 0.85rem;
-}
-
-.footer-heart {
-  color: var(--crimson-bright);
-  display: inline-block;
-  animation: heartbeat 2s ease-in-out infinite;
 }
 
 .sources {
@@ -1334,16 +1233,15 @@ body.mode-troupe #card-theme      { order: 3; }
 @media (max-width: 640px) {
   .mode-toggle { grid-template-columns: 1fr; }
   .level-selector { grid-template-columns: repeat(3, 1fr); }
-  .team-inputs { grid-template-columns: 1fr; }
   .vs { text-align: center; }
   .curtain { display: none; }
   .results { grid-template-columns: 1fr; }
-  .reroll-bar { flex-direction: column; align-items: stretch; }
 }
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .spotlight, .hero-mask, .footer-heart, .generate-icon { animation: none; }
+  .spotlight,
+  .generate-icon { animation: none; }
   .reel.spinning .reel-track { animation-duration: 0.2s; }
 }
 
@@ -1506,47 +1404,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   border-radius: 4px;
   font-size: 0.82rem;
 }
-
-#editorList details {
-  margin-bottom: 0.6rem;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-}
-#editorList summary {
-  cursor: pointer;
-  padding: 0.65rem 0.85rem;
-  font-weight: 500;
-  font-size: 0.9rem;
-  color: var(--ink-muted);
-  list-style: none;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  transition: color 0.15s;
-}
-#editorList summary::before {
-  content: "▸";
-  color: var(--gold-soft);
-  font-size: 0.7rem;
-  transition: transform 0.2s;
-}
-#editorList details[open] summary::before { transform: rotate(90deg); }
-#editorList details[open] summary { color: var(--gold); }
-#editorList textarea {
-  margin: 0;
-  background: rgba(0, 0, 0, 0.45);
-  border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 0;
-  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  font-size: 0.78rem;
-  line-height: 1.5;
-  padding: 0.75rem;
-  min-height: 8rem;
-}
-#editorList textarea:focus { border-color: transparent; box-shadow: inset 0 0 0 1px var(--gold); }
 
 .dlg-status {
   margin: 0.75rem 0 0;
@@ -1961,10 +1818,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   .hero {
     padding: 2.5rem 1rem 1rem;
   }
-  .hero-mask {
-    font-size: 2.6rem;
-    margin-bottom: 0.4rem;
-  }
   .title {
     font-size: clamp(2.6rem, 14vw, 4rem);
     line-height: 0.95;
@@ -2016,11 +1869,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
     min-height: 80px;
     font-size: 0.9rem;
     padding: 0.6rem 0.75rem;
-  }
-  .theme-toggle-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
   }
   .ghost-btn {
     width: 100%;
@@ -2125,25 +1973,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
     margin-top: 10px;
   }
 
-  /* Reroll bar wraps gracefully */
-  .reroll-bar {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    padding: 0.85rem;
-  }
-  .reroll-label {
-    flex-basis: 100%;
-    font-size: 0.8rem;
-    margin-bottom: 0.2rem;
-  }
-  .reroll-btn {
-    flex: 1 1 calc(50% - 0.4rem);
-    padding: 0.55rem 0.5rem;
-    font-size: 0.8rem;
-    min-height: 40px;
-  }
-
   /* Top actions compact */
   .top-actions { top: 0.5rem; right: 0.5rem; gap: 0.3rem; }
   .top-trigger { padding: 0.4rem 0.5rem; }
@@ -2158,7 +1987,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
 @media (max-width: 380px) {
   .hero { padding-top: 2rem; }
   .title { font-size: 2.4rem; }
-  .hero-mask { font-size: 2.2rem; }
   .config-panel { padding: 0.85rem; }
   .chrono-display { font-size: 50px; }
   .chrono-btn { font-size: 0.72rem; padding: 0.6rem 0.3rem; }
@@ -2225,9 +2053,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
     min-width: 38px;
   }
 }
-
-/* Hide the (now-deleted) reroll-bar in case it's somehow referenced anywhere */
-.reroll-bar { display: none !important; }
 
 /* Edit-value button — sibling of .card-reroll. Clicking opens the
    #editValueDialog so the user can override the picked value, and if the
@@ -2684,29 +2509,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   background: #000;
 }
 
-/* Top-right close button */
-.recorder-close {
-  position: absolute;
-  top: max(0.7rem, env(safe-area-inset-top));
-  right: 0.7rem;
-  z-index: 5;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: #fff;
-  font-size: 1rem;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: inherit;
-}
-.recorder-close:hover { background: rgba(0, 0, 0, 0.75); }
-
 /* REC indicator (top-left) */
 .recorder-rec-indicator {
   position: absolute;
@@ -2744,9 +2546,7 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   font-weight: 600;
 }
 
-/* Bottom controls bar */
-.recorder-bottom-bar,
-.recorder-finish-bar {
+.recorder-bottom-bar {
   position: absolute;
   left: 0; right: 0;
   bottom: max(1rem, env(safe-area-inset-bottom));
@@ -2757,9 +2557,7 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   gap: 1rem;
   padding: 0.5rem 1rem;
 }
-.recorder-bottom-bar[hidden],
-.recorder-finish-bar[hidden] { display: none; }
-.recorder-spacer { width: 56px; }
+.recorder-bottom-bar[hidden] { display: none; }
 
 .recorder-action {
   appearance: none;
@@ -2809,12 +2607,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   border-radius: 6px;
   width: 26px; height: 26px;
 }
-.recorder-switch-cam {
-  width: 56px; height: 56px;
-  border-radius: 50%;
-  font-size: 1.25rem;
-  padding: 0;
-}
 
 .recorder-download {
   background: linear-gradient(135deg, #4ade80, #22c55e);
@@ -2824,10 +2616,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   padding: 0.85rem 1.4rem;
 }
 .recorder-download:hover { filter: brightness(1.05); }
-
-.recorder-again {
-  background: rgba(255, 255, 255, 0.08);
-}
 
 /* Error overlay */
 .recorder-error {
@@ -2859,32 +2647,7 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
 @media (max-width: 480px) {
   .recorder-record { width: 68px; height: 68px; }
   .recorder-record::before { width: 28px; height: 28px; }
-  .recorder-switch-cam { width: 48px; height: 48px; font-size: 1.1rem; }
   .recorder-action { padding: 0.6rem 0.95rem; font-size: 0.9rem; }
-}
-
-/* ==========================================================
-   Recorder modal — top bar (REC | chrono chip | switch + close)
-   ========================================================== */
-.recorder-top-bar {
-  position: absolute;
-  top: max(0.6rem, env(safe-area-inset-top));
-  left: 0; right: 0;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.6rem;
-  padding: 0 0.7rem;
-  pointer-events: none;
-}
-.recorder-top-bar > * { pointer-events: auto; }
-
-.recorder-top-right {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  margin-left: auto;
 }
 
 .recorder-icon-btn {
@@ -2910,88 +2673,17 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   border-color: rgba(255, 255, 255, 0.5);
 }
 .recorder-icon-btn:active { transform: scale(0.95); }
-
-/* Chrono chip in top-center */
-.recorder-chrono-chip {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.85rem;
-  background: rgba(0, 0, 0, 0.62);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(245, 196, 81, 0.45);
-  border-radius: 999px;
-  color: #fff;
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.04em;
-  font-variant-numeric: tabular-nums;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
-  transition: color 0.2s, border-color 0.2s, background 0.2s;
-}
-.recorder-chrono-chip[hidden] { display: none; }
-.recorder-chrono-chip.warn  { color: #fbbf24; border-color: #fbbf24; }
-.recorder-chrono-chip.danger {
-  color: #f87171;
-  border-color: #f87171;
-  animation: chronoChipPulse 0.8s infinite alternate;
-}
 @keyframes chronoChipPulse {
   from { transform: translateX(-50%) scale(1); }
   to   { transform: translateX(-50%) scale(1.06); }
 }
-.recorder-chrono-icon { font-size: 0.95rem; }
-
-/* Removed: the old absolute REC indicator + close button positioning
-   (.recorder-rec-indicator now lives inside .recorder-top-bar) */
-.recorder-top-bar .recorder-rec-indicator {
-  position: relative;
-  top: auto;
-  left: auto;
-}
 
 /* Mobile: tighter top bar so the chrono chip never overlaps the buttons */
 @media (max-width: 480px) {
-  .recorder-top-bar { padding: 0 0.5rem; gap: 0.4rem; }
   .recorder-icon-btn { width: 40px; height: 40px; font-size: 0.95rem; }
-  .recorder-chrono-chip { font-size: 0.9rem; padding: 0.35rem 0.65rem; }
-  .recorder-chrono-chip .recorder-chrono-icon { font-size: 0.85rem; }
 }
 @media (max-width: 380px) {
   .recorder-icon-btn { width: 36px; height: 36px; font-size: 0.85rem; }
-  .recorder-chrono-chip { font-size: 0.8rem; padding: 0.3rem 0.55rem; }
-}
-
-/* ==========================================================
-   Recorder UI v3 — record button redesign + brand logo + polish
-   ========================================================== */
-
-/* Top-left container holding the brand logo + REC indicator */
-.recorder-top-left {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  flex-shrink: 0;
-}
-.recorder-brand-logo {
-  height: 38px;
-  width: auto;
-  max-width: 110px;
-  object-fit: contain;
-  user-select: none;
-  pointer-events: none;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.55));
-}
-@media (max-width: 480px) {
-  .recorder-brand-logo { height: 30px; max-width: 90px; }
-}
-@media (max-width: 380px) {
-  .recorder-brand-logo { height: 26px; max-width: 78px; }
 }
 
 /* Override .recorder-record (it is no longer .recorder-action). Pure circle, no text. */
@@ -3088,23 +2780,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
 .recorder-icon-btn {
   background: rgba(20, 12, 32, 0.65);
 }
-.recorder-top-right .recorder-icon-btn:first-child {
-  background: rgba(20, 12, 32, 0.5);
-  border-color: rgba(245, 196, 81, 0.35);
-}
-.recorder-top-right .recorder-icon-btn:first-child:hover {
-  background: rgba(20, 12, 32, 0.85);
-  border-color: rgba(245, 196, 81, 0.7);
-  color: #f5c451;
-}
-.recorder-top-right .recorder-close {
-  border-color: rgba(255, 100, 100, 0.4);
-}
-.recorder-top-right .recorder-close:hover {
-  background: rgba(150, 30, 50, 0.7);
-  border-color: rgba(255, 100, 100, 0.85);
-  color: #ffd0d0;
-}
 
 /* Shared icon-button focus ring (a11y polish) */
 .recorder-icon-btn:focus-visible {
@@ -3128,23 +2803,8 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   z-index: 1;
 }
 .recorder-canvas, .recorder-preview { z-index: 2; }
-.recorder-top-bar, .recorder-bottom-bar, .recorder-finish-bar, .recorder-error { z-index: 5; }
-
-/* ==========================================================
-   Recorder UI v4 — bigger logo, pause/stop layout, confirm + preview popups
-   ========================================================== */
-
-/* Bigger top-left logo */
-.recorder-brand-logo {
-  height: 64px;
-  max-width: 180px;
-}
-@media (max-width: 480px) {
-  .recorder-brand-logo { height: 48px; max-width: 140px; }
-}
-@media (max-width: 380px) {
-  .recorder-brand-logo { height: 40px; max-width: 120px; }
-}
+.recorder-bottom-bar,
+.recorder-error { z-index: 5; }
 
 /* Bottom controls — ACTIVE state (pause | stop) */
 .recorder-controls-active {
@@ -3698,13 +3358,6 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   font-weight: 700;
 }
 .recorder-record-other[hidden] { display: none !important; }
-
-/* === Removed in this version (kept here only as no-ops in case old markup survives) === */
-.recorder-brand-logo,
-.recorder-chrono-chip,
-.recorder-top-bar,
-.recorder-top-left,
-.recorder-top-right { display: none !important; }
 
 /* Re-enable just the switch-cam button (it now uses .recorder-floating-tr) */
 .recorder-floating-tr { display: inline-flex !important; }
@@ -4512,15 +4165,12 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   .hero { padding: 0.5rem 1rem 0.25rem; }
   .hero-logo-link { margin-bottom: -0.15rem; }
   .hero-logo { max-width: min(220px, 30vh); animation: none; }
-  .hero-mask { font-size: 2rem; margin-bottom: 0.3rem; animation: none; }
-  /* Le sous-titre décoratif n'a pas sa place quand la hauteur manque */
-  .hero .subtitle, .hero-sub { font-size: 0.85rem; }
+  .hero .subtitle { font-size: 0.85rem; }
 }
 @media (max-height: 430px) {
   .hero { padding: 0.35rem 1rem 0.2rem; }
   .hero-logo { max-width: min(160px, 26vh); }
-  .hero-mask { font-size: 1.5rem; }
-  .hero .subtitle, .hero-sub { display: none; }
+  .hero .subtitle { display: none; }
 }
 
 /* La carte de connexion dépassait l'écran en paysage : « Se connecter »
@@ -4629,12 +4279,9 @@ input[type="range"]:focus-visible { outline-offset: 4px; }
    tirage reste (il porte l'information). */
 @media (prefers-reduced-motion: reduce) {
   .spotlight,
-  .hero-mask,
   .generate-icon,
-  .footer-heart,
   .chrono-display.danger,
   .hero-logo,
   .recorder-rec-dot,
-  .recorder-chrono-chip.danger,
   .recorder-record[data-recording="true"] { animation: none !important; }
 }

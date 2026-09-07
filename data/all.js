@@ -368,7 +368,10 @@ window.IMPRO_BUNDLE = {
       "authTryInspire": "🎭 Des vidéos d’impro",
       "authConfirmResent": "Email de confirmation renvoyé. Vérifie ta boîte mail (et les indésirables).",
       "homeBtn": "Accueil",
-      "authOptional": "(facultatif)"
+      "authOptional": "(facultatif)",
+      "quickWarmupBtn": "Échauffement rapide",
+      "authErrorTimeoutReset": "Délai d'attente dépassé. La session locale a été réinitialisée — réessaie.",
+      "warmupsDbUnavailable": "Connexion à la base impossible."
     },
     "it": {
       "title": "Impro",
@@ -707,7 +710,10 @@ window.IMPRO_BUNDLE = {
       "inspireShare": "Copia il link",
       "inspireViews": "visualizzazioni",
       "homeBtn": "Home",
-      "authOptional": "(facoltativo)"
+      "authOptional": "(facoltativo)",
+      "quickWarmupBtn": "Riscaldamento rapido",
+      "authErrorTimeoutReset": "Tempo scaduto. La sessione locale è stata reimpostata — riprova.",
+      "warmupsDbUnavailable": "Impossibile connettersi al database."
     },
     "en": {
       "title": "Impro",
@@ -1046,7 +1052,10 @@ window.IMPRO_BUNDLE = {
       "authTryInspire": "🎭 Improv videos",
       "authConfirmResent": "Confirmation email resent. Check your inbox (and your spam folder).",
       "homeBtn": "Home",
-      "authOptional": "(optional)"
+      "authOptional": "(optional)",
+      "quickWarmupBtn": "Quick warm-up",
+      "authErrorTimeoutReset": "Timed out. The local session has been reset — try again.",
+      "warmupsDbUnavailable": "Could not reach the database."
     },
     "de": {
       "title": "Impro",
@@ -1385,7 +1394,10 @@ window.IMPRO_BUNDLE = {
       "inspireShare": "Link kopieren",
       "inspireViews": "Aufrufe",
       "homeBtn": "Start",
-      "authOptional": "(optional)"
+      "authOptional": "(optional)",
+      "quickWarmupBtn": "Schnelles Aufwärmen",
+      "authErrorTimeoutReset": "Zeitüberschreitung. Die lokale Sitzung wurde zurückgesetzt — versuch es erneut.",
+      "warmupsDbUnavailable": "Verbindung zur Datenbank nicht möglich."
     },
     "es": {
       "title": "Impro",
@@ -1724,7 +1736,10 @@ window.IMPRO_BUNDLE = {
       "inspireShare": "Copiar el enlace",
       "inspireViews": "visitas",
       "homeBtn": "Inicio",
-      "authOptional": "(opcional)"
+      "authOptional": "(opcional)",
+      "quickWarmupBtn": "Calentamiento rápido",
+      "authErrorTimeoutReset": "Tiempo de espera agotado. La sesión local se ha reiniciado — inténtalo de nuevo.",
+      "warmupsDbUnavailable": "No se pudo conectar con la base de datos."
     },
     "pt": {
       "title": "Impro",
@@ -2063,7 +2078,10 @@ window.IMPRO_BUNDLE = {
       "inspireShare": "Copiar a ligação",
       "inspireViews": "visualizações",
       "homeBtn": "Início",
-      "authOptional": "(opcional)"
+      "authOptional": "(opcional)",
+      "quickWarmupBtn": "Aquecimento rápido",
+      "authErrorTimeoutReset": "Tempo esgotado. A sessão local foi reiniciada — tenta de novo.",
+      "warmupsDbUnavailable": "Não foi possível ligar à base de dados."
     },
     "nl": {
       "title": "Impro",
@@ -2402,7 +2420,10 @@ window.IMPRO_BUNDLE = {
       "inspireShare": "Link kopiëren",
       "inspireViews": "weergaven",
       "homeBtn": "Start",
-      "authOptional": "(optioneel)"
+      "authOptional": "(optioneel)",
+      "quickWarmupBtn": "Snelle warming-up",
+      "authErrorTimeoutReset": "Time-out. De lokale sessie is gereset — probeer opnieuw.",
+      "warmupsDbUnavailable": "Kan geen verbinding maken met de database."
     }
   },
   "data": {
@@ -3905,7 +3926,10 @@ window.IMPRO_BUNDLE = {
             "Single emotion (joy, sadness, anger...)",
             "Replacing speech with sound effects",
             "Every other line must be sung",
-            "Everyone facing away from audience"
+            "Everyone facing away from audience",
+            "Without letting your heels touch the ground",
+            "Dancing non-stop",
+            "Nobody sits down or lies down"
           ],
           "confirme": [
             "Without using the word « no »",
@@ -3917,7 +3941,11 @@ window.IMPRO_BUNDLE = {
             "In fast forward from start to finish",
             "One audience-chosen forbidden word",
             "Alternating English and an invented language",
-            "In the style of an animated cartoon"
+            "In the style of an animated cartoon",
+            "One line in two must be sung",
+            "With an outside narrator commenting throughout",
+            "In the style of a TV news bulletin",
+            "In the style of a wildlife documentary"
           ],
           "expert": [
             "Time-rewind: scene moves forward then rewinds every 30s",
@@ -3929,7 +3957,11 @@ window.IMPRO_BUNDLE = {
             "Permanent fourth wall break",
             "Palindromic: scene must be playable in reverse",
             "No action verbs at all",
-            "An entirely invented but consistent language"
+            "An entirely invented but consistent language",
+            "Noh theatre style",
+            "Mise en abyme: the play is about a play being performed",
+            "Only one audible line per minute",
+            "The whole scene in the first person plural"
           ]
         },
         "match": {
@@ -3959,7 +3991,9 @@ window.IMPRO_BUNDLE = {
             "One audible line per minute",
             "Silent-era style",
             "With an omniscient external narrator",
-            "Soap opera style"
+            "Soap opera style",
+            "Manga style",
+            "With razor-sharp slang dialogue"
           ],
           "expert": [
             "In iambic pentameter throughout",
@@ -3974,7 +4008,8 @@ window.IMPRO_BUNDLE = {
             "With a character who knows it is fiction",
             "Pirandello style",
             "Tarantino style",
-            "Greek tragedy form (chorus + hero + hubris)"
+            "Greek tragedy form (chorus + hero + hubris)",
+            "Bergman style"
           ]
         }
       },
@@ -4004,7 +4039,12 @@ window.IMPRO_BUNDLE = {
           "A useless superhero",
           "The TV news from another planet",
           "Wildlife documentary about humans",
-          "An interrogation about a tiny matter"
+          "An interrogation about a tiny matter",
+          "A singing-contest jury that can't agree",
+          "A cooking show with an absurd recipe",
+          "Commentating a bowls match like a World Cup final",
+          "A work performance review that goes off the rails",
+          "Sunday with the family and the in-laws"
         ],
         "confirme": [
           "The last Sunday on Earth",
@@ -4031,7 +4071,12 @@ window.IMPRO_BUNDLE = {
           "The off-key choir",
           "The teachers' meeting about one student",
           "The lesson that makes no sense",
-          "Darth Vader calls to break up"
+          "Darth Vader calls to break up",
+          "The elevator stuck between two floors",
+          "The mad scientist and his jaded assistant",
+          "Couples therapy between two objects",
+          "The sole witness's statement",
+          "The dinner where nobody dares speak"
         ],
         "expert": [
           "The trial of collective memory",
@@ -4057,7 +4102,18 @@ window.IMPRO_BUNDLE = {
           "Three sisters who'll never reach Moscow",
           "The night watchman of forgotten things",
           "The press conference of oblivion",
-          "The last translator of the useless"
+          "The last translator of the useless",
+          "The bailiff of surplus souls",
+          "Autobiography of a virus",
+          "Autopsy of a soulmate",
+          "Altar of sin",
+          "Love is a bouquet of violence",
+          "The stranger in the elevator",
+          "The kiss of death",
+          "The ball of the unmasked",
+          "The memory bank",
+          "Drunken boat",
+          "Other people's cinema"
         ]
       },
       "categories": [
@@ -4792,7 +4848,10 @@ window.IMPRO_BUNDLE = {
             "Mit einer einzigen Emotion (Freude, Trauer, Wut...)",
             "Worte durch Geräusche ersetzend",
             "Jede zweite Replik muss gesungen werden",
-            "Alle mit dem Rücken zum Publikum"
+            "Alle mit dem Rücken zum Publikum",
+            "Ohne mit den Fersen den Boden zu berühren",
+            "Ununterbrochen tanzend",
+            "Niemand setzt oder legt sich hin"
           ],
           "confirme": [
             "Ohne das Wort « nein » zu benutzen",
@@ -4804,7 +4863,11 @@ window.IMPRO_BUNDLE = {
             "Im Schnellvorlauf von Anfang bis Ende",
             "Mit einem vom Publikum verbotenen Wort",
             "Im Wechsel zwischen Deutsch und einer erfundenen Sprache",
-            "Im Stil eines Zeichentrickfilms"
+            "Im Stil eines Zeichentrickfilms",
+            "Jede zweite Replik wird gesungen",
+            "Mit einem äußeren Erzähler, der kommentiert",
+            "Im Stil einer Nachrichtensendung",
+            "Im Stil einer Tierdokumentation"
           ],
           "expert": [
             "Mit Zeitrücklauf: Szene geht vor, dann alle 30s zurück",
@@ -4816,7 +4879,11 @@ window.IMPRO_BUNDLE = {
             "Mit dauerhaftem Bruch der vierten Wand",
             "Als Palindrom: die Szene muss rückwärts spielbar sein",
             "Ohne ein einziges Tätigkeitsverb",
-            "Mit einer vollständig erfundenen, aber kohärenten Sprache"
+            "Mit einer vollständig erfundenen, aber kohärenten Sprache",
+            "Im Stil des Nō-Theaters",
+            "Als Mise en abyme: das Stück handelt von einem Stück, das gespielt wird",
+            "Nur eine hörbare Replik pro Minute",
+            "Die ganze Szene in der ersten Person Plural"
           ]
         },
         "match": {
@@ -4846,7 +4913,9 @@ window.IMPRO_BUNDLE = {
             "Eine hörbare Replik pro Minute",
             "Im Stil der Stummfilmära",
             "Mit allwissendem äußeren Erzähler",
-            "Im Soap-Opera-Stil"
+            "Im Soap-Opera-Stil",
+            "Im Manga-Stil",
+            "Mit schlagfertigen Gossendialogen"
           ],
           "expert": [
             "Durchgehend in Jamben",
@@ -4861,7 +4930,8 @@ window.IMPRO_BUNDLE = {
             "Mit einer Figur, die weiß, dass sie in einer Fiktion ist",
             "Im Stil Pirandellos",
             "Im Tarantino-Stil",
-            "Als griechische Tragödie (Chor + Held + Hybris)"
+            "Als griechische Tragödie (Chor + Held + Hybris)",
+            "Im Stil Bergmans"
           ]
         }
       },
@@ -4891,7 +4961,12 @@ window.IMPRO_BUNDLE = {
           "Ein nutzloser Superheld",
           "Die Tagesschau von einem fernen Planeten",
           "Tierdokumentation über Menschen",
-          "Verhör wegen einer Lappalie"
+          "Verhör wegen einer Lappalie",
+          "Die Jury eines Gesangswettbewerbs, die sich nicht einig wird",
+          "Eine Kochsendung mit einem absurden Rezept",
+          "Ein Boule-Spiel wie ein WM-Finale kommentieren",
+          "Ein Mitarbeitergespräch, das entgleist",
+          "Sonntag mit der Familie und den Angeheirateten"
         ],
         "confirme": [
           "Der letzte Sonntag der Welt",
@@ -4918,7 +4993,12 @@ window.IMPRO_BUNDLE = {
           "Der verstimmte Chor",
           "Die Lehrerkonferenz über einen einzigen Schüler",
           "Die Lektion, die keinen Sinn ergibt",
-          "Darth Vader ruft an, um Schluss zu machen"
+          "Darth Vader ruft an, um Schluss zu machen",
+          "Der Aufzug, der zwischen zwei Stockwerken feststeckt",
+          "Der verrückte Wissenschaftler und sein desillusionierter Assistent",
+          "Paartherapie zwischen zwei Gegenständen",
+          "Die Aussage des einzigen Zeugen",
+          "Das Abendessen, bei dem niemand zu sprechen wagt"
         ],
         "expert": [
           "Der Prozess des kollektiven Gedächtnisses",
@@ -4944,7 +5024,18 @@ window.IMPRO_BUNDLE = {
           "Drei Schwestern, die Moskau nie erreichen",
           "Der Nachtwächter des Museums der Vergessenheiten",
           "Die Pressekonferenz des Vergessens",
-          "Der letzte Übersetzer des Nutzlosen"
+          "Der letzte Übersetzer des Nutzlosen",
+          "Der Gerichtsvollzieher der überzähligen Seelen",
+          "Autobiografie eines Virus",
+          "Autopsie der Seelenverwandten",
+          "Altar der Sünde",
+          "Liebe ist ein Strauß aus Gewalt",
+          "Der Fremde im Aufzug",
+          "Der Kuss des Todes",
+          "Der Ball der Entlarvten",
+          "Die Bank der Erinnerungen",
+          "Trunkenes Schiff",
+          "Das Kino der anderen"
         ]
       },
       "categories": [
@@ -5679,7 +5770,10 @@ window.IMPRO_BUNDLE = {
             "Con una sola emoción (alegría, tristeza, ira...)",
             "Sustituyendo el habla por sonidos",
             "Una de cada dos réplicas cantada",
-            "Todos de espaldas al público"
+            "Todos de espaldas al público",
+            "Sin tocar el suelo con los talones",
+            "Bailando sin parar",
+            "Nadie se sienta ni se tumba"
           ],
           "confirme": [
             "Sin usar la palabra « no »",
@@ -5691,7 +5785,11 @@ window.IMPRO_BUNDLE = {
             "Acelerada de principio a fin",
             "Con una palabra prohibida elegida por el público",
             "Alternando español y un idioma inventado",
-            "En estilo de dibujos animados"
+            "En estilo de dibujos animados",
+            "Con una réplica de cada dos cantada",
+            "Con un narrador externo que comenta",
+            "En estilo telediario",
+            "En estilo documental de naturaleza"
           ],
           "expert": [
             "Con retroceso temporal: la escena avanza y retrocede cada 30s",
@@ -5703,7 +5801,11 @@ window.IMPRO_BUNDLE = {
             "Con cuarta pared rota permanentemente",
             "En palíndromo: la escena debe poder jugarse al revés",
             "Sin un solo verbo de acción",
-            "Con un idioma totalmente inventado pero coherente"
+            "Con un idioma totalmente inventado pero coherente",
+            "Estilo teatro Noh",
+            "En mise en abyme: la obra trata de una obra que se representa",
+            "Solo una réplica audible por minuto",
+            "Toda la escena en primera persona del plural"
           ]
         },
         "match": {
@@ -5733,7 +5835,9 @@ window.IMPRO_BUNDLE = {
             "Una réplica audible por minuto",
             "Estilo cine mudo",
             "Con narrador omnisciente externo",
-            "Estilo telenovela"
+            "Estilo telenovela",
+            "Estilo manga",
+            "Estilo hermanos Coen"
           ],
           "expert": [
             "En endecasílabos durante toda la escena",
@@ -5748,7 +5852,8 @@ window.IMPRO_BUNDLE = {
             "Con un personaje que sabe que está en una ficción",
             "Estilo Pirandello",
             "Estilo Tarantino",
-            "Forma de tragedia griega (coro + héroe + hybris)"
+            "Forma de tragedia griega (coro + héroe + hybris)",
+            "Estilo Bergman"
           ]
         }
       },
@@ -5778,7 +5883,12 @@ window.IMPRO_BUNDLE = {
           "Un superhéroe con poderes inútiles",
           "El telediario de un planeta lejano",
           "Documental de animales sobre humanos",
-          "Un interrogatorio por una nimiedad"
+          "Un interrogatorio por una nimiedad",
+          "El jurado de un concurso de canto que no se pone de acuerdo",
+          "Un programa de cocina con una receta absurda",
+          "Comentar una partida de petanca como si fuera la final del mundial",
+          "Una evaluación de desempeño que se descontrola",
+          "El domingo en familia con la familia política"
         ],
         "confirme": [
           "El último domingo del mundo",
@@ -5805,7 +5915,12 @@ window.IMPRO_BUNDLE = {
           "El coro desafinado",
           "La reunión de profesores sobre un solo alumno",
           "La lección que no tiene sentido",
-          "Darth Vader llama para romper"
+          "Darth Vader llama para romper",
+          "El ascensor atascado entre dos pisos",
+          "El científico loco y su ayudante desencantado",
+          "Una terapia de pareja entre dos objetos",
+          "La declaración del único testigo",
+          "La cena en la que nadie se atreve a hablar"
         ],
         "expert": [
           "El proceso de la memoria colectiva",
@@ -5831,7 +5946,18 @@ window.IMPRO_BUNDLE = {
           "Tres hermanas que nunca llegarán a Moscú",
           "El vigilante nocturno del museo del olvido",
           "La rueda de prensa del olvido",
-          "El último traductor de lo inútil"
+          "El último traductor de lo inútil",
+          "El alguacil de las almas sobrantes",
+          "Autobiografía de un virus",
+          "Autopsia del alma gemela",
+          "Altar del pecado",
+          "El amor es un ramo de violencia",
+          "El desconocido del ascensor",
+          "El beso de la muerte",
+          "El baile de los desenmascarados",
+          "El banco del recuerdo",
+          "Barco ebrio",
+          "El cine de los otros"
         ]
       },
       "categories": [
@@ -6566,7 +6692,10 @@ window.IMPRO_BUNDLE = {
             "Com uma única emoção (alegria, tristeza, ira...)",
             "Substituindo a fala por sons",
             "Uma em cada duas réplicas cantada",
-            "Todos de costas para o público"
+            "Todos de costas para o público",
+            "Sem tocar no chão com os calcanhares",
+            "Dançando sem parar",
+            "Ninguém se senta nem se deita"
           ],
           "confirme": [
             "Sem usar a palavra « não »",
@@ -6578,7 +6707,11 @@ window.IMPRO_BUNDLE = {
             "Acelerado do início ao fim",
             "Com palavra proibida escolhida pelo público",
             "Alternando português e uma língua inventada",
-            "Estilo desenhos animados"
+            "Estilo desenhos animados",
+            "Com uma réplica em cada duas cantada",
+            "Com um narrador exterior que comenta",
+            "Em estilo telejornal",
+            "Em estilo documentário de natureza"
           ],
           "expert": [
             "Com retrocesso temporal: a cena avança e recua a cada 30s",
@@ -6590,7 +6723,11 @@ window.IMPRO_BUNDLE = {
             "Com quarta parede quebrada permanentemente",
             "Em palíndromo: a cena deve poder ser jogada ao contrário",
             "Sem um único verbo de ação",
-            "Com uma língua inteiramente inventada mas coerente"
+            "Com uma língua inteiramente inventada mas coerente",
+            "Estilo teatro Nō",
+            "Em mise en abyme: a peça fala de uma peça que se representa",
+            "Apenas uma réplica audível por minuto",
+            "Toda a cena na primeira pessoa do plural"
           ]
         },
         "match": {
@@ -6620,7 +6757,9 @@ window.IMPRO_BUNDLE = {
             "Uma réplica audível por minuto",
             "Estilo cinema mudo",
             "Com narrador omnisciente externo",
-            "Estilo telenovela"
+            "Estilo telenovela",
+            "Estilo manga",
+            "Estilo irmãos Coen"
           ],
           "expert": [
             "Em decassílabos do início ao fim",
@@ -6635,7 +6774,8 @@ window.IMPRO_BUNDLE = {
             "Com personagem que sabe estar numa ficção",
             "Estilo Pirandello",
             "Estilo Tarantino",
-            "Forma de tragédia grega (coro + herói + húbris)"
+            "Forma de tragédia grega (coro + herói + húbris)",
+            "Estilo Bergman"
           ]
         }
       },
@@ -6665,7 +6805,12 @@ window.IMPRO_BUNDLE = {
           "Um super-herói com poderes inúteis",
           "O telejornal de um planeta distante",
           "Documentário animal sobre humanos",
-          "Um interrogatório por uma ninharia"
+          "Um interrogatório por uma ninharia",
+          "O júri de um concurso de canto que não se entende",
+          "Um programa de culinária com uma receita absurda",
+          "Comentar uma partida de petanca como se fosse a final do mundial",
+          "Uma avaliação de desempenho que descarrila",
+          "O domingo em família com os sogros e cunhados"
         ],
         "confirme": [
           "O último domingo do mundo",
@@ -6692,7 +6837,12 @@ window.IMPRO_BUNDLE = {
           "O coro desafinado",
           "A reunião de professores sobre um único aluno",
           "A lição que não faz sentido",
-          "Darth Vader liga para acabar tudo"
+          "Darth Vader liga para acabar tudo",
+          "O elevador preso entre dois andares",
+          "O cientista louco e o seu assistente desiludido",
+          "Uma terapia de casal entre dois objetos",
+          "O depoimento da única testemunha",
+          "O jantar em que ninguém se atreve a falar"
         ],
         "expert": [
           "O processo da memória coletiva",
@@ -6718,7 +6868,18 @@ window.IMPRO_BUNDLE = {
           "Três irmãs que nunca chegarão a Moscovo",
           "O guarda-noturno do museu do esquecimento",
           "A conferência de imprensa do esquecimento",
-          "O último tradutor do inútil"
+          "O último tradutor do inútil",
+          "O oficial de justiça das almas excedentes",
+          "Autobiografia de um vírus",
+          "Autópsia da alma gémea",
+          "Altar do pecado",
+          "O amor é um ramo de violência",
+          "O desconhecido do elevador",
+          "O beijo da morte",
+          "O baile dos desmascarados",
+          "O banco da memória",
+          "Barco bêbado",
+          "O cinema dos outros"
         ]
       },
       "categories": [
@@ -7453,7 +7614,10 @@ window.IMPRO_BUNDLE = {
             "Met één enkele emotie (vreugde, verdriet, woede...)",
             "Spreken vervangen door geluiden",
             "Om de andere replica gezongen",
-            "Iedereen met de rug naar het publiek"
+            "Iedereen met de rug naar het publiek",
+            "Zonder met de hielen de grond te raken",
+            "Onafgebroken dansend",
+            "Niemand gaat zitten of liggen"
           ],
           "confirme": [
             "Zonder het woord « nee »",
@@ -7465,7 +7629,11 @@ window.IMPRO_BUNDLE = {
             "Versneld van begin tot eind",
             "Met door publiek verboden woord",
             "Afwisselend Nederlands en een verzonnen taal",
-            "Stijl tekenfilm"
+            "Stijl tekenfilm",
+            "Met elke tweede replica gezongen",
+            "Met een externe verteller die commentaar geeft",
+            "In de stijl van het journaal",
+            "In de stijl van een natuurdocumentaire"
           ],
           "expert": [
             "Met tijdrewind: scène gaat vooruit en terug elke 30s",
@@ -7477,7 +7645,11 @@ window.IMPRO_BUNDLE = {
             "Met permanent doorbroken vierde wand",
             "In palindroom: scène moet ook achterstevoren te spelen zijn",
             "Zonder één enkel actiewerkwoord",
-            "Met een geheel verzonnen maar coherente taal"
+            "Met een geheel verzonnen maar coherente taal",
+            "Stijl Nō-theater",
+            "Mise en abyme: het stuk gaat over een stuk dat gespeeld wordt",
+            "Slechts één hoorbare replica per minuut",
+            "De hele scène in de eerste persoon meervoud"
           ]
         },
         "match": {
@@ -7507,7 +7679,9 @@ window.IMPRO_BUNDLE = {
             "Eén hoorbare replica per minuut",
             "Stomme-filmstijl",
             "Met alwetende externe verteller",
-            "Soapstijl"
+            "Soapstijl",
+            "Mangastijl",
+            "Met vlijmscherpe volkse dialogen"
           ],
           "expert": [
             "Doorlopend in jamben",
@@ -7522,7 +7696,8 @@ window.IMPRO_BUNDLE = {
             "Met personage dat weet dat het in fictie zit",
             "Stijl Pirandello",
             "Stijl Tarantino",
-            "Vorm Griekse tragedie (koor + held + hubris)"
+            "Vorm Griekse tragedie (koor + held + hubris)",
+            "Stijl Bergman"
           ]
         }
       },
@@ -7552,7 +7727,12 @@ window.IMPRO_BUNDLE = {
           "Een nutteloze superheld",
           "Het journaal van een verre planeet",
           "Natuurdocumentaire over mensen",
-          "Verhoor over een prul"
+          "Verhoor over een prul",
+          "De jury van een zangwedstrijd die het niet eens wordt",
+          "Een kookprogramma met een absurd recept",
+          "Een jeu-de-boulespel becommentariëren als een WK-finale",
+          "Een functioneringsgesprek dat ontspoort",
+          "Zondag bij de familie met de aangetrouwden"
         ],
         "confirme": [
           "De laatste zondag van de wereld",
@@ -7579,7 +7759,12 @@ window.IMPRO_BUNDLE = {
           "Het ontstemde koor",
           "De lerarenvergadering over één leerling",
           "De les die nergens op slaat",
-          "Darth Vader belt om het uit te maken"
+          "Darth Vader belt om het uit te maken",
+          "De lift die tussen twee verdiepingen vastzit",
+          "De gekke geleerde en zijn ontgoochelde assistent",
+          "Relatietherapie tussen twee voorwerpen",
+          "De verklaring van de enige getuige",
+          "Het diner waar niemand durft te spreken"
         ],
         "expert": [
           "Het proces van het collectief geheugen",
@@ -7605,7 +7790,18 @@ window.IMPRO_BUNDLE = {
           "Drie zussen die nooit Moskou zullen bereiken",
           "De nachtwaker van het museum der vergeefsheden",
           "De persconferentie van het vergeten",
-          "De laatste vertaler van het nutteloze"
+          "De laatste vertaler van het nutteloze",
+          "De deurwaarder van de overtollige zielen",
+          "Autobiografie van een virus",
+          "Autopsie van de zielsverwant",
+          "Altaar van de zonde",
+          "Liefde is een boeket geweld",
+          "De vreemde in de lift",
+          "De kus des doods",
+          "Het bal van de ontmaskerden",
+          "De herinneringsbank",
+          "Dronken boot",
+          "De cinema van de anderen"
         ]
       },
       "categories": [

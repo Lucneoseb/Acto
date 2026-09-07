@@ -58,6 +58,12 @@
     var code = (sess && sess.joinCode) || window.actoJoinCode;
     return code ? ("acto-live:" + String(code).toUpperCase()) : null;
   }
+  // Identifiant d'émetteur : jamais tapé par personne, donc long et aléatoire.
+  function genRunId() {
+    var a = "abcdefghijklmnopqrstuvwxyz0123456789", s = "";
+    for (var i = 0; i < 16; i++) s += a.charAt(Math.floor(Math.random() * a.length));
+    return s;
+  }
   // Short, human-typeable code (no ambiguous 0/O/1/I).
   function genJoinCode() {
     var A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", s = "";
@@ -635,6 +641,7 @@
     return {
       type: "snapshot", ts: Date.now(),
       code: sess.joinCode || "",          // so a viewer can reject a leftover snap from another match
+      runId: sess.runId || "",            // émetteur : l'écran public se verrouille dessus (voir applyIncoming)
       title: sess.title || "",
       scoring: !!sess.scoring, showScores: !!sess.showScores,
       phase: phase,
@@ -686,6 +693,10 @@
     sess = S.live.load();
     if (!sess) { navigate("#/"); return; }
     if (!sess.joinCode) { sess.joinCode = genJoinCode(); S.live.save(sess); }   // viewing code for this run
+    // Identifiant de l'émetteur : il survit à un rechargement de la page de
+    // l'arbitre (il vit dans la session), donc l'écran public reste verrouillé
+    // sur le même émetteur d'un bout à l'autre du match.
+    if (!sess.runId) { sess.runId = genRunId(); S.live.save(sess); }
     cursor = Math.min(sess.cursor || 0, Math.max(0, sess.setlist.length - 1));
     phase = "announce"; tk = null; tRunning = false; finished = false; voteResult = null;
     var seg = curSeg(); tTotal = seg ? seg.durationSec : 0; tRemaining = tTotal;
@@ -905,11 +916,32 @@
   // Shared snapshot inflow for any read-only role (display + record): same-device
   // (BroadcastChannel + storage) AND cross-device (Realtime). Calls redraw() on
   // each incoming snapshot. redraw is set by whichever role mounted.
-  function applyIncoming(snap) { if (snap && snap.type === "snapshot") { dSnap = snap; redraw(); } }
+  /* Verrou d'émetteur. Le canal est public (le code est affiché au public) :
+     sans ce filtre, n'importe quel spectateur pouvait publier un faux tableau.
+     On retient le premier émetteur vu et on ignore les autres ; le verrou se
+     libère après 90 s sans nouvelle du titulaire, pour qu'un arbitre qui change
+     d'appareil (ou reprend après une coupure réseau) puisse reprendre la main. */
+  var _emetteur = null, _emetteurVu = 0;
+  var EMETTEUR_TTL = 90000;
+  function emetteurAccepte(snap) {
+    var id = snap && snap.runId;
+    if (!id) return true;                                  // ancienne version de l'app : on ne casse rien
+    var maintenant = Date.now();
+    if (!_emetteur || (maintenant - _emetteurVu) > EMETTEUR_TTL) { _emetteur = id; _emetteurVu = maintenant; return true; }
+    if (id !== _emetteur) return false;                     // un autre émetteur pendant que le titulaire parle : ignoré
+    _emetteurVu = maintenant;
+    return true;
+  }
+  function applyIncoming(snap) {
+    if (!snap || snap.type !== "snapshot") return;
+    if (!emetteurAccepte(snap)) return;
+    dSnap = snap; redraw();
+  }
   function onStorage(e) {
     if (e.key === SNAP_KEY && e.newValue) { try { applyIncoming(JSON.parse(e.newValue)); } catch (err) { /* ignore */ } }
   }
   function startSubscriptions() {
+    _emetteur = null; _emetteurVu = 0;   // nouvel écran = nouveau verrou
     // Seed from the local snapshot only if it's recent — otherwise a device
     // that once ran a presenter would flash an old match before the first
     // cross-device snapshot arrives.

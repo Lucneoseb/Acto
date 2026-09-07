@@ -571,7 +571,10 @@
         "Com uma única emoção (alegria, tristeza, ira...)",
         "Substituindo a fala por sons",
         "Uma em cada duas réplicas cantada",
-        "Todos de costas para o público"
+        "Todos de costas para o público",
+        "Sem tocar no chão com os calcanhares",
+        "Dançando sem parar",
+        "Ninguém se senta nem se deita"
       ],
       "confirme": [
         "Sem usar a palavra « não »",
@@ -583,7 +586,11 @@
         "Acelerado do início ao fim",
         "Com palavra proibida escolhida pelo público",
         "Alternando português e uma língua inventada",
-        "Estilo desenhos animados"
+        "Estilo desenhos animados",
+        "Com uma réplica em cada duas cantada",
+        "Com um narrador exterior que comenta",
+        "Em estilo telejornal",
+        "Em estilo documentário de natureza"
       ],
       "expert": [
         "Com retrocesso temporal: a cena avança e recua a cada 30s",
@@ -595,7 +602,11 @@
         "Com quarta parede quebrada permanentemente",
         "Em palíndromo: a cena deve poder ser jogada ao contrário",
         "Sem um único verbo de ação",
-        "Com uma língua inteiramente inventada mas coerente"
+        "Com uma língua inteiramente inventada mas coerente",
+        "Estilo teatro Nō",
+        "Em mise en abyme: a peça fala de uma peça que se representa",
+        "Apenas uma réplica audível por minuto",
+        "Toda a cena na primeira pessoa do plural"
       ]
     },
     "match": {
@@ -625,7 +636,9 @@
         "Uma réplica audível por minuto",
         "Estilo cinema mudo",
         "Com narrador omnisciente externo",
-        "Estilo telenovela"
+        "Estilo telenovela",
+        "Estilo manga",
+        "Estilo irmãos Coen"
       ],
       "expert": [
         "Em decassílabos do início ao fim",
@@ -640,7 +653,8 @@
         "Com personagem que sabe estar numa ficção",
         "Estilo Pirandello",
         "Estilo Tarantino",
-        "Forma de tragédia grega (coro + herói + húbris)"
+        "Forma de tragédia grega (coro + herói + húbris)",
+        "Estilo Bergman"
       ]
     }
   },
@@ -670,7 +684,12 @@
       "Um super-herói com poderes inúteis",
       "O telejornal de um planeta distante",
       "Documentário animal sobre humanos",
-      "Um interrogatório por uma ninharia"
+      "Um interrogatório por uma ninharia",
+      "O júri de um concurso de canto que não se entende",
+      "Um programa de culinária com uma receita absurda",
+      "Comentar uma partida de petanca como se fosse a final do mundial",
+      "Uma avaliação de desempenho que descarrila",
+      "O domingo em família com os sogros e cunhados"
     ],
     "confirme": [
       "O último domingo do mundo",
@@ -697,7 +716,12 @@
       "O coro desafinado",
       "A reunião de professores sobre um único aluno",
       "A lição que não faz sentido",
-      "Darth Vader liga para acabar tudo"
+      "Darth Vader liga para acabar tudo",
+      "O elevador preso entre dois andares",
+      "O cientista louco e o seu assistente desiludido",
+      "Uma terapia de casal entre dois objetos",
+      "O depoimento da única testemunha",
+      "O jantar em que ninguém se atreve a falar"
     ],
     "expert": [
       "O processo da memória coletiva",
@@ -723,7 +747,18 @@
       "Três irmãs que nunca chegarão a Moscovo",
       "O guarda-noturno do museu do esquecimento",
       "A conferência de imprensa do esquecimento",
-      "O último tradutor do inútil"
+      "O último tradutor do inútil",
+      "O oficial de justiça das almas excedentes",
+      "Autobiografia de um vírus",
+      "Autópsia da alma gémea",
+      "Altar do pecado",
+      "O amor é um ramo de violência",
+      "O desconhecido do elevador",
+      "O beijo da morte",
+      "O baile dos desmascarados",
+      "O banco da memória",
+      "Barco bêbado",
+      "O cinema dos outros"
     ]
   },
   "categories": [

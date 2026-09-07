@@ -571,7 +571,10 @@
         "Con una sola emoción (alegría, tristeza, ira...)",
         "Sustituyendo el habla por sonidos",
         "Una de cada dos réplicas cantada",
-        "Todos de espaldas al público"
+        "Todos de espaldas al público",
+        "Sin tocar el suelo con los talones",
+        "Bailando sin parar",
+        "Nadie se sienta ni se tumba"
       ],
       "confirme": [
         "Sin usar la palabra « no »",
@@ -583,7 +586,11 @@
         "Acelerada de principio a fin",
         "Con una palabra prohibida elegida por el público",
         "Alternando español y un idioma inventado",
-        "En estilo de dibujos animados"
+        "En estilo de dibujos animados",
+        "Con una réplica de cada dos cantada",
+        "Con un narrador externo que comenta",
+        "En estilo telediario",
+        "En estilo documental de naturaleza"
       ],
       "expert": [
         "Con retroceso temporal: la escena avanza y retrocede cada 30s",
@@ -595,7 +602,11 @@
         "Con cuarta pared rota permanentemente",
         "En palíndromo: la escena debe poder jugarse al revés",
         "Sin un solo verbo de acción",
-        "Con un idioma totalmente inventado pero coherente"
+        "Con un idioma totalmente inventado pero coherente",
+        "Estilo teatro Noh",
+        "En mise en abyme: la obra trata de una obra que se representa",
+        "Solo una réplica audible por minuto",
+        "Toda la escena en primera persona del plural"
       ]
     },
     "match": {
@@ -625,7 +636,9 @@
         "Una réplica audible por minuto",
         "Estilo cine mudo",
         "Con narrador omnisciente externo",
-        "Estilo telenovela"
+        "Estilo telenovela",
+        "Estilo manga",
+        "Estilo hermanos Coen"
       ],
       "expert": [
         "En endecasílabos durante toda la escena",
@@ -640,7 +653,8 @@
         "Con un personaje que sabe que está en una ficción",
         "Estilo Pirandello",
         "Estilo Tarantino",
-        "Forma de tragedia griega (coro + héroe + hybris)"
+        "Forma de tragedia griega (coro + héroe + hybris)",
+        "Estilo Bergman"
       ]
     }
   },
@@ -670,7 +684,12 @@
       "Un superhéroe con poderes inútiles",
       "El telediario de un planeta lejano",
       "Documental de animales sobre humanos",
-      "Un interrogatorio por una nimiedad"
+      "Un interrogatorio por una nimiedad",
+      "El jurado de un concurso de canto que no se pone de acuerdo",
+      "Un programa de cocina con una receta absurda",
+      "Comentar una partida de petanca como si fuera la final del mundial",
+      "Una evaluación de desempeño que se descontrola",
+      "El domingo en familia con la familia política"
     ],
     "confirme": [
       "El último domingo del mundo",
@@ -697,7 +716,12 @@
       "El coro desafinado",
       "La reunión de profesores sobre un solo alumno",
       "La lección que no tiene sentido",
-      "Darth Vader llama para romper"
+      "Darth Vader llama para romper",
+      "El ascensor atascado entre dos pisos",
+      "El científico loco y su ayudante desencantado",
+      "Una terapia de pareja entre dos objetos",
+      "La declaración del único testigo",
+      "La cena en la que nadie se atreve a hablar"
     ],
     "expert": [
       "El proceso de la memoria colectiva",
@@ -723,7 +747,18 @@
       "Tres hermanas que nunca llegarán a Moscú",
       "El vigilante nocturno del museo del olvido",
       "La rueda de prensa del olvido",
-      "El último traductor de lo inútil"
+      "El último traductor de lo inútil",
+      "El alguacil de las almas sobrantes",
+      "Autobiografía de un virus",
+      "Autopsia del alma gemela",
+      "Altar del pecado",
+      "El amor es un ramo de violencia",
+      "El desconocido del ascensor",
+      "El beso de la muerte",
+      "El baile de los desenmascarados",
+      "El banco del recuerdo",
+      "Barco ebrio",
+      "El cine de los otros"
     ]
   },
   "categories": [

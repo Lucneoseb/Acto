@@ -336,7 +336,10 @@
     "authTryInspire": "🎭 Des vidéos d’impro",
     "authConfirmResent": "Email de confirmation renvoyé. Vérifie ta boîte mail (et les indésirables).",
     "homeBtn": "Accueil",
-    "authOptional": "(facultatif)"
+    "authOptional": "(facultatif)",
+    "quickWarmupBtn": "Échauffement rapide",
+    "authErrorTimeoutReset": "Délai d'attente dépassé. La session locale a été réinitialisée — réessaie.",
+    "warmupsDbUnavailable": "Connexion à la base impossible."
   },
   "it": {
     "title": "Impro",
@@ -675,7 +678,10 @@
     "inspireShare": "Copia il link",
     "inspireViews": "visualizzazioni",
     "homeBtn": "Home",
-    "authOptional": "(facoltativo)"
+    "authOptional": "(facoltativo)",
+    "quickWarmupBtn": "Riscaldamento rapido",
+    "authErrorTimeoutReset": "Tempo scaduto. La sessione locale è stata reimpostata — riprova.",
+    "warmupsDbUnavailable": "Impossibile connettersi al database."
   },
   "en": {
     "title": "Impro",
@@ -1014,7 +1020,10 @@
     "authTryInspire": "🎭 Improv videos",
     "authConfirmResent": "Confirmation email resent. Check your inbox (and your spam folder).",
     "homeBtn": "Home",
-    "authOptional": "(optional)"
+    "authOptional": "(optional)",
+    "quickWarmupBtn": "Quick warm-up",
+    "authErrorTimeoutReset": "Timed out. The local session has been reset — try again.",
+    "warmupsDbUnavailable": "Could not reach the database."
   },
   "de": {
     "title": "Impro",
@@ -1353,7 +1362,10 @@
     "inspireShare": "Link kopieren",
     "inspireViews": "Aufrufe",
     "homeBtn": "Start",
-    "authOptional": "(optional)"
+    "authOptional": "(optional)",
+    "quickWarmupBtn": "Schnelles Aufwärmen",
+    "authErrorTimeoutReset": "Zeitüberschreitung. Die lokale Sitzung wurde zurückgesetzt — versuch es erneut.",
+    "warmupsDbUnavailable": "Verbindung zur Datenbank nicht möglich."
   },
   "es": {
     "title": "Impro",
@@ -1692,7 +1704,10 @@
     "inspireShare": "Copiar el enlace",
     "inspireViews": "visitas",
     "homeBtn": "Inicio",
-    "authOptional": "(opcional)"
+    "authOptional": "(opcional)",
+    "quickWarmupBtn": "Calentamiento rápido",
+    "authErrorTimeoutReset": "Tiempo de espera agotado. La sesión local se ha reiniciado — inténtalo de nuevo.",
+    "warmupsDbUnavailable": "No se pudo conectar con la base de datos."
   },
   "pt": {
     "title": "Impro",
@@ -2031,7 +2046,10 @@
     "inspireShare": "Copiar a ligação",
     "inspireViews": "visualizações",
     "homeBtn": "Início",
-    "authOptional": "(opcional)"
+    "authOptional": "(opcional)",
+    "quickWarmupBtn": "Aquecimento rápido",
+    "authErrorTimeoutReset": "Tempo esgotado. A sessão local foi reiniciada — tenta de novo.",
+    "warmupsDbUnavailable": "Não foi possível ligar à base de dados."
   },
   "nl": {
     "title": "Impro",
@@ -2370,6 +2388,9 @@
     "inspireShare": "Link kopiëren",
     "inspireViews": "weergaven",
     "homeBtn": "Start",
-    "authOptional": "(optioneel)"
+    "authOptional": "(optioneel)",
+    "quickWarmupBtn": "Snelle warming-up",
+    "authErrorTimeoutReset": "Time-out. De lokale sessie is gereset — probeer opnieuw.",
+    "warmupsDbUnavailable": "Kan geen verbinding maken met de database."
   }
 }

@@ -571,7 +571,10 @@
         "Single emotion (joy, sadness, anger...)",
         "Replacing speech with sound effects",
         "Every other line must be sung",
-        "Everyone facing away from audience"
+        "Everyone facing away from audience",
+        "Without letting your heels touch the ground",
+        "Dancing non-stop",
+        "Nobody sits down or lies down"
       ],
       "confirme": [
         "Without using the word « no »",
@@ -583,7 +586,11 @@
         "In fast forward from start to finish",
         "One audience-chosen forbidden word",
         "Alternating English and an invented language",
-        "In the style of an animated cartoon"
+        "In the style of an animated cartoon",
+        "One line in two must be sung",
+        "With an outside narrator commenting throughout",
+        "In the style of a TV news bulletin",
+        "In the style of a wildlife documentary"
       ],
       "expert": [
         "Time-rewind: scene moves forward then rewinds every 30s",
@@ -595,7 +602,11 @@
         "Permanent fourth wall break",
         "Palindromic: scene must be playable in reverse",
         "No action verbs at all",
-        "An entirely invented but consistent language"
+        "An entirely invented but consistent language",
+        "Noh theatre style",
+        "Mise en abyme: the play is about a play being performed",
+        "Only one audible line per minute",
+        "The whole scene in the first person plural"
       ]
     },
     "match": {
@@ -625,7 +636,9 @@
         "One audible line per minute",
         "Silent-era style",
         "With an omniscient external narrator",
-        "Soap opera style"
+        "Soap opera style",
+        "Manga style",
+        "With razor-sharp slang dialogue"
       ],
       "expert": [
         "In iambic pentameter throughout",
@@ -640,7 +653,8 @@
         "With a character who knows it is fiction",
         "Pirandello style",
         "Tarantino style",
-        "Greek tragedy form (chorus + hero + hubris)"
+        "Greek tragedy form (chorus + hero + hubris)",
+        "Bergman style"
       ]
     }
   },
@@ -670,7 +684,12 @@
       "A useless superhero",
       "The TV news from another planet",
       "Wildlife documentary about humans",
-      "An interrogation about a tiny matter"
+      "An interrogation about a tiny matter",
+      "A singing-contest jury that can't agree",
+      "A cooking show with an absurd recipe",
+      "Commentating a bowls match like a World Cup final",
+      "A work performance review that goes off the rails",
+      "Sunday with the family and the in-laws"
     ],
     "confirme": [
       "The last Sunday on Earth",
@@ -697,7 +716,12 @@
       "The off-key choir",
       "The teachers' meeting about one student",
       "The lesson that makes no sense",
-      "Darth Vader calls to break up"
+      "Darth Vader calls to break up",
+      "The elevator stuck between two floors",
+      "The mad scientist and his jaded assistant",
+      "Couples therapy between two objects",
+      "The sole witness's statement",
+      "The dinner where nobody dares speak"
     ],
     "expert": [
       "The trial of collective memory",
@@ -723,7 +747,18 @@
       "Three sisters who'll never reach Moscow",
       "The night watchman of forgotten things",
       "The press conference of oblivion",
-      "The last translator of the useless"
+      "The last translator of the useless",
+      "The bailiff of surplus souls",
+      "Autobiography of a virus",
+      "Autopsy of a soulmate",
+      "Altar of sin",
+      "Love is a bouquet of violence",
+      "The stranger in the elevator",
+      "The kiss of death",
+      "The ball of the unmasked",
+      "The memory bank",
+      "Drunken boat",
+      "Other people's cinema"
     ]
   },
   "categories": [

@@ -31,24 +31,6 @@
 /* ---- top chrome ---- */
 .suite-topbar { gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; max-width: calc(100vw - 1rem); }
 .suite-topbar a { text-decoration: none; }
-.suite-locale-wrap { display: inline-flex; }
-.suite-locale {
-  appearance: none;
-  background: color-mix(in srgb, var(--bg-velvet) 70%, transparent);
-  color: var(--ink);
-  border: 1px solid color-mix(in srgb, var(--gold) 35%, transparent);
-  border-radius: 999px;
-  padding: 0.45rem 0.9rem;
-  font: 600 0.85rem/1 "Inter", sans-serif;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-}
-/* placé APRÈS la règle de base : avant, à spécificité égale, la base
-   l'emportait et ce réglage mobile était mort */
-@media (max-width: 420px) {
-  .suite-locale { padding: 0.4rem 0.55rem; font-size: 0.78rem; max-width: 7.5rem; }
-}
-.suite-locale:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
 .suite-hero { padding-top: clamp(3.2rem, 9vw, 4.5rem); }
 .suite-hero-logo { max-width: clamp(150px, 34vw, 240px); }
@@ -1263,8 +1245,6 @@
   .suite-sticky-actions { flex-wrap: wrap; }
   .suite-sticky-actions .suite-btn { flex: 1 1 calc(50% - 0.25rem); min-width: 0; padding-left: 0.6rem; padding-right: 0.6rem; }
 }
-
-
 
 /* ─── Découverte : section « Le match d'impro » + article long ─────────────── */
 .suite-discover-feature {

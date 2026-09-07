@@ -571,7 +571,10 @@
         "Mit einer einzigen Emotion (Freude, Trauer, Wut...)",
         "Worte durch Geräusche ersetzend",
         "Jede zweite Replik muss gesungen werden",
-        "Alle mit dem Rücken zum Publikum"
+        "Alle mit dem Rücken zum Publikum",
+        "Ohne mit den Fersen den Boden zu berühren",
+        "Ununterbrochen tanzend",
+        "Niemand setzt oder legt sich hin"
       ],
       "confirme": [
         "Ohne das Wort « nein » zu benutzen",
@@ -583,7 +586,11 @@
         "Im Schnellvorlauf von Anfang bis Ende",
         "Mit einem vom Publikum verbotenen Wort",
         "Im Wechsel zwischen Deutsch und einer erfundenen Sprache",
-        "Im Stil eines Zeichentrickfilms"
+        "Im Stil eines Zeichentrickfilms",
+        "Jede zweite Replik wird gesungen",
+        "Mit einem äußeren Erzähler, der kommentiert",
+        "Im Stil einer Nachrichtensendung",
+        "Im Stil einer Tierdokumentation"
       ],
       "expert": [
         "Mit Zeitrücklauf: Szene geht vor, dann alle 30s zurück",
@@ -595,7 +602,11 @@
         "Mit dauerhaftem Bruch der vierten Wand",
         "Als Palindrom: die Szene muss rückwärts spielbar sein",
         "Ohne ein einziges Tätigkeitsverb",
-        "Mit einer vollständig erfundenen, aber kohärenten Sprache"
+        "Mit einer vollständig erfundenen, aber kohärenten Sprache",
+        "Im Stil des Nō-Theaters",
+        "Als Mise en abyme: das Stück handelt von einem Stück, das gespielt wird",
+        "Nur eine hörbare Replik pro Minute",
+        "Die ganze Szene in der ersten Person Plural"
       ]
     },
     "match": {
@@ -625,7 +636,9 @@
         "Eine hörbare Replik pro Minute",
         "Im Stil der Stummfilmära",
         "Mit allwissendem äußeren Erzähler",
-        "Im Soap-Opera-Stil"
+        "Im Soap-Opera-Stil",
+        "Im Manga-Stil",
+        "Mit schlagfertigen Gossendialogen"
       ],
       "expert": [
         "Durchgehend in Jamben",
@@ -640,7 +653,8 @@
         "Mit einer Figur, die weiß, dass sie in einer Fiktion ist",
         "Im Stil Pirandellos",
         "Im Tarantino-Stil",
-        "Als griechische Tragödie (Chor + Held + Hybris)"
+        "Als griechische Tragödie (Chor + Held + Hybris)",
+        "Im Stil Bergmans"
       ]
     }
   },
@@ -670,7 +684,12 @@
       "Ein nutzloser Superheld",
       "Die Tagesschau von einem fernen Planeten",
       "Tierdokumentation über Menschen",
-      "Verhör wegen einer Lappalie"
+      "Verhör wegen einer Lappalie",
+      "Die Jury eines Gesangswettbewerbs, die sich nicht einig wird",
+      "Eine Kochsendung mit einem absurden Rezept",
+      "Ein Boule-Spiel wie ein WM-Finale kommentieren",
+      "Ein Mitarbeitergespräch, das entgleist",
+      "Sonntag mit der Familie und den Angeheirateten"
     ],
     "confirme": [
       "Der letzte Sonntag der Welt",
@@ -697,7 +716,12 @@
       "Der verstimmte Chor",
       "Die Lehrerkonferenz über einen einzigen Schüler",
       "Die Lektion, die keinen Sinn ergibt",
-      "Darth Vader ruft an, um Schluss zu machen"
+      "Darth Vader ruft an, um Schluss zu machen",
+      "Der Aufzug, der zwischen zwei Stockwerken feststeckt",
+      "Der verrückte Wissenschaftler und sein desillusionierter Assistent",
+      "Paartherapie zwischen zwei Gegenständen",
+      "Die Aussage des einzigen Zeugen",
+      "Das Abendessen, bei dem niemand zu sprechen wagt"
     ],
     "expert": [
       "Der Prozess des kollektiven Gedächtnisses",
@@ -723,7 +747,18 @@
       "Drei Schwestern, die Moskau nie erreichen",
       "Der Nachtwächter des Museums der Vergessenheiten",
       "Die Pressekonferenz des Vergessens",
-      "Der letzte Übersetzer des Nutzlosen"
+      "Der letzte Übersetzer des Nutzlosen",
+      "Der Gerichtsvollzieher der überzähligen Seelen",
+      "Autobiografie eines Virus",
+      "Autopsie der Seelenverwandten",
+      "Altar der Sünde",
+      "Liebe ist ein Strauß aus Gewalt",
+      "Der Fremde im Aufzug",
+      "Der Kuss des Todes",
+      "Der Ball der Entlarvten",
+      "Die Bank der Erinnerungen",
+      "Trunkenes Schiff",
+      "Das Kino der anderen"
     ]
   },
   "categories": [

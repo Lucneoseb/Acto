@@ -535,7 +535,7 @@
         // the SDK. Wipe it so the next attempt starts clean.
         await clearStaleLocalSession();
         showError("authLoginError",
-          "Délai d'attente dépassé. La session locale a été réinitialisée — réessaie.");
+          t.authErrorTimeoutReset || "Délai d'attente dépassé. La session locale a été réinitialisée — réessaie.");
       } else {
         showError("authLoginError", raw);
       }

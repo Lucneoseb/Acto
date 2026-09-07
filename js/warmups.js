@@ -491,7 +491,7 @@
     }
     const client = getSb();
     if (!client) {
-      if (err) { err.textContent = "Connexion à la base impossible."; err.hidden = false; }
+      if (err) { err.textContent = t("warmupsDbUnavailable", "Connexion à la base impossible."); err.hidden = false; }
       return;
     }
     const submitBtn = $("#warmupSubmitConfirmBtn");
@@ -517,7 +517,7 @@
       setTimeout(closeSubmitDialog, 1500);
     } catch (e) {
       console.warn("[warmups] submit failed", e);
-      if (err) { err.textContent = "Échec de l'envoi : " + ((e && e.message) || e); err.hidden = false; }
+      if (err) { err.textContent = t("warmupsSubmitErrPrefix", "Échec de l'envoi") + " : " + ((e && e.message) || e); err.hidden = false; }
       if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = origLabel; }
       if (cancelBtn) cancelBtn.disabled = false;
     }

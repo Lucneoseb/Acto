@@ -571,7 +571,10 @@
         "Met één enkele emotie (vreugde, verdriet, woede...)",
         "Spreken vervangen door geluiden",
         "Om de andere replica gezongen",
-        "Iedereen met de rug naar het publiek"
+        "Iedereen met de rug naar het publiek",
+        "Zonder met de hielen de grond te raken",
+        "Onafgebroken dansend",
+        "Niemand gaat zitten of liggen"
       ],
       "confirme": [
         "Zonder het woord « nee »",
@@ -583,7 +586,11 @@
         "Versneld van begin tot eind",
         "Met door publiek verboden woord",
         "Afwisselend Nederlands en een verzonnen taal",
-        "Stijl tekenfilm"
+        "Stijl tekenfilm",
+        "Met elke tweede replica gezongen",
+        "Met een externe verteller die commentaar geeft",
+        "In de stijl van het journaal",
+        "In de stijl van een natuurdocumentaire"
       ],
       "expert": [
         "Met tijdrewind: scène gaat vooruit en terug elke 30s",
@@ -595,7 +602,11 @@
         "Met permanent doorbroken vierde wand",
         "In palindroom: scène moet ook achterstevoren te spelen zijn",
         "Zonder één enkel actiewerkwoord",
-        "Met een geheel verzonnen maar coherente taal"
+        "Met een geheel verzonnen maar coherente taal",
+        "Stijl Nō-theater",
+        "Mise en abyme: het stuk gaat over een stuk dat gespeeld wordt",
+        "Slechts één hoorbare replica per minuut",
+        "De hele scène in de eerste persoon meervoud"
       ]
     },
     "match": {
@@ -625,7 +636,9 @@
         "Eén hoorbare replica per minuut",
         "Stomme-filmstijl",
         "Met alwetende externe verteller",
-        "Soapstijl"
+        "Soapstijl",
+        "Mangastijl",
+        "Met vlijmscherpe volkse dialogen"
       ],
       "expert": [
         "Doorlopend in jamben",
@@ -640,7 +653,8 @@
         "Met personage dat weet dat het in fictie zit",
         "Stijl Pirandello",
         "Stijl Tarantino",
-        "Vorm Griekse tragedie (koor + held + hubris)"
+        "Vorm Griekse tragedie (koor + held + hubris)",
+        "Stijl Bergman"
       ]
     }
   },
@@ -670,7 +684,12 @@
       "Een nutteloze superheld",
       "Het journaal van een verre planeet",
       "Natuurdocumentaire over mensen",
-      "Verhoor over een prul"
+      "Verhoor over een prul",
+      "De jury van een zangwedstrijd die het niet eens wordt",
+      "Een kookprogramma met een absurd recept",
+      "Een jeu-de-boulespel becommentariëren als een WK-finale",
+      "Een functioneringsgesprek dat ontspoort",
+      "Zondag bij de familie met de aangetrouwden"
     ],
     "confirme": [
       "De laatste zondag van de wereld",
@@ -697,7 +716,12 @@
       "Het ontstemde koor",
       "De lerarenvergadering over één leerling",
       "De les die nergens op slaat",
-      "Darth Vader belt om het uit te maken"
+      "Darth Vader belt om het uit te maken",
+      "De lift die tussen twee verdiepingen vastzit",
+      "De gekke geleerde en zijn ontgoochelde assistent",
+      "Relatietherapie tussen twee voorwerpen",
+      "De verklaring van de enige getuige",
+      "Het diner waar niemand durft te spreken"
     ],
     "expert": [
       "Het proces van het collectief geheugen",
@@ -723,7 +747,18 @@
       "Drie zussen die nooit Moskou zullen bereiken",
       "De nachtwaker van het museum der vergeefsheden",
       "De persconferentie van het vergeten",
-      "De laatste vertaler van het nutteloze"
+      "De laatste vertaler van het nutteloze",
+      "De deurwaarder van de overtollige zielen",
+      "Autobiografie van een virus",
+      "Autopsie van de zielsverwant",
+      "Altaar van de zonde",
+      "Liefde is een boeket geweld",
+      "De vreemde in de lift",
+      "De kus des doods",
+      "Het bal van de ontmaskerden",
+      "De herinneringsbank",
+      "Dronken boot",
+      "De cinema van de anderen"
     ]
   },
   "categories": [
