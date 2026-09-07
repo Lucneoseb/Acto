@@ -694,6 +694,7 @@
       display: { cointoss: "ask" }, teams: [],
       meta: { nbWarmups: opts.nbWarmups || 0, nbExercises: opts.nbExercises || 0 },
       targetSec: opts.targetSec || 0,        // 0 = temps non défini
+      participants: [],                      // feuille de présence de la séance
 
       setlist: [], cursor: 0, journal: []
     };
@@ -758,6 +759,7 @@
       fillSegment: fillSegment,
       rerollField: rerollField,
       estimateTotalSec: estimateTotalSec,
+      OVERHEAD_SEC: OVERHEAD_SEC,
       fitTrainingDurations: fitTrainingDurations,
       TARGET_FILL: TARGET_FILL,
       drawCategory: drawCategory,

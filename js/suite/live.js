@@ -268,6 +268,10 @@
   // tEndAt étant une date absolue, un chrono en marche se reconstitue exactement.
   function snapshotLiveState() {
     if (!sess) return;
+    // Départ de la séance : posé au premier chrono lancé, jamais réécrit — un
+    // rechargement de la page de l'arbitre ne doit pas remettre le compteur à
+    // zéro au milieu d'un coaching.
+    if (!sess.liveStartedAt && tRunning) sess.liveStartedAt = Date.now();
     sess.liveState = {
       phase: phase, cursor: cursor, tk: tk, tTotal: tTotal,
       tRemaining: tRemaining, tRunning: tRunning,
@@ -810,11 +814,75 @@
   }
 
   function chronoClass() { if (tRemaining <= 10) return "is-danger"; if (tRemaining <= 30) return "is-warn"; return ""; }
+  /* Avancement de la séance : réel contre prévu. Renvoie null quand il n'y a
+     rien à mesurer (pas de déroulé, direct pas encore lancé). */
+  // En dessous de trois minutes, l'écart n'apprend rien à un coach et clignote
+  // à chaque bloc (la mise en place d'un bloc pèse déjà deux minutes) : on se
+  // tait tant qu'il n'y a pas de quoi ajuster le programme.
+  var ECART_MIN = 180;
+  function seanceEtat() {
+    if (!sess || !sess.setlist || !sess.setlist.length) return null;
+    var prevuTotal = S.gen.estimateTotalSec(sess.setlist);
+    var ref = sess.targetSec || prevuTotal;
+    if (!ref) return null;
+    var reel = sess.liveStartedAt ? Math.max(0, Math.round((Date.now() - sess.liveStartedAt) / 1000)) : 0;
+    /* Ce que le programme prévoyait à cet instant : les blocs déjà passés, plus
+       la mise en place du bloc courant, plus le temps déjà joué dessus. Sans ce
+       dernier terme, tout le temps passé sur le bloc en cours comptait comme du
+       retard — on affichait « 8 min de retard » à la 8ᵉ minute d'un exercice de
+       10, alors qu'on est exactement à l'heure. */
+    var over = S.gen.OVERHEAD_SEC || 120;
+    var ecoule = (tTotal > 0) ? Math.max(0, Math.min(tTotal, tTotal - tRemaining)) : 0;
+    var attendu = S.gen.estimateTotalSec(sess.setlist.slice(0, Math.max(0, cursor))) + over + ecoule;
+    return {
+      reel: reel, ref: ref, attendu: attendu,
+      ecart: reel - attendu,                          // > 0 : en retard
+      pct: Math.round((reel / ref) * 100),      // non borné : au-delà de 100 le créneau est dépassé
+      demarre: !!sess.liveStartedAt
+    };
+  }
+  function seanceHtml() {
+    var e = seanceEtat();
+    if (!e) return "";
+    var etat = e.pct > 100 ? "is-over" : "is-ok";
+    var txt = tf("liveSessionProgress", { used: S.formatLong(e.reel), total: S.formatLong(e.ref) });
+    if (e.demarre && Math.abs(e.ecart) >= ECART_MIN) {
+      txt += " · " + (e.ecart > 0
+        ? tf("liveSessionLate", { d: S.formatLong(Math.abs(e.ecart)) })
+        : tf("liveSessionEarly", { d: S.formatLong(Math.abs(e.ecart)) }));
+      // le dépassement du créneau prime : c'est plus grave qu'un retard sur le
+      // programme, et c'est ce qui doit rester en rouge
+      if (e.ecart > 0 && etat !== "is-over") etat = "is-late";
+    }
+    return '<div class="live-session" id="liveSession">' +
+      '<div class="live-session-bar"><span id="liveSessionIn" class="' + etat + '" style="width:' + Math.min(100, e.pct) + '%"></span></div>' +
+      '<div class="live-session-txt ' + etat + '" id="liveSessionTxt">' + esc(txt) + '</div>' +
+    '</div>';
+  }
+  function renderSession() {
+    var wrap = root && root.querySelector("#liveSession");
+    if (!wrap) return;
+    var e = seanceEtat(); if (!e) return;
+    var etat = e.pct > 100 ? "is-over" : "is-ok";
+    var txt = tf("liveSessionProgress", { used: S.formatLong(e.reel), total: S.formatLong(e.ref) });
+    if (e.demarre && Math.abs(e.ecart) >= ECART_MIN) {
+      txt += " · " + (e.ecart > 0
+        ? tf("liveSessionLate", { d: S.formatLong(Math.abs(e.ecart)) })
+        : tf("liveSessionEarly", { d: S.formatLong(Math.abs(e.ecart)) }));
+      // le dépassement du créneau prime : c'est plus grave qu'un retard sur le
+      // programme, et c'est ce qui doit rester en rouge
+      if (e.ecart > 0 && etat !== "is-over") etat = "is-late";
+    }
+    var inn = wrap.querySelector("#liveSessionIn"); if (inn) { inn.style.width = Math.min(100, e.pct) + "%"; inn.className = etat; }
+    var el = wrap.querySelector("#liveSessionTxt"); if (el) { el.textContent = txt; el.className = "live-session-txt " + etat; }
+  }
+
   function renderChrono() {
     var d = root && root.querySelector("#liveChrono");
     if (d) { d.textContent = S.formatSec(tRemaining); d.className = "live-chrono " + chronoClass(); }
     var bar = root && root.querySelector("#liveBar");
     if (bar) bar.style.width = (tTotal > 0 ? (100 * (tTotal - tRemaining) / tTotal) : 0) + "%";
+    renderSession();   // l'avancement de séance bouge à chaque seconde, lui aussi
   }
 
   function segHeadline(seg) {
@@ -854,6 +922,7 @@
     ) : '<div class="live-seg live-seg-empty">' + esc(t("liveEmpty")) + '</div>';
 
     var chronoBlock =
+      seanceHtml() +
       '<div class="live-chrono-wrap">' +
         '<div id="liveChrono" class="live-chrono ' + chronoClass() + '">' + esc(S.formatSec(tRemaining)) + '</div>' +
         '<div class="live-bar"><span id="liveBar" style="width:' + (tTotal > 0 ? (100 * (tTotal - tRemaining) / tTotal) : 0) + '%"></span></div>' +

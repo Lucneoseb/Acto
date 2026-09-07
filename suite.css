@@ -1385,3 +1385,14 @@
 .suite-member-n { text-align: center; font: 600 0.92rem/1 "Inter", sans-serif; color: var(--gold-soft); }
 .suite-member-head .suite-member-n { color: var(--ink-faint); font-size: 0.9rem; }
 
+/* ─── Direct : avancement de la séance ─────────────────────────────────────── */
+.live-session { margin: 0 0 0.8rem; }
+.live-session-bar { height: 6px; border-radius: 999px; background: color-mix(in srgb, #ffffff 12%, transparent); overflow: hidden; }
+.live-session-bar > span { display: block; height: 100%; border-radius: 999px; background: var(--gold); transition: width .3s ease; }
+.live-session-bar > span.is-late { background: #f0a05a; }
+.live-session-bar > span.is-over { background: #e4534f; }
+.live-session-txt { margin-top: 0.3rem; font-size: 0.8rem; color: var(--ink-muted); }
+.live-session-txt.is-late { color: #ffc48a; }
+.live-session-txt.is-over { color: #ff9a93; }
+@media (prefers-reduced-motion: reduce) { .live-session-bar > span { transition: none; } }
+

@@ -454,7 +454,10 @@
     accountStMemberName: "Membre",
     accountStBlocks: "Exercices suivis",
     accountStNoAccount: "sans compte",
-    accountStLastSeen: "vu le {date}"
+    accountStLastSeen: "vu le {date}",
+    liveSessionProgress: "Séance : {used} sur {total}",
+    liveSessionLate: "{d} de retard",
+    liveSessionEarly: "{d} d'avance"
   };
 
   var EN = {
@@ -883,7 +886,10 @@
     accountStMemberName: "Member",
     accountStBlocks: "Exercises attended",
     accountStNoAccount: "no account",
-    accountStLastSeen: "last seen {date}"
+    accountStLastSeen: "last seen {date}",
+    liveSessionProgress: "Session: {used} of {total}",
+    liveSessionLate: "{d} behind",
+    liveSessionEarly: "{d} ahead"
   };
 
 
@@ -1371,7 +1377,10 @@
     accountStMemberName: "Mitglied",
     accountStBlocks: "Besuchte Übungen",
     accountStNoAccount: "ohne Konto",
-    accountStLastSeen: "zuletzt am {date}"
+    accountStLastSeen: "zuletzt am {date}",
+    liveSessionProgress: "Einheit: {used} von {total}",
+    liveSessionLate: "{d} im Rückstand",
+    liveSessionEarly: "{d} Vorsprung"
   };
 
   var ES = {
@@ -1858,7 +1867,10 @@
     accountStMemberName: "Miembro",
     accountStBlocks: "Ejercicios seguidos",
     accountStNoAccount: "sin cuenta",
-    accountStLastSeen: "visto el {date}"
+    accountStLastSeen: "visto el {date}",
+    liveSessionProgress: "Sesión: {used} de {total}",
+    liveSessionLate: "{d} de retraso",
+    liveSessionEarly: "{d} de adelanto"
   };
 
   var PT = {
@@ -2345,7 +2357,10 @@
     accountStMemberName: "Membro",
     accountStBlocks: "Exercícios seguidos",
     accountStNoAccount: "sem conta",
-    accountStLastSeen: "visto a {date}"
+    accountStLastSeen: "visto a {date}",
+    liveSessionProgress: "Sessão: {used} de {total}",
+    liveSessionLate: "{d} de atraso",
+    liveSessionEarly: "{d} de avanço"
   };
 
   var NL = {
@@ -2832,7 +2847,10 @@
     accountStMemberName: "Lid",
     accountStBlocks: "Gevolgde oefeningen",
     accountStNoAccount: "zonder account",
-    accountStLastSeen: "gezien op {date}"
+    accountStLastSeen: "gezien op {date}",
+    liveSessionProgress: "Sessie: {used} van {total}",
+    liveSessionLate: "{d} achter",
+    liveSessionEarly: "{d} voor"
   };
 
   var IT = {
@@ -3319,7 +3337,10 @@
     accountStMemberName: "Membro",
     accountStBlocks: "Esercizi seguiti",
     accountStNoAccount: "senza account",
-    accountStLastSeen: "visto il {date}"
+    accountStLastSeen: "visto il {date}",
+    liveSessionProgress: "Sessione: {used} su {total}",
+    liveSessionLate: "{d} di ritardo",
+    liveSessionEarly: "{d} di anticipo"
   };
 
   // de/es/pt/nl/it are filled to match the 7-locale set. Until translated
