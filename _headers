@@ -33,6 +33,8 @@
 
 # Adresses lisibles du Studio (reecrites vers welcome.html par _redirects) :
 # meme regle que /*.html, sinon un deploiement resterait cache sous /coaching.
+/welcome
+  Cache-Control: public, no-cache
 /studio
   Cache-Control: public, no-cache
 /match

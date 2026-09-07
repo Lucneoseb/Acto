@@ -1,15 +1,17 @@
-# Adresses lisibles du Studio → une seule page, welcome.html (réécriture 200,
+# Adresses lisibles du Studio → une seule page, /welcome (réécriture 200,
+# cible SANS .html : Cloudflare redirige /welcome.html vers /welcome (307) et
+# transformait la réécriture en redirection, perdant le chemin demandé —
 # l'adresse reste telle que tapée). Le routeur de js/suite/shell.js lit le
 # chemin. Ne pas mettre de 301 ici : on veut garder /coaching dans la barre.
-/studio          /welcome.html  200
-/match           /welcome.html  200
-/match/*         /welcome.html  200
-/spectacle       /welcome.html  200
-/spectacle/*     /welcome.html  200
-/coaching        /welcome.html  200
-/coaching/*      /welcome.html  200
-/decouverte      /welcome.html  200
-/decouverte/*    /welcome.html  200
-/contribuer      /welcome.html  200
-/equipes         /welcome.html  200
-/collab/*        /welcome.html  200
+/studio          /welcome       200
+/match           /welcome       200
+/match/*         /welcome       200
+/spectacle       /welcome       200
+/spectacle/*     /welcome       200
+/coaching        /welcome       200
+/coaching/*      /welcome       200
+/decouverte      /welcome       200
+/decouverte/*    /welcome       200
+/contribuer      /welcome       200
+/equipes         /welcome       200
+/collab/*        /welcome       200

@@ -8,7 +8,7 @@
 <!-- Acto's entry point now sends everyone to the Studio (/welcome), which is
      login-gated and itself bounces signed-out visitors to the login page
      (/login). Kept as a tiny redirect so old /index.html links still work. -->
-<meta http-equiv="refresh" content="0; url=/welcome.html" />
+<meta http-equiv="refresh" content="0; url=/welcome" />
 <title>Acto — The Impro Studio</title>
 <style>
   html, body { height: 100%; margin: 0; background: #0c0814; color: #f5f0ea;
@@ -28,7 +28,7 @@
     var chemin = window.location.pathname + window.location.search + window.location.hash;
     if (chemin && chemin !== "/" && chemin.indexOf("/index.html") !== 0) sessionStorage.setItem("acto:route", chemin);
   } catch (e) { /* ignore */ }
-  try { window.location.replace("/welcome.html"); } catch (e) { window.location.href = "/welcome.html"; }
+  try { window.location.replace("/welcome"); } catch (e) { window.location.href = "/welcome"; }
 </script>
 </head>
 <body>
