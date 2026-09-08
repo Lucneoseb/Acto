@@ -45,11 +45,33 @@ self.addEventListener("fetch", function (e) {
   e.respondWith(reseauDabord(req, url));
 });
 
+/* Une seule copie par chemin. VERSION ne changeant jamais d'un déploiement à
+   l'autre, l'ancien cache n'était jamais supprimé : chaque bump de ?v= y
+   ajoutait un exemplaire complet du site, définitivement. Mesuré en test :
+   539 entrées pour un site qui compte ~140 fichiers. On efface donc les autres
+   copies du même chemin après chaque mise en cache — le cache est borné par le
+   nombre de fichiers, plus par le nombre de déploiements.
+   Le repli de navigation hors ligne reste couvert : il retente welcome.html
+   avec { ignoreSearch: true }. */
+function purgerAnciennes(cache, url) {
+  return cache.keys().then(function (cles) {
+    return Promise.all(cles.map(function (c) {
+      var u;
+      try { u = new URL(c.url); } catch (e) { return null; }
+      if (u.pathname !== url.pathname) return null;
+      if (u.search === url.search) return null;        // la copie qu'on vient d'écrire
+      return cache.delete(c);
+    }));
+  }).catch(function () { /* le ménage n'est jamais critique */ });
+}
+
 function reseauDabord(req, url) {
   return caches.open(VERSION).then(function (cache) {
     return fetch(req).then(function (res) {
       if (res && res.ok && res.type === "basic" && TYPES_OK.test(res.headers.get("content-type") || "")) {
-        cache.put(req, res.clone()).catch(function () { /* quota plein : on vit sans */ });
+        cache.put(req, res.clone())
+             .then(function () { return purgerAnciennes(cache, url); })
+             .catch(function () { /* quota plein : on vit sans */ });
       }
       return res;
     }).catch(function (err) {

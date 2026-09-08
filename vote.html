@@ -20,8 +20,8 @@
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
 <link rel="manifest" href="/manifest.webmanifest" />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=2026090804" />
-<link rel="stylesheet" href="suite.css?v=2026090804" />
+<link rel="stylesheet" href="styles.css?v=2026090806" />
+<link rel="stylesheet" href="suite.css?v=2026090806" />
 <style>
   .suite-vote-body { min-height: 100svh; }
   .vote-wrap { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.1rem; padding: 1.6rem 1.1rem; text-align: center; }
@@ -77,13 +77,13 @@
   </div>
 
   <script src="/vendor/supabase-js-2.47.10.min.js" integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"></script>
-  <script src="./js/config.js?v=2026090804"></script>
+  <script src="./js/config.js?v=2026090806"></script>
   <!-- Français en synchrone (repli de t()), langue de l'utilisateur
        chargée à la demande : voir js/suite/locale-loader.js. -->
-  <script src="./data/all-fr.js?v=2026090804"></script>
-  <script src="./js/suite/locale-loader.js?v=2026090804"></script>
-  <script src="./js/suite/i18n-fr.js?v=2026090804"></script>
-  <script src="./js/suite/core.js?v=2026090804"></script>
+  <script src="./data/all-fr.js?v=2026090806"></script>
+  <script src="./js/suite/locale-loader.js?v=2026090806"></script>
+  <script src="./js/suite/i18n-fr.js?v=2026090806"></script>
+  <script src="./js/suite/core.js?v=2026090806"></script>
   <script>
   (function () {
     "use strict";
@@ -122,12 +122,31 @@
     try { var raw = localStorage.getItem(SNAP_KEY); if (raw) { var s0 = JSON.parse(raw); if (s0 && s0.ts && (Date.now() - s0.ts) < 300000 && String(s0.code || "").toUpperCase() === CODE) snap = s0; } } catch (e) {}
     try { var bc = new BroadcastChannel(CHANNEL); bc.onmessage = function (ev) { applyIncoming(ev.data); }; } catch (e) {}
     window.addEventListener("storage", function (e) { if (e.key === SNAP_KEY && e.newValue) { try { applyIncoming(JSON.parse(e.newValue)); } catch (err) {} } });
+    /* Le canal du direct peut être PRIVÉ (js/config.js → live.privateChannel) :
+       l'arbitre publie alors sur un canal dont l'écriture est réservée, et un
+       abonné resté en public ne recevrait plus rien. On suit donc le même
+       réglage que l'arbitre, avec le même repli : si l'abonnement privé est
+       refusé, on repasse en public plutôt que de laisser un téléphone muet. */
     if (sb && CODE) {
-      try {
-        var ch = sb.channel("acto-live:" + CODE, { config: { broadcast: { self: false } } });
-        ch.on("broadcast", { event: "snap" }, function (m) { if (m && m.payload) applyIncoming(m.payload); });
-        ch.subscribe(function (st) { if (st === "SUBSCRIBED") { try { ch.send({ type: "broadcast", event: "hello", payload: {} }); } catch (e) {} } });
-      } catch (e) {}
+      var chPrive = !!(window.actoConfig && window.actoConfig.live && window.actoConfig.live.privateChannel);
+      var ch = null;
+      function abonner(prive) {
+        try {
+          if (prive) { try { if (sb.realtime && sb.realtime.setAuth) sb.realtime.setAuth(); } catch (e) {} }
+          var opt = { config: { broadcast: { self: false } } };
+          if (prive) opt.config.private = true;
+          ch = sb.channel("acto-live:" + CODE, opt);
+          ch.on("broadcast", { event: "snap" }, function (m) { if (m && m.payload) applyIncoming(m.payload); });
+          ch.subscribe(function (st) {
+            if (st === "SUBSCRIBED") { try { ch.send({ type: "broadcast", event: "hello", payload: {} }); } catch (e) {} }
+            else if (prive && (st === "CHANNEL_ERROR" || st === "TIMED_OUT")) {
+              try { sb.removeChannel(ch); } catch (e) {}
+              abonner(false);          // une seule bascule : le second appel passe prive = false
+            }
+          });
+        } catch (e) {}
+      }
+      abonner(chPrive);
     }
 
     /* ---------- voting actions ---------- */

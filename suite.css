@@ -1387,6 +1387,14 @@
 
 /* ─── Direct : avancement de la séance ─────────────────────────────────────── */
 .live-session { margin: 0 0 0.8rem; }
+/* Bandeau « connexion perdue » du direct. Absent tant que tout va bien ; quand
+   le canal tombe, l'arbitre doit le voir sans que ça vole la vedette au chrono.
+   [hidden] explicite : la règle de mise en page l'emporterait sinon. */
+.live-link { margin: 0 0 0.6rem; padding: 0.45rem 0.7rem; border-radius: 8px; text-align: center;
+  background: color-mix(in srgb, #e4534f 22%, transparent);
+  border: 1px solid color-mix(in srgb, #e4534f 55%, transparent);
+  color: #ffdcda; font-size: 0.85rem; font-weight: 600; }
+.live-link[hidden] { display: none; }
 .live-session-bar { height: 6px; border-radius: 999px; background: color-mix(in srgb, #ffffff 12%, transparent); overflow: hidden; }
 .live-session-bar > span { display: block; height: 100%; border-radius: 999px; background: var(--gold); transition: width .3s ease; }
 .live-session-bar > span.is-late { background: #f0a05a; }

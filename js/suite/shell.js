@@ -86,6 +86,7 @@
     // tear down any live/display engine + collab editing state before routing
     if (window.ActoLive && window.ActoLive.cleanup) window.ActoLive.cleanup();
     if (window.ActoProgram && window.ActoProgram.cleanup) window.ActoProgram.cleanup();
+    if (window.ActoDiscover && window.ActoDiscover.cleanup) window.ActoDiscover.cleanup();   // chrono d'exercice : il vit sur le <body>, il survivrait à la navigation
 
     // Live presenter hides all shell chrome. The public display + record device
     // now live on the standalone, code-joined join.html (no longer in-shell routes).

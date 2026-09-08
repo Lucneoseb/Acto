@@ -49,6 +49,12 @@
      that only lets the authenticated match owner broadcast (viewers read-only). */
   var _rt = null, _rtRole = null;   // null | 'pub' | 'sub'
   var _rtPrive = null;              // null = pas encore décidé ; true/false = mode retenu
+  /* État du canal, pour l'arbitre. Un théâtre en sous-sol, un wifi qui tombe :
+     rien ne le disait. L'arbitre continuait de mener le match pendant que
+     l'écran public restait figé et que les votes du public n'arrivaient plus.
+     "" = pas encore branché, "ok" = abonné, "ko" = coupé. */
+  var _rtLien = "";
+  function rtLien(e) { if (_rtLien !== e) { _rtLien = e; renderLien(); } }
   function rtClient() { return window.actoSuiteSb || null; }
   // Le canal privé n'est tenté que si le drapeau est levé ET si la migration
   // correspondante a été appliquée. Au moindre échec d'abonnement on repasse en
@@ -127,7 +133,8 @@
           try { sb.removeChannel(_rt); } catch (e) { /* ignore */ }
           _rt = null; _rtRole = null;
           rtEnsurePublisher(); broadcast();
-        } else if (status === "SUBSCRIBED" && prive) { _rtPrive = true; }
+        } else if (status === "SUBSCRIBED") { if (prive) _rtPrive = true; rtLien("ok"); }
+        else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") rtLien("ko");
       });
       _rtRole = "pub";
     } catch (e) { _rt = null; }
@@ -158,7 +165,7 @@
       _rt = sb.channel(name, rtOptions(prive));
       _rt.on("broadcast", { event: "snap" }, function (msg) { if (msg && msg.payload) onSnap(msg.payload); });
       _rt.subscribe(function (status) {
-        if (status === "SUBSCRIBED") { if (prive) _rtPrive = true; try { _rt.send({ type: "broadcast", event: "hello", payload: {} }); } catch (e) { /* ignore */ } }
+        if (status === "SUBSCRIBED") { if (prive) _rtPrive = true; rtLien("ok"); try { _rt.send({ type: "broadcast", event: "hello", payload: {} }); } catch (e) { /* ignore */ } }
         // Un écran public qui n'affiche rien serait le pire résultat : au moindre
         // refus, on retombe sur le canal public.
         else if (prive && (status === "CHANNEL_ERROR" || status === "TIMED_OUT")) {
@@ -168,6 +175,7 @@
           _rt = null; _rtRole = null;
           rtSubscribe(onSnap);
         }
+        else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") rtLien("ko");
       });
       _rtRole = "sub";
     } catch (e) { _rt = null; }
@@ -802,6 +810,8 @@
     // L'écran ne doit pas s'éteindre pendant le match (réacquis au retour d'onglet).
     requestWakeLock();
     document.addEventListener("visibilitychange", onVisibilityForWakeLock);
+    window.addEventListener("online", onReseau);
+    window.addEventListener("offline", onReseau);
     var c = chan();
     if (c) c.onmessage = function (ev) { if (ev.data && ev.data.type === "hello") broadcast(); };
     rtEnsurePublisher();   // start the cross-device channel (answers remote 'hello')
@@ -841,6 +851,22 @@
       demarre: !!sess.liveStartedAt
     };
   }
+  /* navigator.onLine ment parfois (capté mais sans Internet) ; le statut du
+     canal, lui, est la vérité de terrain. On regarde les deux : le premier est
+     instantané quand le wifi tombe, le second couvre le reste. */
+  function lienPerdu() {
+    try { if (navigator && navigator.onLine === false) return true; } catch (e) { /* ignore */ }
+    return _rtLien === "ko";
+  }
+  function renderLien() {
+    var el = root && root.querySelector("#liveLink");
+    if (!el) return;
+    var ko = lienPerdu();
+    if (ko) el.textContent = "⚠ " + t("liveLinkLost");
+    el.hidden = !ko;
+  }
+  function onReseau() { renderLien(); }
+
   function seanceHtml() {
     var e = seanceEtat();
     if (!e) return "";
@@ -889,6 +915,7 @@
     var barW = root && root.querySelector("#liveBarWrap");
     if (barW) { barW.setAttribute("aria-valuenow", String(tTotal > 0 ? Math.round(100 * (tTotal - tRemaining) / tTotal) : 0)); barW.setAttribute("aria-valuetext", S.formatSec(tRemaining)); }
     renderSession();   // l'avancement de séance bouge à chaque seconde, lui aussi
+    renderLien();      // filet : si un statut de canal a été manqué, le tick rattrape
   }
 
   function segHeadline(seg) {
@@ -928,6 +955,7 @@
     ) : '<div class="live-seg live-seg-empty">' + esc(t("liveEmpty")) + '</div>';
 
     var chronoBlock =
+      '<div class="live-link" id="liveLink" role="status" hidden></div>' +
       seanceHtml() +
       '<div class="live-chrono-wrap">' +
         '<div id="liveChrono" class="live-chrono ' + chronoClass() + '">' + esc(S.formatSec(tRemaining)) + '</div>' +
@@ -1424,7 +1452,10 @@
     var c = chan(); if (c) c.onmessage = null;
     releaseWakeLock();
     document.removeEventListener("visibilitychange", onVisibilityForWakeLock);
+    window.removeEventListener("online", onReseau);
+    window.removeEventListener("offline", onReseau);
     window.removeEventListener("storage", onStorage);
+    _rtLien = "";                // un nouveau direct repart d'un état inconnu
     rtTeardown();
     redraw = function () {};
     dSnap = null;                // don't carry one role's snapshot into the next

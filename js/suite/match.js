@@ -1003,7 +1003,9 @@
   function cloudWarn(ok) { if (!ok) toast(t("cloudSaveFailed")); }
   // Sauvegarde unique : local (référence) + miroir de compte (best-effort).
   function persistSession(session) {
-    if (!S.sessions.save(session)) toast(t("storageFull"));   // quota local plein : on le dit, et on tente quand même le compte
+    // quota local plein : on le dit, et on tente quand même le compte
+    if (!S.sessions.save(session)) toast(t("storageFull"));
+    else if (S.sessions.lastStripped()) toast(t("storageNoPhotos"));
     cloudMirror(session, cloudWarn);
   }
 

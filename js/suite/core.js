@@ -502,15 +502,46 @@
   var INDEX_KEY = "acto-suite:index:v1";
   function sessionKey(id) { return "acto-suite:session:" + id + ":v1"; }
 
-  function readIndex() {
+  /* L'index n'est qu'une table des matières : chaque séance vit pour de bon
+     sous acto-suite:session:<id>:v1. Quand il devenait illisible (écriture
+     interrompue, quota atteint au mauvais moment, nettoyage par un tiers), on
+     renvoyait une liste vide — TOUS les coachings disparaissaient de l'écran
+     alors que rien n'était perdu. On le reconstruit à partir des séances
+     réellement présentes. */
+  function rebuildIndex() {
+    var arr = [];
     try {
-      var raw = localStorage.getItem(INDEX_KEY);
-      var arr = raw ? JSON.parse(raw) : [];
-      return Array.isArray(arr) ? arr : [];
-    } catch (e) { return []; }
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (!k || k.indexOf("acto-suite:session:") !== 0) continue;
+        var s = null;
+        try { s = JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { continue; }
+        if (!s || !s.id) continue;
+        arr.push({
+          id: s.id, kind: s.kind, title: s.title || "",
+          matchDate: s.matchDate || "",
+          updatedAt: s.updatedAt || s.createdAt || 0,
+          nbImpros: (s.setlist || []).length
+        });
+      }
+    } catch (e) { /* stockage inaccessible : on rend ce qu'on a pu lire */ }
+    if (arr.length) { writeIndex(arr); console.warn("[sessions] index reconstruit (" + arr.length + " séance(s))"); }
+    return arr;
+  }
+
+  function readIndex() {
+    var raw = null;
+    try { raw = localStorage.getItem(INDEX_KEY); } catch (e) { return []; }   // stockage bloqué par le navigateur
+    if (!raw) return rebuildIndex();          // absent : compte neuf, ou index effacé alors que les séances sont là
+    try {
+      var arr = JSON.parse(raw);
+      if (Array.isArray(arr)) return arr;
+    } catch (e) { /* illisible : reconstruction ci-dessous */ }
+    return rebuildIndex();
   }
   function writeIndex(arr) {
-    try { localStorage.setItem(INDEX_KEY, JSON.stringify(arr)); } catch (e) { /* ignore */ }
+    try { localStorage.setItem(INDEX_KEY, JSON.stringify(arr)); return true; }
+    catch (e) { console.warn("[sessions] index non enregistré", e && e.message); return false; }
   }
 
   function listSessions(kind) {
@@ -525,16 +556,46 @@
       return raw ? JSON.parse(raw) : null;
     } catch (e) { return null; }
   }
+  /* Copie sans les images. Les logos et avatars sont des data-URL recopiées
+     dans CHAQUE séance : mesuré ~200 Ko pour deux équipes de douze, soit un
+     plafond d'environ 24 séances enregistrées avant de saturer le quota de
+     5 Mo. Même arbitrage que slimSnap côté direct — un tableau sans logo vaut
+     mieux que pas de tableau du tout : ici, une séance sans photos vaut mieux
+     qu'une soirée de préparation perdue. */
+  function sansPhotos(session) {
+    var c;
+    try { c = JSON.parse(JSON.stringify(session)); } catch (e) { return null; }
+    (c.teams || []).forEach(function (t) {
+      if (!t) return;
+      t.logo = null;
+      (t.players || []).forEach(function (p) { if (p) p.photo = null; });
+    });
+    return c;
+  }
+  var _allege = false;   // la dernière sauvegarde a-t-elle dû abandonner les photos ?
+
   function saveSession(session) {
     if (!session.id) session.id = uid();
     if (!session.createdAt) session.createdAt = Date.now();
     session.updatedAt = Date.now();
+    _allege = false;
     // Quota plein (photos d'équipe en data-URL, vieux navigateur) : l'échec
     // était avalé et l'index mis à jour quand même — une session fantôme dans
     // la liste, et des modifications perdues sans un mot. On renvoie null,
     // l'appelant prévient.
     try { localStorage.setItem(sessionKey(session.id), JSON.stringify(session)); }
-    catch (e) { console.warn("[sessions] stockage impossible", e && e.message); return null; }
+    catch (e) {
+      // Deuxième chance, sans les images. L'objet en mémoire garde les siennes :
+      // l'écran ne change pas, seule la copie sur disque est allégée.
+      var court = sansPhotos(session), sauve = false;
+      if (court) {
+        try { localStorage.setItem(sessionKey(session.id), JSON.stringify(court)); sauve = true; }
+        catch (e2) { /* vraiment plein */ }
+      }
+      if (!sauve) { console.warn("[sessions] stockage impossible", e && e.message); return null; }
+      _allege = true;
+      console.warn("[sessions] quota atteint : séance enregistrée sans les photos");
+    }
     var idx = readIndex();
     var entry = {
       id: session.id, kind: session.kind, title: session.title || "",
@@ -547,7 +608,9 @@
       if (idx[i].id === session.id) { idx[i] = entry; found = true; break; }
     }
     if (!found) idx.push(entry);
-    writeIndex(idx);
+    // La séance est bien écrite ; si l'index ne l'est pas, elle n'apparaîtrait
+    // pas dans « Mes coachings ». On le signale plutôt que de laisser croire.
+    if (!writeIndex(idx)) return null;
     return session;
   }
   function removeSession(id) {
@@ -626,7 +689,7 @@
         };
       });
       localStorage.setItem(TEAMS_KEY, JSON.stringify(slim));
-    } catch (e) { /* ignore */ }
+    } catch (e) { console.warn("[teams] équipes par défaut non enregistrées", e && e.message); }
   }
   // Build a fresh live-team (identity + zeroed score/penalties) from a default.
   function liveTeam(def, i) {
@@ -798,7 +861,9 @@
       newShow: newShowSession,
       newTraining: newTrainingSession,
       loadDefaultTeams: loadDefaultTeams,
-      saveDefaultTeams: saveDefaultTeams
+      saveDefaultTeams: saveDefaultTeams,
+      // vrai quand la dernière save() a dû sacrifier les photos faute de place
+      lastStripped: function () { return _allege; }
     },
     // player helpers (players may be strings or {name,photo,user_id,present})
     players: {

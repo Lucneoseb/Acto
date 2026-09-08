@@ -416,6 +416,7 @@
     rulesLangNote: "Cet article existe en français et en anglais.",
     rulesToc: "Sommaire",
     storageFull: "Stockage plein : impossible d'enregistrer sur cet appareil. Libère de l'espace ou sauvegarde sur ton compte.",
+    storageNoPhotos: "Stockage plein : la séance est enregistrée sans les photos d'équipe.",
     duplicateSuffix: "(copie)",
     teamsDeleteError: "Suppression impossible : réessaie dans un instant.",
     collabInviteRole: "Accès accordé",
@@ -457,7 +458,8 @@
     accountStLastSeen: "vu le {date}",
     liveSessionProgress: "Séance : {used} sur {total}",
     liveSessionLate: "{d} de retard",
-    liveSessionEarly: "{d} d'avance"
+    liveSessionEarly: "{d} d'avance",
+    liveLinkLost: "Connexion perdue — l'écran public ne suit plus"
   };
 
   var EN = {
@@ -848,6 +850,7 @@
     rulesLangNote: "This article is available in French and English.",
     rulesToc: "Contents",
     storageFull: "Storage full: can't save on this device. Free some space or save to your account.",
+    storageNoPhotos: "Storage full: the session was saved without the team photos.",
     duplicateSuffix: "(copy)",
     teamsDeleteError: "Couldn't delete: try again in a moment.",
     collabInviteRole: "Access granted",
@@ -889,7 +892,8 @@
     accountStLastSeen: "last seen {date}",
     liveSessionProgress: "Session: {used} of {total}",
     liveSessionLate: "{d} behind",
-    liveSessionEarly: "{d} ahead"
+    liveSessionEarly: "{d} ahead",
+    liveLinkLost: "Connection lost — the public screen is no longer following"
   };
 
 
@@ -1339,6 +1343,7 @@
     rulesLangNote: "Dieser Artikel liegt auf Französisch und Englisch vor; hier die englische Fassung.",
     rulesToc: "Inhalt",
     storageFull: "Speicher voll: Speichern auf diesem Gerät nicht möglich. Platz freigeben oder im Konto speichern.",
+    storageNoPhotos: "Speicher voll: Die Einheit wurde ohne die Teamfotos gespeichert.",
     duplicateSuffix: "(Kopie)",
     teamsDeleteError: "Löschen fehlgeschlagen: versuch es gleich noch einmal.",
     collabInviteRole: "Gewährter Zugriff",
@@ -1380,7 +1385,8 @@
     accountStLastSeen: "zuletzt am {date}",
     liveSessionProgress: "Einheit: {used} von {total}",
     liveSessionLate: "{d} im Rückstand",
-    liveSessionEarly: "{d} Vorsprung"
+    liveSessionEarly: "{d} Vorsprung",
+    liveLinkLost: "Verbindung verloren – die Publikumsanzeige folgt nicht mehr"
   };
 
   var ES = {
@@ -1829,6 +1835,7 @@
     rulesLangNote: "Este artículo existe en francés y en inglés; aquí la versión inglesa.",
     rulesToc: "Índice",
     storageFull: "Almacenamiento lleno: no se puede guardar en este dispositivo. Libera espacio o guarda en tu cuenta.",
+    storageNoPhotos: "Almacenamiento lleno: la sesión se guardó sin las fotos de equipo.",
     duplicateSuffix: "(copia)",
     teamsDeleteError: "No se pudo eliminar: inténtalo de nuevo en un momento.",
     collabInviteRole: "Acceso concedido",
@@ -1870,7 +1877,8 @@
     accountStLastSeen: "visto el {date}",
     liveSessionProgress: "Sesión: {used} de {total}",
     liveSessionLate: "{d} de retraso",
-    liveSessionEarly: "{d} de adelanto"
+    liveSessionEarly: "{d} de adelanto",
+    liveLinkLost: "Conexión perdida: la pantalla del público ya no sigue"
   };
 
   var PT = {
@@ -2319,6 +2327,7 @@
     rulesLangNote: "Este artigo existe em francês e em inglês; eis a versão inglesa.",
     rulesToc: "Índice",
     storageFull: "Armazenamento cheio: impossível guardar neste aparelho. Liberta espaço ou guarda na tua conta.",
+    storageNoPhotos: "Armazenamento cheio: a sessão foi guardada sem as fotos das equipas.",
     duplicateSuffix: "(cópia)",
     teamsDeleteError: "Não foi possível eliminar: tenta novamente daqui a pouco.",
     collabInviteRole: "Acesso concedido",
@@ -2360,7 +2369,8 @@
     accountStLastSeen: "visto a {date}",
     liveSessionProgress: "Sessão: {used} de {total}",
     liveSessionLate: "{d} de atraso",
-    liveSessionEarly: "{d} de avanço"
+    liveSessionEarly: "{d} de avanço",
+    liveLinkLost: "Ligação perdida — o ecrã do público deixou de acompanhar"
   };
 
   var NL = {
@@ -2809,6 +2819,7 @@
     rulesLangNote: "Dit artikel bestaat in het Frans en het Engels; hier de Engelse versie.",
     rulesToc: "Inhoud",
     storageFull: "Opslag vol: opslaan op dit toestel lukt niet. Maak ruimte vrij of sla op in je account.",
+    storageNoPhotos: "Opslag vol: de sessie is opgeslagen zonder de teamfoto's.",
     duplicateSuffix: "(kopie)",
     teamsDeleteError: "Verwijderen mislukt: probeer het zo opnieuw.",
     collabInviteRole: "Toegekende toegang",
@@ -2850,7 +2861,8 @@
     accountStLastSeen: "gezien op {date}",
     liveSessionProgress: "Sessie: {used} van {total}",
     liveSessionLate: "{d} achter",
-    liveSessionEarly: "{d} voor"
+    liveSessionEarly: "{d} voor",
+    liveLinkLost: "Verbinding verbroken — het publieksscherm volgt niet meer"
   };
 
   var IT = {
@@ -3299,6 +3311,7 @@
     rulesLangNote: "Questo articolo esiste in francese e in inglese; ecco la versione inglese.",
     rulesToc: "Indice",
     storageFull: "Spazio esaurito: impossibile salvare su questo dispositivo. Libera spazio o salva nel tuo account.",
+    storageNoPhotos: "Memoria piena: la sessione è stata salvata senza le foto delle squadre.",
     duplicateSuffix: "(copia)",
     teamsDeleteError: "Eliminazione non riuscita: riprova tra un istante.",
     collabInviteRole: "Accesso concesso",
@@ -3340,7 +3353,8 @@
     accountStLastSeen: "visto il {date}",
     liveSessionProgress: "Sessione: {used} su {total}",
     liveSessionLate: "{d} di ritardo",
-    liveSessionEarly: "{d} di anticipo"
+    liveSessionEarly: "{d} di anticipo",
+    liveLinkLost: "Connessione persa — lo schermo del pubblico non segue più"
   };
 
   // de/es/pt/nl/it are filled to match the 7-locale set. Until translated

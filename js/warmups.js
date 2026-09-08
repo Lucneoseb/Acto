@@ -21,9 +21,17 @@
   let activeQuery = "";
   let pickedId = null;
 
+  // localStorage peut LEVER (Safari « bloquer tous les cookies », Firefox
+  // strict, politiques d'entreprise) : ces lectures se font au premier rendu,
+  // l'exception laissait la page vide.
+  function localeStockee() {
+    try { return (localStorage.getItem("impro-studio:locale:v1") || "").trim(); }
+    catch (e) { return ""; }
+  }
+
   // ─── i18n — reads UI strings from the bundled IMPRO_BUNDLE.ui (data/all.js).
   function uiStrings() {
-    const loc = (localStorage.getItem("impro-studio:locale:v1") || "fr").trim();
+    const loc = localeStockee() || "fr";
     const all = (window.IMPRO_BUNDLE && window.IMPRO_BUNDLE.ui) || {};
     return all[loc] || all.fr || {};
   }
@@ -53,7 +61,7 @@
   // ─────────────────────────────────────────────────────────────────
   function currentLocale() {
     const supported = ["fr", "en", "de", "es", "pt", "nl", "it"];
-    let loc = (localStorage.getItem("impro-studio:locale:v1") || "").trim().toLowerCase();
+    let loc = localeStockee().toLowerCase();
     if (!supported.includes(loc)) {
       // Derive from the browser, fall back to FR.
       const nav = (navigator.languages && navigator.languages[0]) || navigator.language || "fr";
@@ -531,7 +539,7 @@
   function openRulesDialog() {
     const dlg = $("#rulesDialog"); if (!dlg) return;
     const RULES = window.actoRules || { fr: "" };
-    const loc = (localStorage.getItem("impro-studio:locale:v1") || "fr").trim();
+    const loc = localeStockee() || "fr";
     const lang = RULES[loc] ? loc : "fr";
     const body = $("#rulesBody"); if (body) body.innerHTML = RULES[lang] || RULES.fr || "";
     const title = $("#rulesDialogTitle"); if (title) title.textContent = "📖 " + t("rulesTitle", "Règles du match d'impro");

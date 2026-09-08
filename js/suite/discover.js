@@ -185,7 +185,14 @@
   /* ============================================================
      SIMPLE TIMER OVERLAY (no scores, no teams)
      ============================================================ */
+  /* Le chrono vit au niveau du <body>, hors du conteneur que le routeur
+     redessine. Mesuré : en quittant Découverte pendant qu'il tourne, le panneau
+     restait à l'écran par-dessus la page suivante, son intervalle actif et son
+     gong encore à venir. On garde donc de quoi le fermer depuis le routeur. */
+  var fermerChrono = null;
+
   function openChrono(exo) {
+    if (fermerChrono) fermerChrono();          // un seul chrono à la fois
     var total = 180, remaining = total, running = false, endAt = 0, iv = null;
 
     var ov = document.createElement("div");
@@ -215,7 +222,11 @@
     function start() { running = true; endAt = Date.now() + remaining * 1000; iv = setInterval(tick, 250); paint(); }
     function pause() { running = false; if (iv) { clearInterval(iv); iv = null; } remaining = Math.max(0, Math.round((endAt - Date.now()) / 1000)); paint(); }
     function reset(sec) { running = false; if (iv) { clearInterval(iv); iv = null; } total = sec != null ? sec : total; remaining = total; paint(); }
-    function close() { if (iv) clearInterval(iv); ov.remove(); }
+    function close() {
+      if (iv) { clearInterval(iv); iv = null; }
+      ov.remove();
+      if (fermerChrono === close) fermerChrono = null;
+    }
 
     ov.innerHTML =
       '<div class="suite-exo-panel">' +
@@ -247,8 +258,13 @@
       b.onclick = function () { reset(parseInt(b.getAttribute("data-preset"), 10)); };
     });
     ov.addEventListener("click", function (e) { if (e.target === ov) close(); });
+    fermerChrono = close;
     paint();
   }
 
-  window.ActoDiscover = { mount: mount };
+  window.ActoDiscover = {
+    mount: mount,
+    // Appelé par le routeur avant chaque navigation (voir shell.js).
+    cleanup: function () { if (fermerChrono) fermerChrono(); }
+  };
 })();

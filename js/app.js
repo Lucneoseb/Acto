@@ -240,7 +240,13 @@
       }
       return "fr";
     }
-    let locale = localStorage.getItem(LOCALE_KEY);
+    // Certains navigateurs font LEVER localStorage au premier accès : Safari
+    // « bloquer tous les cookies », Firefox en mode strict, politiques
+    // d'entreprise. Sans garde, l'exception remontait ici — tout au début du
+    // script — et la page restait vide. Le Studio protège déjà chacun de ses
+    // accès de cette façon ; cette page ne le faisait pas.
+    let locale = null;
+    try { locale = localStorage.getItem(LOCALE_KEY); } catch (e) { /* stockage indisponible */ }
     if (!locale || !bundle.locales[locale]) {
       locale = detectBrowserLocale();
     }
@@ -254,7 +260,8 @@
     const target = new EventTarget();
 
     function persist() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides));
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides)); }
+      catch (e) { console.warn("[store] préférences non enregistrées", e && e.message); }
     }
     function emit() { target.dispatchEvent(new CustomEvent("change")); }
 
@@ -281,7 +288,7 @@
     function setLocale(code) {
       if (!bundle.locales[code]) return;
       locale = code;
-      localStorage.setItem(LOCALE_KEY, code);
+      try { localStorage.setItem(LOCALE_KEY, code); } catch (e) { /* le choix ne survivra pas à la visite */ }
       emit();
     }
 
