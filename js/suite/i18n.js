@@ -459,7 +459,14 @@
     liveSessionProgress: "Séance : {used} sur {total}",
     liveSessionLate: "{d} de retard",
     liveSessionEarly: "{d} d'avance",
-    liveLinkLost: "Connexion perdue — l'écran public ne suit plus"
+    liveLinkLost: "Connexion perdue — l'écran public ne suit plus",
+    catalogTitle: "Catalogue d'exercices",
+    catalogSearch: "Rechercher un exercice…",
+    catalogEmpty: "Aucun exercice ne correspond.",
+    catalogCount: "{n} au catalogue",
+    catalogOpen: "Parcourir le catalogue",
+    catalogAdd: "Catalogue",
+    proposeAdded: "Proposé, et ajouté à ton coaching. Les autres le verront après validation."
   };
 
   var EN = {
@@ -893,7 +900,14 @@
     liveSessionProgress: "Session: {used} of {total}",
     liveSessionLate: "{d} behind",
     liveSessionEarly: "{d} ahead",
-    liveLinkLost: "Connection lost — the public screen is no longer following"
+    liveLinkLost: "Connection lost — the public screen is no longer following",
+    catalogTitle: "Exercise catalogue",
+    catalogSearch: "Search for an exercise…",
+    catalogEmpty: "No exercise matches.",
+    catalogCount: "{n} in the catalogue",
+    catalogOpen: "Browse the catalogue",
+    catalogAdd: "Catalogue",
+    proposeAdded: "Submitted, and added to your session. Others will see it once approved."
   };
 
 
@@ -1386,7 +1400,14 @@
     liveSessionProgress: "Einheit: {used} von {total}",
     liveSessionLate: "{d} im Rückstand",
     liveSessionEarly: "{d} Vorsprung",
-    liveLinkLost: "Verbindung verloren – die Publikumsanzeige folgt nicht mehr"
+    liveLinkLost: "Verbindung verloren – die Publikumsanzeige folgt nicht mehr",
+    catalogTitle: "Übungskatalog",
+    catalogSearch: "Übung suchen…",
+    catalogEmpty: "Keine Übung gefunden.",
+    catalogCount: "{n} im Katalog",
+    catalogOpen: "Katalog durchsuchen",
+    catalogAdd: "Katalog",
+    proposeAdded: "Eingereicht und zu deiner Einheit hinzugefügt. Andere sehen es nach der Freigabe."
   };
 
   var ES = {
@@ -1878,7 +1899,14 @@
     liveSessionProgress: "Sesión: {used} de {total}",
     liveSessionLate: "{d} de retraso",
     liveSessionEarly: "{d} de adelanto",
-    liveLinkLost: "Conexión perdida: la pantalla del público ya no sigue"
+    liveLinkLost: "Conexión perdida: la pantalla del público ya no sigue",
+    catalogTitle: "Catálogo de ejercicios",
+    catalogSearch: "Buscar un ejercicio…",
+    catalogEmpty: "Ningún ejercicio coincide.",
+    catalogCount: "{n} en el catálogo",
+    catalogOpen: "Explorar el catálogo",
+    catalogAdd: "Catálogo",
+    proposeAdded: "Propuesto y añadido a tu sesión. Los demás lo verán tras la validación."
   };
 
   var PT = {
@@ -2370,7 +2398,14 @@
     liveSessionProgress: "Sessão: {used} de {total}",
     liveSessionLate: "{d} de atraso",
     liveSessionEarly: "{d} de avanço",
-    liveLinkLost: "Ligação perdida — o ecrã do público deixou de acompanhar"
+    liveLinkLost: "Ligação perdida — o ecrã do público deixou de acompanhar",
+    catalogTitle: "Catálogo de exercícios",
+    catalogSearch: "Procurar um exercício…",
+    catalogEmpty: "Nenhum exercício corresponde.",
+    catalogCount: "{n} no catálogo",
+    catalogOpen: "Explorar o catálogo",
+    catalogAdd: "Catálogo",
+    proposeAdded: "Proposto e adicionado à tua sessão. Os outros vê-lo-ão após validação."
   };
 
   var NL = {
@@ -2862,7 +2897,14 @@
     liveSessionProgress: "Sessie: {used} van {total}",
     liveSessionLate: "{d} achter",
     liveSessionEarly: "{d} voor",
-    liveLinkLost: "Verbinding verbroken — het publieksscherm volgt niet meer"
+    liveLinkLost: "Verbinding verbroken — het publieksscherm volgt niet meer",
+    catalogTitle: "Oefeningencatalogus",
+    catalogSearch: "Zoek een oefening…",
+    catalogEmpty: "Geen oefening gevonden.",
+    catalogCount: "{n} in de catalogus",
+    catalogOpen: "Blader door de catalogus",
+    catalogAdd: "Catalogus",
+    proposeAdded: "Ingediend en toegevoegd aan je sessie. Anderen zien het na goedkeuring."
   };
 
   var IT = {
@@ -3354,7 +3396,14 @@
     liveSessionProgress: "Sessione: {used} su {total}",
     liveSessionLate: "{d} di ritardo",
     liveSessionEarly: "{d} di anticipo",
-    liveLinkLost: "Connessione persa — lo schermo del pubblico non segue più"
+    liveLinkLost: "Connessione persa — lo schermo del pubblico non segue più",
+    catalogTitle: "Catalogo di esercizi",
+    catalogSearch: "Cerca un esercizio…",
+    catalogEmpty: "Nessun esercizio corrisponde.",
+    catalogCount: "{n} nel catalogo",
+    catalogOpen: "Sfoglia il catalogo",
+    catalogAdd: "Catalogo",
+    proposeAdded: "Proposto e aggiunto alla tua sessione. Gli altri lo vedranno dopo l'approvazione."
   };
 
   // de/es/pt/nl/it are filled to match the 7-locale set. Until translated

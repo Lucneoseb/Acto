@@ -89,6 +89,18 @@
   /* ============================================================
      ROUTER ENTRY
      ============================================================ */
+  /* Le contenu validé arrive du serveur APRÈS le premier rendu : sans ce
+     rappel, la liste restait celle du fichier statique jusqu'à ce qu'on rouvre
+     la page. On ne redessine que si l'éditeur est à l'écran et qu'aucune ligne
+     n'est en cours d'édition — sinon on effacerait la saisie en cours. */
+  try {
+    S.gen.onContentReady(function () {
+      if (!root || !current || editing) return;
+      if (!root.querySelector(".suite-seg-card")) return;
+      renderEditor();
+    });
+  } catch (e) { /* ignore */ }
+
   function mount(container, sub, nav, theKind) {
     collabTeardown();   // leaving any collab session when entering a normal match route
     root = container;
@@ -402,6 +414,7 @@
       ? '<div class="suite-addseg-row">' +
           '<button class="suite-addseg" data-act="add-warmup">' + esc(t("trainAddWarmup")) + '</button>' +
           '<button class="suite-addseg" data-act="add-exercise">' + esc(t("trainAddExercise")) + '</button>' +
+          '<button class="suite-addseg" data-act="catalog" data-field="warmup">📚 ' + esc(t("catalogAdd")) + '</button>' +
         '</div>'
       : '<button class="suite-addseg" data-act="add-seg">' + esc(t("segAdd")) + '</button>';
 
@@ -626,6 +639,10 @@
       '<span class="suite-flabel">' + esc(label) + '</span>' +
       valueCell +
       '<span class="suite-fbtns">' +
+        // 📚 seulement là où il y a un catalogue derrière : échauffements et exercices.
+        ((field === "warmup" || field === "exercise")
+          ? '<button class="suite-icon-btn" data-act="catalog" data-seg="' + esc(seg.id) + '" data-field="' + field + '" aria-label="' + esc(t("catalogOpen")) + '" title="' + esc(t("catalogOpen")) + '">📚</button>'
+          : "") +
         '<button class="suite-icon-btn" data-act="edit" data-seg="' + esc(seg.id) + '" data-field="' + field + '" aria-label="' + esc(t("editField")) + '">✎</button>' +
         '<button class="suite-icon-btn" data-act="reroll" data-seg="' + esc(seg.id) + '" data-field="' + field + '"' + (locked ? " disabled" : "") + ' aria-label="' + esc(t("rerollField")) + '">🎲</button>' +
         '<button class="suite-icon-btn' + (locked ? " is-on" : "") + '" data-act="lock" data-seg="' + esc(seg.id) + '" data-field="' + field + '" aria-label="' + esc(locked ? t("unlockField") : t("lockField")) + '">' + (locked ? "🔒" : "🔓") + '</button>' +
@@ -724,6 +741,9 @@
       case "add-seg":
         appendSegment(S.gen.newSegmentFor(kind, current.level));
         break;
+      case "catalog":
+        openCatalog(field === "exercise" ? "exercise" : "warmup", id || null);
+        break;
       case "add-warmup":
         appendSegment(S.gen.newWarmupSegment(current.level));
         break;
@@ -796,6 +816,9 @@
     } else if (field === "warmup") {
       var w = S.gen.warmupOptions().filter(function (o) { return o.name === value; })[0];
       seg.warmup = w ? { name: w.name, desc: w.desc, duration_seconds: w.duration_seconds } : { name: value, desc: "" };
+      // Un exercice qui annonce sa durée l'impose, sauf si l'utilisateur a
+      // verrouillé la sienne : choisir « 10 minutes » et lire 0:30 n'a aucun sens.
+      if (w && w.duration_seconds && !seg.locks.duration) seg.durationSec = w.duration_seconds;
     } else if (field === "exercise") {
       var e = S.gen.trainingExerciseOptions(current.level).filter(function (o) { return o.name === value; })[0];
       seg.exercise = e ? { name: e.name, desc: e.desc } : { name: value, desc: "" };
@@ -1190,9 +1213,112 @@
     [].forEach.call(root.querySelectorAll('[data-act^="propose-"]'), function (b) {
       b.onclick = function () {
         var C = window.ActoContribute;
-        if (C && C.open) C.open(b.getAttribute("data-act").replace("propose-", ""));
+        if (!C || !C.open) return;
+        var quoi = b.getAttribute("data-act").replace("propose-", "");
+        C.open(quoi, { onValues: function (v) { ajouterPropose(quoi, v); } });
       };
     });
+  }
+
+  /* La proposition part en modération ET rejoint tout de suite le déroulé en
+     préparation : sans ça, il fallait attendre la validation de l'admin pour
+     utiliser son propre exercice, y compris le soir même. Les autres, eux, ne
+     le verront qu'une fois validé — c'est la file d'attente qui le décide, pas
+     cet ajout local. */
+  function ajouterPropose(quoi, v) {
+    if (!current) return;
+    var seg;
+    if (quoi === "warmup") {
+      var min = parseFloat(v.duration);
+      var sec = (min === min && min > 0) ? Math.round(min * 60) : 0;
+      seg = S.gen.newWarmupSegment(current.level);
+      seg.warmup = { name: v.name, desc: v.desc || "", duration_seconds: sec || null };
+      if (sec) seg.durationSec = sec;
+      seg.locks = seg.locks || {};
+      seg.locks.warmup = true;                 // sinon fillSegment le remplacerait par un tirage
+      if (sec) seg.locks.duration = true;
+    } else {
+      seg = S.gen.newExerciseSegment(current.level);
+      seg.exercise = { name: v.name, desc: v.desc || "" };
+      seg.locks = seg.locks || {};
+      seg.locks.exercise = true;
+    }
+    appendSegment(seg);
+    toast(t("proposeAdded"));
+  }
+
+  /* Catalogue d'exercices. Jusqu'ici le seul moyen d'en changer était le ✎ de
+     la ligne, qui ouvre un <select> : plus de cent entrées, les noms seuls,
+     aucune description — introuvable pour qui ne connaît pas déjà l'astuce.
+     Ici : une liste cherchable, avec la durée et la description, et le même
+     chemin d'écriture que le <select> (applyEdit) pour ne rien dupliquer. */
+  function openCatalog(field, segId) {
+    var items = (field === "warmup")
+      ? S.gen.warmupOptions()
+      : S.gen.trainingExerciseOptions(current.level);
+    var dlg = document.createElement("dialog");
+    dlg.className = "suite-dialog suite-catalog-dialog";
+    dlg.innerHTML = '<div class="suite-dialog-body">' +
+      '<h2 class="suite-dialog-title">📚 ' + esc(t("catalogTitle")) + '</h2>' +
+      '<input type="search" class="suite-input suite-catalog-search" placeholder="' + esc(t("catalogSearch")) + '" aria-label="' + esc(t("catalogSearch")) + '" />' +
+      '<p class="suite-sub suite-catalog-count"></p>' +
+      '<div class="suite-catalog-list"></div>' +
+      '<div class="suite-dialog-actions">' +
+        '<button type="button" class="suite-btn suite-btn-ghost" data-r="close">' + esc(t("commonClose")) + '</button>' +
+      '</div>' +
+    '</div>';
+    document.body.appendChild(dlg);
+
+    var champ = dlg.querySelector(".suite-catalog-search");
+    var liste = dlg.querySelector(".suite-catalog-list");
+    var compte = dlg.querySelector(".suite-catalog-count");
+    function close() { try { if (dlg.open) dlg.close(); } catch (e) { /* ignore */ } dlg.remove(); }
+
+    function peindre() {
+      var q = String(champ.value || "").trim().toLowerCase();
+      var vus = items.filter(function (o) {
+        if (!q) return true;
+        return (o.name || "").toLowerCase().indexOf(q) >= 0 || (o.desc || "").toLowerCase().indexOf(q) >= 0;
+      });
+      compte.textContent = tf("catalogCount", { n: vus.length });
+      liste.innerHTML = vus.length
+        ? vus.map(function (o) {
+            var dur = o.duration_seconds ? '<span class="suite-catalog-dur">⏱ ' + esc(S.formatSec(o.duration_seconds)) + '</span>' : "";
+            return '<button type="button" class="suite-catalog-item" data-name="' + esc(o.name) + '">' +
+              '<span class="suite-catalog-name">' + esc(o.name) + dur + '</span>' +
+              (o.desc ? '<span class="suite-catalog-desc">' + esc(o.desc) + '</span>' : "") +
+            '</button>';
+          }).join("")
+        : '<p class="suite-empty">' + esc(t("catalogEmpty")) + '</p>';
+      [].forEach.call(liste.querySelectorAll(".suite-catalog-item"), function (b) {
+        b.onclick = function () {
+          var nom = b.getAttribute("data-name");
+          close();
+          if (segId) { applyEdit(segId, field, nom); return; }
+          /* Depuis la barre d'ajout : le segment est construit DÉJÀ rempli.
+             En le créant vide puis en posant le choix ensuite, fillSegment
+             tirait une durée au hasard entre les deux — un exercice annoncé
+             à 10 minutes atterrissait à 0:30. */
+          var choix = items.filter(function (o) { return o.name === nom; })[0] || { name: nom, desc: "" };
+          var seg = (field === "warmup") ? S.gen.newWarmupSegment(current.level) : S.gen.newExerciseSegment(current.level);
+          seg.locks = seg.locks || {};
+          seg.locks[field] = true;            // sinon fillSegment le remplacerait par un tirage
+          if (field === "warmup") {
+            seg.warmup = { name: choix.name, desc: choix.desc || "", duration_seconds: choix.duration_seconds || null };
+            if (choix.duration_seconds) { seg.durationSec = choix.duration_seconds; seg.locks.duration = true; }
+          } else {
+            seg.exercise = { name: choix.name, desc: choix.desc || "" };
+          }
+          appendSegment(seg);
+        };
+      });
+    }
+    champ.oninput = peindre;
+    peindre();
+    dlg.querySelector('[data-r="close"]').onclick = close;
+    dlg.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); close(); } });
+    if (typeof dlg.showModal === "function") { try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } } else dlg.setAttribute("open", "");
+    try { champ.focus(); } catch (e) { /* ignore */ }
   }
 
   function renderList() {
@@ -2086,6 +2212,10 @@
     var id = String(sub || "").split("/")[0];
     if (!id) { navigate("#/match"); return; }
     kind = "match"; K = KINDS.match;
+    // Une séance partagée est le plus souvent un coaching : sans ce préchargement,
+    // la liste des échauffements de l'éditeur collaboratif restait celle que le
+    // démarrage avait eu le temps de charger — parfois vide.
+    try { S.gen.ensureWarmups(); } catch (e) { /* ignore */ }
     root.innerHTML = '<div class="suite-section-head"><h1 class="suite-h1">' + esc(t("collabLoading")) + '</h1></div>';
     var c = sbClient();
     if (!c) { renderCollabError(); return; }

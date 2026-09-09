@@ -1385,6 +1385,25 @@
 .suite-member-n { text-align: center; font: 600 0.92rem/1 "Inter", sans-serif; color: var(--gold-soft); }
 .suite-member-head .suite-member-n { color: var(--ink-faint); font-size: 0.9rem; }
 
+/* ─── Catalogue d'exercices (dialogue cherchable) ───────────────────────────
+   La liste est longue : elle défile dans le dialogue, jamais la page. */
+.suite-catalog-dialog .suite-dialog-body { max-width: 640px; width: min(92vw, 640px); }
+.suite-catalog-search { width: 100%; margin: 0 0 0.4rem; }
+.suite-catalog-count { margin: 0 0 0.6rem; }
+.suite-catalog-list { max-height: min(52vh, 420px); overflow-y: auto; display: flex; flex-direction: column; gap: 0.35rem; }
+.suite-catalog-item {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  padding: 0.55rem 0.7rem; border-radius: 10px;
+  background: color-mix(in srgb, #ffffff 6%, transparent);
+  border: 1px solid color-mix(in srgb, #ffffff 12%, transparent);
+  color: inherit; font: inherit;
+}
+.suite-catalog-item:hover { background: color-mix(in srgb, var(--gold) 16%, transparent); }
+.suite-catalog-item:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.suite-catalog-name { display: flex; gap: 0.5rem; align-items: baseline; justify-content: space-between; font-weight: 700; }
+.suite-catalog-dur { font-weight: 500; opacity: 0.75; white-space: nowrap; font-size: 0.85em; }
+.suite-catalog-desc { display: block; margin-top: 0.25rem; opacity: 0.8; font-size: 0.88em; line-height: 1.35; }
+
 /* ─── Direct : avancement de la séance ─────────────────────────────────────── */
 .live-session { margin: 0 0 0.8rem; }
 /* Bandeau « connexion perdue » du direct. Absent tant que tout va bien ; quand

@@ -113,8 +113,14 @@
     return '<label class="suite-set-field"><span>' + lbl + '</span>' + inner + '</label>';
   }
 
-  function openForm(ty) {
+  /* `opts.onValues(valeurs, ty)` : appele APRES un envoi reussi. Sert a
+     l'editeur de coaching, qui ajoute l'exercice propose au deroule en cours
+     sans attendre la validation — sinon il faudrait attendre l'admin pour s'en
+     servir le soir meme. L'appelant affiche alors son propre retour et on
+     referme, plutot que la page de remerciement. */
+  function openForm(ty, opts) {
     if (!ty) return;
+    opts = opts || {};
     var dlg = document.createElement("dialog");
     dlg.className = "suite-dialog suite-contrib-dialog";
     dlg.innerHTML =
@@ -141,6 +147,11 @@
       msg(t("commonLoading"), true);
       Promise.resolve(sb().rpc(ty.rpc, ty.args(v))).then(function (res) {
         if (res && res.error) { msg((res.error.message || t("contribError")), false); btn.disabled = false; return; }
+        if (typeof opts.onValues === "function") {
+          close();
+          try { opts.onValues(v, ty); } catch (e) { /* l'envoi a réussi : une erreur de l'appelant ne doit pas le masquer */ }
+          return;
+        }
         // success → confirmation, then close
         dlg.querySelector(".suite-contrib-fields").innerHTML = '<p class="suite-contrib-thanks">🎉 ' + esc(t("contribThanks")) + '</p>';
         msg("", true);
@@ -159,7 +170,7 @@
      perdre le déroulé en cours. */
   window.ActoContribute = {
     mount: mount,
-    open: function (typeKey) { var ty = typeByKey(typeKey); if (ty) openForm(ty); return !!ty; },
+    open: function (typeKey, opts) { var ty = typeByKey(typeKey); if (ty) openForm(ty, opts); return !!ty; },
     available: available
   };
 })();

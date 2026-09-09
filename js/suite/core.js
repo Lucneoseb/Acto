@@ -326,15 +326,97 @@
      WARM-UPS (Training section) — lazy-loaded from data/warmups-*.json
      ============================================================ */
   var _warmups = null, _warmupsLoading = null, _warmupsLocale = null;
+
+  /* ── Contenu validé par l'admin (Supabase) ────────────────────────────────
+     Deux tables alimentent les listes une fois la validation faite :
+       · warmup_exercises → échauffements (ajouts admin + propositions validées)
+       · user_submissions → exercices proposés par les utilisateurs
+     La page /echauffements et le Match rapide les lisaient déjà. Le Studio, lui,
+     ne connaissait que data/warmups-*.json et le bundle : un échauffement ajouté
+     dans l'admin n'apparaissait JAMAIS dans la liste d'un coaching. On fusionne
+     donc les deux sources, dédoublonnées par nom.
+     Les fichiers statiques restent la base : hors ligne, ou si la requête
+     échoue, la liste d'origine est là, entière. */
+  var DELAI_COMMUNAUTE = 4000;
+  var _exosValides = {};            // niveau → exercices validés
+  var _ecouteContenu = [];
+
+  function sbCore() { return window.actoSuiteSb || null; }
+  function cleNom(n) { return String(n == null ? "" : n).trim().toLowerCase(); }
+  /* Une requête ne doit jamais retarder un rendu : passé le délai on rend la
+     main avec le contenu statique et la fusion servira à la prochaine
+     ouverture. Un échec (hors ligne, RLS, table absente) donne une liste vide,
+     jamais une erreur. */
+  function requeteValidee(p) {
+    return Promise.race([
+      Promise.resolve(p).then(function (r) { return (r && r.data) || []; }, function () { return []; }),
+      new Promise(function (r) { setTimeout(function () { r([]); }, DELAI_COMMUNAUTE); })
+    ]);
+  }
+  function echauffementsValides() {
+    var c = sbCore(); if (!c || !c.from) return Promise.resolve([]);
+    // Pas de filtre de langue : c'est déjà le choix de la page /echauffements,
+    // et l'admin peut saisir un exercice sous une autre langue que la sienne.
+    try {
+      return requeteValidee(c.from("warmup_exercises")
+        .select("id, type, subtype, name, description, duration_seconds, participants, source")
+        .eq("status", "approved").limit(2000));
+    } catch (e) { return Promise.resolve([]); }
+  }
+  function exercicesValides() {
+    var c = sbCore(); if (!c || !c.from) return Promise.resolve([]);
+    try {
+      return requeteValidee(c.from("user_submissions")
+        .select("level, text, description")
+        .eq("status", "approved").eq("kind", "exercise").eq("mode", "troupe")
+        .eq("locale", _locale).limit(2000));
+    } catch (e) { return Promise.resolve([]); }
+  }
+  /* Prévenu quand du contenu validé vient d'arriver APRÈS un premier rendu :
+     l'éditeur se redessine pour que les nouvelles entrées soient dans la liste
+     sans avoir à rouvrir la page. */
+  function onContentReady(fn) { if (typeof fn === "function") _ecouteContenu.push(fn); }
+
   function ensureWarmups() {
     if (_warmups && _warmupsLocale === _locale) return Promise.resolve(_warmups);
     if (_warmupsLoading && _warmupsLocale === _locale) return _warmupsLoading;
     _warmupsLocale = _locale;
     var loc = _locale;
-    _warmupsLoading = fetch("./data/warmups-" + loc + ".json")
+    var statique = fetch("./data/warmups-" + loc + ".json")
       .then(function (r) { if (!r.ok) throw new Error("no locale file"); return r.json(); })
       .catch(function () { return fetch("./data/warmups-fr.json").then(function (r) { return r.json(); }); })
-      .then(function (j) { _warmups = (j && j.exercises) || []; return _warmups; })
+      .then(function (j) { return (j && j.exercises) || []; });
+    _warmupsLoading = Promise.all([statique, echauffementsValides(), exercicesValides()])
+      .then(function (r) {
+        var base = r[0], ajouts = 0, vus = {};
+        base.forEach(function (e) { vus[cleNom(e.name)] = true; });
+        r[1].forEach(function (row) {
+          var k = cleNom(row.name);
+          if (!k || vus[k]) return;
+          vus[k] = true; ajouts++;
+          base.push({
+            id: "db-" + row.id, type: row.type, subtype: row.subtype || "",
+            name: row.name, description: row.description,
+            duration_seconds: row.duration_seconds || null,
+            participants: row.participants || "", source: row.source || "",
+            _community: true
+          });
+        });
+        _warmups = base;
+        _exosValides = {};
+        r[2].forEach(function (row) {
+          var niv = row.level || "debutant";
+          (_exosValides[niv] || (_exosValides[niv] = []))
+            .push({ name: row.text, desc: row.description || "", _community: true });
+          ajouts++;
+        });
+        if (ajouts) {
+          for (var i = 0; i < _ecouteContenu.length; i++) {
+            try { _ecouteContenu[i](ajouts); } catch (e) { /* un écouteur fautif ne bloque pas les autres */ }
+          }
+        }
+        return _warmups;
+      })
       // Échec réseau : on ne retient RIEN, sinon la liste vide restait
       // « chargée » pour toute la session et plus aucun échauffement ne sortait.
       .catch(function () { _warmups = null; _warmupsLoading = null; return []; });
@@ -345,24 +427,42 @@
     var w = pickFromBag("warmup", _warmups);
     return w ? { name: w.name, desc: w.description || "", duration_seconds: w.duration_seconds || null, wtype: w.type || "" } : null;
   }
-  function drawTrainingExercise(level) {
+  // Exercices de troupe : le bundle statique + ce que l'admin a validé.
+  function poolExercices(level) {
     var d = data();
-    var pool = (d.exercises && d.exercises.troupe && d.exercises.troupe[level]) || [];
-    var ex = pickFromBag("trainex:" + level, pool);
+    var base = ((d.exercises && d.exercises.troupe && d.exercises.troupe[level]) || []).slice();
+    var sup = _exosValides[level] || [];
+    if (!sup.length) return base;
+    var vus = {};
+    base.forEach(function (e) { vus[cleNom(e.name)] = true; });
+    sup.forEach(function (e) {
+      var k = cleNom(e.name);
+      if (!k || vus[k]) return;
+      vus[k] = true; base.push(e);
+    });
+    return base;
+  }
+  function drawTrainingExercise(level) {
+    var ex = pickFromBag("trainex:" + level, poolExercices(level));
     return ex ? { name: ex.name, desc: ex.desc || "" } : null;
   }
-  // Full option lists for the inline editor selects.
+  /* Listes complètes des menus déroulants de l'éditeur, par ordre alphabétique :
+     elles dépassent la centaine d'entrées, dans l'ordre du fichier on cherchait
+     à l'œil. Le tri porte sur la copie affichée, jamais sur les pools de tirage,
+     qui doivent rester dans leur ordre d'origine. */
+  function parNom(a, b) {
+    return String(a.name || "").localeCompare(String(b.name || ""), _locale || "fr", { sensitivity: "base" });
+  }
   function warmupOptions() {
     return (_warmups || []).map(function (w) {
       return { name: w.name, desc: w.description || "", duration_seconds: w.duration_seconds || null };
-    });
+    }).sort(parNom);
   }
   function trainingExerciseOptions(level) {
-    var d = data();
-    return ((d.exercises && d.exercises.troupe && d.exercises.troupe[level]) || [])
-      .map(function (e) { return { name: e.name, desc: e.desc || "" }; });
+    return poolExercices(level)
+      .map(function (e) { return { name: e.name, desc: e.desc || "" }; })
+      .sort(parNom);
   }
-
   /* ============================================================
      SEGMENT BUILDERS + generic title/subtitle (all kinds)
      ============================================================ */
@@ -845,6 +945,7 @@
       warmupOptions: warmupOptions,
       trainingExerciseOptions: trainingExerciseOptions,
       ensureWarmups: ensureWarmups,
+      onContentReady: onContentReady,
       segTitle: segTitle,
       segSubtitle: segSubtitle,
       durationSteps: durationSteps,
