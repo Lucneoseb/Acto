@@ -63,6 +63,7 @@
   function appliqueLocale(code) {
     _locale = code;
     try { localStorage.setItem(LOCALE_KEY, code); } catch (e) { /* ignore */ }
+    reconcilierPool();     // les couches admin/perso sont par langue
     for (var i = 0; i < _localeListeners.length; i++) {
       try { _localeListeners[i](code); } catch (e) { /* ignore */ }
     }
@@ -96,8 +97,10 @@
   /* ============================================================
      DATA ACCESS (current locale)
      ============================================================ */
+  /* Le pool réconcilié quand il existe (validé par l'admin, caché, personnalisé
+     — voir reconcilierPool), sinon le bundle livré tel quel. */
   function data() {
-    return BUNDLE.data[_locale] || BUNDLE.data.fr || {};
+    return (_fusion && _fusion[_locale]) || BUNDLE.data[_locale] || BUNDLE.data.fr || {};
   }
   function natureLabels() {
     return {
@@ -338,7 +341,6 @@
      Les fichiers statiques restent la base : hors ligne, ou si la requête
      échoue, la liste d'origine est là, entière. */
   var DELAI_COMMUNAUTE = 4000;
-  var _exosValides = {};            // niveau → exercices validés
   var _ecouteContenu = [];
 
   function sbCore() { return window.actoSuiteSb || null; }
@@ -363,14 +365,141 @@
         .eq("status", "approved").limit(2000));
     } catch (e) { return Promise.resolve([]); }
   }
-  function exercicesValides() {
+  function propositionsValidees() {
     var c = sbCore(); if (!c || !c.from) return Promise.resolve([]);
     try {
       return requeteValidee(c.from("user_submissions")
-        .select("level, text, description")
-        .eq("status", "approved").eq("kind", "exercise").eq("mode", "troupe")
+        .select("kind, mode, level, text, description")
+        .eq("status", "approved").eq("locale", _locale).limit(2000));
+    } catch (e) { return Promise.resolve([]); }
+  }
+  function cachesAdmin() {
+    var c = sbCore(); if (!c || !c.from) return Promise.resolve([]);
+    // Lisible par les comptes connectés seulement (RLS) : un visiteur anonyme
+    // verra donc encore les contenus cachés. C'est déjà le cas du Match rapide.
+    try {
+      return requeteValidee(c.from("bundled_hidden_items")
+        .select("kind, mode, level, text")
         .eq("locale", _locale).limit(2000));
     } catch (e) { return Promise.resolve([]); }
+  }
+
+  /* ── Réconciliation du pool ───────────────────────────────────────────────
+     Trois couches s'ajoutent au contenu livré, exactement comme le fait déjà le
+     Match rapide (js/app.js) :
+       1. les propositions VALIDÉES par l'admin       (user_submissions)
+       2. les contenus livrés que l'admin a CACHÉS    (bundled_hidden_items)
+       3. les ajouts et masquages PERSONNELS          (« Mes impros », localStorage)
+     Le Studio n'en appliquait aucune : un thème validé n'apparaissait jamais
+     dans une préparation de match, une catégorie cachée par l'admin y restait
+     visible, et un exercice masqué depuis « Mes impros » ressortait quand même.
+
+     On ne touche PAS au bundle : on garde une copie réconciliée par langue.
+     app.js, lui, mute window.IMPRO_BUNDLE en place — et les deux scripts
+     cohabitent sur quickgame.html. Comme chaque ajout dédoublonne et chaque
+     retrait filtre, l'ordre entre les deux n'a aucune importance. */
+  var _valides = [];        // user_submissions approuvées
+  var _caches  = [];        // bundled_hidden_items
+  var _fusion  = {};        // langue -> données réconciliées
+
+  function poolAjout(cible, e) {
+    var texte = String(e.text || "").trim();
+    if (!texte) return 0;
+    var desc = String(e.desc || e.description || "").trim(), arr;
+    if (e.kind === "theme") {
+      if (!e.level) return 0;
+      cible.themes = cible.themes || {};
+      arr = cible.themes[e.level] = cible.themes[e.level] || [];
+      if (arr.some(function (t) { return cleNom(t) === cleNom(texte); })) return 0;
+      arr.push(texte); return 1;
+    }
+    if (e.kind === "category") {
+      cible.categories = cible.categories || [];
+      arr = cible.categories;
+      if (arr.some(function (c) { return cleNom((c && c.name) || c) === cleNom(texte); })) return 0;
+      arr.push({ name: texte, desc: desc }); return 1;
+    }
+    if (e.kind === "constraint") {
+      if (!e.mode || !e.level) return 0;
+      cible.constraints = cible.constraints || {};
+      cible.constraints[e.mode] = cible.constraints[e.mode] || {};
+      arr = cible.constraints[e.mode][e.level] = cible.constraints[e.mode][e.level] || [];
+      if (arr.some(function (c) { return cleNom(c) === cleNom(texte); })) return 0;
+      arr.push(texte); return 1;
+    }
+    if (e.kind === "exercise") {
+      if (!e.mode || !e.level) return 0;
+      cible.exercises = cible.exercises || {};
+      cible.exercises[e.mode] = cible.exercises[e.mode] || {};
+      arr = cible.exercises[e.mode][e.level] = cible.exercises[e.mode][e.level] || [];
+      if (arr.some(function (x) { return cleNom(x && x.name) === cleNom(texte); })) return 0;
+      arr.push({ name: texte, desc: desc }); return 1;
+    }
+    return 0;
+  }
+
+  function poolRetrait(cible, e) {
+    var texte = String(e.text || "").trim();
+    if (!texte) return 0;
+    var arr, avant;
+    if (e.kind === "theme") {
+      if (!e.level || !cible.themes || !cible.themes[e.level]) return 0;
+      avant = cible.themes[e.level].length;
+      cible.themes[e.level] = cible.themes[e.level].filter(function (t) { return cleNom(t) !== cleNom(texte); });
+      return avant - cible.themes[e.level].length;
+    }
+    if (e.kind === "category") {
+      if (!cible.categories) return 0;
+      avant = cible.categories.length;
+      cible.categories = cible.categories.filter(function (c) { return cleNom((c && c.name) || c) !== cleNom(texte); });
+      return avant - cible.categories.length;
+    }
+    if (e.kind === "constraint") {
+      if (!e.mode || !e.level || !cible.constraints || !cible.constraints[e.mode] || !cible.constraints[e.mode][e.level]) return 0;
+      arr = cible.constraints[e.mode][e.level]; avant = arr.length;
+      cible.constraints[e.mode][e.level] = arr.filter(function (c) { return cleNom(c) !== cleNom(texte); });
+      return avant - cible.constraints[e.mode][e.level].length;
+    }
+    if (e.kind === "exercise") {
+      if (!e.mode || !e.level || !cible.exercises || !cible.exercises[e.mode] || !cible.exercises[e.mode][e.level]) return 0;
+      arr = cible.exercises[e.mode][e.level]; avant = arr.length;
+      cible.exercises[e.mode][e.level] = arr.filter(function (x) { return cleNom(x && x.name) !== cleNom(texte); });
+      return avant - cible.exercises[e.mode][e.level].length;
+    }
+    return 0;
+  }
+
+  // « Mes impros » écrit ces deux listes ; elles valent pour cet appareil.
+  function listeLocale(cle) {
+    try {
+      var raw = localStorage.getItem(cle);
+      var l = raw ? JSON.parse(raw) : [];
+      return Array.isArray(l) ? l : [];
+    } catch (e) { return []; }
+  }
+
+  function reconcilierPool() {
+    var loc = _locale, brut = BUNDLE.data[loc];
+    if (!brut) return;
+    var ajoutsLocaux = listeLocale("acto-user-added:v1");
+    var retraitsLocaux = listeLocale("acto-user-hidden:v1");
+    // Rien à appliquer : on rend le bundle tel quel plutôt que d'en recopier
+    // 150 Ko pour rien. C'est le cas de la grande majorité des visites.
+    if (!_valides.length && !_caches.length && !ajoutsLocaux.length && !retraitsLocaux.length) {
+      if (_fusion[loc]) { delete _fusion[loc]; resetBags(); }
+      return;
+    }
+    var cible;
+    try { cible = JSON.parse(JSON.stringify(brut)); } catch (e) { return; }
+    var n = 0, r = 0;
+    function pourCetteLangue(e) { return e && (!e.locale || e.locale === loc); }
+    _valides.forEach(function (s) { if (pourCetteLangue(s)) n += poolAjout(cible, s); });
+    _caches.forEach(function (h) { if (pourCetteLangue(h)) r += poolRetrait(cible, h); });
+    ajoutsLocaux.forEach(function (a) { if (a && a.locale === loc) n += poolAjout(cible, a); });
+    retraitsLocaux.forEach(function (h) { if (h && h.locale === loc) r += poolRetrait(cible, h); });
+    _fusion[loc] = cible;
+    resetBags();      // les pools ont changé : les tirages sans remise en cours sont périmés
+    if (n || r) console.log("[suite] pool réconcilié (" + loc + ") : +" + n + " · -" + r);
   }
   /* Prévenu quand du contenu validé vient d'arriver APRÈS un premier rendu :
      l'éditeur se redessine pour que les nouvelles entrées soient dans la liste
@@ -386,7 +515,7 @@
       .then(function (r) { if (!r.ok) throw new Error("no locale file"); return r.json(); })
       .catch(function () { return fetch("./data/warmups-fr.json").then(function (r) { return r.json(); }); })
       .then(function (j) { return (j && j.exercises) || []; });
-    _warmupsLoading = Promise.all([statique, echauffementsValides(), exercicesValides()])
+    _warmupsLoading = Promise.all([statique, echauffementsValides(), propositionsValidees(), cachesAdmin()])
       .then(function (r) {
         var base = r[0], ajouts = 0, vus = {};
         base.forEach(function (e) { vus[cleNom(e.name)] = true; });
@@ -403,13 +532,13 @@
           });
         });
         _warmups = base;
-        _exosValides = {};
-        r[2].forEach(function (row) {
-          var niv = row.level || "debutant";
-          (_exosValides[niv] || (_exosValides[niv] = []))
-            .push({ name: row.text, desc: row.description || "", _community: true });
-          ajouts++;
-        });
+        // Les propositions validées et les contenus cachés ne concernent pas que
+        // les exercices de coaching : thèmes, catégories et contraintes passent
+        // par la même réconciliation, qui reconstruit le pool de la langue.
+        _valides = r[2] || [];
+        _caches  = r[3] || [];
+        ajouts += _valides.length + _caches.length;
+        reconcilierPool();
         if (ajouts) {
           for (var i = 0; i < _ecouteContenu.length; i++) {
             try { _ecouteContenu[i](ajouts); } catch (e) { /* un écouteur fautif ne bloque pas les autres */ }
@@ -427,20 +556,12 @@
     var w = pickFromBag("warmup", _warmups);
     return w ? { name: w.name, desc: w.description || "", duration_seconds: w.duration_seconds || null, wtype: w.type || "" } : null;
   }
-  // Exercices de troupe : le bundle statique + ce que l'admin a validé.
+  /* Exercices de troupe. Plus de fusion ici : data() rend déjà le pool
+     réconcilié (validé + caché + personnel), pour cette liste comme pour les
+     thèmes et les catégories. */
   function poolExercices(level) {
     var d = data();
-    var base = ((d.exercises && d.exercises.troupe && d.exercises.troupe[level]) || []).slice();
-    var sup = _exosValides[level] || [];
-    if (!sup.length) return base;
-    var vus = {};
-    base.forEach(function (e) { vus[cleNom(e.name)] = true; });
-    sup.forEach(function (e) {
-      var k = cleNom(e.name);
-      if (!k || vus[k]) return;
-      vus[k] = true; base.push(e);
-    });
-    return base;
+    return (d.exercises && d.exercises.troupe && d.exercises.troupe[level]) || [];
   }
   function drawTrainingExercise(level) {
     var ex = pickFromBag("trainex:" + level, poolExercices(level));
@@ -904,6 +1025,18 @@
     }).observe(document.body, { childList: true, subtree: true });
     [].forEach.call(document.querySelectorAll("dialog"), name);
   })();
+
+  /* Les ajouts et masquages personnels (« Mes impros ») sont dans
+     localStorage : rien à attendre du réseau, on les applique tout de
+     suite. Les couches serveur viendront s'y ajouter à l'arrivée des
+     requêtes (voir ensureWarmups). */
+  reconcilierPool();
+  /* Pour un non-francophone, les données de sa langue arrivent APRÈS ce point
+     (locale-loader.js les charge à la demande) : la réconciliation ci-dessus
+     n''a alors rien trouvé à recopier. On la rejoue à leur arrivée. */
+  try {
+    window.addEventListener("acto:locale-ready", function () { reconcilierPool(); });
+  } catch (e) { /* ignore */ }
 
   window.ActoSuite = {
     // locale + i18n
