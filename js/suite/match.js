@@ -448,15 +448,23 @@
 
   // The editable field rows for a segment, depending on its type + kind.
   function segFieldsFor(seg) {
+    /* Le ✳ signale une proposition pas encore validée : visible par son auteur
+       seul, il disparaît le jour où l'admin la publie. */
+    function avecEtat(champ, nom) {
+      if (!nom) return t("valueNone");
+      var attente = false;
+      try { attente = S.gen.estEnAttente(champ, nom, current.level); } catch (e) { /* ignore */ }
+      return nom + (attente ? " ✳" : "");
+    }
     if (seg.type === "warmup") {
       return [
-        { field: "warmup", label: t("fieldWarmup"), value: S.gen.segTitle(seg) || t("valueNone") },
+        { field: "warmup", label: t("fieldWarmup"), value: avecEtat("warmup", S.gen.segTitle(seg)) },
         { field: "duration", label: t("fieldDuration"), value: S.formatSec(seg.durationSec) }
       ];
     }
     if (seg.type === "exercise") {
       return [
-        { field: "exercise", label: t("fieldExercise"), value: S.gen.segTitle(seg) || t("valueNone") },
+        { field: "exercise", label: t("fieldExercise"), value: avecEtat("exercise", S.gen.segTitle(seg)) },
         { field: "duration", label: t("fieldDuration"), value: S.formatSec(seg.durationSec) }
       ];
     }
@@ -669,18 +677,30 @@
         opts += '<option' + (seg.players === p ? " selected" : "") + '>' + esc(p) + '</option>';
       });
     } else if (field === "duration") {
-      S.gen.durationSteps(current.level).forEach(function (sec) {
+      var choix = S.gen.durationChoices(kind, current.level);
+      /* La valeur enregistrée peut venir d'une saisie libre, ou d'un exercice
+         qui annonce sa propre durée : sans elle dans la liste, le <select>
+         afficherait autre chose que ce qui est réellement en mémoire, et le
+         moindre passage dessus l'écrasait. */
+      if (seg.durationSec && choix.indexOf(seg.durationSec) < 0) {
+        choix = choix.concat([seg.durationSec]).sort(function (a, b) { return a - b; });
+      }
+      choix.forEach(function (sec) {
         opts += '<option value="' + sec + '"' + (seg.durationSec === sec ? " selected" : "") + '>' + esc(S.formatSec(sec)) + '</option>';
       });
-    } else if (field === "warmup") {
-      var cur = seg.warmup && seg.warmup.name;
-      S.gen.warmupOptions().forEach(function (w) {
-        opts += '<option' + (cur === w.name ? " selected" : "") + '>' + esc(w.name) + '</option>';
-      });
-    } else if (field === "exercise") {
-      var curE = seg.exercise && seg.exercise.name;
-      S.gen.trainingExerciseOptions(current.level).forEach(function (e) {
-        opts += '<option' + (curE === e.name ? " selected" : "") + '>' + esc(e.name) + '</option>';
+      opts += '<option value="__libre__">' + esc(t("durationCustom")) + '</option>';
+    } else if (field === "warmup" || field === "exercise") {
+      var cur = (field === "warmup")
+        ? (seg.warmup && seg.warmup.name)
+        : (seg.exercise && seg.exercise.name);
+      var liste = (field === "warmup")
+        ? S.gen.warmupOptions()
+        : S.gen.trainingExerciseOptions(current.level);
+      /* La VALEUR reste le nom nu — c'est la clé de recherche d'applyEdit ;
+         seul le LIBELLÉ porte le ✳ des propositions pas encore validées. */
+      liste.forEach(function (o) {
+        opts += '<option value="' + esc(o.name) + '"' + (cur === o.name ? " selected" : "") + '>' +
+          esc(o.name + (o.pending ? " ✳" : "")) + '</option>';
       });
     }
     return '<select class="suite-edit-select" data-act="set" data-seg="' + esc(seg.id) + '" data-field="' + field + '">' + opts + '</select>';
@@ -812,6 +832,7 @@
     } else if (field === "players") {
       seg.players = value;
     } else if (field === "duration") {
+      if (value === "__libre__") { editing = null; renderEditor(); openDureeLibre(seg); return; }
       seg.durationSec = parseInt(value, 10) || seg.durationSec;
     } else if (field === "warmup") {
       var w = S.gen.warmupOptions().filter(function (o) { return o.name === value; })[0];
@@ -1243,8 +1264,68 @@
       seg.locks = seg.locks || {};
       seg.locks.exercise = true;
     }
+    /* Enregistrée en attente AVANT le rendu : appendSegment dessine la carte,
+       et sans cet ordre le ✳ manquait sur le segment qu'on vient d'ajouter —
+       il n'apparaissait qu'au rendu suivant.
+       Elle rejoint ainsi ses propres listes sans attendre la validation. */
+    try {
+      S.gen.ajouterEnAttente(quoi === "warmup" ? "warmup" : "exercise", {
+        name: v.name, desc: v.desc || "", wtype: v.wtype || "",
+        duration_seconds: (seg.warmup && seg.warmup.duration_seconds) || null,
+        level: current.level
+      });
+    } catch (e) { /* la séance est déjà servie : ne jamais casser là-dessus */ }
     appendSegment(seg);
     toast(t("proposeAdded"));
+  }
+
+  /* Saisie libre d'une durée. La liste couvre les cas courants (30 s près tant
+     qu'on est court, la minute ensuite) ; ce dialogue existe pour tout le
+     reste — un exercice de 12 min 30 n'était saisissable nulle part. */
+  function openDureeLibre(seg) {
+    var total = Math.max(0, seg.durationSec || 0);
+    var dlg = document.createElement("dialog");
+    dlg.className = "suite-dialog suite-duree-dialog";
+    dlg.innerHTML = '<div class="suite-dialog-body">' +
+      '<h2 class="suite-dialog-title">⏱ ' + esc(t("durationCustomTitle")) + '</h2>' +
+      '<div class="suite-duree-row">' +
+        '<label class="suite-set-field"><span>' + esc(t("durationMinutes")) + '</span>' +
+          '<input type="number" class="suite-input" data-f="min" min="0" max="240" step="1" inputmode="numeric" value="' + Math.floor(total / 60) + '"></label>' +
+        '<label class="suite-set-field"><span>' + esc(t("durationSeconds")) + '</span>' +
+          '<input type="number" class="suite-input" data-f="sec" min="0" max="59" step="5" inputmode="numeric" value="' + (total % 60) + '"></label>' +
+      '</div>' +
+      '<p class="suite-duree-apercu" aria-live="polite"></p>' +
+      '<div class="suite-dialog-actions">' +
+        '<button type="button" class="suite-btn suite-btn-ghost" data-r="cancel">' + esc(t("commonCancel")) + '</button>' +
+        '<button type="button" class="suite-btn suite-btn-primary" data-r="ok">' + esc(t("commonOk")) + '</button>' +
+      '</div>' +
+    '</div>';
+    document.body.appendChild(dlg);
+    var im = dlg.querySelector('[data-f="min"]'), is = dlg.querySelector('[data-f="sec"]');
+    var apercu = dlg.querySelector(".suite-duree-apercu");
+    function valeur() {
+      var m = parseInt(im.value, 10), s = parseInt(is.value, 10);
+      if (m !== m || m < 0) m = 0;                 // NaN ou négatif : on repart de zéro
+      if (s !== s || s < 0) s = 0;
+      return Math.min(240 * 60, m * 60 + Math.min(59, s));
+    }
+    function peindre() { apercu.textContent = S.formatLong(valeur()); }
+    im.oninput = peindre; is.oninput = peindre; peindre();
+    function close() { try { if (dlg.open) dlg.close(); } catch (e) { /* ignore */ } dlg.remove(); }
+    dlg.querySelector('[data-r="cancel"]').onclick = close;
+    dlg.querySelector('[data-r="ok"]').onclick = function () {
+      var v = valeur();
+      close();
+      if (v <= 0) return;                          // une durée nulle n'a pas de sens : on garde l'ancienne
+      seg.durationSec = v;
+      renderEditor();
+    };
+    dlg.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { e.preventDefault(); close(); }
+      else if (e.key === "Enter") { e.preventDefault(); dlg.querySelector('[data-r="ok"]').click(); }
+    });
+    if (typeof dlg.showModal === "function") { try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } } else dlg.setAttribute("open", "");
+    try { im.focus(); im.select(); } catch (e) { /* ignore */ }
   }
 
   /* Catalogue d'exercices. Jusqu'ici le seul moyen d'en changer était le ✎ de
@@ -1262,6 +1343,7 @@
       '<h2 class="suite-dialog-title">📚 ' + esc(t("catalogTitle")) + '</h2>' +
       '<input type="search" class="suite-input suite-catalog-search" placeholder="' + esc(t("catalogSearch")) + '" aria-label="' + esc(t("catalogSearch")) + '" />' +
       '<p class="suite-sub suite-catalog-count"></p>' +
+      '<p class="suite-catalog-legend" hidden>' + esc(t("catalogPendingNote")) + '</p>' +
       '<div class="suite-catalog-list"></div>' +
       '<div class="suite-dialog-actions">' +
         '<button type="button" class="suite-btn suite-btn-ghost" data-r="close">' + esc(t("commonClose")) + '</button>' +
@@ -1281,11 +1363,14 @@
         return (o.name || "").toLowerCase().indexOf(q) >= 0 || (o.desc || "").toLowerCase().indexOf(q) >= 0;
       });
       compte.textContent = tf("catalogCount", { n: vus.length });
+      var legende = dlg.querySelector(".suite-catalog-legend");
+      if (legende) legende.hidden = !vus.some(function (o) { return o.pending; });
       liste.innerHTML = vus.length
         ? vus.map(function (o) {
             var dur = o.duration_seconds ? '<span class="suite-catalog-dur">⏱ ' + esc(S.formatSec(o.duration_seconds)) + '</span>' : "";
+            var att = o.pending ? '<span class="suite-catalog-pending" title="' + esc(t("pendingTitle")) + '">✳</span>' : '';
             return '<button type="button" class="suite-catalog-item" data-name="' + esc(o.name) + '">' +
-              '<span class="suite-catalog-name">' + esc(o.name) + dur + '</span>' +
+              '<span class="suite-catalog-name"><span class="suite-catalog-label">' + esc(o.name) + att + '</span>' + dur + '</span>' +
               (o.desc ? '<span class="suite-catalog-desc">' + esc(o.desc) + '</span>' : "") +
             '</button>';
           }).join("")

@@ -149,6 +149,21 @@
     for (var s = 30; s <= max; s += 30) out.push(s);
     return out;
   }
+  /* Durées PROPOSÉES dans l'éditeur — à ne pas confondre avec durationSteps(),
+     qui borne le TIRAGE d'une impro (30 s → 3/5/8 min selon le niveau) et ne
+     doit pas bouger : élargie, la génération sortirait des impros d'une heure.
+     Un exercice de coaching, lui, dure couramment dix ou vingt minutes ; la
+     liste s'arrêtait à trois, la vraie durée était donc insaisissable.
+     Le pas se relâche avec la longueur : 30 s tant qu'on est court, la minute
+     ensuite, cinq minutes au-delà d'une demi-heure. */
+  function durationChoices(kind, level) {
+    if (kind !== "training") return durationSteps(level);
+    var out = [], s;
+    for (s = 30;   s <= 600;  s += 30)  out.push(s);   // 30 s → 10 min
+    for (s = 660;  s <= 1800; s += 60)  out.push(s);   // 11 min → 30 min
+    for (s = 2100; s <= 5400; s += 300) out.push(s);   // 35 min → 1 h 30
+    return out;
+  }
   function formatSec(sec) {
     sec = Math.max(0, Math.round(sec || 0));
     var m = Math.floor(sec / 60), s = sec % 60;
@@ -384,6 +399,38 @@
     } catch (e) { return Promise.resolve([]); }
   }
 
+  /* ── Mes propositions pas encore validées ─────────────────────────────────
+     Une proposition partait en modération et disparaissait de la vue de son
+     auteur jusqu'à ce que l'admin la valide : impossible de s'en resservir le
+     soir même. On récupère donc SES propres lignes en attente pour les
+     remettre dans ses listes, marquées d'un ✳ (voir pendingTitle) — visibles
+     par lui seul, ce que la RLS garantit déjà côté serveur.
+     Le jour où l'admin valide, la ligne bascule en « approved » : elle arrive
+     alors par la requête ordinaire et le ✳ disparaît de lui-même. */
+  function monId() {
+    try { return (window.actoUser && window.actoUser.id) || null; } catch (e) { return null; }
+  }
+  function mesEchauffementsEnAttente() {
+    var c = sbCore(), uid = monId();
+    if (!c || !c.from || !uid) return Promise.resolve([]);
+    // Filtre explicite sur l'auteur : un admin voit TOUTES les lignes en
+    // attente (RLS), et marquer celles des autres n'aurait aucun sens ici.
+    try {
+      return requeteValidee(c.from("warmup_exercises")
+        .select("id, type, subtype, name, description, duration_seconds, participants, source")
+        .eq("status", "pending").eq("submitted_by", uid).limit(500));
+    } catch (e) { return Promise.resolve([]); }
+  }
+  function mesPropositionsEnAttente() {
+    var c = sbCore(), uid = monId();
+    if (!c || !c.from || !uid) return Promise.resolve([]);
+    try {
+      return requeteValidee(c.from("user_submissions")
+        .select("kind, mode, level, text, description")
+        .eq("status", "pending").eq("user_id", uid).eq("locale", _locale).limit(500));
+    } catch (e) { return Promise.resolve([]); }
+  }
+
   /* ── Réconciliation du pool ───────────────────────────────────────────────
      Trois couches s'ajoutent au contenu livré, exactement comme le fait déjà le
      Match rapide (js/app.js) :
@@ -417,7 +464,7 @@
       cible.categories = cible.categories || [];
       arr = cible.categories;
       if (arr.some(function (c) { return cleNom((c && c.name) || c) === cleNom(texte); })) return 0;
-      arr.push({ name: texte, desc: desc }); return 1;
+      arr.push({ name: texte, desc: desc, _pending: !!e._pending }); return 1;
     }
     if (e.kind === "constraint") {
       if (!e.mode || !e.level) return 0;
@@ -433,7 +480,7 @@
       cible.exercises[e.mode] = cible.exercises[e.mode] || {};
       arr = cible.exercises[e.mode][e.level] = cible.exercises[e.mode][e.level] || [];
       if (arr.some(function (x) { return cleNom(x && x.name) === cleNom(texte); })) return 0;
-      arr.push({ name: texte, desc: desc }); return 1;
+      arr.push({ name: texte, desc: desc, _pending: !!e._pending }); return 1;
     }
     return 0;
   }
@@ -515,11 +562,12 @@
       .then(function (r) { if (!r.ok) throw new Error("no locale file"); return r.json(); })
       .catch(function () { return fetch("./data/warmups-fr.json").then(function (r) { return r.json(); }); })
       .then(function (j) { return (j && j.exercises) || []; });
-    _warmupsLoading = Promise.all([statique, echauffementsValides(), propositionsValidees(), cachesAdmin()])
+    _warmupsLoading = Promise.all([statique, echauffementsValides(), propositionsValidees(), cachesAdmin(),
+                                   mesEchauffementsEnAttente(), mesPropositionsEnAttente()])
       .then(function (r) {
         var base = r[0], ajouts = 0, vus = {};
         base.forEach(function (e) { vus[cleNom(e.name)] = true; });
-        r[1].forEach(function (row) {
+        function ajouteEchauffement(row, attente) {
           var k = cleNom(row.name);
           if (!k || vus[k]) return;
           vus[k] = true; ajouts++;
@@ -528,14 +576,21 @@
             name: row.name, description: row.description,
             duration_seconds: row.duration_seconds || null,
             participants: row.participants || "", source: row.source || "",
-            _community: true
+            _community: true, _pending: !!attente
           });
-        });
+        }
+        // Les validés d'abord : si l'admin a validé la proposition, c'est la
+        // ligne publique qui gagne et le ✳ disparaît tout seul.
+        (r[1] || []).forEach(function (row) { ajouteEchauffement(row, false); });
+        (r[4] || []).forEach(function (row) { ajouteEchauffement(row, true); });
         _warmups = base;
         // Les propositions validées et les contenus cachés ne concernent pas que
         // les exercices de coaching : thèmes, catégories et contraintes passent
         // par la même réconciliation, qui reconstruit le pool de la langue.
-        _valides = r[2] || [];
+        _valides = (r[2] || []).concat((r[5] || []).map(function (s) {
+          return { kind: s.kind, mode: s.mode, level: s.level, text: s.text,
+                   description: s.description, locale: _locale, _pending: true };
+        }));
         _caches  = r[3] || [];
         ajouts += _valides.length + _caches.length;
         reconcilierPool();
@@ -563,6 +618,40 @@
     var d = data();
     return (d.exercises && d.exercises.troupe && d.exercises.troupe[level]) || [];
   }
+  /* Ajout immédiat d'une proposition qu'on vient d'envoyer : les requêtes ne
+     sont rejouées qu'au prochain chargement, or l'auteur doit pouvoir s'en
+     servir dans la foulée — c'est tout l'intérêt de proposer depuis l'éditeur. */
+  function ajouterEnAttente(type, item) {
+    if (!item || !item.name) return false;
+    if (type === "warmup") {
+      if (!_warmups) return false;
+      if (_warmups.some(function (w) { return cleNom(w.name) === cleNom(item.name); })) return false;
+      _warmups.push({
+        id: "local-" + uid(), type: item.wtype || "Échauffement", subtype: "",
+        name: item.name, description: item.desc || "",
+        duration_seconds: item.duration_seconds || null,
+        participants: "", source: "", _community: true, _pending: true
+      });
+      resetBags();
+      return true;
+    }
+    _valides.push({ kind: "exercise", mode: "troupe", level: item.level || "debutant",
+                    text: item.name, description: item.desc || "", locale: _locale, _pending: true });
+    reconcilierPool();
+    return true;
+  }
+  /* Le nom affiché sur une carte vient de la séance enregistrée, pas de la
+     liste : c'est le pool qu'il faut interroger pour savoir s'il est encore
+     en attente. */
+  function estEnAttente(field, nom, level) {
+    var k = cleNom(nom);
+    if (!k) return false;
+    if (field === "warmup") {
+      return (_warmups || []).some(function (w) { return cleNom(w.name) === k && w._pending; });
+    }
+    return poolExercices(level).some(function (e) { return cleNom(e.name) === k && e._pending; });
+  }
+
   function drawTrainingExercise(level) {
     var ex = pickFromBag("trainex:" + level, poolExercices(level));
     return ex ? { name: ex.name, desc: ex.desc || "" } : null;
@@ -576,12 +665,12 @@
   }
   function warmupOptions() {
     return (_warmups || []).map(function (w) {
-      return { name: w.name, desc: w.description || "", duration_seconds: w.duration_seconds || null };
+      return { name: w.name, desc: w.description || "", duration_seconds: w.duration_seconds || null, pending: !!w._pending };
     }).sort(parNom);
   }
   function trainingExerciseOptions(level) {
     return poolExercices(level)
-      .map(function (e) { return { name: e.name, desc: e.desc || "" }; })
+      .map(function (e) { return { name: e.name, desc: e.desc || "", pending: !!e._pending }; })
       .sort(parNom);
   }
   /* ============================================================
@@ -1082,6 +1171,9 @@
       segTitle: segTitle,
       segSubtitle: segSubtitle,
       durationSteps: durationSteps,
+      durationChoices: durationChoices,
+      ajouterEnAttente: ajouterEnAttente,
+      estEnAttente: estEnAttente,
       uid: uid
     },
     // sessions

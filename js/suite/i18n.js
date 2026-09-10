@@ -466,7 +466,13 @@
     catalogCount: "{n} au catalogue",
     catalogOpen: "Parcourir le catalogue",
     catalogAdd: "Catalogue",
-    proposeAdded: "Proposé, et ajouté à ton coaching. Les autres le verront après validation."
+    proposeAdded: "Proposé, et ajouté à ton coaching. Les autres le verront après validation.",
+    durationCustom: "Autre durée…",
+    durationCustomTitle: "Durée personnalisée",
+    durationMinutes: "Minutes",
+    durationSeconds: "Secondes",
+    pendingTitle: "En attente de validation — visible par toi seul",
+    catalogPendingNote: "✳ en attente de validation : visible par toi seul"
   };
 
   var EN = {
@@ -907,7 +913,13 @@
     catalogCount: "{n} in the catalogue",
     catalogOpen: "Browse the catalogue",
     catalogAdd: "Catalogue",
-    proposeAdded: "Submitted, and added to your session. Others will see it once approved."
+    proposeAdded: "Submitted, and added to your session. Others will see it once approved.",
+    durationCustom: "Other duration…",
+    durationCustomTitle: "Custom duration",
+    durationMinutes: "Minutes",
+    durationSeconds: "Seconds",
+    pendingTitle: "Awaiting approval — only you can see it",
+    catalogPendingNote: "✳ awaiting approval: only you can see it"
   };
 
 
@@ -1407,7 +1419,13 @@
     catalogCount: "{n} im Katalog",
     catalogOpen: "Katalog durchsuchen",
     catalogAdd: "Katalog",
-    proposeAdded: "Eingereicht und zu deiner Einheit hinzugefügt. Andere sehen es nach der Freigabe."
+    proposeAdded: "Eingereicht und zu deiner Einheit hinzugefügt. Andere sehen es nach der Freigabe.",
+    durationCustom: "Andere Dauer…",
+    durationCustomTitle: "Eigene Dauer",
+    durationMinutes: "Minuten",
+    durationSeconds: "Sekunden",
+    pendingTitle: "Wartet auf Freigabe — nur für dich sichtbar",
+    catalogPendingNote: "✳ wartet auf Freigabe: nur für dich sichtbar"
   };
 
   var ES = {
@@ -1906,7 +1924,13 @@
     catalogCount: "{n} en el catálogo",
     catalogOpen: "Explorar el catálogo",
     catalogAdd: "Catálogo",
-    proposeAdded: "Propuesto y añadido a tu sesión. Los demás lo verán tras la validación."
+    proposeAdded: "Propuesto y añadido a tu sesión. Los demás lo verán tras la validación.",
+    durationCustom: "Otra duración…",
+    durationCustomTitle: "Duración personalizada",
+    durationMinutes: "Minutos",
+    durationSeconds: "Segundos",
+    pendingTitle: "Pendiente de validación: solo tú lo ves",
+    catalogPendingNote: "✳ pendiente de validación: solo tú lo ves"
   };
 
   var PT = {
@@ -2405,7 +2429,13 @@
     catalogCount: "{n} no catálogo",
     catalogOpen: "Explorar o catálogo",
     catalogAdd: "Catálogo",
-    proposeAdded: "Proposto e adicionado à tua sessão. Os outros vê-lo-ão após validação."
+    proposeAdded: "Proposto e adicionado à tua sessão. Os outros vê-lo-ão após validação.",
+    durationCustom: "Outra duração…",
+    durationCustomTitle: "Duração personalizada",
+    durationMinutes: "Minutos",
+    durationSeconds: "Segundos",
+    pendingTitle: "A aguardar validação — só tu o vês",
+    catalogPendingNote: "✳ a aguardar validação: só tu o vês"
   };
 
   var NL = {
@@ -2904,7 +2934,13 @@
     catalogCount: "{n} in de catalogus",
     catalogOpen: "Blader door de catalogus",
     catalogAdd: "Catalogus",
-    proposeAdded: "Ingediend en toegevoegd aan je sessie. Anderen zien het na goedkeuring."
+    proposeAdded: "Ingediend en toegevoegd aan je sessie. Anderen zien het na goedkeuring.",
+    durationCustom: "Andere duur…",
+    durationCustomTitle: "Aangepaste duur",
+    durationMinutes: "Minuten",
+    durationSeconds: "Seconden",
+    pendingTitle: "Wacht op goedkeuring — alleen jij ziet het",
+    catalogPendingNote: "✳ wacht op goedkeuring: alleen jij ziet het"
   };
 
   var IT = {
@@ -3403,7 +3439,13 @@
     catalogCount: "{n} nel catalogo",
     catalogOpen: "Sfoglia il catalogo",
     catalogAdd: "Catalogo",
-    proposeAdded: "Proposto e aggiunto alla tua sessione. Gli altri lo vedranno dopo l'approvazione."
+    proposeAdded: "Proposto e aggiunto alla tua sessione. Gli altri lo vedranno dopo l'approvazione.",
+    durationCustom: "Altra durata…",
+    durationCustomTitle: "Durata personalizzata",
+    durationMinutes: "Minuti",
+    durationSeconds: "Secondi",
+    pendingTitle: "In attesa di approvazione — lo vedi solo tu",
+    catalogPendingNote: "✳ in attesa di approvazione: lo vedi solo tu"
   };
 
   // de/es/pt/nl/it are filled to match the 7-locale set. Until translated
