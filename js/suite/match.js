@@ -435,7 +435,10 @@
       '<div class="suite-export-row"><button class="suite-btn suite-btn-ghost" data-act="export">📄 ' + esc(t("exportBtn")) + '</button></div>' +
       '<div class="suite-sticky-actions">' +
         '<button class="suite-btn suite-btn-ghost" data-act="regen">' + esc(t("setlistRegenerate")) + '</button>' +
-        ((!collab || collab.role === "owner") ? '<button class="suite-btn suite-btn-ghost" data-act="collab">👥 ' + esc(t("collabBtn")) + '</button>' : '') +
+        /* Visible quel que soit le rôle. Réservé au propriétaire, la notion de
+           partage DISPARAISSAIT chez l'invité : sur une séance manifestement
+           collaborative, plus rien ne disait avec qui elle l'était. */
+        '<button class="suite-btn suite-btn-ghost" data-act="collab">👥 ' + esc(t("collabBtn")) + '</button>' +
         '<button class="suite-btn suite-btn-save" data-act="save">💾 ' + esc(t("setlistSave")) + '</button>' +
         '<button class="suite-btn suite-btn-primary" data-act="launch">' + esc(t(K.launchKey)) + '</button>' +
       '</div>';
@@ -2156,11 +2159,26 @@
       })
       .catch(function () { if (collabReq === myReq) toast(t("collabError")); });
   }
-  function openCollabDialog() { collabEnsureShared(function (id) { showCollaborators(id); }); }
+  /* Trois rôles, deux droits :
+       · propriétaire → invite, change les rôles, retire
+       · éditeur      → invite (en édition ou en consultation), rien d'autre
+       · lecteur      → voit seulement qui participe
+     L'éditeur qui invite passe par le même add_collaborator ; c'est le serveur
+     qui autorise, voir migrate-2026-09-repartage.sql. Sans cette migration le
+     bouton d'invitation répondra « non autorisé ». */
+  function monRoleCollab() { return (collab && collab.role) || "owner"; }
+  function openCollabDialog() {
+    // Invité sur une séance déjà partagée : rien à créer, on ouvre la liste.
+    if (collab && collab.role !== "owner") { showCollaborators(collab.id, collab.role); return; }
+    collabEnsureShared(function (id) { showCollaborators(id, "owner"); });
+  }
 
   // The Collaborators modal (owner-facing): who's on it + add by nom de scène
   // (direct access) or by email (pending invite) + role + remove.
-  function showCollaborators(id) {
+  function showCollaborators(id, role) {
+    role = role || monRoleCollab();
+    var peutInviter = (role !== "viewer");
+    var peutGerer   = (role === "owner");
     // Un second clic sur « Collaborateurs » (ou un double-clic) empilait un
     // deuxième dialogue par-dessus le premier : deux listes, deux jeux de
     // menus, et l'impression que rien ne répond.
@@ -2171,21 +2189,23 @@
     dlg.innerHTML =
       '<div class="suite-dialog-body">' +
         '<h2 class="suite-dialog-title">👥 ' + esc(t("collabTitle")) + '</h2>' +
-        '<p class="suite-dialog-text">' + esc(t("collabHelp2")) + '</p>' +
+        '<p class="suite-dialog-text">' + esc(peutGerer ? t("collabHelp2") : (peutInviter ? t("collabEditorHelp") : t("collabViewerHelp"))) + '</p>' +
         '<div class="suite-collab-list" data-r="list"><p class="suite-sub">…</p></div>' +
         // L'accès se choisit AVANT d'inviter : il était forcé à « Éditeur »,
         // et il fallait le corriger après coup dans la liste.
-        '<div class="suite-collab-inviterole"><span class="suite-label">' + esc(t("collabInviteRole")) + '</span>' +
-          '<select class="suite-edit-select" data-r="newrole">' +
-            '<option value="editor">' + esc(t("collabRoleEditor")) + '</option>' +
-            '<option value="viewer">' + esc(t("collabRoleViewer")) + '</option>' +
-          '</select></div>' +
-        '<div class="suite-field"><span class="suite-label">' + esc(t("collabAddByName")) + '</span>' +
-          '<input class="suite-input" data-r="search" type="text" placeholder="' + esc(t("collabSearchPh")) + '" autocomplete="off" />' +
-          '<div class="suite-collab-results" data-r="results"></div></div>' +
-        '<div class="suite-field"><span class="suite-label">' + esc(t("collabAddByEmail")) + '</span>' +
-          '<div class="suite-collab-emailrow"><input class="suite-input" data-r="email" type="email" placeholder="' + esc(t("collabEmailPh")) + '" />' +
-          '<button type="button" class="suite-btn suite-btn-ghost" data-r="addemail">' + esc(t("collabInvite")) + '</button></div></div>' +
+        (peutInviter ?
+          '<div class="suite-collab-inviterole"><span class="suite-label">' + esc(t("collabInviteRole")) + '</span>' +
+            '<select class="suite-edit-select" data-r="newrole">' +
+              '<option value="editor">' + esc(t("collabRoleEditor")) + '</option>' +
+              '<option value="viewer">' + esc(t("collabRoleViewer")) + '</option>' +
+            '</select></div>' +
+          '<div class="suite-field"><span class="suite-label">' + esc(t("collabAddByName")) + '</span>' +
+            '<input class="suite-input" data-r="search" type="text" placeholder="' + esc(t("collabSearchPh")) + '" autocomplete="off" />' +
+            '<div class="suite-collab-results" data-r="results"></div></div>' +
+          '<div class="suite-field"><span class="suite-label">' + esc(t("collabAddByEmail")) + '</span>' +
+            '<div class="suite-collab-emailrow"><input class="suite-input" data-r="email" type="email" placeholder="' + esc(t("collabEmailPh")) + '" />' +
+            '<button type="button" class="suite-btn suite-btn-ghost" data-r="addemail">' + esc(t("collabInvite")) + '</button></div></div>'
+          : '') +
         '<div class="suite-dialog-actions">' +
           '<button type="button" data-r="close" class="suite-btn suite-btn-primary">' + esc(t("commonClose")) + '</button>' +
         '</div>' +
@@ -2207,7 +2227,11 @@
           return;
         }
         var rows = (r && r.data) || [];
-        var html = '<div class="suite-collab-row is-owner"><span class="suite-collab-nm">' + esc(collabMe()) + '</span><span class="suite-collab-owner">' + esc(t("collabRoleOwner")) + '</span></div>';
+        /* Chez l'invité, l'auteur n'est PAS lui : coiffer la liste d'une ligne
+           « moi · propriétaire » serait faux. */
+        var html = peutGerer
+          ? '<div class="suite-collab-row is-owner"><span class="suite-collab-nm">' + esc(collabMe()) + '</span><span class="suite-collab-owner">' + esc(t("collabRoleOwner")) + '</span></div>'
+          : '';
         if (!rows.length) html += '<p class="suite-sub suite-collab-empty">' + esc(t("collabNone")) + '</p>';
         html += rows.map(function (c) {
           // l'état est repris en sous-titre : pas de badge en double sur le nom
@@ -2215,9 +2239,12 @@
           // le menu de rôle est large (ou la ligne étroite sur téléphone)
           var role = (c.role === "viewer") ? t("collabRoleViewer") : t("collabRoleEditor");
           var etat = (c.status === "pending") ? (role + " · " + t("collabPendingLong")) : role;
-          return '<div class="suite-collab-row"><span class="suite-collab-nm-wrap">' +
+          var identite = '<span class="suite-collab-nm-wrap">' +
               '<span class="suite-collab-nm">' + esc(c.name) + '</span>' +
-              '<span class="suite-collab-sub">' + esc(etat) + '</span></span>' +
+              '<span class="suite-collab-sub">' + esc(etat) + '</span></span>';
+          // Changer un rôle ou retirer quelqu'un reste à l'auteur de la séance.
+          if (!peutGerer) return '<div class="suite-collab-row">' + identite + '</div>';
+          return '<div class="suite-collab-row">' + identite +
             '<select class="suite-edit-select suite-collab-rolesel" data-cid="' + esc(c.id) + '">' +
               '<option value="editor"' + (c.role !== "viewer" ? " selected" : "") + '>' + esc(t("collabRoleEditor")) + '</option>' +
               '<option value="viewer"' + (c.role === "viewer" ? " selected" : "") + '>' + esc(t("collabRoleViewer")) + '</option></select>' +
@@ -2240,7 +2267,9 @@
     }
     refresh();
 
-    search.addEventListener("input", debounceC(function () {
+    // Un lecteur n'a pas ces champs : sans ce garde, le dialogue plantait sur
+    // un addEventListener de null et ne s'ouvrait jamais.
+    if (search) search.addEventListener("input", debounceC(function () {
       var q = search.value.trim();
       if (q.length < 2) { results.innerHTML = ""; return; }
       Promise.resolve(sbClient().rpc("search_users_by_stage_name", { p_query: q })).then(function (r) {
@@ -2264,7 +2293,8 @@
       }, function () { results.innerHTML = ""; });
     }, 260));
 
-    dlg.querySelector('[data-r="addemail"]').onclick = function () {
+    var btnEmail = dlg.querySelector('[data-r="addemail"]');
+    if (btnEmail) btnEmail.onclick = function () {
       var em = dlg.querySelector('[data-r="email"]').value.trim();
       if (!em || em.indexOf("@") < 1) return;
       Promise.resolve(sbClient().rpc("add_collaborator", { p_res: id, p_user_id: null, p_email: em, p_label: em, p_role: roleChoisi() }))

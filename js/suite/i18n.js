@@ -472,7 +472,9 @@
     durationMinutes: "Minutes",
     durationSeconds: "Secondes",
     pendingTitle: "En attente de validation — visible par toi seul",
-    catalogPendingNote: "✳ en attente de validation : visible par toi seul"
+    catalogPendingNote: "✳ en attente de validation : visible par toi seul",
+    collabEditorHelp: "Tu peux inviter d'autres personnes, en édition ou en consultation. Seul l'auteur de la séance peut changer les rôles ou retirer quelqu'un.",
+    collabViewerHelp: "Tu consultes cette séance. Voici qui y participe."
   };
 
   var EN = {
@@ -919,7 +921,9 @@
     durationMinutes: "Minutes",
     durationSeconds: "Seconds",
     pendingTitle: "Awaiting approval — only you can see it",
-    catalogPendingNote: "✳ awaiting approval: only you can see it"
+    catalogPendingNote: "✳ awaiting approval: only you can see it",
+    collabEditorHelp: "You can invite others, as editor or viewer. Only the person who created the session can change roles or remove someone.",
+    collabViewerHelp: "You're viewing this session. Here's who's on it."
   };
 
 
@@ -1425,7 +1429,9 @@
     durationMinutes: "Minuten",
     durationSeconds: "Sekunden",
     pendingTitle: "Wartet auf Freigabe — nur für dich sichtbar",
-    catalogPendingNote: "✳ wartet auf Freigabe: nur für dich sichtbar"
+    catalogPendingNote: "✳ wartet auf Freigabe: nur für dich sichtbar",
+    collabEditorHelp: "Du kannst weitere Personen einladen — zum Bearbeiten oder nur zum Ansehen. Rollen ändern oder jemanden entfernen kann nur, wer die Einheit erstellt hat.",
+    collabViewerHelp: "Du siehst diese Einheit an. Das sind die Beteiligten."
   };
 
   var ES = {
@@ -1930,7 +1936,9 @@
     durationMinutes: "Minutos",
     durationSeconds: "Segundos",
     pendingTitle: "Pendiente de validación: solo tú lo ves",
-    catalogPendingNote: "✳ pendiente de validación: solo tú lo ves"
+    catalogPendingNote: "✳ pendiente de validación: solo tú lo ves",
+    collabEditorHelp: "Puedes invitar a otras personas, en edición o en consulta. Solo quien creó la sesión puede cambiar los roles o quitar a alguien.",
+    collabViewerHelp: "Estás consultando esta sesión. Estas son las personas que participan."
   };
 
   var PT = {
@@ -2435,7 +2443,9 @@
     durationMinutes: "Minutos",
     durationSeconds: "Segundos",
     pendingTitle: "A aguardar validação — só tu o vês",
-    catalogPendingNote: "✳ a aguardar validação: só tu o vês"
+    catalogPendingNote: "✳ a aguardar validação: só tu o vês",
+    collabEditorHelp: "Podes convidar outras pessoas, em edição ou em consulta. Só quem criou a sessão pode mudar funções ou remover alguém.",
+    collabViewerHelp: "Estás a consultar esta sessão. Estas são as pessoas que participam."
   };
 
   var NL = {
@@ -2940,7 +2950,9 @@
     durationMinutes: "Minuten",
     durationSeconds: "Seconden",
     pendingTitle: "Wacht op goedkeuring — alleen jij ziet het",
-    catalogPendingNote: "✳ wacht op goedkeuring: alleen jij ziet het"
+    catalogPendingNote: "✳ wacht op goedkeuring: alleen jij ziet het",
+    collabEditorHelp: "Je kunt anderen uitnodigen, om te bewerken of te bekijken. Alleen wie de sessie heeft gemaakt, kan rollen wijzigen of iemand verwijderen.",
+    collabViewerHelp: "Je bekijkt deze sessie. Dit zijn de deelnemers."
   };
 
   var IT = {
@@ -3445,7 +3457,9 @@
     durationMinutes: "Minuti",
     durationSeconds: "Secondi",
     pendingTitle: "In attesa di approvazione — lo vedi solo tu",
-    catalogPendingNote: "✳ in attesa di approvazione: lo vedi solo tu"
+    catalogPendingNote: "✳ in attesa di approvazione: lo vedi solo tu",
+    collabEditorHelp: "Puoi invitare altre persone, in modifica o in sola lettura. Solo chi ha creato la sessione può cambiare i ruoli o rimuovere qualcuno.",
+    collabViewerHelp: "Stai consultando questa sessione. Ecco chi vi partecipa."
   };
 
   // de/es/pt/nl/it are filled to match the 7-locale set. Until translated
