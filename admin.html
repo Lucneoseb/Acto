@@ -124,6 +124,41 @@
     white-space: nowrap;
   }
   table.profiles td.wrap { white-space: normal; max-width: 220px; }
+  /* ─── Catalogues : la description EST l'information ───────────────────────
+     `td.wrap` la plafonnait à 220 px, pensé pour les tableaux de comptes où
+     elle n'est qu'un appoint. Sur les catalogues, mesuré à 1280 px de large :
+     130 px de colonne pour 388 caractères, soit deux mots par ligne et une
+     cellule de 569 px de haut — pendant que « Source » en occupait 429, une
+     simple URL en nowrap dictant toute la mise en page.
+     On rend donc la largeur à la description, et on force les colonnes
+     bavardes mais secondaires à revenir à la ligne.
+     Premier essai, insuffisant : des pourcentages sur les <th> ne changeaient
+     RIEN, et la description tombait même à 102 px. En table-layout auto, une
+     colonne en `nowrap` impose sa largeur intrinsèque — le texte entier — et
+     la seule colonne qui sait revenir à la ligne encaisse le reste. Il faut
+     donc figer la table ET autoriser toutes les cellules à se replier. */
+  #warmupTableAdmin { table-layout: fixed; }
+  /* break-word plutôt qu'anywhere : on ne coupe un mot que s'il ne tient pas
+     seul sur sa ligne. Avec « anywhere », les adresses e-mail se brisaient en
+     plein milieu alors qu'elles avaient la place de tenir. */
+  #warmupTableAdmin th, #warmupTableAdmin td {
+    white-space: normal; overflow-wrap: break-word; max-width: none;
+  }
+  #warmupTableAdmin td.src-cell { overflow-wrap: anywhere; }   /* URL sans espace */
+  #submissionsTable { table-layout: fixed; }
+  #submissionsTable th, #submissionsTable td {
+    white-space: normal; overflow-wrap: break-word; max-width: none;
+  }
+  #submissionsTable td.email { overflow-wrap: anywhere; }   /* adresse sans espace */
+  /* Sans cette ligne, « ✓ Approuver (publier) » refusait de se replier : la
+     cellule réclamait 327 px pour 99 disponibles et poussait toute la table
+     229 px hors de son conteneur. */
+  #submissionsTable td.actions .btn,
+  #warmupTableAdmin td.actions .btn { white-space: normal; min-width: 0; }
+  /* min-width:0 est indispensable : un enfant de flex vaut min-width:auto par
+     défaut et refuse de descendre sous la largeur de son contenu — le repli du
+     texte seul ne suffisait pas, la cellule poussait encore la table dehors. */
+  #submissionsTable td .badge { white-space: normal; overflow-wrap: anywhere; }
   table.profiles thead th {
     position: sticky; top: 0; z-index: 1;
     background: var(--bg-mid);
@@ -1278,16 +1313,18 @@
     <table class="profiles submissions" id="submissionsTable">
       <thead>
         <tr>
-          <th scope="col">Date</th>
-          <th scope="col">Type</th>
-          <th scope="col">Mode</th>
-          <th scope="col">Niveau</th>
-          <th scope="col">Langue</th>
-          <th scope="col">Texte proposé</th>
-          <th scope="col">Description</th>
-          <th scope="col">Email</th>
-          <th scope="col">Statut</th>
-          <th scope="col">Actions</th>
+          <!-- Table figée elle aussi : mesuré 176 px de description pour
+               1049 px de haut, la colonne était inutilisable. -->
+          <th scope="col" style="width:6%;">Date</th>
+          <th scope="col" style="width:7%;">Type</th>
+          <th scope="col" style="width:6%;">Mode</th>
+          <th scope="col" style="width:6%;">Niveau</th>
+          <th scope="col" style="width:5%;">Langue</th>
+          <th scope="col" style="width:14%;">Texte proposé</th>
+          <th scope="col" style="width:27%;">Description</th>
+          <th scope="col" style="width:10%;">Email</th>
+          <th scope="col" style="width:6%;">Statut</th>
+          <th scope="col" style="width:13%;">Actions</th>
         </tr>
       </thead>
       <tbody id="submissionsBody">
@@ -1475,17 +1512,19 @@
       <table class="profiles" id="warmupTableAdmin">
         <thead>
           <tr>
-            <th scope="col" data-sort-warmup="name">Nom</th>
-            <th scope="col" data-sort-warmup="type">Type</th>
-            <th scope="col" data-sort-warmup="subtype">Sous-type</th>
-            <th scope="col" data-sort-warmup="description">Description</th>
-            <th scope="col" data-sort-warmup="duration_seconds">Durée</th>
-            <th scope="col" data-sort-warmup="participants">Participants</th>
-            <th scope="col" data-sort-warmup="source">Source</th>
-            <th scope="col" data-sort-warmup="locale">Langue</th>
-            <th scope="col" data-sort-warmup="submitted_by">Soumis par</th>
-            <th scope="col" data-sort-warmup="status">État</th>
-            <th scope="col">Actions</th>
+            <!-- Table figée (table-layout: fixed) : ces largeurs sont donc
+                 respectées telles quelles, et somment à 100 %. -->
+            <th scope="col" data-sort-warmup="name" style="width:12%;">Nom</th>
+            <th scope="col" data-sort-warmup="type" style="width:6%;">Type</th>
+            <th scope="col" data-sort-warmup="subtype" style="width:6%;">Sous-type</th>
+            <th scope="col" data-sort-warmup="description" style="width:30%;">Description</th>
+            <th scope="col" data-sort-warmup="duration_seconds" style="width:4%;">Durée</th>
+            <th scope="col" data-sort-warmup="participants" style="width:7%;">Participants</th>
+            <th scope="col" data-sort-warmup="source" style="width:7%;">Source</th>
+            <th scope="col" data-sort-warmup="locale" style="width:4%;">Langue</th>
+            <th scope="col" data-sort-warmup="submitted_by" style="width:9%;">Soumis par</th>
+            <th scope="col" data-sort-warmup="status" style="width:5%;">État</th>
+            <th scope="col" style="width:10%;">Actions</th>
           </tr>
         </thead>
         <tbody id="warmupBodyAdmin">
@@ -1771,12 +1810,12 @@
      would otherwise execute attacker code with the user's session JWT in
      reach. Bump both `@VERSION` and the integrity hash together. -->
 <script src="/vendor/supabase-js-2.47.10.min.js" integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"></script>
-<script src="./js/config.js?v=2026091002"></script>
-<script src="./js/utils.js?v=2026091002"></script>
+<script src="./js/config.js?v=2026091003"></script>
+<script src="./js/utils.js?v=2026091003"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=2026091002"></script>
+<script src="./data/all.js?v=2026091003"></script>
 <script>
 (function () {
   "use strict";
@@ -2316,7 +2355,7 @@
         <td>${escapeHtml(s.level || "—")}</td>
         <td>${escapeHtml(s.locale || "—")}</td>
         <td class="text">${escapeHtml(s.text)}</td>
-        <td class="text" style="font-weight:400;color:var(--ink-muted);font-size:0.82rem;">${escapeHtml(s.description || "—")}</td>
+        <td class="text desc-cell" style="font-weight:400;color:var(--ink-muted);font-size:0.82rem;">${escapeHtml(s.description || "—")}</td>
         <td class="email">${escapeHtml(emailFor(s.user_id))}</td>
         <td><span class="status-${escapeHtml(s.status)}">${escapeHtml(s.status)}</span></td>
         <td class="actions">${actions}</td>
@@ -2897,7 +2936,10 @@
     allWarmups = allWarmups.filter(v => !v._bundled).concat(bundledWarmups);
     renderWarmups();
   }
-  let warmupSortKey = restoreSort("warmups", "key", null);
+  // Alphabétique par défaut : l'ordre d'insertion en base ne veut rien dire
+  // pour qui cherche un exercice. Le « || » couvre aussi les réglages déjà
+  // enregistrés à null — sinon le nouveau défaut n'aurait jamais pris.
+  let warmupSortKey = restoreSort("warmups", "key", null) || "name";
   let warmupSortDir = restoreSort("warmups", "dir", "asc");
   const WARMUP_TYPES = ["Échauffement", "Mise en train", "Atelier", "Situation de jeu"];
 
@@ -3032,10 +3074,10 @@
         '<td class="wrap">'      + escapeHtml(v.name)                            + '</td>' +
         '<td>'                   + escapeHtml(v.type || "—")                     + '</td>' +
         '<td>'                   + escapeHtml(v.subtype || "—")                  + '</td>' +
-        '<td class="wrap">'      + escapeHtml(v.description || "—")              + '</td>' +
+        '<td class="wrap desc-cell">' + escapeHtml(v.description || "—")         + '</td>' +
         '<td>'                   + escapeHtml(formatWarmupDuration(v.duration_seconds)) + '</td>' +
         '<td>'                   + escapeHtml(v.participants || "—")             + '</td>' +
-        '<td>'                   + escapeHtml(v.source || "—")                   + '</td>' +
+        '<td class="src-cell">'  + escapeHtml(v.source || "—")                   + '</td>' +
         '<td>'                   + localeCell                                    + '</td>' +
         '<td class="email">'     + escapeHtml(emailForWarmupRow(v))             + '</td>' +
         '<td><span class="status-' + escapeHtml(v.status) + '">' + escapeHtml(
@@ -3348,7 +3390,8 @@
   }
 
   // Sort state for the bundled list. null key = source order.
-  let bundledSortKey = restoreSort("bundled", "key", null);
+  // Alphabétique par défaut, même raison que pour les échauffements.
+  let bundledSortKey = restoreSort("bundled", "key", null) || "name";
   let bundledSortDir = restoreSort("bundled", "dir", "asc");
 
   function renderBundled() {
