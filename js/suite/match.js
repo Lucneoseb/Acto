@@ -1239,7 +1239,14 @@
         var C = window.ActoContribute;
         if (!C || !C.open) return;
         var quoi = b.getAttribute("data-act").replace("propose-", "");
-        C.open(quoi, { onValues: function (v) { ajouterPropose(quoi, v); } });
+        /* Depuis l'éditeur de coaching, un exercice est forcément de troupe :
+           le formulaire laissait choisir « Match », et l'exercice apparaissait
+           alors dans la liste du coaching puis EN DISPARAISSAIT à la validation,
+           parti dans le pool du Match rapide. */
+        C.open(quoi, {
+          onValues: function (v) { ajouterPropose(quoi, v); },
+          fixed: (quoi === "exercise") ? { mode: "troupe" } : null
+        });
       };
     });
   }

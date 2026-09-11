@@ -126,7 +126,9 @@
     dlg.innerHTML =
       '<div class="suite-dialog-body">' +
         '<h2 class="suite-dialog-title">' + ty.icon + ' ' + esc(t(ty.labelKey)) + '</h2>' +
-        '<div class="suite-contrib-fields">' + ty.fields.map(fieldHtml).join("") + '</div>' +
+        // Un champ imposé par l'appelant (opts.fixed) n'est pas affiché : il
+        // n'y a rien à choisir, et le proposer serait trompeur.
+        '<div class="suite-contrib-fields">' + ty.fields.filter(function (f) { return !(opts.fixed && Object.prototype.hasOwnProperty.call(opts.fixed, f.k)); }).map(fieldHtml).join("") + '</div>' +
         '<p class="suite-contrib-msg" hidden></p>' +
         '<div class="suite-dialog-actions">' +
           '<button type="button" data-r="cancel" class="suite-btn suite-btn-ghost">' + esc(t("commonCancel")) + '</button>' +
@@ -140,6 +142,7 @@
     dlg.querySelector('[data-r="send"]').onclick = function () {
       var v = {};
       ty.fields.forEach(function (f) { var el = dlg.querySelector('[data-f="' + f.k + '"]'); v[f.k] = el ? String(el.value || "").trim() : ""; });
+      if (opts.fixed) Object.keys(opts.fixed).forEach(function (k) { v[k] = opts.fixed[k]; });
       var missing = ty.fields.filter(function (f) { return f.required && !v[f.k]; });
       if (missing.length) { msg(t("contribRequired"), false); return; }
       if (!available()) { msg(t("contribOffline"), false); return; }

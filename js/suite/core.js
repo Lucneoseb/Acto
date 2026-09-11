@@ -565,7 +565,14 @@
     _warmupsLoading = Promise.all([statique, echauffementsValides(), propositionsValidees(), cachesAdmin(),
                                    mesEchauffementsEnAttente(), mesPropositionsEnAttente()])
       .then(function (r) {
-        var base = r[0], ajouts = 0, vus = {};
+        /* Échauffements livrés que l'admin a cachés (kind = 'warmup', voir
+           migrate-2026-09-caches.sql). On les retire AVANT la fusion : si un
+           échauffement communautaire porte le même nom, l'admin l'a validé à
+           part, il reprend alors légitimement la place. */
+        var cachesEch = {};
+        (r[3] || []).forEach(function (h) { if (h && h.kind === "warmup") cachesEch[cleNom(h.text)] = true; });
+        var base = (r[0] || []).filter(function (e) { return !cachesEch[cleNom(e.name)]; });
+        var ajouts = 0, vus = {};
         base.forEach(function (e) { vus[cleNom(e.name)] = true; });
         function ajouteEchauffement(row, attente) {
           var k = cleNom(row.name);

@@ -1810,12 +1810,12 @@
      would otherwise execute attacker code with the user's session JWT in
      reach. Bump both `@VERSION` and the integrity hash together. -->
 <script src="/vendor/supabase-js-2.47.10.min.js" integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"></script>
-<script src="./js/config.js?v=2026091004"></script>
-<script src="./js/utils.js?v=2026091004"></script>
+<script src="./js/config.js?v=2026091101"></script>
+<script src="./js/utils.js?v=2026091101"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=2026091004"></script>
+<script src="./data/all.js?v=2026091101"></script>
 <script>
 (function () {
   "use strict";
@@ -2958,6 +2958,7 @@
       return;
     }
     await loadBundledWarmups();
+    await loadHiddenItems();      // l'état « caché » des échauffements livrés
     allWarmups = (data || []).concat(bundledWarmups);
     renderWarmups();
   }
@@ -3050,10 +3051,15 @@
       const isPending  = v.status === "pending";
       const isApproved = v.status === "approved";
       const isHidden   = v.status === "rejected";
+      /* Entrée du fichier livré : ni modérable ni supprimable d'ici, mais on
+         peut la CACHER (bundled_hidden_items, kind 'warmup') — elle disparaît
+         alors du Studio et de la page /echauffements, pour tous. */
+      const cacheLivre = v._bundled ? findHiddenRow("warmup", null, null, v.locale, v.name) : null;
       let actions = "";
-      // Entrée du fichier livré : rien à modérer ni à supprimer depuis ici.
       if (v._bundled) {
-        actions = '<span class="muted">livré avec le site</span>';
+        actions = cacheLivre
+          ? '<button class="btn btn-approve" data-warmup-act="bunhide" data-hid="' + escapeHtml(cacheLivre.id) + '">👁 Afficher</button>'
+          : '<button class="btn btn-reject" data-warmup-act="bhide" data-locale="' + escapeHtml(v.locale) + '" data-name="' + escapeHtml(v.name) + '">🙈 Cacher</button>';
       } else if (isPending) {
         actions +=
           '<button class="btn btn-approve" data-warmup-act="approve" data-id="' + escapeHtml(v.id) + '">✓ Approuver (publier)</button>' +
@@ -3084,11 +3090,32 @@
           v.status === "pending"  ? "En attente" :
           v.status === "approved" ? "Public" :
           v.status === "rejected" ? "Caché"     :
-          v.status === "bundled"  ? "Livré"     : v.status
+          v.status === "bundled"  ? (cacheLivre ? "Livré · caché" : "Livré") : v.status
         ) + '</span></td>' +
         '<td class="actions">'   + actions                                      + '</td>' +
       '</tr>';
     }).join("");
+  }
+
+  async function hideBundledWarmup(locale, name) {
+    const { error } = await sb.rpc("hide_bundled_item", {
+      p_kind: "warmup", p_mode: null, p_level: null, p_locale: locale, p_text: name
+    });
+    if (error) {
+      // Sans la migration, le serveur refuse ce type : on le dit plutôt que
+      // de laisser un message SQL cryptique.
+      const manque = /invalid kind/i.test(error.message || "");
+      alert("Erreur : " + error.message + (manque ? "\n\nLa migration migrate-2026-09-caches.sql n'a pas encore été passée dans Supabase." : ""));
+      return;
+    }
+    await loadHiddenItems();
+    renderWarmups();
+  }
+  async function unhideBundledWarmup(id) {
+    const { error } = await sb.rpc("unhide_bundled_item", { p_id: id });
+    if (error) { alert("Erreur : " + error.message); return; }
+    await loadHiddenItems();
+    renderWarmups();
   }
 
   async function setWarmupStatus(id, status) {
@@ -3285,6 +3312,8 @@
         else if (act === "reject")  setWarmupStatus(id, "rejected");
         else if (act === "delete")  deleteWarmup(id);
         else if (act === "edit")    editWarmup(id);
+        else if (act === "bhide")   hideBundledWarmup(btn.dataset.locale, btn.dataset.name);
+        else if (act === "bunhide") unhideBundledWarmup(btn.dataset.hid);
       });
     }
     // Arrow wrapper is critical — passing openWarmupAddDialog directly

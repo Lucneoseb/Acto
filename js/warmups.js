@@ -144,6 +144,28 @@
     }
   }
 
+  /** Échauffements livrés que l'admin a cachés (bundled_hidden_items, kind
+   *  'warmup'). Retirés AVANT la fusion communautaire : un échauffement
+   *  validé à part sous le même nom reprend alors légitimement sa place.
+   *  Lisible sans compte depuis migrate-2026-09-caches.sql ; avant elle, la
+   *  requête revient simplement vide et rien n'est retiré. */
+  async function removeHiddenBundled() {
+    const client = getSb();
+    if (!client) return;
+    try {
+      const { data, error } = await client
+        .from("bundled_hidden_items")
+        .select("kind, text")
+        .eq("kind", "warmup")
+        .eq("locale", currentLocale())
+        .limit(2000);
+      if (error || !data || !data.length) return;
+      const caches = new Set(data.map(h => String(h.text || "").trim().toLowerCase()));
+      WARMUPS.exercises = (WARMUPS.exercises || []).filter(e =>
+        !caches.has(String(e.name || "").trim().toLowerCase()));
+    } catch (e) { console.warn("[warmups] hidden items", e); }
+  }
+
   /** Fetch approved community-submitted exercises from Supabase and merge
    *  them into WARMUPS.exercises. Tagged with `_community: true` so the UI
    *  can badge them. De-duped by lowercase name against the static base. */
@@ -724,6 +746,7 @@
     applyStaticTexts();
     // Merge community-approved exercises from Supabase (best-effort — the
     // static base renders immediately, community ones appear once fetched).
+    await removeHiddenBundled();         // d'abord : la fusion peut combler un nom retiré
     await mergeCommunityExercises();
     populateTypeFilter();
     renderList();
