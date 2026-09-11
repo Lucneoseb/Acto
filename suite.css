@@ -1469,3 +1469,20 @@
   .suite-addseg { min-height: 44px !important; }
 }
 
+
+/* ─── Catalogue : bascule entre les deux réservoirs ─────────────────────────
+   Échauffements et exercices de troupe ne viennent pas du même endroit. Le
+   bouton de la barre d'ajout n'ouvrait que le premier ; on choisit désormais. */
+.suite-catalog-tabs { display: flex; gap: 0.35rem; }
+.suite-catalog-tabs button {
+  flex: 1 1 0; cursor: pointer; padding: 0.45rem 0.6rem; border-radius: 8px;
+  background: color-mix(in srgb, #ffffff 6%, transparent);
+  border: 1px solid color-mix(in srgb, #ffffff 14%, transparent);
+  color: var(--ink-muted); font: inherit; font-weight: 600;
+}
+.suite-catalog-tabs button.is-on {
+  background: color-mix(in srgb, var(--gold) 22%, transparent);
+  border-color: color-mix(in srgb, var(--gold) 60%, transparent);
+  color: var(--ink);
+}
+.suite-catalog-tabs button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }

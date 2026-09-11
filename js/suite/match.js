@@ -1337,13 +1337,34 @@
      Ici : une liste cherchable, avec la durée et la description, et le même
      chemin d'écriture que le <select> (applyEdit) pour ne rien dupliquer. */
   function openCatalog(field, segId) {
-    var items = (field === "warmup")
-      ? S.gen.warmupOptions()
-      : S.gen.trainingExerciseOptions(current.level);
+    /* Deux réservoirs distincts derrière ce dialogue : les ÉCHAUFFEMENTS
+       (data/warmups-*.json + base) et les EXERCICES de troupe (bundle). Le
+       bouton de la barre d'ajout était câblé en dur sur les échauffements :
+       il n'ouvrait donc jamais la même liste que le ✎ d'une ligne « Exercice ».
+       Depuis la barre on peut maintenant basculer de l'un à l'autre ; depuis
+       une ligne, le réservoir est imposé par le type du segment — un segment
+       d'échauffement ne peut pas recevoir un exercice de troupe. */
+    var libre = !segId;
+    var courant = (field === "exercise") ? "exercise" : "warmup";
+    function pool() {
+      return (courant === "warmup")
+        ? S.gen.warmupOptions()
+        : S.gen.trainingExerciseOptions(current.level);
+    }
     var dlg = document.createElement("dialog");
     dlg.className = "suite-dialog suite-catalog-dialog";
     dlg.innerHTML = '<div class="suite-dialog-body">' +
-      '<h2 class="suite-dialog-title">📚 ' + esc(t("catalogTitle")) + '</h2>' +
+      /* Sans onglets (ouvert depuis une ligne), rien ne disait QUELLE liste on
+         regardait : deux dialogues identiques pour deux réservoirs différents.
+         Le titre le nomme. */
+      '<h2 class="suite-dialog-title">📚 ' + esc(t("catalogTitle")) +
+        (libre ? '' : ' · ' + esc(courant === "warmup" ? t("fieldWarmup") : t("fieldExercise"))) + '</h2>' +
+      (libre
+        ? '<div class="suite-catalog-tabs" role="tablist">' +
+            '<button type="button" role="tab" data-pool="warmup" class="is-on">' + esc(t("fieldWarmup")) + '</button>' +
+            '<button type="button" role="tab" data-pool="exercise">' + esc(t("fieldExercise")) + '</button>' +
+          '</div>'
+        : '') +
       '<input type="search" class="suite-input suite-catalog-search" placeholder="' + esc(t("catalogSearch")) + '" aria-label="' + esc(t("catalogSearch")) + '" />' +
       '<p class="suite-sub suite-catalog-count"></p>' +
       '<p class="suite-catalog-legend" hidden>' + esc(t("catalogPendingNote")) + '</p>' +
@@ -1360,6 +1381,7 @@
     function close() { try { if (dlg.open) dlg.close(); } catch (e) { /* ignore */ } dlg.remove(); }
 
     function peindre() {
+      var items = pool();
       var q = String(champ.value || "").trim().toLowerCase();
       var vus = items.filter(function (o) {
         if (!q) return true;
@@ -1382,16 +1404,16 @@
         b.onclick = function () {
           var nom = b.getAttribute("data-name");
           close();
-          if (segId) { applyEdit(segId, field, nom); return; }
+          if (segId) { applyEdit(segId, courant, nom); return; }
           /* Depuis la barre d'ajout : le segment est construit DÉJÀ rempli.
              En le créant vide puis en posant le choix ensuite, fillSegment
              tirait une durée au hasard entre les deux — un exercice annoncé
              à 10 minutes atterrissait à 0:30. */
           var choix = items.filter(function (o) { return o.name === nom; })[0] || { name: nom, desc: "" };
-          var seg = (field === "warmup") ? S.gen.newWarmupSegment(current.level) : S.gen.newExerciseSegment(current.level);
+          var seg = (courant === "warmup") ? S.gen.newWarmupSegment(current.level) : S.gen.newExerciseSegment(current.level);
           seg.locks = seg.locks || {};
-          seg.locks[field] = true;            // sinon fillSegment le remplacerait par un tirage
-          if (field === "warmup") {
+          seg.locks[courant] = true;          // sinon fillSegment le remplacerait par un tirage
+          if (courant === "warmup") {
             seg.warmup = { name: choix.name, desc: choix.desc || "", duration_seconds: choix.duration_seconds || null };
             if (choix.duration_seconds) { seg.durationSec = choix.duration_seconds; seg.locks.duration = true; }
           } else {
@@ -1402,6 +1424,15 @@
       });
     }
     champ.oninput = peindre;
+    [].forEach.call(dlg.querySelectorAll(".suite-catalog-tabs [data-pool]"), function (b) {
+      b.onclick = function () {
+        courant = b.getAttribute("data-pool");
+        [].forEach.call(dlg.querySelectorAll(".suite-catalog-tabs [data-pool]"), function (x) {
+          x.classList.toggle("is-on", x === b);
+        });
+        peindre();
+      };
+    });
     peindre();
     dlg.querySelector('[data-r="close"]').onclick = close;
     dlg.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); close(); } });
