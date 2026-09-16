@@ -102,6 +102,22 @@
   .defi-meter { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.1); overflow: hidden; }
   .defi-meter span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #4cc38a, #e8c766 70%, #ef6b6b); transition: width .08s linear; }
   .defi-filmed { color: var(--ink-muted); }
+  /* Commandes posées sur l'image caméra (réglages, 3-2-1). z-index obligatoire :
+     la vidéo en miroir porte un transform, qui la ferait passer DEVANT des
+     boutons placés avant elle dans le cadre. */
+  /* Aperçu au format du FICHIER (9:16 ou 16:9), recadré comme l'enregistrement
+     (object-fit: cover ≙ drawCover) : on se cadre sur ce qui sera vraiment filmé.
+     Largeur bornée pour que l'image entière tienne sous le logo. */
+  .defi-cam-frame { position: relative; width: 100%; max-width: 30rem; max-width: min(30rem, (100svh - 8rem) * 9 / 16); }
+  .defi-cam-frame.is-paysage { max-width: 30rem; max-width: min(30rem, (100svh - 8rem) * 16 / 9); }
+  .defi-cam-frame video.defi-video { display: block; width: 100%; max-width: none; max-height: none; aspect-ratio: 9 / 16; object-fit: cover; }
+  .defi-cam-frame.is-paysage video.defi-video { aspect-ratio: 16 / 9; }
+  .defi-cam-close { position: absolute; top: 0.6rem; left: 0.6rem; z-index: 2;
+    width: 2.75rem; height: 2.75rem; padding: 0; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.85); background: rgba(0,0,0,0.55);
+    color: #fff; font: 700 1.05rem/1 "Inter", sans-serif; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .defi-cam-go { position: absolute; top: 0.6rem; right: 0.6rem; z-index: 2; max-width: calc(100% - 4.6rem);
+    box-shadow: 0 6px 22px rgba(0,0,0,0.45); }
   /* ── Indicateurs d'écran pendant le tournage : du HTML posé sur le canvas,
        donc jamais dans le fichier (seul le canvas est enregistré). ── */
   .defi-rec-dot { position: fixed; top: max(0.8rem, env(safe-area-inset-top)); right: max(0.9rem, env(safe-area-inset-right)); z-index: 70;
@@ -110,7 +126,7 @@
   .defi-rec-dot span { width: 11px; height: 11px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 0 2px rgba(239,68,68,0.35); animation: defiBlink 1s steps(2, start) infinite; }
   .defi-caucus-note { position: fixed; left: 50%; top: max(3.4rem, calc(env(safe-area-inset-top) + 2.6rem)); transform: translateX(-50%); z-index: 70;
     padding: 0.45rem 0.9rem; border-radius: 999px; background: rgba(12,8,20,0.82); border: 1px solid rgba(239,68,68,0.6);
-    color: #fff; font: 600 0.88rem/1.2 "Inter", sans-serif; pointer-events: none; text-align: center; max-width: 90vw; }
+    color: #fff; font: 600 0.88rem/1.2 "Inter", sans-serif; pointer-events: none; text-align: center; width: max-content; max-width: 90vw; }
   .defi-caucus-note[hidden] { display: none; }
   @media (prefers-reduced-motion: reduce) { .defi-rec-dot span { animation: none; } }
   /* ── Bouton ⓘ et sa fenêtre : écran seulement, jamais dans le fichier ── */
@@ -234,6 +250,7 @@
       if (warn) warn.hidden = (nowLandscape === startLandscape);
     }
     window.addEventListener("resize", orientGuard);
+    window.addEventListener("resize", function () { placerIndicateurs(); });
     try { window.addEventListener("orientationchange", orientGuard); } catch (e) {}
 
     // ── helpers ─────────────────────────────────────────────────────────
@@ -333,13 +350,13 @@
       // iOS n'autorise qu'une capture caméra à la fois : on libère l'ancienne
       // AVANT de redemander, sinon la nouvelle demande échoue.
       try { if (stream) stream.getTracks().forEach(function (tr) { tr.stop(); }); } catch (e) {}
-      return navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: deviceId } }, audio: true }).then(function (st) {
+      return navigator.mediaDevices.getUserMedia({ video: contraintesVideo({ deviceId: { exact: deviceId } }), audio: true }).then(function (st) {
         brancherFlux(st);
         try { localStorage.setItem(CAM_KEY, deviceId); } catch (e) {}
         return true;
       }, function () {
         // Caméra indisponible : retour à la frontale plutôt qu'un écran noir.
-        return navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true }).then(function (st) {
+        return navigator.mediaDevices.getUserMedia({ video: contraintesVideo({ facingMode: "user" }), audio: true }).then(function (st) {
           brancherFlux(st); return false;
         });
       });
@@ -475,12 +492,47 @@
         brancherFlux(st);
         listerCameras().then(function () { renderSetup(); });
       }
-      navigator.mediaDevices.getUserMedia({ video: memo ? { deviceId: { exact: memo } } : { facingMode: "user" }, audio: true }).then(obtenu, function () {
+      navigator.mediaDevices.getUserMedia({ video: contraintesVideo(memo ? { deviceId: { exact: memo } } : { facingMode: "user" }), audio: true }).then(obtenu, function () {
         if (!memo) { renderCamError(); return; }
         // Caméra mémorisée débranchée : on l'oublie et on repart de la frontale.
         try { localStorage.removeItem(CAM_KEY); } catch (e) {}
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true }).then(obtenu, function () { renderCamError(); });
+        navigator.mediaDevices.getUserMedia({ video: contraintesVideo({ facingMode: "user" }), audio: true }).then(obtenu, function () { renderCamError(); });
       });
+    }
+
+    /* Format du FICHIER, celui des réseaux sociaux et non celui du capteur :
+       portrait → 720×1280 (9:16 : Reels Instagram et Facebook, TikTok, Shorts,
+       vidéo verticale LinkedIn) ; paysage → 1280×720 (16:9). Avant, le canvas
+       reprenait les proportions de la caméra : du 3:4 sur la plupart des
+       téléphones, du 640×480 sur une webcam — bordé de noir ou recadré au hasard
+       à la publication. L'image est recadrée au centre (drawCover), jamais
+       déformée. 720p : accepté partout, et tenable à 30 i/s sur un téléphone, où
+       chaque image est redessinée puis encodée. */
+    var FORMAT_PORTRAIT = [720, 1280], FORMAT_PAYSAGE = [1280, 720];
+    function formatDe(v) {
+      var vw = v && v.videoWidth, vh = v && v.videoHeight;
+      var portrait = (vw && vh) ? vh > vw : innerHeight > innerWidth;
+      return portrait ? FORMAT_PORTRAIT : FORMAT_PAYSAGE;
+    }
+    function appliquerFormat() {
+      if (!canvas || recActive) return;   // jamais pendant l'enregistrement : dimensions figées
+      var f = formatDe(camVideo);
+      if (canvas.width !== f[0] || canvas.height !== f[1]) { canvas.width = f[0]; canvas.height = f[1]; }
+    }
+    // Aperçu (réglages, 3-2-1) au format du fichier : il suit l'orientation du flux.
+    function suivreFormat(v) {
+      function maj() {
+        var cadre = v.parentNode; if (!cadre || !cadre.classList) return;
+        cadre.classList.toggle("is-paysage", formatDe(v) === FORMAT_PAYSAGE);
+      }
+      v.addEventListener("loadedmetadata", maj); v.addEventListener("resize", maj); maj();
+    }
+    // 720p demandé sans l'exiger : sans indication, Chrome ouvre une webcam en
+    // 640×480, une image floue qu'il faudrait agrandir pour remplir le cadre.
+    function contraintesVideo(base) {
+      var c = { width: { ideal: 1280 }, height: { ideal: 720 } };
+      for (var k in base) c[k] = base[k];
+      return c;
     }
 
     // Camera → hidden <video> → sized <canvas>. Done BEFORE recording starts so the
@@ -492,19 +544,20 @@
       try { camVideo.srcObject = stream; } catch (e) {}
       try { var pp = camVideo.play(); if (pp && pp.catch) pp.catch(function () {}); } catch (e) {}
       canvas = document.createElement("canvas"); cctx = canvas.getContext("2d");
-      canvas.width = 720; canvas.height = 960;
-      camVideo.addEventListener("loadedmetadata", function () {
-        if (recActive) return;   // never resize once recording — dims are locked
-        var vw = camVideo.videoWidth || 720, vh = camVideo.videoHeight || 960;
-        var sc = Math.min(1, 1080 / Math.max(vw, vh));
-        canvas.width = Math.max(160, Math.round(vw * sc)); canvas.height = Math.max(160, Math.round(vh * sc));
-      });
+      appliquerFormat();
+      camVideo.addEventListener("loadedmetadata", appliquerFormat);
+      camVideo.addEventListener("resize", appliquerFormat);   // téléphone tourné pendant les réglages
     }
 
     /* Écran de réglage, entre l'autorisation et le décompte. Avant, le compte à
        rebours partait dès l'autorisation : trois secondes pour se cadrer, sans
        pouvoir changer de caméra ni se voir en miroir, et sans savoir si le micro
        captait quoi que ce soit. */
+    // Croix posée en haut à gauche de l'image caméra (réglages, puis 3-2-1).
+    function croixFermer() {
+      return '<button type="button" class="defi-cam-close" data-act="cancel" aria-label="' + esc(t("commonClose")) + '" title="' + esc(t("commonClose")) + '">✕</button>';
+    }
+
     function renderSetup() {
       var opts = "", cur = reglagesPiste().deviceId || "";
       camDevices.forEach(function (d, i) {
@@ -512,7 +565,12 @@
           esc(d.label || tf("defiCamN", { n: i + 1 })) + '</option>';
       });
       view('<div class="defi-kicker">🎬 ' + esc(t("defiGetReady")) + '</div>' +
-        '<div class="defi-stage" id="defiStage"></div>' +
+        // Les commandes sont posées SUR l'image : sous la vidéo, « C'est parti »
+        // tombait hors de l'écran sur téléphone (une caméra portrait y fait
+        // ~600 px de haut). La vidéo est ajoutée dans ce cadre juste après.
+        '<div class="defi-stage"><div class="defi-cam-frame" id="defiStage">' + croixFermer() +
+          '<button type="button" class="suite-btn suite-btn-primary defi-cam-go" data-act="ready">🎬 ' + esc(t("defiReady")) + '</button>' +
+        '</div></div>' +
         '<div class="defi-setup">' +
           (camDevices.length > 1
             ? '<label class="defi-setup-row"><span>' + esc(t("defiCamLabel")) + '</span>' +
@@ -522,15 +580,12 @@
           '<div class="defi-meter" role="meter" aria-label="' + esc(t("defiMicLevel")) + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="defiMeterBar"></span></div>' +
           '<p class="defi-note">🎙 ' + esc(t("defiMicHint")) + '</p>' +
           '<p class="defi-note defi-filmed">🔴 ' + esc(caucusSec() > 0 ? t("defiFilmedWithCaucus") : t("defiFilmed")) + '</p>' +
-        '</div>' +
-        '<div class="defi-actions">' +
-          '<button type="button" class="suite-btn suite-btn-ghost" data-act="cancel">✕ ' + esc(t("commonBack") || "Retour") + '</button>' +
-          '<button type="button" class="suite-btn suite-btn-primary" data-act="ready">🎬 ' + esc(t("defiReady")) + '</button>' +
         '</div>');
       var v = document.createElement("video"); v.id = "defiSetupVideo"; v.className = "defi-video"; v.muted = true;
       v.setAttribute("playsinline", ""); v.setAttribute("autoplay", "");
       try { v.srcObject = stream; } catch (e) {}
       document.getElementById("defiStage").appendChild(v);
+      suivreFormat(v);
 
       var btnMiroir = root.querySelector('[data-act="mirror"]');
       function peindreMiroir() {
@@ -586,12 +641,12 @@
     function renderPreRoll() {
       view('<div class="defi-kicker">🎬 ' + esc(t("defiGetReady")) + '</div>' +
         '<div class="defi-preroll-n" id="defiPreN">' + PREROLL_SEC + '</div>' +
-        '<div class="defi-stage" id="defiStage"></div>' +
-        '<button type="button" class="suite-btn suite-btn-ghost" data-act="cancel">✕ ' + esc(t("commonBack") || "Retour") + '</button>');
+        '<div class="defi-stage"><div class="defi-cam-frame" id="defiStage">' + croixFermer() + '</div></div>');
       var v = document.createElement("video"); v.className = "defi-video" + (mirror ? " is-mirror" : ""); v.muted = true;
       v.setAttribute("playsinline", ""); v.setAttribute("autoplay", "");
       try { v.srcObject = stream; } catch (e) {}
       document.getElementById("defiStage").appendChild(v);
+      suivreFormat(v);
       root.querySelector('[data-act="cancel"]').onclick = function () {
         if (preTk) { clearInterval(preTk); preTk = null; }
         stopStream(); releaseImmersive(); renderWelcome();
@@ -609,6 +664,7 @@
       pickMime();
       chunks = []; blob = null; phase = ""; phaseEnd = 0; phaseStart = 0;
       if (!stream || !canvas) { renderCamError(); return; }
+      appliquerFormat();   // dernier mot juste avant la capture : l'orientation a pu changer
 
       // The canvas (camera + baked info overlay) IS what gets recorded. Fallback to
       // the raw camera where canvas capture is unavailable — the info then shows in
@@ -633,8 +689,16 @@
         usingCanvas = false;
       }
 
-      try { recorder = recMime ? new MediaRecorder(recStream, { mimeType: recMime }) : new MediaRecorder(recStream); }
-      catch (e) { try { recorder = new MediaRecorder(recStream); } catch (e2) { renderCamError(); return; } }
+      // Débit explicite : par défaut Chrome encode à 2,5 Mb/s quelle que soit la
+      // taille, Safari souvent moins. 4 Mb/s garde une 720p nette après la
+      // recompression des réseaux (~30 Mo par minute).
+      var optsRec = { videoBitsPerSecond: 4000000, audioBitsPerSecond: 128000 };
+      if (recMime) optsRec.mimeType = recMime;
+      try { recorder = new MediaRecorder(recStream, optsRec); }
+      catch (e) {
+        try { recorder = recMime ? new MediaRecorder(recStream, { mimeType: recMime }) : new MediaRecorder(recStream); }
+        catch (e2) { try { recorder = new MediaRecorder(recStream); } catch (e3) { renderCamError(); return; } }
+      }
       recorder.ondataavailable = function (ev) { if (ev.data && ev.data.size) chunks.push(ev.data); };
       recorder.onstop = function () {
         blob = new Blob(chunks, { type: recMime || "video/webm" });
@@ -730,6 +794,7 @@
         if (note) note.hidden = !(phase === "announce" && caucusSec() > 0);
         var info = root.querySelector('[data-act="info"]');
         if (info) info.hidden = !(aDeLInfo() && (phase === "announce" || phase === "caucus" || phase === "impro"));
+        placerIndicateurs();
         // The stop control only appears once the impro itself starts, so an
         // accidental tap during the intro/announce/caucus can't discard the take.
         var fab = root.querySelector(".defi-stop-fab"); if (fab) fab.hidden = (phase !== "impro");
@@ -904,19 +969,29 @@
         return;
       }
 
-      // ── announce / caucus: top band REC · PHASE (left) + chrono (right) ─
-      var topH = 15 * u;
+      // ── announce / caucus: top band PHASE (left) + chrono (right) ─────
+      /* Le voile qui assombrit la caméra passe EN PREMIER. Il était peint dans les
+         blocs annonce et caucus plus bas, donc APRÈS le bandeau et les pastilles :
+         « ANNONCE », « CAUCUS », le chrono et les pastilles sortaient ternis de
+         moitié, d'un or grisé peu lisible. */
+      g.fillStyle = phase === "announce" ? "rgba(6,4,12,0.5)" : "rgba(6,4,12,0.45)";
+      g.fillRect(0, 0, w, h);
+      // Tailles reprises par placerIndicateurs() : bandeau 17u, libellé 4,2u, chrono 9u.
+      var topH = 17 * u;
       var grd = g.createLinearGradient(0, 0, 0, topH);
-      grd.addColorStop(0, "rgba(6,4,12,0.88)"); grd.addColorStop(1, "rgba(6,4,12,0)");
+      grd.addColorStop(0, "rgba(6,4,12,0.9)"); grd.addColorStop(1, "rgba(6,4,12,0)");
       g.fillStyle = grd; g.fillRect(0, 0, w, topH);
       g.textBaseline = "top"; g.textAlign = "left";
       // Le nom de la phase reste dans la vidéo — il informe le spectateur. Le point
       // rouge et « REC », eux, n'informent que l'improvisateur : ils sont passés à
       // l'écran seul, pour ne jamais apparaître dans le fichier.
-      g.fillStyle = "#e8c766"; g.font = FI(700, 3.4 * u);
-      g.fillText(phaseLabel().toUpperCase(), pad, pad + 0.4 * u);
-      g.textAlign = "right"; g.fillStyle = "#f4d06a"; g.font = FB(9 * u);
+      g.save();
+      g.shadowColor = "rgba(0,0,0,0.75)"; g.shadowBlur = 0.8 * u;   // lisible même sur une image claire
+      g.fillStyle = "#f4d06a"; g.font = FI(700, 4.2 * u);
+      g.fillText(phaseLabel().toUpperCase(), pad, pad + 0.9 * u);
+      g.textAlign = "right"; g.font = FB(9 * u);
       g.fillText(num, w - pad, pad - 0.8 * u);
+      g.restore();
       g.textAlign = "left";
 
       // ── bottom band: info chips ─────────────────────────────────────────
@@ -928,7 +1003,6 @@
 
       // ── announce: the REVEAL — category + explanation + theme, centered ─
       if (phase === "announce") {
-        g.fillStyle = "rgba(6,4,12,0.5)"; g.fillRect(0, 0, w, h);   // dim for readability
         var pw = landscape ? Math.min(w * 0.72, 150 * u) : w - 10 * u;
         var px = (w - pw) / 2, maxTw = pw - 8 * u;
 
@@ -972,7 +1046,6 @@
 
       // ── caucus: big centered countdown + gentle hint ────────────────────
       if (phase === "caucus") {
-        g.fillStyle = "rgba(6,4,12,0.45)"; g.fillRect(0, 0, w, h);
         g.textAlign = "center";
         g.fillStyle = "#e8c766"; g.font = FI(700, 3.2 * u);
         g.fillText(t("defiPhaseCaucus").toUpperCase(), w / 2, h / 2 - 17 * u);
@@ -982,6 +1055,59 @@
         g.fillStyle = "rgba(244,240,230,0.85)"; g.font = FI(500, 3.2 * u);
         g.fillText(t("defiCaucusHint"), w / 2, h / 2 + 13 * u);
         g.textAlign = "left";
+      }
+    }
+
+    /* Indicateurs d'écran placés d'après l'image RÉELLEMENT affichée. Le canvas
+       est en object-fit: contain : selon l'écran et le format, l'image touche les
+       bords ou laisse des bandes noires. Posés à des coordonnées d'écran fixes, le
+       point REC recouvrait le chrono et « le caucus est filmé » butait contre
+       « ANNONCE » dès que l'image remplissait l'écran (paysage). */
+    function rectImage() {
+      var r = canvas.getBoundingClientRect(), sc = Math.min(r.width / canvas.width, r.height / canvas.height);
+      var iw = canvas.width * sc, ih = canvas.height * sc;
+      return { x: r.left + (r.width - iw) / 2, y: r.top + (r.height - ih) / 2, w: iw, h: ih, sc: sc };
+    }
+    function placerIndicateurs() {
+      var dot = root.querySelector(".defi-rec-dot"), note = document.getElementById("defiCaucusNote");
+      if (!dot || !usingCanvas || !canvas || !cctx) return;
+      var im = rectImage(); if (!(im.w > 0 && im.h > 0)) return;
+      var u = Math.min(canvas.width, canvas.height) / 100, s = im.sc, pad = 4 * u, marge = 8;
+      // REC : à sa place, en haut à droite, s'il tient dans une bande noire ;
+      // sinon juste sous le chrono — toujours en haut à droite, jamais dessus.
+      dot.style.top = ""; dot.style.right = "";
+      var rd = dot.getBoundingClientRect(), deplace = false;
+      if (!(rd.bottom + marge <= im.y || rd.left - marge >= im.x + im.w)) {
+        dot.style.top = Math.round(im.y + (pad + 8 * u) * s + marge) + "px";
+        dot.style.right = Math.round(innerWidth - (im.x + im.w) + pad * s) + "px";
+        deplace = true;
+      }
+      // ⓘ : en bas à gauche, dans une bande noire s'il y tient ; sinon relevé
+      // au-dessus des pastilles d'info (annonce, caucus), qu'il recouvrait.
+      var info = root.querySelector('[data-act="info"]');
+      if (info && !info.hidden) {
+        info.style.bottom = "";
+        var ri = info.getBoundingClientRect();
+        if (!(ri.top - marge >= im.y + im.h || ri.right + marge <= im.x)) {
+          info.style.bottom = Math.round(innerHeight - (im.y + (canvas.height - 9 * u) * s) + marge) + "px";
+        }
+      }
+      // « Le caucus est filmé » : dans la rangée du bandeau s'il y tient entre le
+      // nom de la phase et le chrono, sinon sous le bandeau (et sous le REC).
+      if (note && !note.hidden) {
+        note.style.top = "";
+        var nw = note.offsetWidth, nh = note.offsetHeight;
+        cctx.save();
+        cctx.font = FI(700, 4.2 * u); var lw = cctx.measureText(phaseLabel().toUpperCase()).width * s;
+        cctx.font = FB(9 * u); var cw = cctx.measureText("0:00").width * s;
+        cctx.restore();
+        if (im.w / 2 - nw / 2 >= pad * s + Math.max(lw, cw) + 16) {
+          note.style.top = Math.round(im.y + (pad + 3 * u) * s - nh / 2) + "px";
+        } else {
+          var sous = im.y + 17 * u * s + marge;
+          if (deplace) sous = Math.max(sous, dot.getBoundingClientRect().bottom + marge);
+          note.style.top = Math.round(sous) + "px";
+        }
       }
     }
 
