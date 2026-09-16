@@ -1486,3 +1486,36 @@
   color: var(--ink);
 }
 .suite-catalog-tabs button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* ─── Défis : tirage, base communautaire, défi écrit à la main ─────────────── */
+.suite-defi-modes { margin: 0 0 0.9rem; }
+.suite-defi-form { display: flex; flex-direction: column; gap: 0.7rem; }
+.suite-defi-form .suite-input { width: 100%; }
+.suite-defi-players { max-width: 7rem; }
+.suite-defi-err { margin: 0; color: #ef8080; font-size: 0.88rem; }
+.suite-defi-err[hidden] { display: none; }
+.suite-defi-search { width: 100%; margin: 0 0 0.5rem; }
+.suite-defi-note { margin: 0 0 0.5rem; color: var(--ink-faint); font-size: 0.82rem; }
+.suite-defi-ideas { display: flex; flex-direction: column; gap: 0.4rem; margin: 0 0 0.9rem; max-height: min(50vh, 420px); overflow-y: auto; padding-right: 0.2rem; }
+.suite-defi-idea {
+  display: block; width: 100%; text-align: left; cursor: pointer; font: inherit; color: var(--ink);
+  padding: 0.6rem 0.75rem; border-radius: 10px;
+  background: color-mix(in srgb, #ffffff 6%, transparent);
+  border: 1px solid color-mix(in srgb, #ffffff 14%, transparent);
+}
+.suite-defi-idea:hover, .suite-defi-idea.is-on {
+  background: color-mix(in srgb, var(--gold) 16%, transparent);
+  border-color: color-mix(in srgb, var(--gold) 55%, transparent);
+}
+.suite-defi-idea:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.suite-defi-idea-theme { display: block; font-weight: 700; overflow-wrap: anywhere; }
+.suite-defi-idea-meta { display: block; margin-top: 0.2rem; color: var(--ink-muted); font-size: 0.85em; }
+.suite-defi-pending { color: var(--gold-soft); }
+/* Le thème peut être long (saisi à la main) : on le laisse revenir à la ligne
+   au lieu de le tronquer, portrait compris. */
+.suite-defi-v { overflow-wrap: anywhere; }
+/* Description de la contrainte sous son nom, et bloc nom + description groupé. */
+.suite-defi-desc { display: block; margin-top: 0.25rem; color: var(--ink-muted); font-size: 0.86em; line-height: 1.4; font-weight: 400; overflow-wrap: anywhere; }
+.suite-defi-jeu { margin: 0; padding: 0.6rem 0.75rem 0.75rem; border-radius: 10px; display: flex; flex-direction: column; gap: 0.55rem;
+  border: 1px solid color-mix(in srgb, #ffffff 12%, transparent); }
+.suite-defi-jeu legend { padding: 0 0.35rem; font: 600 0.7rem/1.1 "Inter", sans-serif; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-faint); }

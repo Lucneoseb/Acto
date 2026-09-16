@@ -20,8 +20,8 @@
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
 <link rel="manifest" href="/manifest.webmanifest" />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=2026091101" />
-<link rel="stylesheet" href="suite.css?v=2026091101" />
+<link rel="stylesheet" href="styles.css?v=2026091603" />
+<link rel="stylesheet" href="suite.css?v=2026091603" />
 <style>
   .defi-body { min-height: 100svh; }
   .defi-wrap { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.1rem; padding: 1.4rem 1.05rem; text-align: center; }
@@ -93,6 +93,41 @@
   .defi-brand-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem; height: 55vh; }
   .defi-brand-mark { font-family: "Bebas Neue", sans-serif; font-size: clamp(3rem, 16vw, 6rem); letter-spacing: .12em; color: var(--gold); line-height: 1; }
   .defi-brand-sub { font: 600 clamp(0.9rem, 3.5vw, 1.3rem)/1 "Inter", sans-serif; color: var(--ink); letter-spacing: .04em; }
+  /* ── Réglages avant tournage : caméra, miroir, niveau du micro ── */
+  .defi-video.is-mirror { transform: scaleX(-1); }
+  .defi-setup { width: 100%; max-width: 30rem; display: flex; flex-direction: column; gap: 0.55rem; align-items: stretch; }
+  .defi-setup-row { display: flex; align-items: center; gap: 0.6rem; }
+  .defi-setup-row span { font: 600 0.78rem/1 "Inter", sans-serif; color: var(--ink-faint); text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; }
+  .defi-cam-select { flex: 1 1 auto; min-width: 0; }
+  .defi-meter { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.1); overflow: hidden; }
+  .defi-meter span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #4cc38a, #e8c766 70%, #ef6b6b); transition: width .08s linear; }
+  .defi-filmed { color: var(--ink-muted); }
+  /* ── Indicateurs d'écran pendant le tournage : du HTML posé sur le canvas,
+       donc jamais dans le fichier (seul le canvas est enregistré). ── */
+  .defi-rec-dot { position: fixed; top: max(0.8rem, env(safe-area-inset-top)); right: max(0.9rem, env(safe-area-inset-right)); z-index: 70;
+    display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.6rem; border-radius: 999px;
+    background: rgba(0,0,0,0.55); color: #fff; font: 700 0.78rem/1 "Inter", sans-serif; letter-spacing: .08em; pointer-events: none; }
+  .defi-rec-dot span { width: 11px; height: 11px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 0 2px rgba(239,68,68,0.35); animation: defiBlink 1s steps(2, start) infinite; }
+  .defi-caucus-note { position: fixed; left: 50%; top: max(3.4rem, calc(env(safe-area-inset-top) + 2.6rem)); transform: translateX(-50%); z-index: 70;
+    padding: 0.45rem 0.9rem; border-radius: 999px; background: rgba(12,8,20,0.82); border: 1px solid rgba(239,68,68,0.6);
+    color: #fff; font: 600 0.88rem/1.2 "Inter", sans-serif; pointer-events: none; text-align: center; max-width: 90vw; }
+  .defi-caucus-note[hidden] { display: none; }
+  @media (prefers-reduced-motion: reduce) { .defi-rec-dot span { animation: none; } }
+  /* ── Bouton ⓘ et sa fenêtre : écran seulement, jamais dans le fichier ── */
+  .defi-info-fab { position: fixed; left: max(0.9rem, env(safe-area-inset-left)); z-index: 72;
+    bottom: calc(max(1.1rem, env(safe-area-inset-bottom)) + 0.8rem);
+    width: 2.6rem; height: 2.6rem; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.85); background: rgba(0,0,0,0.55);
+    color: #fff; font: italic 700 1.4rem/1 Georgia, "Times New Roman", serif; display: flex; align-items: center; justify-content: center; cursor: pointer;
+    -webkit-tap-highlight-color: transparent; }
+  .defi-info-fab[hidden] { display: none !important; }   /* flex : l'attribut hidden seul ne suffit pas */
+  .defi-info-pop { position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center;
+    padding: 1.2rem; background: rgba(6,4,12,0.72); }
+  .defi-info-card { width: min(28rem, 100%); max-height: 85svh; overflow-y: auto; background: #140d22;
+    border: 1px solid rgba(232,199,102,0.5); border-radius: 16px; padding: 1.2rem 1.2rem 1rem;
+    display: flex; flex-direction: column; gap: 0.5rem; text-align: left; }
+  .defi-info-card .defi-card-title { margin: 0; }
+  .defi-info-desc { margin: 0 0 0.4rem; color: var(--ink); font-size: 1.02rem; line-height: 1.5; overflow-wrap: anywhere; }
+  .defi-info-theme { margin: 0 0 0.5rem; color: #fff; font-weight: 600; font-size: 1.05rem; line-height: 1.4; overflow-wrap: anywhere; }
 </style>
 </head>
 <body class="suite-body defi-body">
@@ -102,13 +137,13 @@
   </div>
 
   <script src="/vendor/supabase-js-2.47.10.min.js" integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"></script>
-  <script src="./js/config.js?v=2026091101"></script>
+  <script src="./js/config.js?v=2026091603"></script>
   <!-- Français en synchrone (repli de t()), langue de l'utilisateur
        chargée à la demande : voir js/suite/locale-loader.js. -->
-  <script src="./data/all-fr.js?v=2026091101"></script>
-  <script src="./js/suite/locale-loader.js?v=2026091101"></script>
-  <script src="./js/suite/i18n-fr.js?v=2026091101"></script>
-  <script src="./js/suite/core.js?v=2026091101"></script>
+  <script src="./data/all-fr.js?v=2026091603"></script>
+  <script src="./js/suite/locale-loader.js?v=2026091603"></script>
+  <script src="./js/suite/i18n-fr.js?v=2026091603"></script>
+  <script src="./js/suite/core.js?v=2026091603"></script>
   <script>
   (function () {
     "use strict";
@@ -144,6 +179,11 @@
     var phase = "", phaseEnd = 0, phaseStart = 0;
     var preTk = null, recActive = false, startLandscape = null;
     var logoImg = null, logoReady = false;
+    // son : micro + signaux de phase, mixés dans UNE piste (voir ensureAudio)
+    var audioCtx = null, micSource = null, mixDest = null, micMeter = null, meterRaf = 0;
+    // caméra : miroir, choix de l'appareil, préférences mémorisées
+    var mirror = true, camFacing = "", camDevices = [];
+    var MIRROR_KEY = "acto-defi-mirror:v1", CAM_KEY = "acto-defi-cam:v1";
 
     function durSec() { var d = data && data.snapshot ? parseInt(data.snapshot.durationSec, 10) : 0; return (d > 0 && d < 3600) ? d : 0; }
     // Caucus length the sender chose: an explicit 0 means "no caucus"; unset → 20s (legacy default).
@@ -197,10 +237,123 @@
     try { window.addEventListener("orientationchange", orientGuard); } catch (e) {}
 
     // ── helpers ─────────────────────────────────────────────────────────
+    /* ── Son ─────────────────────────────────────────────────────────────
+       Mesuré sur un enregistrement de test (fausse caméra, faux micro à 440 Hz) :
+       (1) le micro ÉTAIT dans le fichier, mais en Opus dans un MP4 — le codec que
+           Chrome retient quand on demande « video/mp4 » sans préciser. QuickTime,
+           Safari sur iPhone et la plupart des lecteurs Windows ne décodent pas
+           l'Opus en MP4 : ils montrent l'image et sautent le son sans prévenir.
+           D'où « le record n'a pas de son ». pickMime() exige désormais l'AAC.
+       (2) les signaux de caucus et d'impro n'existaient pas. Et un son joué sur
+           le haut-parleur n'aurait pas suffi : l'annulation d'écho le retire
+           justement du micro. Micro et signaux passent donc par un même graphe
+           Web Audio, dont la sortie EST la piste son du fichier — le résultat ne
+           dépend ni de l'acoustique de la pièce, ni du navigateur. */
+    function ensureAudio() {
+      // Dans un geste utilisateur : iOS et Chrome refusent de créer ou de
+      // reprendre un AudioContext hors d'un clic.
+      try {
+        if (!audioCtx) { var AC = window.AudioContext || window.webkitAudioContext; audioCtx = AC ? new AC() : null; }
+        if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+        if (audioCtx) {   // tampon muet joué dans le geste : débloque la sortie son sur iOS
+          var b = audioCtx.createBuffer(1, 1, 22050), src = audioCtx.createBufferSource();
+          src.buffer = b; src.connect(audioCtx.destination); src.start(0);
+        }
+      } catch (e) { audioCtx = null; }
+      return audioCtx;
+    }
+    function wireMic() {
+      // (Re)branche le micro du flux courant sur le mixeur — appelée à chaque
+      // nouveau flux, un changement de caméra redemandant aussi le micro.
+      if (micSource) { try { micSource.disconnect(); } catch (e) {} micSource = null; }
+      if (!audioCtx || !stream || !stream.getAudioTracks || !stream.getAudioTracks().length) return;
+      try {
+        if (!mixDest) mixDest = audioCtx.createMediaStreamDestination();
+        if (!micMeter) { micMeter = audioCtx.createAnalyser(); micMeter.fftSize = 512; }
+        micSource = audioCtx.createMediaStreamSource(stream);
+        micSource.connect(mixDest);    // vers le fichier
+        micSource.connect(micMeter);   // vers le vu-mètre — JAMAIS vers les haut-parleurs (larsen)
+      } catch (e) { micSource = null; }
+    }
+    function tone(freq, start, dur) {
+      var ac = audioCtx; if (!ac) return;
+      try {
+        var o = ac.createOscillator(), g = ac.createGain();
+        o.type = "sine"; o.frequency.value = freq;
+        o.connect(g);
+        g.connect(ac.destination);          // l'improvisateur l'entend
+        if (mixDest) g.connect(mixDest);    // et il est dans le fichier
+        var t0 = ac.currentTime + start;
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.35, t0 + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+        o.start(t0); o.stop(t0 + dur + 0.03);
+      } catch (e) { /* un signal manqué ne doit jamais casser l'enregistrement */ }
+    }
+    // Mêmes timbres que le direct, où le carillon ascendant signifie « temps écoulé ».
+    // La fin du caucus et le début de l'impro tombent au même instant : un seul
+    // signal « top départ » plutôt que deux sons superposés et confus.
+    function sonDebutCaucus() { tone(880, 0, 0.16); tone(880, 0.22, 0.16); }
+    function sonDebutImpro()  { tone(660, 0, 0.14); tone(990, 0.16, 0.4); }
+    function sonFinImpro()    { tone(660, 0, 0.25); tone(880, 0.28, 0.25); tone(1180, 0.56, 0.45); }
+
+    /* ── Caméra ────────────────────────────────────────────────────────── */
+    function lirePref(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } }
+    function ecrirePref(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+    function pisteVideo() { return stream && stream.getVideoTracks ? stream.getVideoTracks()[0] : null; }
+    function reglagesPiste() { var tr = pisteVideo(); try { return (tr && tr.getSettings && tr.getSettings()) || {}; } catch (e) { return {}; } }
+    function detecterOrientation() {
+      var s = reglagesPiste(), tr = pisteVideo(), f = s.facingMode || "";
+      // Safari ne renseigne pas toujours facingMode : le libellé prend le relais.
+      if (!f && tr && tr.label) f = /back|rear|arri[eè]re|environment/i.test(tr.label) ? "environment" : "";
+      camFacing = f;
+    }
+    function appliquerMiroirParDefaut() {
+      // Préférence mémorisée PAR orientation : se voir en miroir face à soi, mais
+      // pas quand on filme la scène avec la caméra arrière. Webcam de bureau
+      // (orientation inconnue) : miroir, comme dans toutes les visios.
+      var prefs = lirePref(MIRROR_KEY) || {}, cle = (camFacing === "environment") ? "environment" : "user";
+      mirror = (typeof prefs[cle] === "boolean") ? prefs[cle] : (cle === "user");
+    }
+    function listerCameras() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) { camDevices = []; return Promise.resolve(); }
+      // Les libellés ne sont remplis qu'APRÈS l'autorisation : on liste une fois
+      // le premier flux obtenu, jamais avant.
+      return navigator.mediaDevices.enumerateDevices().then(function (l) {
+        camDevices = (l || []).filter(function (d) { return d.kind === "videoinput"; });
+      }, function () { camDevices = []; });
+    }
+    function brancherFlux(st) {
+      stream = st;
+      try { if (camVideo) camVideo.srcObject = st; } catch (e) {}
+      var pv = document.getElementById("defiSetupVideo"); if (pv) { try { pv.srcObject = st; } catch (e) {} }
+      wireMic(); detecterOrientation(); appliquerMiroirParDefaut();
+    }
+    function changerCamera(deviceId) {
+      // iOS n'autorise qu'une capture caméra à la fois : on libère l'ancienne
+      // AVANT de redemander, sinon la nouvelle demande échoue.
+      try { if (stream) stream.getTracks().forEach(function (tr) { tr.stop(); }); } catch (e) {}
+      return navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: deviceId } }, audio: true }).then(function (st) {
+        brancherFlux(st);
+        try { localStorage.setItem(CAM_KEY, deviceId); } catch (e) {}
+        return true;
+      }, function () {
+        // Caméra indisponible : retour à la frontale plutôt qu'un écran noir.
+        return navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true }).then(function (st) {
+          brancherFlux(st); return false;
+        });
+      });
+    }
+
     function clearTimer() { if (tk) { clearInterval(tk); tk = null; } }
     function stopStream() {
       if (rafId) { try { cancelAnimationFrame(rafId); } catch (e) {} rafId = 0; }
+      if (meterRaf) { try { cancelAnimationFrame(meterRaf); } catch (e) {} meterRaf = 0; }
+      if (micSource) { try { micSource.disconnect(); } catch (e) {} micSource = null; }
       try { if (compStream) compStream.getTracks().forEach(function (tr) { tr.stop(); }); } catch (e) {} compStream = null;
+      // compStream portait la piste du mixeur, que tr.stop() vient de tuer pour de
+      // bon : on la recrée à la prise suivante, sinon « Refaire » serait muet.
+      mixDest = null;
       try { if (stream) stream.getTracks().forEach(function (tr) { tr.stop(); }); } catch (e) {} stream = null;
       try { if (camVideo) { camVideo.pause(); camVideo.srcObject = null; } } catch (e) {} camVideo = null;
       canvas = null; cctx = null; usingCanvas = false;
@@ -212,7 +365,17 @@
       var MR = window.MediaRecorder;
       if (!MR || !MR.isTypeSupported) { recMime = ""; recExt = "webm"; return; }
       // Prefer mp4 (widely accepted by share targets / iOS); fall back to webm.
-      var prefs = [["video/mp4", "mp4"], ["video/webm;codecs=vp9,opus", "webm"], ["video/webm;codecs=vp8,opus", "webm"], ["video/webm", "webm"]];
+      // AAC EXIGÉ dans le MP4 : sans précision, Chrome y mettait de l'Opus, que
+      // QuickTime, iOS et les lecteurs Windows ne lisent pas — vidéo muette. Le MP4
+      // générique reste en dernier recours pour Safari, qui y met de l'AAC lui-même.
+      var prefs = [
+        ["video/mp4;codecs=avc1.42E01E,mp4a.40.2", "mp4"],
+        ["video/mp4;codecs=avc1,mp4a.40.2", "mp4"],
+        ["video/webm;codecs=vp9,opus", "webm"],
+        ["video/webm;codecs=vp8,opus", "webm"],
+        ["video/mp4", "mp4"],
+        ["video/webm", "webm"]
+      ];
       for (var i = 0; i < prefs.length; i++) { if (MR.isTypeSupported(prefs[i][0])) { recMime = prefs[i][0]; recExt = prefs[i][1]; return; } }
       recMime = ""; recExt = "webm";
     }
@@ -302,12 +465,22 @@
       clearTimer();             // a redo must never inherit a live sequence timer
       if (preTk) { clearInterval(preTk); preTk = null; }
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { renderCamError(); return; }
+      ensureAudio();            // DANS le clic : plus tard, iOS refuserait de démarrer le son
       renderLoading();
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true }).then(function (st) {
+      // La dernière caméra choisie si elle est encore branchée, sinon la frontale.
+      var memo = ""; try { memo = localStorage.getItem(CAM_KEY) || ""; } catch (e) {}
+      function obtenu(st) {
         stream = st;
-        prepareCompositor();   // camVideo + canvas sizing settle during the pre-roll
-        renderPreRoll();
-      }, function () { renderCamError(); });
+        prepareCompositor();   // camVideo + canvas sizing settle during the setup screen
+        brancherFlux(st);
+        listerCameras().then(function () { renderSetup(); });
+      }
+      navigator.mediaDevices.getUserMedia({ video: memo ? { deviceId: { exact: memo } } : { facingMode: "user" }, audio: true }).then(obtenu, function () {
+        if (!memo) { renderCamError(); return; }
+        // Caméra mémorisée débranchée : on l'oublie et on repart de la frontale.
+        try { localStorage.removeItem(CAM_KEY); } catch (e) {}
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true }).then(obtenu, function () { renderCamError(); });
+      });
     }
 
     // Camera → hidden <video> → sized <canvas>. Done BEFORE recording starts so the
@@ -328,13 +501,94 @@
       });
     }
 
+    /* Écran de réglage, entre l'autorisation et le décompte. Avant, le compte à
+       rebours partait dès l'autorisation : trois secondes pour se cadrer, sans
+       pouvoir changer de caméra ni se voir en miroir, et sans savoir si le micro
+       captait quoi que ce soit. */
+    function renderSetup() {
+      var opts = "", cur = reglagesPiste().deviceId || "";
+      camDevices.forEach(function (d, i) {
+        opts += '<option value="' + esc(d.deviceId) + '"' + (d.deviceId === cur ? " selected" : "") + '>' +
+          esc(d.label || tf("defiCamN", { n: i + 1 })) + '</option>';
+      });
+      view('<div class="defi-kicker">🎬 ' + esc(t("defiGetReady")) + '</div>' +
+        '<div class="defi-stage" id="defiStage"></div>' +
+        '<div class="defi-setup">' +
+          (camDevices.length > 1
+            ? '<label class="defi-setup-row"><span>' + esc(t("defiCamLabel")) + '</span>' +
+                '<select class="suite-input defi-cam-select" data-act="cam">' + opts + '</select></label>'
+            : '') +
+          '<button type="button" class="suite-btn suite-btn-ghost defi-mirror-btn" data-act="mirror"></button>' +
+          '<div class="defi-meter" role="meter" aria-label="' + esc(t("defiMicLevel")) + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="defiMeterBar"></span></div>' +
+          '<p class="defi-note">🎙 ' + esc(t("defiMicHint")) + '</p>' +
+          '<p class="defi-note defi-filmed">🔴 ' + esc(caucusSec() > 0 ? t("defiFilmedWithCaucus") : t("defiFilmed")) + '</p>' +
+        '</div>' +
+        '<div class="defi-actions">' +
+          '<button type="button" class="suite-btn suite-btn-ghost" data-act="cancel">✕ ' + esc(t("commonBack") || "Retour") + '</button>' +
+          '<button type="button" class="suite-btn suite-btn-primary" data-act="ready">🎬 ' + esc(t("defiReady")) + '</button>' +
+        '</div>');
+      var v = document.createElement("video"); v.id = "defiSetupVideo"; v.className = "defi-video"; v.muted = true;
+      v.setAttribute("playsinline", ""); v.setAttribute("autoplay", "");
+      try { v.srcObject = stream; } catch (e) {}
+      document.getElementById("defiStage").appendChild(v);
+
+      var btnMiroir = root.querySelector('[data-act="mirror"]');
+      function peindreMiroir() {
+        v.classList.toggle("is-mirror", mirror);
+        btnMiroir.textContent = "↔ " + t(mirror ? "defiMirrorOn" : "defiMirrorOff");
+        btnMiroir.setAttribute("aria-pressed", mirror ? "true" : "false");
+      }
+      peindreMiroir();
+      btnMiroir.onclick = function () {
+        mirror = !mirror;
+        var prefs = lirePref(MIRROR_KEY) || {};
+        prefs[camFacing === "environment" ? "environment" : "user"] = mirror;
+        ecrirePref(MIRROR_KEY, prefs);
+        peindreMiroir();
+      };
+
+      var sel = root.querySelector('[data-act="cam"]');
+      if (sel) sel.onchange = function () {
+        sel.disabled = true;
+        changerCamera(sel.value).then(function (reussi) {
+          sel.disabled = false;
+          if (!reussi) sel.value = reglagesPiste().deviceId || sel.value;
+          peindreMiroir();          // la nouvelle caméra apporte sa propre préférence de miroir
+        }, function () { sel.disabled = false; renderCamError(); });
+      };
+
+      // Vu-mètre : la seule façon de savoir AVANT de filmer que le micro capte.
+      var ech = new Uint8Array(512), barre = document.getElementById("defiMeterBar"), jauge = root.querySelector(".defi-meter");
+      function mesurer() {
+        if (!barre || !barre.isConnected) { meterRaf = 0; return; }
+        var niveau = 0;
+        if (micMeter) {
+          micMeter.getByteTimeDomainData(ech);
+          var somme = 0; for (var i = 0; i < ech.length; i++) { var x = (ech[i] - 128) / 128; somme += x * x; }
+          niveau = Math.min(100, Math.round(Math.sqrt(somme / ech.length) * 300));
+        }
+        barre.style.width = niveau + "%";
+        if (jauge) jauge.setAttribute("aria-valuenow", String(niveau));
+        meterRaf = requestAnimationFrame(mesurer);
+      }
+      if (meterRaf) cancelAnimationFrame(meterRaf);
+      meterRaf = requestAnimationFrame(mesurer);
+
+      root.querySelector('[data-act="cancel"]').onclick = function () { stopStream(); releaseImmersive(); renderWelcome(); };
+      root.querySelector('[data-act="ready"]').onclick = function () {
+        ensureAudio();   // nouveau geste : le son a pu être suspendu entre-temps
+        if (meterRaf) { cancelAnimationFrame(meterRaf); meterRaf = 0; }
+        renderPreRoll();
+      };
+    }
+
     // 3-2-1 pre-roll: camera live, NOT recording yet — time to get in position.
     function renderPreRoll() {
       view('<div class="defi-kicker">🎬 ' + esc(t("defiGetReady")) + '</div>' +
         '<div class="defi-preroll-n" id="defiPreN">' + PREROLL_SEC + '</div>' +
         '<div class="defi-stage" id="defiStage"></div>' +
         '<button type="button" class="suite-btn suite-btn-ghost" data-act="cancel">✕ ' + esc(t("commonBack") || "Retour") + '</button>');
-      var v = document.createElement("video"); v.className = "defi-video"; v.muted = true;
+      var v = document.createElement("video"); v.className = "defi-video" + (mirror ? " is-mirror" : ""); v.muted = true;
       v.setAttribute("playsinline", ""); v.setAttribute("autoplay", "");
       try { v.srcObject = stream; } catch (e) {}
       document.getElementById("defiStage").appendChild(v);
@@ -363,12 +617,21 @@
       try {
         if (cctx && canvas.captureStream) {
           recStream = canvas.captureStream(30);
-          var at = stream.getAudioTracks && stream.getAudioTracks()[0];
+          // La piste du MIXEUR (micro + signaux) ; le micro brut seulement si
+          // Web Audio est indisponible.
+          var at = (mixDest && mixDest.stream.getAudioTracks()[0]) || (stream.getAudioTracks && stream.getAudioTracks()[0]);
           if (at) recStream.addTrack(at);
           compStream = recStream; usingCanvas = true;
         }
       } catch (e) { recStream = null; compStream = null; usingCanvas = false; }
-      if (!recStream) { recStream = stream; usingCanvas = false; }
+      if (!recStream) {
+        // Sans capture de canvas : image brute de la caméra, mais toujours le son
+        // mixé quand il existe — sinon les signaux manqueraient au fichier.
+        var mt = mixDest && mixDest.stream.getAudioTracks()[0];
+        var vt = stream.getVideoTracks ? stream.getVideoTracks() : [];
+        recStream = (mt && vt.length) ? new MediaStream(vt.concat([mt])) : stream;
+        usingCanvas = false;
+      }
 
       try { recorder = recMime ? new MediaRecorder(recStream, { mimeType: recMime }) : new MediaRecorder(recStream); }
       catch (e) { try { recorder = new MediaRecorder(recStream); } catch (e2) { renderCamError(); return; } }
@@ -387,6 +650,12 @@
       // screen and matches the orientation the recipient locked at launch.
       view('<div class="defi-record-full" id="defiRec">' +
         '<div class="defi-stage" id="defiStage"></div>' +
+        // Indicateurs d'ÉCRAN : du HTML posé par-dessus. Seul le canvas (ou, en
+        // repli, le flux caméra) est enregistré — ils n'apparaissent jamais dans
+        // la vidéo.
+        '<div class="defi-rec-dot" role="status" aria-label="' + esc(t("defiRecording")) + '"><span></span>REC</div>' +
+        '<div class="defi-caucus-note" id="defiCaucusNote" hidden>🔴 ' + esc(t("defiCaucusFilmed")) + '</div>' +
+        '<button type="button" class="defi-info-fab" data-act="info" hidden aria-label="' + esc(t("defiInfoBtn")) + '" title="' + esc(t("defiInfoBtn")) + '">i</button>' +
         (usingCanvas ? '' :
           '<div class="defi-fallback-hud"><div class="defi-phase" id="defiPhase"></div><div class="defi-clock" id="defiClock"></div><div class="defi-fallback-info" id="defiFbInfo"></div></div>') +
         '<button type="button" class="defi-stop-fab" data-act="stop" hidden aria-label="' + esc(t("defiStop")) + '">⏹</button>' +
@@ -396,12 +665,16 @@
       var stage = document.getElementById("defiStage");
       if (usingCanvas) { canvas.className = "defi-video is-live"; canvas.setAttribute("aria-label", "record"); stage.appendChild(canvas); }
       else {
-        var v = document.createElement("video"); v.className = "defi-video"; v.muted = true;
+        // Repli rare (pas de capture de canvas) : seul l'AFFICHAGE est en miroir,
+        // le fichier garde l'image brute de la caméra.
+        var v = document.createElement("video"); v.className = "defi-video" + (mirror ? " is-mirror" : ""); v.muted = true;
         v.setAttribute("playsinline", ""); v.setAttribute("autoplay", "");
         try { v.srcObject = stream; } catch (e) {} stage.appendChild(v);
       }
       root.querySelector('[data-act="stop"]').onclick = finishNow;   // outro logo, then stop
+      root.querySelector('[data-act="info"]').onclick = ouvrirInfo;
 
+      try { if (audioCtx && audioCtx.state === "suspended") audioCtx.resume(); } catch (e) {}
       try { recorder.start(); } catch (e) { renderCamError(); return; }
       recActive = true;
       startLandscape = innerWidth >= innerHeight;   // soft orientation lock reference
@@ -449,6 +722,14 @@
         clearTimer();
         if (i >= seq.length) { finishNow(); return; }   // impro done → outro logo → stop
         var ph = seq[i++]; phase = ph.name; phaseEnd = 0; phaseStart = 0;
+        // Signaux de phase — dans le haut-parleur ET dans le fichier.
+        if (phase === "caucus") sonDebutCaucus();
+        else if (phase === "impro") sonDebutImpro();
+        // Pendant l'annonce, on prévient que le caucus qui suit sera filmé.
+        var note = document.getElementById("defiCaucusNote");
+        if (note) note.hidden = !(phase === "announce" && caucusSec() > 0);
+        var info = root.querySelector('[data-act="info"]');
+        if (info) info.hidden = !(aDeLInfo() && (phase === "announce" || phase === "caucus" || phase === "impro"));
         // The stop control only appears once the impro itself starts, so an
         // accidental tap during the intro/announce/caucus can't discard the take.
         var fab = root.querySelector(".defi-stop-fab"); if (fab) fab.hidden = (phase !== "impro");
@@ -473,6 +754,7 @@
       if (phase === "outro") { stopRecording(); return; }
       if (phase !== "impro") return;   // stop only ends the performance — never the intro/announce/caucus
       clearTimer();
+      sonFinImpro();   // fin d'impro, qu'elle soit naturelle ou provoquée par ⏹
       phase = "outro"; phaseStart = 0; phaseEnd = Date.now() + LOGO_SEC * 1000;
       paintClock(0);                   // clear the fallback HUD's stale "IMPRO"/red 0:00 before the outro card
       tk = setInterval(function () { if (Date.now() >= phaseEnd) { clearTimer(); stopRecording(); } }, 100);
@@ -491,7 +773,13 @@
     function drawCover(g, v, w, h) {
       var vw = v.videoWidth || w, vh = v.videoHeight || h;
       var scale = Math.max(w / vw, h / vh), dw = vw * scale, dh = vh * scale;
+      if (!mirror) { g.drawImage(v, (w - dw) / 2, (h - dh) / 2, dw, dh); return; }
+      // Miroir de la SEULE image caméra : l'incrustation (annonce, chrono) est
+      // dessinée après, hors de cette transformation — son texte reste lisible.
+      // Le fichier montre ce que l'improvisateur a vu : aucune surprise au visionnage.
+      g.save(); g.translate(w, 0); g.scale(-1, 1);
       g.drawImage(v, (w - dw) / 2, (h - dh) / 2, dw, dh);
+      g.restore();
     }
     /* ── overlay drawing toolkit ─────────────────────────────────────────
        All sizes derive from u = min(w,h)/100, so the design keeps the same
@@ -590,16 +878,28 @@
       // ── impro: MINIMAL — no "REC · IMPRO"; catégorie + thème in the corner,
       //    a discreet chrono top-right. The performance stays unobstructed. ──
       if (phase === "impro") {
-        var tH = 10 * u;
-        var gg = g.createLinearGradient(0, 0, 0, tH); gg.addColorStop(0, "rgba(6,4,12,0.66)"); gg.addColorStop(1, "rgba(6,4,12,0)");
+        /* Catégorie et thème partageaient UNE ligne tronquée : en portrait, le thème
+           disparaissait presque entièrement derrière la catégorie. La catégorie
+           garde sa ligne, le thème revient à la ligne (2 en paysage, 3 en portrait),
+           et le bandeau grandit d'autant. La place du chrono est réservée à droite. */
+        g.font = FB(6.5 * u);
+        var chronoW = num ? g.measureText(num).width + 3 * u : 0;
+        var maxL = w - 2 * pad - chronoW, fpx = landscape ? 3.3 * u : 3.8 * u, lhI = fpx * 1.3;
+        g.font = FI(600, fpx);
+        var lignesI = [];
+        if (s.category) lignesI.push(ellipsize(g, "🏷 " + s.category, maxL));
+        if (s.theme) wrapLines(g, "🎭 " + s.theme, maxL, landscape ? 2 : 3).forEach(function (l) { lignesI.push(l); });
+        var tH = pad + lignesI.length * lhI + 5 * u;
+        var gg = g.createLinearGradient(0, 0, 0, tH); gg.addColorStop(0, "rgba(6,4,12,0.78)"); gg.addColorStop(0.7, "rgba(6,4,12,0.45)"); gg.addColorStop(1, "rgba(6,4,12,0)");
         g.fillStyle = gg; g.fillRect(0, 0, w, tH);
         g.textBaseline = "top"; g.textAlign = "left";
-        g.fillStyle = "#ef5b5b"; g.beginPath(); g.arc(pad + 1.2 * u, pad + 1.7 * u, 1.1 * u, 0, 7); g.fill();
-        var parts = [];
-        if (s.category) parts.push("🏷 " + s.category);
-        if (s.theme) parts.push("🎭 " + s.theme);
-        g.fillStyle = "rgba(255,255,255,0.94)"; g.font = FI(600, 3 * u);
-        g.fillText(ellipsize(g, parts.join("   ·   "), w - 20 * u), pad + 3.2 * u, pad + 0.1 * u);
+        g.save();
+        g.shadowColor = "rgba(0,0,0,0.7)"; g.shadowBlur = 0.8 * u;   // lisible même sur une image claire
+        g.fillStyle = "rgba(255,255,255,0.97)"; g.font = FI(600, fpx);
+        for (var li = 0; li < lignesI.length; li++) g.fillText(lignesI[li], pad, pad + 0.1 * u + li * lhI);
+        g.restore();
+        // Pas de point rouge gravé : l'indicateur d'enregistrement est du HTML posé
+        // sur l'écran, absent du fichier (voir .defi-rec-dot).
         if (num) { g.textAlign = "right"; g.fillStyle = low ? "#ef6b6b" : "#f4d06a"; g.font = FB(6.5 * u); g.fillText(num, w - pad, pad - 0.6 * u); g.textAlign = "left"; }
         return;
       }
@@ -610,11 +910,11 @@
       grd.addColorStop(0, "rgba(6,4,12,0.88)"); grd.addColorStop(1, "rgba(6,4,12,0)");
       g.fillStyle = grd; g.fillRect(0, 0, w, topH);
       g.textBaseline = "top"; g.textAlign = "left";
-      g.fillStyle = "#ef5b5b"; g.beginPath(); g.arc(pad + 1.4 * u, pad + 2 * u, 1.3 * u, 0, 7); g.fill();
-      g.fillStyle = "rgba(255,255,255,0.92)"; g.font = FI(700, 3.4 * u);
-      g.fillText("REC", pad + 3.4 * u, pad + 0.4 * u);
+      // Le nom de la phase reste dans la vidéo — il informe le spectateur. Le point
+      // rouge et « REC », eux, n'informent que l'improvisateur : ils sont passés à
+      // l'écran seul, pour ne jamais apparaître dans le fichier.
       g.fillStyle = "#e8c766"; g.font = FI(700, 3.4 * u);
-      g.fillText("·  " + phaseLabel().toUpperCase(), pad + 3.4 * u + g.measureText("REC").width + 1.2 * u, pad + 0.4 * u);
+      g.fillText(phaseLabel().toUpperCase(), pad, pad + 0.4 * u);
       g.textAlign = "right"; g.fillStyle = "#f4d06a"; g.font = FB(9 * u);
       g.fillText(num, w - pad, pad - 0.8 * u);
       g.textAlign = "left";
@@ -632,10 +932,19 @@
         var pw = landscape ? Math.min(w * 0.72, 150 * u) : w - 10 * u;
         var px = (w - pw) / 2, maxTw = pw - 8 * u;
 
-        g.font = FB(9.5 * u);  var titleLines = wrapLines(g, s.title || "", maxTw, 2);
+        // Sans catégorie, le titre retombait sur le thème : il s'affichait deux fois,
+        // dont une sous l'étiquette « Catégorie ».
+        var titreAff = (!s.category && s.title === s.theme) ? t("freeCategory") : (s.title || "");
+        g.font = FB(9.5 * u);  var titleLines = wrapLines(g, titreAff, maxTw, 2);
         g.font = FI(400, 3.4 * u); var descLines = wrapLines(g, s.subtitle || "", maxTw, landscape ? 3 : 4);
+        /* Le thème est ce que les jouteurs doivent retenir. Il était tronqué sur une
+           seule ligne, en petit : en portrait, la largeur manquant, un thème un peu
+           long était coupé dès les premiers mots. Plusieurs lignes, jamais tronqué
+           avant la limite, et plus gros en portrait. */
+        var themePx = landscape ? 4.8 * u : 5.8 * u, lhTh = themePx * 1.28;
+        g.font = FI(600, themePx); var themeLines = s.theme ? wrapLines(g, s.theme, maxTw, landscape ? 3 : 4) : [];
         var lhT = 10 * u, lhD = 4.6 * u;
-        var blocks = 6 * u + titleLines.length * lhT + (descLines.length ? 2 * u + descLines.length * lhD : 0) + (s.theme ? 8.5 * u : 0) + 6 * u;
+        var blocks = 6 * u + titleLines.length * lhT + (descLines.length ? 2 * u + descLines.length * lhD : 0) + (themeLines.length ? 6.2 * u + themeLines.length * lhTh : 0) + 6 * u;
         var ph2 = blocks + 4 * u, py = (h - ph2) / 2;
 
         g.fillStyle = "rgba(8,5,16,0.82)"; rrect(g, px, py, pw, ph2, 3 * u); g.fill();
@@ -651,12 +960,12 @@
           g.fillStyle = "rgba(244,240,230,0.92)"; g.font = FI(400, 3.4 * u);
           for (var j = 0; j < descLines.length; j++) { g.fillText(descLines[j], w / 2, y); y += lhD; }
         }
-        if (s.theme) {
+        if (themeLines.length) {
           y += 2 * u;
           g.fillStyle = "#e8c766"; g.font = FI(700, 2.8 * u);
           g.fillText(t("defiThemeLabel").toUpperCase(), w / 2, y); y += 4.2 * u;
-          g.fillStyle = "#ffffff"; g.font = FI(600, 4.4 * u);
-          g.fillText(ellipsize(g, s.theme, maxTw), w / 2, y);
+          g.fillStyle = "#ffffff"; g.font = FI(600, themePx);
+          for (var k = 0; k < themeLines.length; k++) { g.fillText(themeLines[k], w / 2, y); y += lhTh; }
         }
         g.textAlign = "left";
       }
@@ -684,12 +993,41 @@
       stopStream();   // release the camera/mic as soon as we stop
     }
 
+    /* Fenêtre ⓘ : la description de la contrainte ou de l'exercice, relisible à
+       tout moment une fois l'épreuve révélée — la carte d'annonce ne reste que
+       10 secondes, et coupe une description trop longue. Du HTML posé sur
+       l'écran : elle n'apparaît jamais dans la vidéo. Jamais proposée AVANT la
+       révélation non plus, pour ne rien divulgâcher. */
+    function aDeLInfo() { var s = (data && data.snapshot) || {}; return !!String(s.subtitle || "").trim(); }
+    function ouvrirInfo() {
+      var deja = document.getElementById("defiInfoPop"); if (deja) { deja.remove(); return; }
+      var s = (data && data.snapshot) || {};
+      var pop = document.createElement("div");
+      pop.id = "defiInfoPop"; pop.className = "defi-info-pop";
+      pop.setAttribute("role", "dialog"); pop.setAttribute("aria-modal", "true"); pop.setAttribute("aria-label", t("defiInfoBtn"));
+      pop.innerHTML = '<div class="defi-info-card">' +
+        '<div class="defi-kicker">' + esc(t("defiCategoryLabel")) + '</div>' +
+        '<h2 class="defi-card-title">' + esc(s.category || s.title || "") + '</h2>' +
+        (s.subtitle ? '<p class="defi-info-desc">' + esc(s.subtitle) + '</p>' : '') +
+        (s.theme ? '<div class="defi-kicker">' + esc(t("defiThemeLabel")) + '</div><p class="defi-info-theme">' + esc(s.theme) + '</p>' : '') +
+        '<button type="button" class="suite-btn suite-btn-primary" data-act="info-close">' + esc(t("commonClose")) + '</button>' +
+      '</div>';
+      (document.getElementById("defiRec") || document.body).appendChild(pop);
+      function fermer() { pop.remove(); }
+      pop.addEventListener("click", function (e) {
+        if (e.target === pop || (e.target.getAttribute && e.target.getAttribute("data-act") === "info-close")) fermer();
+      });
+      pop.addEventListener("keydown", function (e) { if (e.key === "Escape") fermer(); });
+      try { pop.querySelector('[data-act="info-close"]').focus(); } catch (e) {}
+    }
+
     function renderPreview() {
       revoke();
       blobUrl = URL.createObjectURL(blob);
       view('<div class="defi-kicker">🎬 ' + esc(epTitle()) + '</div>' +
         '<h1 class="defi-title">' + esc(t("defiPreviewTitle")) + '</h1>' +
         '<video class="defi-video is-preview" src="' + blobUrl + '" controls playsinline></video>' +
+        (aDeLInfo() ? '<button type="button" class="suite-btn suite-btn-ghost" data-act="info">ⓘ ' + esc(t("defiInfoBtn")) + '</button>' : '') +
         '<div class="defi-actions">' +
           '<button type="button" class="suite-btn suite-btn-ghost" data-act="redo">↻ ' + esc(t("defiRedo")) + '</button>' +
           '<button type="button" class="suite-btn suite-btn-primary" data-act="send">📤 ' + esc(t("defiSend")) + '</button>' +
@@ -698,6 +1036,7 @@
       // Redo is a real click gesture → the retake gets the same lock as the first take.
       root.querySelector('[data-act="redo"]').onclick = function () { tryImmersive(); startRealize(); };
       root.querySelector('[data-act="send"]').onclick = doSend;
+      var infoApercu = root.querySelector('[data-act="info"]'); if (infoApercu) infoApercu.onclick = ouvrirInfo;
     }
 
     function fileName() { return "defi-" + slug(epTitle()) + "." + recExt; }

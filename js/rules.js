@@ -23,7 +23,7 @@
     </ul>
   </li>
   <li><strong>Le titre (le thème)</strong> — le sujet de l'improvisation.</li>
-  <li><strong>Le nombre de joueurs</strong> — souvent « libre » (toute l'équipe), parfois restreint (« deux par équipe »).</li>
+  <li><strong>Le nombre de jouteurs</strong> — souvent « libre » (toute l'équipe), parfois restreint (« deux par équipe »).</li>
   <li><strong>La catégorie (ou contrainte de style)</strong> — le style théâtral imposé (souvent « libre »).</li>
   <li><strong>La durée</strong> — généralement entre 2 et 5 minutes, parfois plus.</li>
 </ol>
@@ -40,7 +40,7 @@
   <li><strong>Muette</strong> — interdiction absolue de parler. Tout passe par le mime et le corps.</li>
   <li><strong>Grommelot (sans frontières)</strong> — langue inventée, mais l'intention reste compréhensible.</li>
   <li><strong>Abécédaire</strong> — chaque réplique commence par la lettre suivante de l'alphabet.</li>
-  <li><strong>Fusillade</strong> — souvent sans caucus ; chaque joueur fait un gag de 10 secondes sur un thème donné.</li>
+  <li><strong>Fusillade</strong> — souvent sans caucus ; chaque jouteur fait un gag de 10 secondes sur un thème donné.</li>
 </ul>
 
 <h3>Les thèmes (titres)</h3>
@@ -56,7 +56,7 @@
 <p>L'arbitre, sifflet et maillot rayé, est le maître du jeu. Trois fautes accumulées par une équipe donnent un point à l'équipe adverse. Les plus courantes :</p>
 <ul>
   <li><strong>Cliché</strong> — blague connue, jeu de mots facile, situation vue mille fois.</li>
-  <li><strong>Cabotinage</strong> — un joueur « fait le show » au détriment de l'histoire et de ses partenaires.</li>
+  <li><strong>Cabotinage</strong> — un jouteur « fait le show » au détriment de l'histoire et de ses partenaires.</li>
   <li><strong>Décrochage</strong> — sortir de son personnage (par exemple éclater de rire d'une réplique du partenaire).</li>
   <li><strong>Refus de personnage / Refus d'idée</strong> — l'autre dit « voilà ton épée », tu réponds « non, c'est un parapluie ». Tu refuses la proposition imposée.</li>
   <li><strong>Confusion</strong> — l'histoire devient incompréhensible.</li>

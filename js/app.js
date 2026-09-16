@@ -3572,7 +3572,7 @@
         value: state.currentTheme
       });
       if (state.currentPlayers) items.push({
-        label: (t.cardPlayers || "Joueurs").toUpperCase(),
+        label: (t.cardPlayers || "Jouteurs").toUpperCase(),
         value: state.currentPlayers
       });
       if (ex.name) items.push({
@@ -3830,7 +3830,7 @@
       }
       if (state.currentPlayers) {
         items.push({ key: "players",
-          label: (t.cardPlayers || "Joueurs").toUpperCase(),
+          label: (t.cardPlayers || "Jouteurs").toUpperCase(),
           value: state.currentPlayers,
           color: REC_COLORS.constraint });
       }

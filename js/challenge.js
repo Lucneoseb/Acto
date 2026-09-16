@@ -137,8 +137,13 @@
   }
 
   /* ---- create flow ------------------------------------------------------- */
-  function open(snapshot) {
+  /* opts.onCreated(snapshot) : appelé une fois le défi RÉELLEMENT créé, avec les
+     réglages finaux de l'envoyeur. La section Défis s'en sert pour proposer à la
+     communauté un défi écrit à la main — jamais à la simple ouverture de cette
+     modale, qu'on peut encore annuler. */
+  function open(snapshot, opts) {
     snapshot = snapshot || {};
+    opts = opts || {};
     if (!sbc()) { toast(T("challengeNeedLogin")); return; }
     var recipient = null;   // {id, label}
 
@@ -256,6 +261,9 @@
         if (res && res.error) { createBtn.disabled = false; createBtn.textContent = "🔗 " + T("challengeCreate"); toast(T("challengeErr")); return; }
         var token = res && res.data; if (!token) { createBtn.disabled = false; createBtn.textContent = "🔗 " + T("challengeCreate"); toast(T("challengeErr")); return; }
         ui.close();
+        if (typeof opts.onCreated === "function") {
+          try { opts.onCreated(snapshot); } catch (e) { /* le défi est créé : un rappel fautif ne doit pas le masquer */ }
+        }
         renderShare(String(token));
       }, function () { createBtn.disabled = false; createBtn.textContent = "🔗 " + T("challengeCreate"); toast(T("challengeErr")); });
     };

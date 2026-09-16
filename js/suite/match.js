@@ -676,7 +676,12 @@
         opts += '<option' + (seg.theme === th ? " selected" : "") + '>' + esc(th) + '</option>';
       });
     } else if (field === "players") {
-      ((d.players && d.players[current.level]) || []).forEach(function (p) {
+      var choixJ = ((d.players && d.players[current.level]) || []).slice();
+      /* Les valeurs tirées disent désormais « jouteurs ». Une séance enregistrée
+         avant garde son « 2 joueurs » : sans cet ajout, le menu ne la trouvait
+         pas et le moindre passage dessus l'écrasait. */
+      if (seg.players && choixJ.indexOf(seg.players) < 0) choixJ.unshift(seg.players);
+      choixJ.forEach(function (p) {
         opts += '<option' + (seg.players === p ? " selected" : "") + '>' + esc(p) + '</option>';
       });
     } else if (field === "duration") {

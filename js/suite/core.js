@@ -448,6 +448,10 @@
   var _valides = [];        // user_submissions approuvées
   var _caches  = [];        // bundled_hidden_items
   var _fusion  = {};        // langue -> données réconciliées
+  /* Noms des thèmes et catégories encore EN ATTENTE de validation. Un thème est
+     une simple chaîne dans le pool : il ne peut pas porter de drapeau lui-même,
+     on tient donc la liste à part pour que l'interface puisse le marquer ✳. */
+  var _attente = { theme: {}, category: {}, constraint: {} };
 
   function poolAjout(cible, e) {
     var texte = String(e.text || "").trim();
@@ -527,6 +531,7 @@
 
   function reconcilierPool() {
     var loc = _locale, brut = BUNDLE.data[loc];
+    _attente = { theme: {}, category: {}, constraint: {} };
     if (!brut) return;
     var ajoutsLocaux = listeLocale("acto-user-added:v1");
     var retraitsLocaux = listeLocale("acto-user-hidden:v1");
@@ -540,7 +545,14 @@
     try { cible = JSON.parse(JSON.stringify(brut)); } catch (e) { return; }
     var n = 0, r = 0;
     function pourCetteLangue(e) { return e && (!e.locale || e.locale === loc); }
-    _valides.forEach(function (s) { if (pourCetteLangue(s)) n += poolAjout(cible, s); });
+    _valides.forEach(function (s) {
+      if (!pourCetteLangue(s)) return;
+      var ajoute = poolAjout(cible, s);
+      n += ajoute;
+      // En attente ET réellement nouveau : si le même nom existe déjà (livré ou
+      // validé), c'est la version publique qui compte et il n'y a rien à marquer.
+      if (ajoute && s._pending && _attente[s.kind]) _attente[s.kind][cleNom(s.text)] = true;
+    });
     _caches.forEach(function (h) { if (pourCetteLangue(h)) r += poolRetrait(cible, h); });
     ajoutsLocaux.forEach(function (a) { if (a && a.locale === loc) n += poolAjout(cible, a); });
     retraitsLocaux.forEach(function (h) { if (h && h.locale === loc) r += poolRetrait(cible, h); });
@@ -630,6 +642,15 @@
      servir dans la foulée — c'est tout l'intérêt de proposer depuis l'éditeur. */
   function ajouterEnAttente(type, item) {
     if (!item || !item.name) return false;
+    if (type === "theme" || type === "category" || type === "constraint") {
+      // Une contrainte a besoin d'un mode ET d'un niveau pour entrer dans le pool :
+      // celles des défis rejoignent le pool « match », là où le tirage de défi pioche.
+      _valides.push({ kind: type, mode: (type === "constraint") ? (item.mode || "match") : null,
+                      level: (type === "category") ? null : (item.level || "debutant"),
+                      text: item.name, description: item.desc || "", locale: _locale, _pending: true });
+      reconcilierPool();
+      return true;
+    }
     if (type === "warmup") {
       if (!_warmups) return false;
       if (_warmups.some(function (w) { return cleNom(w.name) === cleNom(item.name); })) return false;
@@ -653,6 +674,7 @@
   function estEnAttente(field, nom, level) {
     var k = cleNom(nom);
     if (!k) return false;
+    if (_attente[field]) return !!_attente[field][k];
     if (field === "warmup") {
       return (_warmups || []).some(function (w) { return cleNom(w.name) === k && w._pending; });
     }

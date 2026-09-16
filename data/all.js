@@ -95,14 +95,14 @@ window.IMPRO_BUNDLE = {
       "cardConstraint": "Contrainte",
       "cardTheme": "Thème",
       "cardDuration": "Durée",
-      "cardPlayers": "Joueurs",
+      "cardPlayers": "Jouteurs",
       "rerollLabel": "Pas convaincu ? Re-tire :",
       "rerollExercise": "Exercice",
       "rerollConstraint": "Contrainte",
       "rerollTheme": "Thème",
       "rerollCategory": "Catégorie",
       "rerollDuration": "Durée",
-      "rerollPlayers": "Joueurs",
+      "rerollPlayers": "Jouteurs",
       "placeholder": "Clique sur Générer",
       "emDash": "—",
       "footer": "Fait avec ♥ pour la communauté de l'impro",
@@ -2433,7 +2433,7 @@ window.IMPRO_BUNDLE = {
           "debutant": [
             {
               "name": "Le miroir",
-              "desc": "Deux joueurs face à face. L'un fait des mouvements lents, l'autre l'imite en miroir parfait. On accélère progressivement. (Tadam Impro)",
+              "desc": "Deux jouteurs face à face. L'un fait des mouvements lents, l'autre l'imite en miroir parfait. On accélère progressivement. (Tadam Impro)",
               "minPlayers": 2,
               "maxPlayers": 2
             },
@@ -2463,7 +2463,7 @@ window.IMPRO_BUNDLE = {
             },
             {
               "name": "Conversation bizarre",
-              "desc": "Deux joueurs improvisent une situation décalée : oiseau qui explique l'arbre à un autre oiseau, puce qui se dispute avec un chien. (Tadam Impro)",
+              "desc": "Deux jouteurs improvisent une situation décalée : oiseau qui explique l'arbre à un autre oiseau, puce qui se dispute avec un chien. (Tadam Impro)",
               "minPlayers": 2,
               "maxPlayers": 2
             },
@@ -2475,7 +2475,7 @@ window.IMPRO_BUNDLE = {
             },
             {
               "name": "L'objet imaginaire",
-              "desc": "Un joueur manipule un objet invisible. Les autres devinent et le relancent en y ajoutant un usage.",
+              "desc": "Un jouteur manipule un objet invisible. Les autres devinent et le relancent en y ajoutant un usage.",
               "minPlayers": 2,
               "maxPlayers": 99
             },
@@ -2488,20 +2488,20 @@ window.IMPRO_BUNDLE = {
             },
             {
               "name": "Cercle de questions",
-              "desc": "Un joueur au centre du cercle. Les autres lui posent des questions en rafale. Il répond précisément à chacune. (Dramaction)",
+              "desc": "Un jouteur au centre du cercle. Les autres lui posent des questions en rafale. Il répond précisément à chacune. (Dramaction)",
               "needsAudience": true,
               "minPlayers": 4,
               "maxPlayers": 99
             },
             {
               "name": "Émotions sur commande",
-              "desc": "Le meneur lance une émotion. Les joueurs basculent immédiatement et la justifient en scène.",
+              "desc": "Le meneur lance une émotion. Les jouteurs basculent immédiatement et la justifient en scène.",
               "minPlayers": 3,
               "maxPlayers": 99
             },
             {
               "name": "La machine humaine",
-              "desc": "Un par un, les joueurs entrent et ajoutent un geste/son répétitif. La machine se construit organiquement.",
+              "desc": "Un par un, les jouteurs entrent et ajoutent un geste/son répétitif. La machine se construit organiquement.",
               "minPlayers": 3,
               "maxPlayers": 99
             },
@@ -2525,19 +2525,19 @@ window.IMPRO_BUNDLE = {
             },
             {
               "name": "Trois personnages",
-              "desc": "Trois joueurs entrent et campent leur personnage en moins de 30 secondes, juste par la posture et la voix.",
+              "desc": "Trois jouteurs entrent et campent leur personnage en moins de 30 secondes, juste par la posture et la voix.",
               "minPlayers": 3,
               "maxPlayers": 3
             },
             {
               "name": "Émotion qui passe",
-              "desc": "Un joueur transmet une émotion en silence à son voisin par un geste, qui la transmet à son tour. (Dramaction)",
+              "desc": "Un jouteur transmet une émotion en silence à son voisin par un geste, qui la transmet à son tour. (Dramaction)",
               "minPlayers": 3,
               "maxPlayers": 99
             },
             {
               "name": "Le Freeze",
-              "desc": "Deux joueurs improvisent depuis une posture. À tout moment, un autre tape dans ses mains pour figer la scène et remplacer un joueur. (Impro-Exo)",
+              "desc": "Deux jouteurs improvisent depuis une posture. À tout moment, un autre tape dans ses mains pour figer la scène et remplacer un jouteur. (Impro-Exo)",
               "minPlayers": 3,
               "maxPlayers": 99
             },
@@ -2549,14 +2549,14 @@ window.IMPRO_BUNDLE = {
             },
             {
               "name": "Conversation à émotion changeante",
-              "desc": "Une conversation en duo. Toutes les 1-2 minutes, un meneur crie une émotion. Les joueurs basculent. (MentorShow)",
+              "desc": "Une conversation en duo. Toutes les 1-2 minutes, un meneur crie une émotion. Les jouteurs basculent. (MentorShow)",
               "needsAudience": true,
               "minPlayers": 2,
               "maxPlayers": 2
             },
             {
               "name": "Mixte",
-              "desc": "Tous les joueurs de la troupe entrent ensemble et jouent le thème sans découpage en équipes. (Catégorie match adaptée)",
+              "desc": "Tous les jouteurs de la troupe entrent ensemble et jouent le thème sans découpage en équipes. (Catégorie match adaptée)",
               "minPlayers": 4,
               "maxPlayers": 99
             },
@@ -2601,7 +2601,7 @@ window.IMPRO_BUNDLE = {
             },
             {
               "name": "Doublage",
-              "desc": "Deux joueurs miment, deux autres parlent pour eux depuis l'extérieur du plateau.",
+              "desc": "Deux jouteurs miment, deux autres parlent pour eux depuis l'extérieur du plateau.",
               "minPlayers": 4,
               "maxPlayers": 4
             },
@@ -2668,13 +2668,13 @@ window.IMPRO_BUNDLE = {
             },
             {
               "name": "Le retour au passé",
-              "desc": "À un moment-clé, un joueur tape dans ses mains. La scène revient 1 minute en arrière et se rejoue différemment.",
+              "desc": "À un moment-clé, un jouteur tape dans ses mains. La scène revient 1 minute en arrière et se rejoue différemment.",
               "minPlayers": 2,
               "maxPlayers": 6
             },
             {
               "name": "Le personnage tiré",
-              "desc": "Chaque joueur tire un type de personnage (clown, séducteur, paranoïaque) qu'il doit jouer sans le nommer.",
+              "desc": "Chaque jouteur tire un type de personnage (clown, séducteur, paranoïaque) qu'il doit jouer sans le nommer.",
               "minPlayers": 2,
               "maxPlayers": 8
             },
@@ -2716,7 +2716,7 @@ window.IMPRO_BUNDLE = {
             },
             {
               "name": "Saute-mouton",
-              "desc": "Quatre impros différentes, un thème par impro. La 1ʳᵉ avec un joueur, on en ajoute un à chaque impro suivante. (Dramaction)",
+              "desc": "Quatre impros différentes, un thème par impro. La 1ʳᵉ avec un jouteur, on en ajoute un à chaque impro suivante. (Dramaction)",
               "minPlayers": 4,
               "maxPlayers": 4
             },
@@ -2736,7 +2736,7 @@ window.IMPRO_BUNDLE = {
             },
             {
               "name": "La Boule de feu",
-              "desc": "Tous les joueurs sur scène. À chaque temps fort, un duo se détache pour une mini-scène, puis revient au groupe.",
+              "desc": "Tous les jouteurs sur scène. À chaque temps fort, un duo se détache pour une mini-scène, puis revient au groupe.",
               "minPlayers": 4,
               "maxPlayers": 99
             },
@@ -2748,7 +2748,7 @@ window.IMPRO_BUNDLE = {
             },
             {
               "name": "Le monologue partagé",
-              "desc": "Un long monologue est repris par chaque joueur, qui le déforme et l'enrichit en assumant le même personnage.",
+              "desc": "Un long monologue est repris par chaque jouteur, qui le déforme et l'enrichit en assumant le même personnage.",
               "minPlayers": 2,
               "maxPlayers": 8
             },
@@ -2923,7 +2923,7 @@ window.IMPRO_BUNDLE = {
             },
             {
               "name": "Mixte par phrases",
-              "desc": "Les joueurs ne peuvent parler que par phrases entières et complètes — pas d'interruption.",
+              "desc": "Les jouteurs ne peuvent parler que par phrases entières et complètes — pas d'interruption.",
               "minPlayers": 2,
               "maxPlayers": 8
             },
@@ -3275,7 +3275,7 @@ window.IMPRO_BUNDLE = {
         },
         {
           "name": "Saute-mouton",
-          "desc": "Quatre improvisations différentes, un thème par impro. La 1ʳᵉ avec un joueur, on en ajoute un à chaque impro suivante. (Dramaction)",
+          "desc": "Quatre improvisations différentes, un thème par impro. La 1ʳᵉ avec un jouteur, on en ajoute un à chaque impro suivante. (Dramaction)",
           "minPlayers": 4,
           "maxPlayers": 4
         },
@@ -3329,25 +3329,25 @@ window.IMPRO_BUNDLE = {
       },
       "players": {
         "debutant": [
-          "1 joueur",
-          "2 joueurs",
-          "3 joueurs",
+          "1 jouteur",
+          "2 jouteurs",
+          "3 jouteurs",
           "Toute l'équipe"
         ],
         "confirme": [
-          "1 joueur",
-          "2 joueurs",
-          "3 joueurs",
-          "4 joueurs",
+          "1 jouteur",
+          "2 jouteurs",
+          "3 jouteurs",
+          "4 jouteurs",
           "Toute l'équipe",
           "Capitaine seul"
         ],
         "expert": [
-          "1 joueur",
-          "2 joueurs",
+          "1 jouteur",
+          "2 jouteurs",
           "Mixte 1 + 1",
           "Mixte 2 + 2",
-          "3 joueurs imposés",
+          "3 jouteurs imposés",
           "Toute l'équipe",
           "Capitaine + 1"
         ]
