@@ -504,7 +504,8 @@
     defiGameDescPh: "Ex. : Mimer l'action avec les bras placés près du corps, comme un T-Rex",
     defiGameDescRequired: "Décris la contrainte : la personne qui reçoit le défi doit comprendre comment jouer.",
     defiInfoBtn: "Infos sur la contrainte",
-    defiNoNature: "Un défi se joue sans équipe adverse : choisis une contrainte ou un exercice, pas une Mixte ni une Comparée."
+    defiNoNature: "Un défi se joue sans équipe adverse : choisis une contrainte ou un exercice, pas une Mixte ni une Comparée.",
+    defiCreateOwn: "Créer un défi"
   };
 
   var EN = {
@@ -983,7 +984,8 @@
     defiGameDescPh: "E.g. Mime the action with your arms held close to your body, like a T-Rex",
     defiGameDescRequired: "Describe the constraint: whoever receives the challenge must understand how to play it.",
     defiInfoBtn: "About the constraint",
-    defiNoNature: "A challenge has no opposing team: pick a constraint or an exercise, not a Mixed or a Compared."
+    defiNoNature: "A challenge has no opposing team: pick a constraint or an exercise, not a Mixed or a Compared.",
+    defiCreateOwn: "Create a challenge"
   };
 
 
@@ -1521,7 +1523,8 @@
     defiGameDescPh: "Z. B.: Die Handlung mit eng am Körper gehaltenen Armen mimen, wie ein T-Rex",
     defiGameDescRequired: "Beschreib die Vorgabe: Wer die Challenge erhält, muss verstehen, wie man spielt.",
     defiInfoBtn: "Infos zur Vorgabe",
-    defiNoNature: "Eine Challenge hat kein gegnerisches Team: Wähle eine Vorgabe oder Übung, keine gemischte oder vergleichende Impro."
+    defiNoNature: "Eine Challenge hat kein gegnerisches Team: Wähle eine Vorgabe oder Übung, keine gemischte oder vergleichende Impro.",
+    defiCreateOwn: "Herausforderung erstellen"
   };
 
   var ES = {
@@ -2058,7 +2061,8 @@
     defiGameDescPh: "Ej.: Mimar la acción con los brazos pegados al cuerpo, como un T-Rex",
     defiGameDescRequired: "Describe la restricción: quien recibe el reto debe entender cómo jugar.",
     defiInfoBtn: "Información sobre la restricción",
-    defiNoNature: "Un reto no tiene equipo contrario: elige una restricción o un ejercicio, no una Mixta ni una Comparada."
+    defiNoNature: "Un reto no tiene equipo contrario: elige una restricción o un ejercicio, no una Mixta ni una Comparada.",
+    defiCreateOwn: "Crear un reto"
   };
 
   var PT = {
@@ -2595,7 +2599,8 @@
     defiGameDescPh: "Ex.: Mimar a ação com os braços junto ao corpo, como um T-Rex",
     defiGameDescRequired: "Descreve a restrição: quem recebe o desafio tem de perceber como jogar.",
     defiInfoBtn: "Informações sobre a restrição",
-    defiNoNature: "Um desafio não tem equipa adversária: escolhe uma restrição ou um exercício, não uma Mista nem uma Comparada."
+    defiNoNature: "Um desafio não tem equipa adversária: escolhe uma restrição ou um exercício, não uma Mista nem uma Comparada.",
+    defiCreateOwn: "Criar um desafio"
   };
 
   var NL = {
@@ -3132,7 +3137,8 @@
     defiGameDescPh: "Bijv.: De actie mimen met de armen dicht tegen het lichaam, als een T-Rex",
     defiGameDescRequired: "Beschrijf de beperking: wie de uitdaging krijgt, moet begrijpen hoe te spelen.",
     defiInfoBtn: "Info over de beperking",
-    defiNoNature: "Een uitdaging heeft geen tegenploeg: kies een beperking of oefening, geen gemengde of vergelijkende impro."
+    defiNoNature: "Een uitdaging heeft geen tegenploeg: kies een beperking of oefening, geen gemengde of vergelijkende impro.",
+    defiCreateOwn: "Uitdaging maken"
   };
 
   var IT = {
@@ -3669,7 +3675,8 @@
     defiGameDescPh: "Es.: Mimare l'azione con le braccia vicine al corpo, come un T-Rex",
     defiGameDescRequired: "Descrivi il vincolo: chi riceve la sfida deve capire come giocare.",
     defiInfoBtn: "Info sul vincolo",
-    defiNoNature: "Una sfida non ha squadra avversaria: scegli un vincolo o un esercizio, non una Mista né una Comparata."
+    defiNoNature: "Una sfida non ha squadra avversaria: scegli un vincolo o un esercizio, non una Mista né una Comparata.",
+    defiCreateOwn: "Crea una sfida"
   };
 
   // de/es/pt/nl/it are filled to match the 7-locale set. Until translated

@@ -20,8 +20,8 @@
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
 <link rel="manifest" href="/manifest.webmanifest" />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=2026091603" />
-<link rel="stylesheet" href="suite.css?v=2026091603" />
+<link rel="stylesheet" href="styles.css?v=2026091604" />
+<link rel="stylesheet" href="suite.css?v=2026091604" />
 <style>
   .defi-body { min-height: 100svh; }
   .defi-wrap { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.1rem; padding: 1.4rem 1.05rem; text-align: center; }
@@ -144,22 +144,39 @@
   .defi-info-card .defi-card-title { margin: 0; }
   .defi-info-desc { margin: 0 0 0.4rem; color: var(--ink); font-size: 1.02rem; line-height: 1.5; overflow-wrap: anywhere; }
   .defi-info-theme { margin: 0 0 0.5rem; color: #fff; font-weight: 600; font-size: 1.05rem; line-height: 1.4; overflow-wrap: anywhere; }
+  /* ── Pied de page : créer son propre défi ──
+     Deux marges auto (logo en haut, pied en bas) : le contenu reste centré et le
+     lien se pose au bas de l'écran. Invisible sur les écrans caméra et pendant
+     le tournage, où un clic égaré interromprait la prise. */
+  .defi-logo { margin-top: auto; }
+  .defi-foot { margin-top: auto; padding-top: 0.4rem; display: flex; justify-content: center; }
+  body.defi-camera .defi-foot, body.defi-recording .defi-foot { visibility: hidden; }
+  .defi-foot-link { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 44px; padding: 0.55rem 1.1rem;
+    border-radius: 999px; border: 1px solid color-mix(in srgb, var(--gold) 45%, transparent);
+    color: var(--gold-soft); font: 600 0.92rem/1 "Inter", sans-serif; text-decoration: none; transition: background .14s ease; }
+  .defi-foot-link:hover, .defi-foot-link:focus-visible { background: color-mix(in srgb, var(--gold) 12%, transparent); }
 </style>
 </head>
 <body class="suite-body defi-body">
   <div class="defi-wrap">
     <img class="defi-logo" src="./assets/logo.png?v=20260716" alt="Acto" />
     <div id="defiRoot"></div>
+    <!-- Créer son propre défi dans le Studio. welcome.html#/defis plutôt que
+         /defis : sans session, la page de connexion garde le #/defis et y
+         ramène après connexion (login.html?next=). -->
+    <footer class="defi-foot">
+      <a class="defi-foot-link" id="defiCreateLink" href="./welcome.html#/defis"><span aria-hidden="true">🎯</span><span id="defiCreateLabel">Créer un défi</span></a>
+    </footer>
   </div>
 
   <script src="/vendor/supabase-js-2.47.10.min.js" integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"></script>
-  <script src="./js/config.js?v=2026091603"></script>
+  <script src="./js/config.js?v=2026091604"></script>
   <!-- Français en synchrone (repli de t()), langue de l'utilisateur
        chargée à la demande : voir js/suite/locale-loader.js. -->
-  <script src="./data/all-fr.js?v=2026091603"></script>
-  <script src="./js/suite/locale-loader.js?v=2026091603"></script>
-  <script src="./js/suite/i18n-fr.js?v=2026091603"></script>
-  <script src="./js/suite/core.js?v=2026091603"></script>
+  <script src="./data/all-fr.js?v=2026091604"></script>
+  <script src="./js/suite/locale-loader.js?v=2026091604"></script>
+  <script src="./js/suite/i18n-fr.js?v=2026091604"></script>
+  <script src="./js/suite/core.js?v=2026091604"></script>
   <script>
   (function () {
     "use strict";
@@ -402,7 +419,7 @@
     // with a freshly-created blob URL and revoking it before load would break the
     // <video>/<a download>. Blob URLs are freed only when LEAVING a blob screen
     // (startRealize / renderDownloadFallback / markDoneAndThank).
-    function view(html) { document.body.classList.remove("defi-recording"); root.innerHTML = html; }
+    function view(html) { document.body.classList.remove("defi-recording", "defi-camera"); root.innerHTML = html; }
 
     function renderLoading() { view('<div class="suite-auth-spinner" style="margin:0 auto"></div><p class="defi-sub">' + esc(t("defiLoading")) + '</p>'); }
 
@@ -586,6 +603,7 @@
       try { v.srcObject = stream; } catch (e) {}
       document.getElementById("defiStage").appendChild(v);
       suivreFormat(v);
+      document.body.classList.add("defi-camera");   // pied de page masqué pendant les réglages
 
       var btnMiroir = root.querySelector('[data-act="mirror"]');
       function peindreMiroir() {
@@ -647,6 +665,7 @@
       try { v.srcObject = stream; } catch (e) {}
       document.getElementById("defiStage").appendChild(v);
       suivreFormat(v);
+      document.body.classList.add("defi-camera");   // pied de page masqué pendant le 3-2-1
       root.querySelector('[data-act="cancel"]').onclick = function () {
         if (preTk) { clearInterval(preTk); preTk = null; }
         stopStream(); releaseImmersive(); renderWelcome();
@@ -1153,7 +1172,6 @@
       view('<div class="defi-kicker">🎬 ' + esc(epTitle()) + '</div>' +
         '<h1 class="defi-title">' + esc(t("defiPreviewTitle")) + '</h1>' +
         '<video class="defi-video is-preview" src="' + blobUrl + '" controls playsinline></video>' +
-        (aDeLInfo() ? '<button type="button" class="suite-btn suite-btn-ghost" data-act="info">ⓘ ' + esc(t("defiInfoBtn")) + '</button>' : '') +
         '<div class="defi-actions">' +
           '<button type="button" class="suite-btn suite-btn-ghost" data-act="redo">↻ ' + esc(t("defiRedo")) + '</button>' +
           '<button type="button" class="suite-btn suite-btn-primary" data-act="send">📤 ' + esc(t("defiSend")) + '</button>' +
@@ -1162,7 +1180,6 @@
       // Redo is a real click gesture → the retake gets the same lock as the first take.
       root.querySelector('[data-act="redo"]').onclick = function () { tryImmersive(); startRealize(); };
       root.querySelector('[data-act="send"]').onclick = doSend;
-      var infoApercu = root.querySelector('[data-act="info"]'); if (infoApercu) infoApercu.onclick = ouvrirInfo;
     }
 
     function fileName() { return "defi-" + slug(epTitle()) + "." + recExt; }
@@ -1231,6 +1248,23 @@
       stopStream();
     });
     if (S && S.applyLocale) { try { S.applyLocale(); } catch (e) {} }
+
+    // Pied de page « Créer un défi » : libellé dans la langue de la personne.
+    function peindrePied() {
+      var lab = document.getElementById("defiCreateLabel"); if (lab) lab.textContent = t("defiCreateOwn");
+    }
+    peindrePied();
+    // La langue de la personne arrive après coup (locale-loader) : on repeint alors.
+    if (window.actoLocaleReady && window.actoLocaleReady.then) window.actoLocaleReady.then(peindrePied, peindrePied);
+    if (S && S.onLocaleChange) S.onLocaleChange(peindrePied);
+    // Une prise pas encore envoyée n'existe qu'en mémoire : le lien s'ouvre alors
+    // dans un nouvel onglet, pour ne pas la perdre.
+    var lienCreer = document.getElementById("defiCreateLink");
+    if (lienCreer) lienCreer.addEventListener("click", function () {
+      if (root.querySelector('[data-act="send"], #defiDl')) { lienCreer.target = "_blank"; lienCreer.rel = "noopener"; }
+      else lienCreer.removeAttribute("target");
+    });
+
     boot();
   })();
   </script>
