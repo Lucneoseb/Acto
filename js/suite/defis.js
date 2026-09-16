@@ -10,7 +10,9 @@
  * un thème, un nombre de jouteurs. Jamais une nature de match — « Mixte » et
  * « Comparée » supposent deux équipes départagées par le public, sans objet
  * pour un défi. Trois façons de la composer :
- *   · 🎲 Tirage      — une contrainte ou un exercice de troupe, un thème ;
+ *   · 🎲 Tirage      — une contrainte de la Communauté (les défis express),
+ *                      avec l'un de SES sujets ; les contraintes et exercices de
+ *                      l'appli seulement en repli (voir AVEC_JEUX_APPLI) ;
  *   · 📚 Communauté  — les défis écrits par d'autres et validés par l'admin
  *                      (plus les siens en attente, marqués ✳) ;
  *   · ✍️ Mon défi    — tout saisi à la main.
@@ -33,6 +35,7 @@
   // Gardé le temps de la visite : on retrouve son brouillon en revenant.
   var epreuve = null;            // { mode, level, tirage, idee, brouillon, recherche }
   var idees = null;              // null = pas chargée · [] = chargée · "erreur"
+  var ideesLocale = "", chargement = false, repliTirage = null;
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -91,25 +94,97 @@
       .map(function (e) { return { name: e.name, desc: e.desc || "", min: e.minPlayers, max: e.maxPlayers }; });
     return contraintes.concat(exercices).filter(function (j) { return !estNature(j.name); });
   }
-  function trouverJeu(level, nom) {
-    var k = cle(nom);
-    return jeux(level).filter(function (j) { return cle(j.name) === k; })[0] || null;
+  /* ── les contraintes de la Communauté, versées au tirage et à « Mon défi » ──
+     Les défis express (et tout défi validé par l'admin) n'existaient que dans
+     l'onglet Communauté : impossibles à tirer au sort, absents de la liste des
+     contraintes de « Mon défi ». Chaque contrainte de la base y devient un jeu de
+     plus, avec sa description et SES sujets. Un défi sans niveau vaut pour tous. */
+  function jeuxCommunaute(level) {
+    if (!Array.isArray(idees)) return [];
+    var parNom = {}, liste = [];
+    idees.forEach(function (x) {
+      if (!x.category) return;                                // thème seul : pas de contrainte à tirer
+      if (x.level && level && x.level !== level) return;
+      var k = cle(x.category), j = parNom[k];
+      if (!j) { j = parNom[k] = { name: x.category, desc: x.category_desc || "", sujets: [] }; liste.push(j); }
+      if (!j.desc && x.category_desc) j.desc = x.category_desc;
+      j.sujets.push(x);
+    });
+    return liste;
   }
+  // Jeux du tirage et de la liste : ceux de l'appli, puis ceux de la Communauté.
+  // Même nom des deux côtés : un seul jeu, qui reçoit les sujets de la base.
+  /* Pour l'instant, le tirage et « Mon défi » ne proposent QUE les défis de la
+     Communauté — les défis express. Les contraintes et exercices de l'appli n'y
+     reviennent que si la base est vide ou injoignable, pour que le tirage ne soit
+     jamais vide. true : les deux sources mélangées, à chance égale. */
+  var AVEC_JEUX_APPLI = false;
+
+  // complet = true : toujours les deux sources (savoir si une contrainte saisie
+  // existe déjà quelque part, sans dépendre du réglage ci-dessus).
+  function tousLesJeux(level, complet) {
+    if (!AVEC_JEUX_APPLI && !complet) {
+      var estNat = natures(level);
+      var seuls = jeuxCommunaute(level).filter(function (c) { return !estNat(c.name); });
+      if (seuls.length) return seuls;
+    }
+    var liste = jeux(level), index = {}, estNature = natures(level);
+    liste.forEach(function (j) { index[cle(j.name)] = j; });
+    jeuxCommunaute(level).forEach(function (c) {
+      if (estNature(c.name)) return;
+      var j = index[cle(c.name)];
+      if (j) { if (!j.desc) j.desc = c.desc; j.sujets = c.sujets; }
+      else { liste.push(c); index[cle(c.name)] = c; }
+    });
+    return liste;
+  }
+  function trouverJeu(level, nom, complet) {
+    var k = cle(nom);
+    return k ? (tousLesJeux(level, complet).filter(function (j) { return cle(j.name) === k; })[0] || null) : null;
+  }
+  function nomsJeux(level) {
+    var loc = S.locale();
+    return tousLesJeux(level).map(function (j) { return j.name; }).sort(function (x, y) { return x.localeCompare(y, loc); });
+  }
+  // Thèmes proposés dans « Mon défi » : les sujets de la contrainte choisie d'abord,
+  // puis tous les autres (thèmes de l'appli et sujets de la Communauté).
+  function sujetsProposes(level, nomJeu) {
+    var d = S.data(), loc = S.locale(), vus = {}, tete = [], reste = [];
+    function ajoute(liste, txt) { var k = cle(txt); if (!k || vus[k]) return; vus[k] = true; liste.push(String(txt)); }
+    var j = trouverJeu(level, nomJeu);
+    if (j && j.sujets) j.sujets.forEach(function (x) { if (x.theme) ajoute(tete, x.theme); });
+    var communaute = jeuxCommunaute(level);
+    // Thèmes de l'appli : seulement s'ils sont réactivés, ou si la base est vide.
+    if (AVEC_JEUX_APPLI || !communaute.length) ((d.themes && d.themes[level]) || []).forEach(function (x) { ajoute(reste, x); });
+    communaute.forEach(function (c) { c.sujets.forEach(function (x) { if (x.theme) ajoute(reste, x.theme); }); });
+    reste.sort(function (x, y) { return x.localeCompare(y, loc); });
+    return tete.concat(reste);
+  }
+  function options(liste) { return liste.map(function (v) { return '<option value="' + esc(v) + '"></option>'; }).join(""); }
 
   function tirer(level) {
     level = level || "debutant";
     // Thème, nombre de jouteurs et durée : le générateur habituel.
     var seg = S.gen.newSegmentFor("match", level);
     S.gen.fillSegment(seg, level);
-    var pool = jeux(level);
+    // Chaque contrainte ou exercice a la même chance, ceux de la Communauté compris.
+    var pool = tousLesJeux(level);
     var jeu = pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
     var n = parseInt(seg.players, 10);
     if (!(n > 0)) n = 2;                          // « Toute l'équipe » → un défi se joue à quelques-uns
+    var theme = seg.theme || "", duree = seg.durationSec || 120, idee = null;
+    // Contrainte de la Communauté : l'un de SES sujets, avec ses jouteurs et sa durée.
+    if (jeu && jeu.sujets && jeu.sujets.length) {
+      idee = jeu.sujets[Math.floor(Math.random() * jeu.sujets.length)];
+      theme = idee.theme || "";
+      if (parseInt(idee.players, 10) > 0) n = parseInt(idee.players, 10);
+      if (parseInt(idee.duration_sec, 10) > 0) duree = parseInt(idee.duration_sec, 10);
+    }
     // Un exercice a ses limites : « Le miroir » se joue à deux, pas à cinq.
     if (jeu && jeu.min && n < jeu.min) n = jeu.min;
     if (jeu && jeu.max && n > jeu.max) n = jeu.max;
     if (n > 12) n = 12;
-    return { jeu: jeu, theme: seg.theme || "", players: n, durationSec: seg.durationSec || 120 };
+    return { jeu: jeu, theme: theme, players: n, durationSec: duree, enAttente: !!(idee && idee.status === "pending") };
   }
 
   // Même forme de snapshot pour les trois modes.
@@ -131,8 +206,12 @@
 
   function mount(container, sub, nav) {
     root = container; navigate = nav || navigate;
-    if (!epreuve) epreuve = { mode: "tirage", level: "debutant", tirage: tirer("debutant"), idee: null, recherche: "",
+    // Le premier tirage attend la base : sans elle, il ne pourrait pas sortir un
+    // défi de la Communauté (voir blocTirage).
+    if (!epreuve) epreuve = { mode: "tirage", level: "debutant", tirage: null, idee: null, recherche: "",
                               brouillon: { category: "", categoryDesc: "", theme: "", players: "2", partager: true } };
+    if (ideesLocale !== S.locale()) idees = null;   // la base est propre à chaque langue
+    if (idees === null) chargerIdees();
     render();
   }
 
@@ -140,19 +219,48 @@
   function chargerIdees() {
     var c = sb();
     if (!c || !c.rpc) { idees = "erreur"; return; }
-    Promise.resolve(c.rpc("list_challenge_ideas", { p_locale: S.locale() })).then(function (r) {
+    if (chargement) return;
+    chargement = true;
+    var loc = S.locale();
+    Promise.resolve(c.rpc("list_challenge_ideas", { p_locale: loc })).then(function (r) {
       // Fonction absente (migration pas encore passée) ou erreur : on le dit
       // plutôt qu'une base vide, qui laisserait croire qu'il n'y a rien.
+      chargement = false; ideesLocale = loc;
       idees = (r && !r.error && Array.isArray(r.data)) ? r.data : "erreur";
-      if (root && root.isConnected && epreuve.mode === "base") render();
-    }, function () { idees = "erreur"; if (root && root.isConnected && epreuve.mode === "base") render(); });
+      apresChargement();
+    }, function () { chargement = false; idees = "erreur"; apresChargement(); });
+  }
+  function apresChargement() {
+    if (!root || !root.isConnected || !epreuve) return;
+    if (epreuve.mode === "base") render();
+    else if (epreuve.mode === "tirage" && !epreuve.tirage) { epreuve.tirage = tirer(epreuve.level); render(); }
+    else if (epreuve.mode === "manuel") majListesManuel();   // pas de re-rendu : la saisie en cours reste intacte
+  }
+  function majListesManuel() {
+    if (!root || epreuve.mode !== "manuel") return;
+    var dl = root.querySelector("#defiJeux"), dt = root.querySelector("#defiThemes"), nom = root.querySelector('[data-f="category"]');
+    if (dl) dl.innerHTML = options(nomsJeux(epreuve.level));
+    if (dt) dt.innerHTML = options(sujetsProposes(epreuve.level, nom ? nom.value : ""));
   }
 
   /* Proposition à la communauté, une fois le défi envoyé. Le thème et la
      contrainte rejoignent aussi leurs bases s'ils n'y sont pas déjà : écrire un
      défi, c'est enrichir tout le monde. */
+  // Déjà dans la base : un défi express choisi tel quel dans les listes de « Mon défi ».
+  function dansLaBase(categorie, theme) {
+    if (!Array.isArray(idees)) return false;
+    var kc = cle(categorie), kt = cle(theme);
+    return idees.some(function (x) { return cle(x.category) === kc && cle(x.theme) === kt; });
+  }
+  function sujetConnu(theme) {
+    var kt = cle(theme);
+    return !!kt && Array.isArray(idees) && idees.some(function (x) { return cle(x.theme) === kt; });
+  }
+
   function proposer(snap, saisie) {
     var c = sb(); if (!c || !c.rpc) return;
+    // Rien de neuf : ni proposition en double, ni « défi partagé » trompeur.
+    if (dansLaBase(saisie.category, saisie.theme)) return;
     var loc = S.locale(), lv = epreuve.level, n = parseInt(snap.players, 10);
     Promise.resolve(c.rpc("submit_challenge_idea", {
       p_locale: loc, p_level: lv,
@@ -161,19 +269,20 @@
       p_players: (n > 0 && n <= 12) ? n : null, p_duration_sec: parseInt(snap.durationSec, 10) || null
     })).then(function (r) {
       if (r && r.error) { console.warn("[defis] proposition", r.error.message || r.error); return; }
-      idees = null;   // la base a changé : rechargée à la prochaine visite de l'onglet
+      idees = null; chargerIdees();   // la base a changé : on la recharge (tirage et listes comprises)
       toast(t("defiShared"));
     }, function () { /* hors ligne : le défi est parti, seule la proposition manque */ });
 
     var d = S.data();
     var themes = (d.themes && d.themes[lv]) || [];
-    if (saisie.theme && !themes.some(function (x) { return cle(x) === cle(saisie.theme); })) {
+    // Un sujet de défi express n'est pas un thème de match : il reste dans la base des défis.
+    if (saisie.theme && !sujetConnu(saisie.theme) && !themes.some(function (x) { return cle(x) === cle(saisie.theme); })) {
       Promise.resolve(c.rpc("submit_user_text", { p_kind: "theme", p_mode: "", p_level: lv, p_locale: loc, p_text: saisie.theme, p_description: null }))
         .then(function (r) { if (!(r && r.error)) S.gen.ajouterEnAttente("theme", { name: saisie.theme, level: lv }); }, function () {});
     }
     // Contrainte nouvelle : rejoint la base des contraintes, AVEC sa description
     // (l'admin la voit en modérant).
-    if (saisie.category && !trouverJeu(lv, saisie.category)) {
+    if (saisie.category && !trouverJeu(lv, saisie.category, true)) {
       Promise.resolve(c.rpc("submit_user_text", { p_kind: "constraint", p_mode: "match", p_level: lv, p_locale: loc, p_text: saisie.category, p_description: saisie.categoryDesc || null }))
         .then(function (r) { if (!(r && r.error)) S.gen.ajouterEnAttente("constraint", { name: saisie.category, desc: saisie.categoryDesc, level: lv, mode: "match" }); }, function () {});
     }
@@ -195,9 +304,20 @@
   }
 
   function blocTirage() {
+    if (!epreuve.tirage) {
+      if (idees === null) {
+        // Base lente ou injoignable : on tire sans elle plutôt que d'attendre.
+        if (!repliTirage) repliTirage = setTimeout(function () {
+          repliTirage = null;
+          if (epreuve && !epreuve.tirage && root && root.isConnected && epreuve.mode === "tirage") { epreuve.tirage = tirer(epreuve.level); render(); }
+        }, 2500);
+        return '<div class="suite-defi-h">' + esc(t("defiDrawTitle")) + '</div><p class="suite-sub">' + esc(t("commonLoading")) + '</p>';
+      }
+      epreuve.tirage = tirer(epreuve.level);
+    }
     var tr = epreuve.tirage, jeu = tr.jeu;
     return '<div class="suite-defi-h">' + esc(t("defiDrawTitle")) + '</div>' + carte([
-      { l: t("defiGameLabel"), v: jeu ? jeu.name : t("valueNone"), desc: jeu ? jeu.desc : "" },
+      { l: t("defiGameLabel"), v: jeu ? jeu.name + (tr.enAttente ? " ✳" : "") : t("valueNone"), desc: jeu ? jeu.desc : "" },
       { l: t("fieldTheme"), v: tr.theme || t("valueNone") },
       { l: t("fieldPlayers"), v: jouteurs(tr.players) },
       { l: t("fieldDuration"), v: S.formatSec(tr.durationSec) }
@@ -206,7 +326,8 @@
   }
 
   function blocBase() {
-    if (idees === null) { chargerIdees(); return '<p class="suite-sub">' + esc(t("commonLoading")) + '</p>'; }
+    if (idees === null) chargerIdees();
+    if (idees === null) return '<p class="suite-sub">' + esc(t("commonLoading")) + '</p>';
     if (idees === "erreur") return '<p class="suite-sub">' + esc(t("defiBaseError")) + '</p>';
     var q = cle(epreuve.recherche);
     var liste = idees.filter(function (x) {
@@ -241,20 +362,19 @@
 
   function blocManuel() {
     var b = epreuve.brouillon, d = S.data(), lv = epreuve.level, loc = S.locale();
-    var themes = ((d.themes && d.themes[lv]) || []).slice().sort(function (x, y) { return String(x).localeCompare(String(y), loc); });
-    var noms = jeux(lv).map(function (j) { return j.name; }).sort(function (x, y) { return x.localeCompare(y, loc); });
+    var themes = sujetsProposes(lv, b.category), noms = nomsJeux(lv);
     return '<div class="suite-defi-card suite-defi-form">' +
       '<fieldset class="suite-defi-jeu">' +
         '<legend>' + esc(t("defiGameLabel")) + '</legend>' +
         '<label class="suite-set-field"><span>' + esc(t("defiGameName")) + '</span>' +
           '<input type="text" class="suite-input" data-f="category" list="defiJeux" maxlength="120" value="' + esc(b.category) + '" placeholder="' + esc(t("defiGameNamePh")) + '" /></label>' +
-        '<datalist id="defiJeux">' + noms.map(function (n) { return '<option value="' + esc(n) + '"></option>'; }).join("") + '</datalist>' +
+        '<datalist id="defiJeux">' + options(noms) + '</datalist>' +
         '<label class="suite-set-field"><span>' + esc(t("defiGameDesc")) + '</span>' +
           '<textarea class="suite-input" data-f="categoryDesc" rows="2" maxlength="600" placeholder="' + esc(t("defiGameDescPh")) + '">' + esc(b.categoryDesc) + '</textarea></label>' +
       '</fieldset>' +
       '<label class="suite-set-field"><span>' + esc(t("defiThemeOptional")) + '</span>' +
         '<input type="text" class="suite-input" data-f="theme" list="defiThemes" maxlength="300" value="' + esc(b.theme) + '" placeholder="' + esc(t("defiManualThemePh")) + '" /></label>' +
-      '<datalist id="defiThemes">' + themes.map(function (x) { return '<option value="' + esc(x) + '"></option>'; }).join("") + '</datalist>' +
+      '<datalist id="defiThemes">' + options(themes) + '</datalist>' +
       '<label class="suite-set-field"><span>' + esc(t("challengePlayersLabel")) + '</span>' +
         '<input type="number" class="suite-input suite-defi-players" data-f="players" min="1" max="12" inputmode="numeric" value="' + esc(b.players) + '" /></label>' +
       (connecte()
@@ -334,13 +454,27 @@
       };
     });
 
-    // Choisir une suggestion connue remplit sa description, si le champ est vide.
+    /* Choisir une contrainte connue (liste ou frappe exacte) remplit sa description
+       et met SES sujets en tête des thèmes proposés. Une description posée ainsi
+       suit le nom : remplacée si l'on choisit une autre contrainte, retirée si l'on
+       tape un nom inconnu — jamais celle que l'on a écrite soi-même. */
     var nom = root.querySelector('[data-f="category"]'), desc = root.querySelector('[data-f="categoryDesc"]');
-    if (nom && desc) nom.onchange = function () {
-      if (String(desc.value || "").trim()) return;
-      var j = trouverJeu(epreuve.level, nom.value);
-      if (j && j.desc) desc.value = j.desc;
-    };
+    if (nom && desc) {
+      var dernier = cle(nom.value);
+      var majNom = function () {
+        var j = trouverJeu(epreuve.level, nom.value), auto = desc.getAttribute("data-auto");
+        var libre = !String(desc.value || "").trim() || (auto !== null && desc.value === auto);
+        if (j && j.desc) { if (libre) { desc.value = j.desc; desc.setAttribute("data-auto", j.desc); } }
+        else if (auto !== null && desc.value === auto) { desc.value = ""; desc.removeAttribute("data-auto"); }
+        var k = j ? cle(j.name) : "";
+        if (k !== dernier) {
+          dernier = k;
+          var dt = root.querySelector("#defiThemes"); if (dt) dt.innerHTML = options(sujetsProposes(epreuve.level, nom.value));
+        }
+      };
+      nom.addEventListener("input", majNom);
+      nom.addEventListener("change", majNom);
+    }
 
     var send = root.querySelector('[data-act="send"]');
     if (send) send.onclick = envoyer;
