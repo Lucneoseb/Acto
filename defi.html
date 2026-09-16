@@ -20,8 +20,8 @@
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
 <link rel="manifest" href="/manifest.webmanifest" />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=2026091604" />
-<link rel="stylesheet" href="suite.css?v=2026091604" />
+<link rel="stylesheet" href="styles.css?v=2026091605" />
+<link rel="stylesheet" href="suite.css?v=2026091605" />
 <style>
   .defi-body { min-height: 100svh; }
   .defi-wrap { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.1rem; padding: 1.4rem 1.05rem; text-align: center; }
@@ -170,13 +170,13 @@
   </div>
 
   <script src="/vendor/supabase-js-2.47.10.min.js" integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"></script>
-  <script src="./js/config.js?v=2026091604"></script>
+  <script src="./js/config.js?v=2026091605"></script>
   <!-- Français en synchrone (repli de t()), langue de l'utilisateur
        chargée à la demande : voir js/suite/locale-loader.js. -->
-  <script src="./data/all-fr.js?v=2026091604"></script>
-  <script src="./js/suite/locale-loader.js?v=2026091604"></script>
-  <script src="./js/suite/i18n-fr.js?v=2026091604"></script>
-  <script src="./js/suite/core.js?v=2026091604"></script>
+  <script src="./data/all-fr.js?v=2026091605"></script>
+  <script src="./js/suite/locale-loader.js?v=2026091605"></script>
+  <script src="./js/suite/i18n-fr.js?v=2026091605"></script>
+  <script src="./js/suite/core.js?v=2026091605"></script>
   <script>
   (function () {
     "use strict";
@@ -443,6 +443,17 @@
     // NO SPOILER: the épreuve (title / catégorie / thème) is revealed ONLY by the
     // in-video announce. Before that, the recipient sees just the practical facts:
     // how many improvisers and how long.
+    /* Ce qui reste secret dépend du défi : contrainte ET thème, contrainte seule
+       (« Le téléachat de l'absurde »), ou thème seul. Le caucus annoncé est celui
+       choisi à l'envoi : le texte promettait toujours 20 s, même sans caucus. */
+    function mysteryText() {
+      var s = (data && data.snapshot) || {};
+      var cle = (s.category && s.theme) ? "defiMysteryBoth" : s.theme ? "defiMysteryTheme" : "defiMysteryGame";
+      var cs = caucusSec();
+      return t(cle) + " " + (cs > 0
+        ? tf("defiMysteryTiming", { announce: ANNOUNCE_SEC, caucus: cs })
+        : tf("defiMysteryTimingNoCaucus", { announce: ANNOUNCE_SEC }));
+    }
     function mysteryCard() {
       var chips = "";
       if (playersN()) chips += '<span class="defi-chip">👥 ' + esc(tf("defiPlayersChip", { n: playersN() })) + '</span>';
@@ -450,7 +461,7 @@
       return '<div class="defi-card defi-card-mystery">' +
         '<div class="defi-mystery-icon">🎁</div>' +
         '<h2 class="defi-card-title">' + esc(t("defiMysteryTitle")) + '</h2>' +
-        '<p class="defi-card-desc">' + esc(t("defiMysteryBody")) + '</p>' +
+        '<p class="defi-card-desc">' + esc(mysteryText()) + '</p>' +
         (chips ? '<div class="defi-meta">' + chips + '</div>' : "") +
       '</div>';
     }
@@ -943,6 +954,50 @@
       g.textAlign = "left"; g.textBaseline = "top"; g.restore();
     }
 
+    /* Carte d'annonce : mise en page calculée UNE fois par format (le canvas est
+       figé pendant le tournage), pas à chaque image. Un sujet long (« Tu viens
+       d'être enlevé par des extraterrestres, mais leur vaisseau spatial est
+       atrocement mal décoré… ») était coupé net après 4 lignes : le texte rétrécit
+       maintenant jusqu'à ce que la carte tienne entre le bandeau du haut (17u) et
+       les pastilles du bas (12u), et ne se coupe (…) qu'au plus petit. */
+    var mepCache = null;
+    function mepAnnonce(g, w, h, s, u, landscape) {
+      var cle = w + "x" + h + "|" + (S && S.locale ? S.locale() : "");
+      if (mepCache && mepCache.cle === cle) return mepCache;
+      var pw = landscape ? Math.min(w * 0.72, 150 * u) : w - 10 * u, maxTw = pw - 8 * u;
+      // Sans catégorie, le titre retombait sur le thème : il s'affichait deux fois,
+      // dont une sous l'étiquette « Catégorie ».
+      var titreAff = (!s.category && s.title === s.theme) ? t("freeCategory") : (s.title || "");
+      g.font = FB(9.5 * u); var titleLines = wrapLines(g, titreAff, maxTw, 2);
+      // Sans thème, la description EST la consigne (« Tu dois présenter et vendre… ») : plus grande.
+      var baseD = s.theme ? 3.4 * u : (landscape ? 4.2 * u : 4.6 * u), minD = 3 * u;
+      var baseT = landscape ? 4.8 * u : 5.8 * u, minT = landscape ? 3.2 * u : 3.6 * u;
+      var dispo = h - 17 * u - 12 * u - 4 * u;
+      function hauteur(dN, dPx, tN, tPx) {
+        return 6 * u + titleLines.length * 10 * u + (dN ? 2 * u + dN * dPx * 1.35 : 0) + (tN ? 6.2 * u + tN * tPx * 1.28 : 0) + 6 * u + 4 * u;
+      }
+      var L = null;
+      for (var k = 1; k > 0.2; k -= 0.05) {
+        var dPx = Math.max(minD, baseD * k), tPx = Math.max(minT, baseT * k);
+        g.font = FI(400, dPx); var dL = wrapLines(g, s.subtitle || "", maxTw, 99);
+        g.font = FI(600, tPx); var tL = s.theme ? wrapLines(g, s.theme, maxTw, 99) : [];
+        L = { dPx: dPx, tPx: tPx, dL: dL, tL: tL };
+        if (hauteur(dL.length, dPx, tL.length, tPx) <= dispo || (dPx === minD && tPx === minT)) break;
+      }
+      // Même au plus petit, trop long : on coupe (…) le thème, puis la description.
+      if (hauteur(L.dL.length, L.dPx, L.tL.length, L.tPx) > dispo) {
+        if (L.tL.length) {
+          var tMax = Math.max(2, Math.floor((dispo - hauteur(L.dL.length, L.dPx, 0, L.tPx) - 6.2 * u) / (L.tPx * 1.28)));
+          if (tMax < L.tL.length) { g.font = FI(600, L.tPx); L.tL = wrapLines(g, s.theme, maxTw, tMax); }
+        }
+        var dMax = Math.max(2, Math.floor((dispo - hauteur(0, L.dPx, L.tL.length, L.tPx) - 2 * u) / (L.dPx * 1.35)));
+        if (dMax < L.dL.length) { g.font = FI(400, L.dPx); L.dL = wrapLines(g, s.subtitle || "", maxTw, dMax); }
+      }
+      mepCache = { cle: cle, pw: pw, titleLines: titleLines, descLines: L.dL, descPx: L.dPx, themeLines: L.tL, themePx: L.tPx,
+                   ph2: hauteur(L.dL.length, L.dPx, L.tL.length, L.tPx) };
+      return mepCache;
+    }
+
     function drawOverlay(g, w, h) {
       var s = data.snapshot || {}, now = Date.now();
       var u = Math.min(w, h) / 100;                      // orientation-neutral unit
@@ -1022,23 +1077,12 @@
 
       // ── announce: the REVEAL — category + explanation + theme, centered ─
       if (phase === "announce") {
-        var pw = landscape ? Math.min(w * 0.72, 150 * u) : w - 10 * u;
-        var px = (w - pw) / 2, maxTw = pw - 8 * u;
-
-        // Sans catégorie, le titre retombait sur le thème : il s'affichait deux fois,
-        // dont une sous l'étiquette « Catégorie ».
-        var titreAff = (!s.category && s.title === s.theme) ? t("freeCategory") : (s.title || "");
-        g.font = FB(9.5 * u);  var titleLines = wrapLines(g, titreAff, maxTw, 2);
-        g.font = FI(400, 3.4 * u); var descLines = wrapLines(g, s.subtitle || "", maxTw, landscape ? 3 : 4);
-        /* Le thème est ce que les jouteurs doivent retenir. Il était tronqué sur une
-           seule ligne, en petit : en portrait, la largeur manquant, un thème un peu
-           long était coupé dès les premiers mots. Plusieurs lignes, jamais tronqué
-           avant la limite, et plus gros en portrait. */
-        var themePx = landscape ? 4.8 * u : 5.8 * u, lhTh = themePx * 1.28;
-        g.font = FI(600, themePx); var themeLines = s.theme ? wrapLines(g, s.theme, maxTw, landscape ? 3 : 4) : [];
-        var lhT = 10 * u, lhD = 4.6 * u;
-        var blocks = 6 * u + titleLines.length * lhT + (descLines.length ? 2 * u + descLines.length * lhD : 0) + (themeLines.length ? 6.2 * u + themeLines.length * lhTh : 0) + 6 * u;
-        var ph2 = blocks + 4 * u, py = (h - ph2) / 2;
+        /* Le thème est ce que les jouteurs doivent retenir : il n'est plus tronqué
+           à 4 lignes. Mise en page calculée une fois par format : mepAnnonce(). */
+        var A = mepAnnonce(g, w, h, s, u, landscape);
+        var pw = A.pw, px = (w - pw) / 2, ph2 = A.ph2, py = (h - ph2) / 2;
+        var titleLines = A.titleLines, descLines = A.descLines, themeLines = A.themeLines;
+        var descPx = A.descPx, themePx = A.themePx, lhT = 10 * u, lhD = descPx * 1.35, lhTh = themePx * 1.28;
 
         g.fillStyle = "rgba(8,5,16,0.82)"; rrect(g, px, py, pw, ph2, 3 * u); g.fill();
         g.strokeStyle = "rgba(232,199,102,0.5)"; g.lineWidth = Math.max(1, 0.28 * u); g.stroke();
@@ -1050,7 +1094,7 @@
         for (var i = 0; i < titleLines.length; i++) { g.fillText(titleLines[i], w / 2, y); y += lhT; }
         if (descLines.length) {
           y += 1 * u;
-          g.fillStyle = "rgba(244,240,230,0.92)"; g.font = FI(400, 3.4 * u);
+          g.fillStyle = "rgba(244,240,230,0.92)"; g.font = FI(400, descPx);
           for (var j = 0; j < descLines.length; j++) { g.fillText(descLines[j], w / 2, y); y += lhD; }
         }
         if (themeLines.length) {

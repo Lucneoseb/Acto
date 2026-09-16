@@ -157,7 +157,7 @@
     Promise.resolve(c.rpc("submit_challenge_idea", {
       p_locale: loc, p_level: lv,
       p_category: saisie.category || null, p_category_desc: saisie.categoryDesc || null,
-      p_theme: saisie.theme,
+      p_theme: saisie.theme || null,
       p_players: (n > 0 && n <= 12) ? n : null, p_duration_sec: parseInt(snap.durationSec, 10) || null
     })).then(function (r) {
       if (r && r.error) { console.warn("[defis] proposition", r.error.message || r.error); return; }
@@ -219,12 +219,12 @@
     if (!liste.length) return html + '<p class="suite-sub">' + esc(t("defiBaseNoMatch")) + '</p>';
     html += '<div class="suite-defi-ideas">' + liste.map(function (x) {
       var meta = [];
-      if (x.category) meta.push(x.category);
+      if (x.category && x.theme) meta.push(x.category);   // sans thème, la contrainte est déjà le titre
       if (x.players) meta.push(jouteurs(x.players));
       if (x.level) meta.push(niveauLabel(x.level));
       var choisi = epreuve.idee && epreuve.idee.id === x.id;
       return '<button type="button" class="suite-defi-idea' + (choisi ? " is-on" : "") + '" data-idea="' + esc(x.id) + '" aria-pressed="' + (choisi ? "true" : "false") + '">' +
-        '<span class="suite-defi-idea-theme">' + esc(x.theme) + (x.status === "pending" ? ' <span class="suite-defi-pending" title="' + esc(t("pendingTitle")) + '">✳</span>' : '') + '</span>' +
+        '<span class="suite-defi-idea-theme">' + esc(x.theme || x.category) + (x.status === "pending" ? ' <span class="suite-defi-pending" title="' + esc(t("pendingTitle")) + '">✳</span>' : '') + '</span>' +
         (meta.length ? '<span class="suite-defi-idea-meta">' + esc(meta.join(" · ")) + '</span>' : '') +
       '</button>';
     }).join("") + '</div>';
@@ -232,7 +232,7 @@
       var x = epreuve.idee;
       html += carte([
         { l: t("defiGameLabel"), v: x.category || t("valueNone"), desc: x.category_desc || "" },
-        { l: t("fieldTheme"), v: x.theme },
+        { l: t("fieldTheme"), v: x.theme || t("valueNone") },
         { l: t("fieldPlayers"), v: jouteurs(x.players) }
       ], '<button class="suite-btn suite-btn-primary" data-act="send">🎯 ' + esc(t("defiSendBtn")) + '</button>');
     }
@@ -252,7 +252,7 @@
         '<label class="suite-set-field"><span>' + esc(t("defiGameDesc")) + '</span>' +
           '<textarea class="suite-input" data-f="categoryDesc" rows="2" maxlength="600" placeholder="' + esc(t("defiGameDescPh")) + '">' + esc(b.categoryDesc) + '</textarea></label>' +
       '</fieldset>' +
-      '<label class="suite-set-field"><span>' + esc(t("fieldTheme")) + ' <span class="suite-req">*</span></span>' +
+      '<label class="suite-set-field"><span>' + esc(t("defiThemeOptional")) + '</span>' +
         '<input type="text" class="suite-input" data-f="theme" list="defiThemes" maxlength="300" value="' + esc(b.theme) + '" placeholder="' + esc(t("defiManualThemePh")) + '" /></label>' +
       '<datalist id="defiThemes">' + themes.map(function (x) { return '<option value="' + esc(x) + '"></option>'; }).join("") + '</datalist>' +
       '<label class="suite-set-field"><span>' + esc(t("challengePlayersLabel")) + '</span>' +
@@ -380,13 +380,16 @@
     }
 
     lireBrouillon();
+    var errAvant = root.querySelector('[data-r="err"]'); if (errAvant) errAvant.hidden = true;   // pas de message périmé après correction
     var b = epreuve.brouillon, saisie = {
       category: String(b.category || "").trim(),
       categoryDesc: String(b.categoryDesc || "").trim(),
       theme: String(b.theme || "").trim(),
       players: String(b.players || "").trim()
     };
-    if (!saisie.theme) { erreur(t("defiManualThemeRequired"), "theme"); return; }
+    // Un thème OU une contrainte : un défi peut ne porter qu'une contrainte
+    // (« Le téléachat de l'absurde »), ou qu'un thème.
+    if (!saisie.theme && !saisie.category) { erreur(t("defiManualNeedOne"), "category"); return; }
     // Saisie à la main : même règle que le tirage, pas de Mixte ni de Comparée.
     if (saisie.category && natures(epreuve.level)(saisie.category)) { erreur(t("defiNoNature"), "category"); return; }
     // Une contrainte sans description est incompréhensible pour qui reçoit le défi.

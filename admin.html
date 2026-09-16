@@ -1866,12 +1866,12 @@
      would otherwise execute attacker code with the user's session JWT in
      reach. Bump both `@VERSION` and the integrity hash together. -->
 <script src="/vendor/supabase-js-2.47.10.min.js" integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"></script>
-<script src="./js/config.js?v=2026091604"></script>
-<script src="./js/utils.js?v=2026091604"></script>
+<script src="./js/config.js?v=2026091605"></script>
+<script src="./js/utils.js?v=2026091605"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=2026091604"></script>
+<script src="./data/all.js?v=2026091605"></script>
 <script>
 (function () {
   "use strict";
@@ -3190,7 +3190,7 @@
     const filtered = allDefis
       .filter(d => (!status || d.status === status) &&
                    (!q || lc(d.theme).includes(q) || lc(d.category).includes(q) || lc(d.category_desc).includes(q)))
-      .sort((a, b) => lc(a.theme).localeCompare(lc(b.theme), "fr"));
+      .sort((a, b) => lc(a.theme || a.category).localeCompare(lc(b.theme || b.category), "fr"));
     const compte = $("defiCount"); if (compte) compte.textContent = filtered.length + " / " + allDefis.length;
     if (!filtered.length) {
       body.innerHTML = '<tr><td colspan="9" class="empty">' + (allDefis.length ? "Aucun défi pour ce filtre." : "Aucun défi proposé pour l\u2019instant.") + '</td></tr>';
@@ -3204,7 +3204,7 @@
       actions += '<button class="btn btn-reject" data-defi-act="delete" data-id="' + escapeHtml(d.id) + '">🗑 Supprimer</button>';
       const etat = d.status === "pending" ? "En attente" : d.status === "approved" ? "Public" : "Caché";
       return '<tr>' +
-        '<td class="wrap">' + escapeHtml(d.theme) + '</td>' +
+        '<td class="wrap">' + escapeHtml(d.theme || "—") + '</td>' +
         '<td class="wrap">' + escapeHtml(d.category || "—") + '</td>' +
         '<td class="wrap">' + escapeHtml(d.category_desc || "—") + '</td>' +
         '<td>' + (d.players ? escapeHtml(String(d.players)) : "—") + '</td>' +

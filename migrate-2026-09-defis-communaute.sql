@@ -14,6 +14,11 @@
 --  comment jouer (ex. « Mime T-Rex » : mimer l'action les bras colles au corps,
 --  comme un T-Rex). Plus un theme et un nombre de jouteurs.
 --
+--  MISE A JOUR : le theme est FACULTATIF. Un defi peut ne porter qu'une
+--  contrainte ou un exercice (« Le teleachat de l'absurde » : presenter et
+--  vendre un objet du quotidien casse ou inutile), ou qu'un theme. Jamais ni
+--  l'un ni l'autre. Relancer ce fichier suffit.
+--
 --  Meme cycle que les autres propositions (user_submissions, warmup_exercises) :
 --  pending -> approved | rejected, valide depuis la page admin.
 --
@@ -29,7 +34,7 @@ create table if not exists public.challenge_ideas (
   level         text check (level in ('debutant','confirme','expert')),
   category      text check (category is null or length(category) <= 120),   -- nom de la contrainte / de l'exercice
   category_desc text check (category_desc is null or length(category_desc) <= 600),
-  theme         text not null check (length(theme) between 1 and 300),
+  theme         text check (theme is null or length(theme) between 1 and 300),   -- facultatif
   players       integer check (players is null or players between 1 and 12),
   duration_sec  integer check (duration_sec is null or duration_sec between 10 and 3600),
   submitted_by  uuid references auth.users(id) on delete set null,
@@ -40,6 +45,12 @@ create table if not exists public.challenge_ideas (
 );
 -- Base deja creee par une version anterieure de ce fichier : on ajoute la colonne.
 alter table public.challenge_ideas add column if not exists category_desc text;
+-- Base deja creee avec un theme obligatoire : on leve l'obligation, mais un defi
+-- garde au moins une contrainte OU un theme.
+alter table public.challenge_ideas alter column theme drop not null;
+alter table public.challenge_ideas drop constraint if exists challenge_ideas_theme_or_category;
+alter table public.challenge_ideas add constraint challenge_ideas_theme_or_category
+  check (theme is not null or category is not null);
 create index if not exists challenge_ideas_status_idx on public.challenge_ideas (status, locale);
 create index if not exists challenge_ideas_owner_idx  on public.challenge_ideas (submitted_by);
 
@@ -67,8 +78,9 @@ declare
   v_id    uuid;
 begin
   if auth.uid() is null then raise exception 'not authenticated'; end if;
-  if v_theme is null then raise exception 'theme is empty'; end if;
-  if length(v_theme) > 300 then raise exception 'theme too long'; end if;
+  -- Un theme OU une contrainte : un defi peut ne porter qu'une contrainte.
+  if v_theme is null and v_cat is null then raise exception 'theme or category is required'; end if;
+  if v_theme is not null and length(v_theme) > 300 then raise exception 'theme too long'; end if;
   if v_cat is not null and length(v_cat) > 120 then raise exception 'category too long'; end if;
   -- Une contrainte sans description est incomprehensible pour qui recoit le defi.
   if v_cat is not null and v_desc is null then raise exception 'category description is required'; end if;
@@ -79,7 +91,7 @@ begin
   -- deja propose par cette personne -> on renvoie l'existant.
   select id into v_id from public.challenge_ideas
    where locale = p_locale
-     and lower(theme) = lower(v_theme)
+     and lower(coalesce(theme, '')) = lower(coalesce(v_theme, ''))
      and lower(coalesce(category, '')) = lower(coalesce(v_cat, ''))
      and (status = 'approved' or submitted_by = auth.uid())
    limit 1;
@@ -106,7 +118,7 @@ language sql stable security definer set search_path = public as $$
     from public.challenge_ideas c
    where c.locale = p_locale
      and (c.status = 'approved' or (auth.uid() is not null and c.submitted_by = auth.uid() and c.status = 'pending'))
-   order by c.status = 'approved' desc, lower(c.theme)
+   order by c.status = 'approved' desc, lower(coalesce(c.theme, c.category))
    limit 2000;
 $$;
 revoke all on function public.list_challenge_ideas(text) from public;
