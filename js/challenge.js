@@ -147,6 +147,28 @@
      réglages finaux de l'envoyeur. La section Défis s'en sert pour proposer à la
      communauté un défi écrit à la main — jamais à la simple ouverture de cette
      modale, qu'on peut encore annuler. */
+  /* Minutage choisi par l'expéditeur : temps de jeu et caucus. Chaque liste a
+     son « Autre… » pour une durée tapée à la main (90, 1:30, 2 min…). Caucus :
+     0 = pas de caucus. Bornes = celles que defi.html accepte. Partagé avec la
+     section Défis du Studio (ActoChallenge.minutage), qui propose les mêmes
+     réglages dans « Mon défi ». */
+  var DUR_OPTS = [30, 45, 60, 90, 120, 150, 180, 240, 300], CAUCUS_OPTS = [0, 2, 5, 10, 15, 20, 30, 40, 60];
+  var AUTRE = "autre";
+  function fmtDurLabel(s) { if (!s) return T("challengeCaucusNone"); var m = Math.floor(s / 60), sec = s % 60; return (m ? (m + " min" + (sec ? " " + sec : "")) : (sec + " s")); }
+  function fmtSaisie(s) { var m = Math.floor(s / 60), sec = s % 60; return m ? (m + ":" + (sec < 10 ? "0" : "") + sec) : String(sec); }
+  // « 90 », « 90 s », « 1:30 », « 2 min », « 1 min 30 » → secondes ; null si illisible.
+  function lireDuree(txt) {
+    var x = String(txt || "").trim().toLowerCase().replace(/\s+/g, " "), m;
+    if ((m = x.match(/^(\d+):(\d{1,2})$/))) return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+    if ((m = x.match(/^(\d+) ?(s|sec|secondes?)?$/))) return parseInt(m[1], 10);
+    if ((m = x.match(/^(\d+) ?(m|mn|min|minutes?)(?: ?(\d+) ?(?:s|sec|secondes?)?)?$/))) return parseInt(m[1], 10) * 60 + (m[3] ? parseInt(m[3], 10) : 0);
+    return null;
+  }
+  function optList(vals, sel) {
+    return vals.map(function (v) { return '<option value="' + v + '"' + (v === sel ? " selected" : "") + ">" + esc(fmtDurLabel(v)) + "</option>"; }).join("") +
+      '<option value="' + AUTRE + '"' + (vals.indexOf(sel) < 0 ? " selected" : "") + ">" + esc(T("challengeTimeOther")) + "</option>";
+  }
+
   function open(snapshot, opts) {
     snapshot = snapshot || {};
     opts = opts || {};
@@ -156,25 +178,6 @@
     function epCardHtml(s) {
       return '<div class="chg-ep-t">' + esc(s.title || "") + "</div>" +
         (s.subtitle ? '<p class="chg-sub">' + esc(s.subtitle) + "</p>" : "") + chips(s);
-    }
-    /* Minutage choisi par l'expéditeur : temps de jeu et caucus. Chaque liste a
-       son « Autre… » pour une durée tapée à la main (90, 1:30, 2 min…). Caucus :
-       0 = pas de caucus. Bornes = celles que defi.html accepte. */
-    var DUR_OPTS = [30, 45, 60, 90, 120, 150, 180, 240, 300], CAUCUS_OPTS = [0, 2, 5, 10, 15, 20, 30, 40, 60];
-    var AUTRE = "autre";
-    function fmtDurLabel(s) { if (!s) return T("challengeCaucusNone"); var m = Math.floor(s / 60), sec = s % 60; return (m ? (m + " min" + (sec ? " " + sec : "")) : (sec + " s")); }
-    function fmtSaisie(s) { var m = Math.floor(s / 60), sec = s % 60; return m ? (m + ":" + (sec < 10 ? "0" : "") + sec) : String(sec); }
-    // « 90 », « 90 s », « 1:30 », « 2 min », « 1 min 30 » → secondes ; null si illisible.
-    function lireDuree(txt) {
-      var x = String(txt || "").trim().toLowerCase().replace(/\s+/g, " "), m;
-      if ((m = x.match(/^(\d+):(\d{1,2})$/))) return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
-      if ((m = x.match(/^(\d+) ?(s|sec|secondes?)?$/))) return parseInt(m[1], 10);
-      if ((m = x.match(/^(\d+) ?(m|mn|min|minutes?)(?: ?(\d+) ?(?:s|sec|secondes?)?)?$/))) return parseInt(m[1], 10) * 60 + (m[3] ? parseInt(m[3], 10) : 0);
-      return null;
-    }
-    function optList(vals, sel) {
-      return vals.map(function (v) { return '<option value="' + v + '"' + (v === sel ? " selected" : "") + ">" + esc(fmtDurLabel(v)) + "</option>"; }).join("") +
-        '<option value="' + AUTRE + '"' + (vals.indexOf(sel) < 0 ? " selected" : "") + ">" + esc(T("challengeTimeOther")) + "</option>";
     }
     var initDur = parseInt(snapshot.durationSec, 10); if (!(initDur >= 10 && initDur <= 3599)) initDur = 90;
     var initCau = (snapshot.caucusSec != null && snapshot.caucusSec !== "") ? parseInt(snapshot.caucusSec, 10) : 20;
@@ -391,5 +394,6 @@
     }, function () { list.innerHTML = '<p class="chg-empty">' + esc(T("challengeErr")) + "</p>"; });
   }
 
-  window.ActoChallenge = { open: open, openMine: openMine, openReceived: openReceived, label: function () { return T("challengeSend"); } };
+  window.ActoChallenge = { open: open, openMine: openMine, openReceived: openReceived, label: function () { return T("challengeSend"); },
+    minutage: { DUR_OPTS: DUR_OPTS, CAUCUS_OPTS: CAUCUS_OPTS, AUTRE: AUTRE, libelle: fmtDurLabel, saisie: fmtSaisie, lire: lireDuree, options: optList } };
 })();

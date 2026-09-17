@@ -241,6 +241,8 @@
       nature: "",
       players: (n > 0) ? String(n) : "",       // nombre nu, comme le fait la modale d'envoi
       durationSec: parseInt(o.durationSec, 10) || 120,
+      // Caucus choisi dans « Mon défi » ; absent, la modale d'envoi propose 20 s.
+      caucusSec: (o.caucusSec != null && o.caucusSec !== "" && parseInt(o.caucusSec, 10) >= 0) ? parseInt(o.caucusSec, 10) : undefined,
       level: o.level || epreuve.level || "",
       constraint: ""
     };
@@ -251,7 +253,7 @@
     // Le premier tirage attend la base : sans elle, il ne pourrait pas sortir un
     // défi de la Communauté (voir blocTirage).
     if (!epreuve) epreuve = { mode: "tirage", level: "debutant", tirage: null, idee: null, recherche: "",
-                              brouillon: { category: "", categoryDesc: "", theme: "", players: "2", durationSec: 0, partager: true } };
+                              brouillon: { category: "", categoryDesc: "", theme: "", players: "2", durationSec: 0, caucusSec: 20, partager: true } };
     if (ideesLocale !== S.locale()) idees = null;   // la base est propre à chaque langue
     if (idees === null) chargerIdees();
     render();
@@ -360,6 +362,40 @@
     var champ = root.querySelector('[data-f="category"]'); if (champ) { try { champ.focus(); } catch (e) { /* ignore */ } }
   }
 
+  /* ── minutage : temps de jeu et caucus ──────────────────────────────────────
+     Mêmes listes et même « Autre… » que la modale d'envoi (ActoChallenge.minutage),
+     qui reprend ensuite ces valeurs. */
+  function minutage() { return (window.ActoChallenge && window.ActoChallenge.minutage) || null; }
+  var BORNES = { duree: [10, 3599], caucus: [0, 599] };
+  function champMinutage(champ, libelle, valeurs, valeur) {
+    var m = minutage(); if (!m) return "";
+    return '<div class="suite-set-field suite-defi-minutage"><span id="defiLbl-' + champ + '">' + esc(libelle) + '</span>' +
+      '<div class="suite-defi-pick">' +
+        '<select class="suite-input" data-f="' + champ + '" aria-labelledby="defiLbl-' + champ + '">' + m.options(valeurs, valeur) + '</select>' +
+        '<input type="text" class="suite-input suite-defi-saisie" data-f="' + champ + '-in" inputmode="decimal" placeholder="' + esc(t("challengeTimePh")) +
+          '" value="' + esc(m.saisie(valeur)) + '" aria-labelledby="defiLbl-' + champ + '"' + (valeurs.indexOf(valeur) < 0 ? '' : ' hidden') + ' />' +
+      '</div></div>';
+  }
+  // Valeur d'un réglage : la liste, ou la saisie si « Autre… ». null : illisible ou hors bornes.
+  function lireMinutage(champ) {
+    var m = minutage(), sel = root && root.querySelector('[data-f="' + champ + '"]');
+    if (!m || !sel) return null;
+    if (sel.value !== m.AUTRE) return parseInt(sel.value, 10);
+    var v = m.lire((root.querySelector('[data-f="' + champ + '-in"]') || {}).value);
+    return (v != null && v >= BORNES[champ][0] && v <= BORNES[champ][1]) ? v : null;
+  }
+  // Nom du champ à corriger, ou null si tout est lisible (ou si les réglages sont absents).
+  function minutageInvalide() {
+    var m = minutage(); if (!m || !root) return null;
+    var champs = ["duree", "caucus"];
+    for (var i = 0; i < champs.length; i++) {
+      var sel = root.querySelector('[data-f="' + champs[i] + '"]');
+      if (sel && lireMinutage(champs[i]) == null) return champs[i] + "-in";
+    }
+    return null;
+  }
+  function libelleDuree(s) { var m = minutage(); return m ? m.libelle(s) : S.formatSec(s); }
+
   /* ── rendu ──────────────────────────────────────────────────────────────── */
   function carte(lignes, actions) {
     return '<div class="suite-defi-card">' +
@@ -392,7 +428,8 @@
       { l: t("defiGameLabel"), v: jeu ? jeu.name + (tr.enAttente ? " ✳" : "") : t("valueNone"), desc: jeu ? jeu.desc : "" },
       { l: t("fieldTheme"), v: tr.theme || t("valueNone") },
       { l: t("fieldPlayers"), v: jouteurs(tr.players) },
-      { l: t("fieldDuration"), v: S.formatSec(tr.durationSec) }
+      { l: t("challengePlayTime"), v: libelleDuree(tr.durationSec) },
+      { l: t("challengeCaucus"), v: libelleDuree(20) }
     ], '<button class="suite-btn suite-btn-ghost" data-act="redraw">🎲 ' + esc(t("defiRedraw")) + '</button>' +
        '<button class="suite-btn suite-btn-ghost" data-act="edit">✎ ' + esc(t("defiEditBtn")) + '</button>' +
        '<button class="suite-btn suite-btn-primary" data-act="send">🎯 ' + esc(t("defiSendBtn")) + '</button>');
@@ -465,7 +502,8 @@
         { l: t("defiGameLabel"), v: x.category + (x.status === "pending" ? " ✳" : ""), desc: x.category_desc || "" },
         { l: t("fieldTheme"), v: x.theme || t("valueNone") },
         { l: t("fieldPlayers"), v: jouteurs(x.players) },
-        { l: t("fieldDuration"), v: S.formatSec(parseInt(x.duration_sec, 10) || 60) }
+        { l: t("challengePlayTime"), v: libelleDuree(parseInt(x.duration_sec, 10) || 60) },
+        { l: t("challengeCaucus"), v: libelleDuree(20) }
       ], '<button class="suite-btn suite-btn-ghost" data-act="edit">✎ ' + esc(t("defiEditBtn")) + '</button>' +
          '<button class="suite-btn suite-btn-primary" data-act="send">🎯 ' + esc(t("defiSendBtn")) + '</button>');
     }
@@ -490,8 +528,12 @@
           '<button type="button" class="suite-icon-btn" data-act="theme-clear" aria-label="' + esc(t("defiThemeClear")) + '" title="' + esc(t("defiThemeClear")) + '">✕</button>' +
         '</div></div>' +
       '<datalist id="defiThemes">' + options(themes) + '</datalist>' +
-      '<label class="suite-set-field"><span>' + esc(t("challengePlayersLabel")) + '</span>' +
-        '<input type="number" class="suite-input suite-defi-players" data-f="players" min="1" max="12" inputmode="numeric" value="' + esc(b.players) + '" /></label>' +
+      '<div class="suite-defi-reglages">' +
+        '<label class="suite-set-field suite-defi-jouteurs"><span>' + esc(t("challengePlayersLabel")) + '</span>' +
+          '<input type="number" class="suite-input suite-defi-players" data-f="players" min="1" max="12" inputmode="numeric" value="' + esc(b.players) + '" /></label>' +
+        (minutage() ? champMinutage("duree", t("challengePlayTime"), minutage().DUR_OPTS, b.durationSec || 120) +
+                      champMinutage("caucus", t("challengeCaucus"), minutage().CAUCUS_OPTS, b.caucusSec != null ? b.caucusSec : 20) : '') +
+      '</div>' +
       (connecte()
         ? '<label class="suite-set-toggle"><input type="checkbox" data-f="partager"' + (b.partager ? " checked" : "") + ' /> <span>' + esc(t("defiManualShare")) + '</span></label>'
         : '') +
@@ -589,6 +631,17 @@
       nom.addEventListener("change", majNom);
     }
 
+    // « Autre… » : la saisie apparaît ; en rouge tant qu'elle est illisible.
+    ["duree", "caucus"].forEach(function (champ) {
+      var m = minutage(), sel = root.querySelector('[data-f="' + champ + '"]'), saisie = root.querySelector('[data-f="' + champ + '-in"]');
+      if (!m || !sel || !saisie) return;
+      sel.onchange = function () {
+        saisie.hidden = sel.value !== m.AUTRE;
+        saisie.classList.remove("is-bad");
+        if (!saisie.hidden) { try { saisie.focus(); saisie.select(); } catch (e) { /* ignore */ } }
+      };
+      saisie.oninput = function () { saisie.classList.toggle("is-bad", lireMinutage(champ) == null); };
+    });
     var edit = root.querySelector('[data-act="edit"]');
     if (edit) edit.onclick = modifierDefi;
     var efface = root.querySelector('[data-act="theme-clear"]');
@@ -611,6 +664,9 @@
       var el = root.querySelector('[data-f="' + k + '"]'); if (el) b[k] = String(el.value || "");
     });
     var p = root.querySelector('[data-f="partager"]'); if (p) b.partager = !!p.checked;
+    var jeu = lireMinutage("duree"), cau = lireMinutage("caucus");
+    if (jeu != null) b.durationSec = jeu;
+    if (cau != null) b.caucusSec = cau;
   }
 
   function erreur(msg, champ) {
@@ -636,6 +692,8 @@
 
     lireBrouillon();
     var errAvant = root.querySelector('[data-r="err"]'); if (errAvant) errAvant.hidden = true;   // pas de message périmé après correction
+    var aCorriger = minutageInvalide();
+    if (aCorriger) { erreur(t("challengeTimeInvalid"), aCorriger); return; }
     var b = epreuve.brouillon, saisie = {
       category: String(b.category || "").trim(),
       categoryDesc: String(b.categoryDesc || "").trim(),
@@ -651,7 +709,7 @@
     if (saisie.category && !saisie.categoryDesc) { erreur(t("defiGameDescRequired"), "categoryDesc"); return; }
     var partager = b.partager && connecte();
     window.ActoChallenge.open(instantane({ category: saisie.category, categoryDesc: saisie.categoryDesc, theme: saisie.theme,
-      players: saisie.players, durationSec: b.durationSec || 120, level: epreuve.level }), {
+      players: saisie.players, durationSec: b.durationSec || 120, caucusSec: b.caucusSec, level: epreuve.level }), {
       onCreated: function (snap) { proposer(snap, saisie, partager); }
     });
   }

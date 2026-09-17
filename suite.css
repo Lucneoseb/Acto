@@ -1529,3 +1529,10 @@
 .suite-defi-pick .suite-btn { flex: 0 0 auto; }
 /* Téléphone : le dé seul, la liste garde la place de lire son choix. */
 @media (max-width: 520px) { .suite-defi-pick-txt { display: none; } }
+/* Mon défi : jouteurs, temps de jeu et caucus sur une même ligne (deux par ligne sur téléphone). */
+.suite-defi-reglages { display: flex; flex-wrap: wrap; gap: 0.6rem 0.8rem; align-items: flex-end; }
+.suite-defi-reglages .suite-defi-jouteurs { flex: 0 0 7rem; }
+.suite-defi-reglages .suite-defi-minutage { flex: 1 1 11rem; min-width: 0; }
+.suite-defi-saisie { flex: 0 0 5.2rem; width: 5.2rem; }
+.suite-defi-saisie[hidden] { display: none !important; }
+.suite-defi-saisie.is-bad { border-color: #ef6b6b; box-shadow: 0 0 0 2px rgba(239,107,107,.25); }
