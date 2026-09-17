@@ -1,23 +1,23 @@
 -- ============================================================================
---  Acto — 80 defis d'improvisation express (30 s a 1 min)
+--  Acto — 103 defis d'improvisation express (30 s a 1 min)
 --  A passer dans l'editeur SQL Supabase (projet gssotstyevehbzydzhlq),
---  APRES migrate-2026-09-defis-communaute.sql.
+--  APRES migrate-2026-09-defis-communaute.sql (theme facultatif).
 -- ============================================================================
 --
---  16 contraintes de jeu x 5 sujets imposes, publies directement (status
---  'approved') dans la base de defis : visibles par tous dans Studio -> Defis
---  -> Base, et dans la page admin #defis.
+--  20 contraintes de jeu x 5 sujets imposes, plus 3 contraintes universelles
+--  sans sujet a elles (Libre, Avec accent, Avec tocs : le Studio leur associe
+--  n'importe quel sujet de la base, ou aucun). Publies directement (status
+--  'approved') : visibles par tous dans Studio -> Defis, et dans l'admin #defis.
 --
 --  Chaque defi : contrainte (nom + description, affichee a qui recoit le defi),
 --  sujet impose (le theme), 1 jouteur, 1 min de jeu. L'expediteur peut changer
---  le nombre de jouteurs, la duree et le caucus au moment de l'envoi. Pas de
---  niveau : la base les montre tous.
+--  le nombre de jouteurs, la duree et le caucus au moment de l'envoi.
 --
---  Deja passe la version a 50 defis ? Relancer ce fichier ajoute seulement
---  les 30 nouveaux (contraintes 11 a 16).
+--  Deja passe une version precedente (50 ou 80 defis) ? Relancer ce fichier
+--  n'ajoute que ce qui manque.
 --
---  Re-executable : un defi deja present (meme contrainte + meme sujet, en
---  francais) n'est jamais ajoute une deuxieme fois.
+--  Re-executable : un defi deja present (meme contrainte + meme sujet, ou meme
+--  contrainte sans sujet, en francais) n'est jamais ajoute une deuxieme fois.
 -- ============================================================================
 
 with contraintes(n, category, category_desc) as (values
@@ -52,7 +52,21 @@ with contraintes(n, category, category_desc) as (values
   (15, 'L''excuse invraisemblable',
        'Justifier une situation banale de la vie courante avec un récit d''aventure épique, abracadabrant et impliquant souvent des animaux ou des complots.'),
   (16, 'La rupture culinaire',
-       'Rompre avec tout le sérieux, les larmes et la gravité d''une vraie séparation sentimentale, mais l''unique raison de la rupture est une habitude culinaire inacceptable.')
+       'Rompre avec tout le sérieux, les larmes et la gravité d''une vraie séparation sentimentale, mais l''unique raison de la rupture est une habitude culinaire inacceptable.'),
+  (17, 'Le Zapping Télé',
+       'Le ton et le genre de l''improvisation (western, horreur, télé-réalité, documentaire, drame romantique) changent toutes les 10 secondes au signal d''un meneur de jeu. L''improvisateur ne doit pas changer d''histoire, juste de style de jeu.'),
+  (18, 'Le Poète Maudit (Rimes obligatoires)',
+       'Absolument toutes les phrases prononcées doivent rimer à la fin (que ce soit en AABB, ABAB, ou même des rimes pauvres). L''improvisateur doit adapter son rythme de parole pour trouver ses rimes à la volée.'),
+  (19, 'La Double Voix (Filtre / Sans Filtre)',
+       'L''improvisateur doit alterner très distinctement : une phrase "polie et sociale" (dite avec un grand sourire) suivie immédiatement d''une phrase "pensée secrète et honnête" (dite avec une autre posture ou une autre voix, en aparté).'),
+  (20, 'Le GPS Automatisé',
+       'Raconter la situation en adoptant la voix robotique, saccadée, neutre et très directive d''un système de navigation GPS, en utilisant le vocabulaire routier (recalcul de l''itinéraire, faire demi-tour, rond-point) pour décrire des émotions ou des actions.'),
+  (21, 'Libre',
+       'Aucune contrainte de jeu : improvisation libre, sur le sujet imposé s''il y en a un.'),
+  (22, 'Avec accent',
+       'Jouer toute l''improvisation avec un accent marqué (régional ou étranger), tenu du début à la fin sans jamais le perdre.'),
+  (23, 'Avec tocs',
+       'Le personnage a un ou plusieurs tocs (geste répété, tic de langage, petit rituel) qui reviennent tout au long de l''improvisation et pèsent sur la scène.')
 ),
 sujets(n, theme) as (values
   -- 1. L'Abecedaire
@@ -150,7 +164,37 @@ sujets(n, theme) as (values
   (16, 'Rompre parce que la personne mange sa pizza en commençant par la croûte.'),
   (16, 'Rompre parce qu''elle coupe impitoyablement ses spaghettis avec un couteau.'),
   (16, 'Rompre parce qu''il met l''eau avant les céréales dans son bol le matin.'),
-  (16, 'Rompre parce qu''elle trempe ses frites dans de la mayonnaise mélangée à du Nutella.')
+  (16, 'Rompre parce qu''elle trempe ses frites dans de la mayonnaise mélangée à du Nutella.'),
+  -- 17. Le Zapping Tele
+  (17, 'L''action périlleuse de préparer un simple sandwich au jambon-beurre.'),
+  (17, 'L''aventure terrifiante ou épique de sortir les poubelles le soir.'),
+  (17, 'L''épreuve insoutenable d''attendre le bus sous une pluie battante.'),
+  (17, 'La mission consistant à promener un petit chien extrêmement têtu.'),
+  (17, 'La construction mystique d''un meuble en kit scandinave.'),
+  -- 18. Le Poete Maudit (Rimes obligatoires)
+  (18, 'Se plaindre de manière lyrique d''une panne de Wi-Fi en plein téléchargement.'),
+  (18, 'Commander une pizza 4 fromages au téléphone avec des exigences très strictes.'),
+  (18, 'Demander une augmentation de salaire à un patron radin.'),
+  (18, 'S''excuser platement auprès de son chat après lui avoir marché sur la queue.'),
+  (18, 'Raconter à son médecin un rêve particulièrement absurde et angoissant.'),
+  -- 19. La Double Voix (Filtre / Sans Filtre)
+  (19, 'Recevoir un cadeau d''anniversaire particulièrement laid de la part de sa belle-mère.'),
+  (19, 'Goûter le plat expérimental et complètement raté d''un ami très susceptible.'),
+  (19, 'Passer un entretien d''embauche pour un poste qu''on déteste avec un recruteur antipathique.'),
+  (19, 'Complimenter un collègue sur sa nouvelle coupe de cheveux désastreuse.'),
+  (19, 'Écouter l''histoire interminable d''un inconnu très bavard dans le train.'),
+  -- 20. Le GPS Automatise
+  (20, 'Guider quelqu''un pas à pas pour réussir à survivre à un premier rendez-vous galant.'),
+  (20, 'Les instructions de navigation pour affronter un repas de famille houleux le dimanche.'),
+  (20, 'Le trajet émotionnel et physique pour réussir à se lever du lit un lundi matin d''hiver.'),
+  (20, 'La navigation tactique complexe pour s''échapper discrètement d''une soirée très ennuyeuse sans dire au revoir.'),
+  (20, 'L''itinéraire étape par étape pour demander pardon à son ou sa partenaire après une énorme gaffe.'),
+  -- 21. Libre (universelle : sans sujet)
+  (21, null),
+  -- 22. Avec accent (universelle : sans sujet)
+  (22, null),
+  -- 23. Avec tocs (universelle : sans sujet)
+  (23, null)
 )
 insert into public.challenge_ideas (locale, level, category, category_desc, theme, players, duration_sec, status, approved_at)
 select 'fr', null, c.category, c.category_desc, s.theme, 1, 60, 'approved', now()
@@ -160,16 +204,16 @@ select 'fr', null, c.category, c.category_desc, s.theme, 1, 60, 'approved', now(
    select 1 from public.challenge_ideas d
     where d.locale = 'fr'
       and lower(coalesce(d.category, '')) = lower(c.category)
-      and lower(coalesce(d.theme, '')) = lower(s.theme)
+      and lower(coalesce(d.theme, '')) = lower(coalesce(s.theme, ''))
  );
 
 -- ============================================================================
---  Verification (16 lignes, 5 defis chacune) :
+--  Verification (23 lignes : 5 defis par contrainte, 1 par contrainte universelle) :
 --    select category, count(*) from public.challenge_ideas
 --     where locale = 'fr' and status = 'approved' and submitted_by is null
 --     group by category order by category;
 --
---  Pour retirer ces 80 defis d'un coup :
+--  Pour retirer ces 103 defis d'un coup :
 --    delete from public.challenge_ideas
 --     where locale = 'fr' and submitted_by is null and category in (
 --      'L''Abécédaire',
@@ -187,6 +231,13 @@ select 'fr', null, c.category, c.category_desc, s.theme, 1, 60, 'approved', now(
 --      'Le super-héros du quotidien',
 --      'Le critique déco de l''espace / fantastique',
 --      'L''excuse invraisemblable',
---      'La rupture culinaire'
+--      'La rupture culinaire',
+--      'Le Zapping Télé',
+--      'Le Poète Maudit (Rimes obligatoires)',
+--      'La Double Voix (Filtre / Sans Filtre)',
+--      'Le GPS Automatisé',
+--      'Libre',
+--      'Avec accent',
+--      'Avec tocs'
 --     );
 -- ============================================================================

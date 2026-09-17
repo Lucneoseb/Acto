@@ -1523,3 +1523,9 @@
 .suite-defi-theme-row { display: flex; gap: 0.4rem; align-items: center; }
 .suite-defi-theme-row .suite-input { flex: 1 1 auto; min-width: 0; }
 .suite-defi-theme-row .suite-icon-btn { flex: 0 0 auto; }
+/* Communauté : une liste et son bouton « Tirer au sort » sur la même ligne. */
+.suite-defi-pick { display: flex; gap: 0.5rem; align-items: center; }
+.suite-defi-pick .suite-input { flex: 1 1 auto; min-width: 0; }
+.suite-defi-pick .suite-btn { flex: 0 0 auto; }
+/* Téléphone : le dé seul, la liste garde la place de lire son choix. */
+@media (max-width: 520px) { .suite-defi-pick-txt { display: none; } }

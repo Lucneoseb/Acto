@@ -112,6 +112,28 @@
     });
     return liste;
   }
+  /* Sujets imposés d'une contrainte : les siens ; à défaut — contrainte
+     UNIVERSELLE comme « Libre », « Avec accent », « Avec tocs », saisie sans
+     sujet — tous les sujets de la base, qui lui vont tous. */
+  function tousLesSujets() {
+    var vus = {}, liste = [];
+    (Array.isArray(idees) ? idees : []).forEach(function (x) { var k = cle(x.theme); if (k && !vus[k]) { vus[k] = true; liste.push(x.theme); } });
+    return liste;
+  }
+  function sujetsDe(jeu) {
+    var vus = {}, propres = [];
+    ((jeu && jeu.sujets) || []).forEach(function (x) { var k = cle(x.theme); if (k && !vus[k]) { vus[k] = true; propres.push(x.theme); } });
+    if (propres.length) return { liste: propres, universel: false };
+    var loc = S.locale();
+    return { liste: tousLesSujets().sort(function (a, b) { return a.localeCompare(b, loc); }), universel: true };
+  }
+  // Au hasard, en évitant de reservir la valeur actuelle quand il y a le choix.
+  function auHasard(liste, actuelle) {
+    if (!liste.length) return null;
+    var choix = liste.length > 1 ? liste.filter(function (v) { return cle(v) !== cle(actuelle); }) : liste;
+    return choix[Math.floor(Math.random() * choix.length)];
+  }
+
   // Jeux du tirage et de la liste : ceux de l'appli, puis ceux de la Communauté.
   // Même nom des deux côtés : un seul jeu, qui reçoit les sujets de la base.
   /* Pour l'instant, le tirage et « Mon défi » ne proposent QUE les défis de la
@@ -193,8 +215,10 @@
     var theme = seg.theme || "", duree = seg.durationSec || 120, idee = null;
     // Contrainte de la Communauté : l'un de SES sujets, avec ses jouteurs et sa durée.
     if (jeu && jeu.sujets && jeu.sujets.length) {
-      idee = jeu.sujets[Math.floor(Math.random() * jeu.sujets.length)];
-      theme = idee.theme || "";
+      var avecSujet = jeu.sujets.filter(function (x) { return !!x.theme; });
+      idee = avecSujet.length ? avecSujet[Math.floor(Math.random() * avecSujet.length)] : jeu.sujets[0];
+      // Contrainte universelle (« Libre », « Avec accent »…) : un sujet de toute la base.
+      theme = avecSujet.length ? idee.theme : (auHasard(tousLesSujets(), "") || "");
       if (parseInt(idee.players, 10) > 0) n = parseInt(idee.players, 10);
       if (parseInt(idee.duration_sec, 10) > 0) duree = parseInt(idee.duration_sec, 10);
     }
@@ -374,36 +398,74 @@
        '<button class="suite-btn suite-btn-primary" data-act="send">🎯 ' + esc(t("defiSendBtn")) + '</button>');
   }
 
+  /* ── Communauté : un défi en deux temps ─────────────────────────────────────
+     1. la contrainte ou l'exercice, choisi dans la liste ou tiré au sort ;
+     2. le sujet imposé : tiré parmi ceux de CETTE contrainte, choisi dans sa
+        liste, ou aucun. Une contrainte universelle va avec tous les sujets.
+     Avant : une liste à plat de plus de cent défis, à faire défiler. */
+  function jeuxBase() {
+    var estNature = natures(epreuve.level), loc = S.locale();
+    return jeuxCommunaute(null).filter(function (j) { return !estNature(j.name); })
+      .sort(function (a, b) { return a.name.localeCompare(b.name, loc); });
+  }
+  // sujet : undefined → tiré au sort ; "" → aucun ; sinon ce sujet.
+  function choisirBase(nom, sujet) {
+    var jeu = jeuxBase().filter(function (j) { return cle(j.name) === cle(nom); })[0] || null;
+    if (!jeu) { epreuve.base = null; epreuve.idee = null; return; }
+    var liste = sujetsDe(jeu).liste;
+    if (sujet === undefined) sujet = auHasard(liste, epreuve.base && epreuve.base.sujet) || "";
+    epreuve.base = { jeu: jeu.name, sujet: sujet };
+    // La ligne de la base qui correspond donne jouteurs, durée et statut ; à défaut, la première de la contrainte.
+    var ligne = jeu.sujets.filter(function (x) { return sujet && cle(x.theme) === cle(sujet); })[0] || jeu.sujets[0] || {};
+    epreuve.idee = { id: ligne.id || "", category: jeu.name, category_desc: jeu.desc || "", theme: sujet || null,
+                     players: ligne.players || 1, duration_sec: ligne.duration_sec || 60, level: ligne.level || null,
+                     status: ligne.status || "approved" };
+  }
+
   function blocBase() {
     if (idees === null) chargerIdees();
     if (idees === null) return '<p class="suite-sub">' + esc(t("commonLoading")) + '</p>';
     if (idees === "erreur") return '<p class="suite-sub">' + esc(t("defiBaseError")) + '</p>';
-    var q = cle(epreuve.recherche);
-    var liste = idees.filter(function (x) {
-      return !q || cle(x.theme).indexOf(q) >= 0 || cle(x.category).indexOf(q) >= 0;
-    });
-    var html = '<input type="search" class="suite-input suite-defi-search" data-act="search" value="' + esc(epreuve.recherche) +
-      '" placeholder="' + esc(t("defiBaseSearch")) + '" aria-label="' + esc(t("defiBaseSearch")) + '" />';
-    if (idees.some(function (x) { return x.status === "pending"; })) html += '<p class="suite-defi-note">' + esc(t("catalogPendingNote")) + '</p>';
-    if (!idees.length) return html + '<p class="suite-sub">' + esc(t("defiBaseEmpty")) + '</p>';
-    if (!liste.length) return html + '<p class="suite-sub">' + esc(t("defiBaseNoMatch")) + '</p>';
-    html += '<div class="suite-defi-ideas">' + liste.map(function (x) {
-      var meta = [];
-      if (x.category && x.theme) meta.push(x.category);   // sans thème, la contrainte est déjà le titre
-      if (x.players) meta.push(jouteurs(x.players));
-      if (x.level) meta.push(niveauLabel(x.level));
-      var choisi = epreuve.idee && epreuve.idee.id === x.id;
-      return '<button type="button" class="suite-defi-idea' + (choisi ? " is-on" : "") + '" data-idea="' + esc(x.id) + '" aria-pressed="' + (choisi ? "true" : "false") + '">' +
-        '<span class="suite-defi-idea-theme">' + esc(x.theme || x.category) + (x.status === "pending" ? ' <span class="suite-defi-pending" title="' + esc(t("pendingTitle")) + '">✳</span>' : '') + '</span>' +
-        (meta.length ? '<span class="suite-defi-idea-meta">' + esc(meta.join(" · ")) + '</span>' : '') +
-      '</button>';
-    }).join("") + '</div>';
-    if (epreuve.idee) {
-      var x = epreuve.idee;
+    var jeux = jeuxBase();
+    if (!jeux.length) return '<p class="suite-sub">' + esc(t("defiBaseEmpty")) + '</p>';
+    var b = epreuve.base || { jeu: "", sujet: "" };
+    var jeu = jeux.filter(function (j) { return cle(j.name) === cle(b.jeu); })[0] || null;
+    var html = idees.some(function (x) { return x.status === "pending"; }) ? '<p class="suite-defi-note">' + esc(t("catalogPendingNote")) + '</p>' : '';
+    html += '<div class="suite-defi-card suite-defi-form">' +
+      '<div class="suite-set-field"><span id="defiBaseJeuLbl">' + esc(t("defiGameLabel")) + '</span>' +
+        '<div class="suite-defi-pick">' +
+          '<select class="suite-input" data-act="base-jeu" aria-labelledby="defiBaseJeuLbl">' +
+            '<option value="">' + esc(t("defiBaseChoose")) + '</option>' +
+            jeux.map(function (j) {
+              var attente = j.sujets.every(function (x) { return x.status === "pending"; });
+              return '<option value="' + esc(j.name) + '"' + (jeu && jeu.name === j.name ? " selected" : "") + '>' + esc(j.name + (attente ? " ✳" : "")) + '</option>';
+            }).join("") +
+          '</select>' +
+          '<button type="button" class="suite-btn suite-btn-ghost" data-act="base-tirer-jeu" aria-label="' + esc(t("defiBaseDraw")) + '">🎲<span class="suite-defi-pick-txt"> ' + esc(t("defiBaseDraw")) + '</span></button>' +
+        '</div>' +
+        (jeu && jeu.desc ? '<p class="suite-defi-desc">' + esc(jeu.desc) + '</p>' : '') +
+      '</div>';
+    if (!jeu) return html + '<p class="suite-help">' + esc(t("defiBasePick")) + '</p></div>';
+    var sujets = sujetsDe(jeu);
+    html +=
+      '<div class="suite-set-field"><span id="defiBaseSujetLbl">' + esc(t("defiBaseSubject")) + '</span>' +
+        '<div class="suite-defi-pick">' +
+          '<select class="suite-input" data-act="base-sujet" aria-labelledby="defiBaseSujetLbl">' +
+            '<option value="">' + esc(t("defiBaseNoSubject")) + '</option>' +
+            sujets.liste.map(function (s) { return '<option value="' + esc(s) + '"' + (cle(s) === cle(b.sujet) ? " selected" : "") + '>' + esc(s) + '</option>'; }).join("") +
+          '</select>' +
+          (sujets.liste.length ? '<button type="button" class="suite-btn suite-btn-ghost" data-act="base-tirer-sujet" aria-label="' + esc(t("defiBaseDraw")) + '">🎲<span class="suite-defi-pick-txt"> ' + esc(t("defiBaseDraw")) + '</span></button>' : '') +
+        '</div>' +
+        (sujets.universel && sujets.liste.length ? '<p class="suite-help">' + esc(t("defiBaseUniversal")) + '</p>' : '') +
+      '</div>' +
+    '</div>';
+    var x = epreuve.idee;
+    if (x) {
       html += carte([
-        { l: t("defiGameLabel"), v: x.category || t("valueNone"), desc: x.category_desc || "" },
+        { l: t("defiGameLabel"), v: x.category + (x.status === "pending" ? " ✳" : ""), desc: x.category_desc || "" },
         { l: t("fieldTheme"), v: x.theme || t("valueNone") },
-        { l: t("fieldPlayers"), v: jouteurs(x.players) }
+        { l: t("fieldPlayers"), v: jouteurs(x.players) },
+        { l: t("fieldDuration"), v: S.formatSec(parseInt(x.duration_sec, 10) || 60) }
       ], '<button class="suite-btn suite-btn-ghost" data-act="edit">✎ ' + esc(t("defiEditBtn")) + '</button>' +
          '<button class="suite-btn suite-btn-primary" data-act="send">🎯 ' + esc(t("defiSendBtn")) + '</button>');
     }
@@ -492,21 +554,18 @@
     var redraw = root.querySelector('[data-act="redraw"]');
     if (redraw) redraw.onclick = function () { epreuve.tirage = tirer(epreuve.level); render(); };
 
-    var recherche = root.querySelector('[data-act="search"]');
-    if (recherche) recherche.oninput = function () {
-      epreuve.recherche = recherche.value;
-      var pos = recherche.selectionStart;
-      render();
-      var r2 = root.querySelector('[data-act="search"]');
-      if (r2) { r2.focus(); try { r2.setSelectionRange(pos, pos); } catch (e) { /* ignore */ } }
+    // Communauté : contrainte (liste ou tirage), puis sujet (tirage, liste ou aucun).
+    var selJeu = root.querySelector('[data-act="base-jeu"]');
+    if (selJeu) selJeu.onchange = function () { choisirBase(selJeu.value); render(); };
+    var tirerJeu = root.querySelector('[data-act="base-tirer-jeu"]');
+    if (tirerJeu) tirerJeu.onclick = function () {
+      var nom = auHasard(jeuxBase().map(function (j) { return j.name; }), epreuve.base && epreuve.base.jeu);
+      if (nom) { choisirBase(nom); render(); }
     };
-    root.querySelectorAll("[data-idea]").forEach(function (b) {
-      b.onclick = function () {
-        var id = b.getAttribute("data-idea");
-        epreuve.idee = (Array.isArray(idees) ? idees : []).filter(function (x) { return x.id === id; })[0] || null;
-        render();
-      };
-    });
+    var selSujet = root.querySelector('[data-act="base-sujet"]');
+    if (selSujet) selSujet.onchange = function () { choisirBase(epreuve.base && epreuve.base.jeu, selSujet.value); render(); };
+    var tirerSujet = root.querySelector('[data-act="base-tirer-sujet"]');
+    if (tirerSujet) tirerSujet.onclick = function () { choisirBase(epreuve.base && epreuve.base.jeu); render(); };
 
     /* Choisir une contrainte connue (liste ou frappe exacte) remplit sa description
        et met SES sujets en tête des thèmes proposés. Une description posée ainsi
