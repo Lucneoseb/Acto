@@ -1519,3 +1519,7 @@
 .suite-defi-jeu { margin: 0; padding: 0.6rem 0.75rem 0.75rem; border-radius: 10px; display: flex; flex-direction: column; gap: 0.55rem;
   border: 1px solid color-mix(in srgb, #ffffff 12%, transparent); }
 .suite-defi-jeu legend { padding: 0 0.35rem; font: 600 0.7rem/1.1 "Inter", sans-serif; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-faint); }
+/* Thème du défi : le champ et son bouton ✕ pour le retirer. */
+.suite-defi-theme-row { display: flex; gap: 0.4rem; align-items: center; }
+.suite-defi-theme-row .suite-input { flex: 1 1 auto; min-width: 0; }
+.suite-defi-theme-row .suite-icon-btn { flex: 0 0 auto; }

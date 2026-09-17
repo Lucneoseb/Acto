@@ -668,6 +668,16 @@
     reconcilierPool();
     return true;
   }
+  /* Contraintes proposées par les utilisateurs — validées pour tous, ou encore en
+     attente pour leur auteur — AVEC leur description : le pool des contraintes ne
+     garde que les noms. Les défis s'en servent pour qu'une contrainte écrite à la
+     main reste disponible tout de suite à son auteur. */
+  function contraintesProposees(level) {
+    return _valides.filter(function (s) {
+      return s.kind === "constraint" && (!s.mode || s.mode === "match") &&
+             (!s.level || !level || s.level === level) && (!s.locale || s.locale === _locale);
+    }).map(function (s) { return { name: s.text, desc: s.description || "", pending: !!s._pending }; });
+  }
   /* Le nom affiché sur une carte vient de la séance enregistrée, pas de la
      liste : c'est le pool qu'il faut interroger pour savoir s'il est encore
      en attente. */
@@ -1193,6 +1203,7 @@
       drawDurationSec: drawDurationSec,
       drawWarmup: drawWarmup,
       drawTrainingExercise: drawTrainingExercise,
+      contraintesProposees: contraintesProposees,
       warmupOptions: warmupOptions,
       trainingExerciseOptions: trainingExerciseOptions,
       ensureWarmups: ensureWarmups,

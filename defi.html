@@ -20,8 +20,8 @@
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
 <link rel="manifest" href="/manifest.webmanifest" />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=2026091606" />
-<link rel="stylesheet" href="suite.css?v=2026091606" />
+<link rel="stylesheet" href="styles.css?v=2026091702" />
+<link rel="stylesheet" href="suite.css?v=2026091702" />
 <style>
   .defi-body { min-height: 100svh; }
   .defi-wrap { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.1rem; padding: 1.4rem 1.05rem; text-align: center; }
@@ -170,13 +170,13 @@
   </div>
 
   <script src="/vendor/supabase-js-2.47.10.min.js" integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"></script>
-  <script src="./js/config.js?v=2026091606"></script>
+  <script src="./js/config.js?v=2026091702"></script>
   <!-- Français en synchrone (repli de t()), langue de l'utilisateur
        chargée à la demande : voir js/suite/locale-loader.js. -->
-  <script src="./data/all-fr.js?v=2026091606"></script>
-  <script src="./js/suite/locale-loader.js?v=2026091606"></script>
-  <script src="./js/suite/i18n-fr.js?v=2026091606"></script>
-  <script src="./js/suite/core.js?v=2026091606"></script>
+  <script src="./data/all-fr.js?v=2026091702"></script>
+  <script src="./js/suite/locale-loader.js?v=2026091702"></script>
+  <script src="./js/suite/i18n-fr.js?v=2026091702"></script>
+  <script src="./js/suite/core.js?v=2026091702"></script>
   <script>
   (function () {
     "use strict";
@@ -357,10 +357,17 @@
         camDevices = (l || []).filter(function (d) { return d.kind === "videoinput"; });
       }, function () { camDevices = []; });
     }
+    function jouer(v) { try { var p = v.play(); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
     function brancherFlux(st) {
       stream = st;
-      try { if (camVideo) camVideo.srcObject = st; } catch (e) {}
-      var pv = document.getElementById("defiSetupVideo"); if (pv) { try { pv.srcObject = st; } catch (e) {} }
+      // Affecter srcObject relance le chargement de la vidéo et INTERROMPT sa
+      // lecture. On la relance nous-mêmes plutôt que de compter sur l'attribut
+      // autoplay, qu'un navigateur peut ignorer pour la vidéo source du tournage,
+      // absente de la page. Aperçus (réglages, 3-2-1) compris.
+      if (camVideo) { try { camVideo.srcObject = st; } catch (e) {} jouer(camVideo); }
+      root.querySelectorAll("video.defi-video").forEach(function (v) {
+        if (v.srcObject) { try { v.srcObject = st; } catch (e) {} jouer(v); }
+      });
       wireMic(); detecterOrientation(); appliquerMiroirParDefaut();
     }
     function changerCamera(deviceId) {
@@ -381,6 +388,7 @@
 
     function clearTimer() { if (tk) { clearInterval(tk); tk = null; } }
     function stopStream() {
+      arreterControleImage();
       if (rafId) { try { cancelAnimationFrame(rafId); } catch (e) {} rafId = 0; }
       if (meterRaf) { try { cancelAnimationFrame(meterRaf); } catch (e) {} meterRaf = 0; }
       if (micSource) { try { micSource.disconnect(); } catch (e) {} micSource = null; }
@@ -518,6 +526,7 @@
         stream = st;
         prepareCompositor();   // camVideo + canvas sizing settle during the setup screen
         brancherFlux(st);
+        lancerControleImage();
         listerCameras().then(function () { renderSetup(); });
       }
       navigator.mediaDevices.getUserMedia({ video: contraintesVideo(memo ? { deviceId: { exact: memo } } : { facingMode: "user" }), audio: true }).then(obtenu, function () {
@@ -557,10 +566,55 @@
     }
     // 720p demandé sans l'exiger : sans indication, Chrome ouvre une webcam en
     // 640×480, une image floue qu'il faudrait agrandir pour remplir le cadre.
+    var definitionStandard = false;   // repli : caméra ouverte sans demander de définition
     function contraintesVideo(base) {
-      var c = { width: { ideal: 1280 }, height: { ideal: 720 } };
+      var c = definitionStandard ? {} : { width: { ideal: 1280 }, height: { ideal: 720 } };
       for (var k in base) c[k] = base[k];
       return c;
+    }
+
+    /* Contrôle de l'image que le tournage recevra. Sur certains PC Windows, une
+       webcam ouverte en 720p s'affiche normalement à l'écran, mais le canvas du
+       tournage n'en tire que du noir (images décodées par la carte graphique,
+       que drawImage ne sait pas copier) : aperçu normal, vidéo noire dès
+       l'annonce. Pendant les réglages et le 3-2-1, on dessine donc une image de
+       la caméra dans un canvas de la taille du tournage et on regarde s'il en
+       sort autre chose que du noir. Noir plusieurs fois de suite alors que la
+       vidéo joue : la caméra est rouverte dans sa définition par défaut — celle
+       qui fonctionnait avant — pour le reste de la visite. */
+    var controleTk = null;
+    function imageNoire(video) {
+      // null : pas encore d'image, ou lecture impossible — on ne conclut rien.
+      if (!video || video.readyState < 2 || !video.videoWidth || video.paused || video.currentTime < 0.8) return null;
+      try {
+        var c = document.createElement("canvas");
+        c.width = (canvas && canvas.width) || 1280; c.height = (canvas && canvas.height) || 720;
+        var g = c.getContext("2d");
+        g.drawImage(video, 0, 0, c.width, c.height);
+        var d = g.getImageData(0, 0, c.width, c.height).data, max = 0;
+        for (var i = 0; i < d.length; i += 388) { var s = d[i] + d[i + 1] + d[i + 2]; if (s > max) max = s; }
+        return max < 30;
+      } catch (e) { return null; }
+    }
+    function arreterControleImage() { if (controleTk) { clearInterval(controleTk); controleTk = null; } }
+    function lancerControleImage() {
+      arreterControleImage();
+      var noirs = 0, essais = 0;
+      controleTk = setInterval(function () {
+        if (!camVideo || recActive) { arreterControleImage(); return; }
+        if (camVideo.paused) jouer(camVideo);
+        var noir = imageNoire(camVideo);
+        if (noir === null) return;
+        essais++;
+        if (!noir) { arreterControleImage(); return; }           // de vraies images : rien à faire
+        if (++noirs >= 3 && !definitionStandard) {
+          arreterControleImage();
+          definitionStandard = true;
+          changerCamera(reglagesPiste().deviceId || "").then(lancerControleImage, function () {});
+          return;
+        }
+        if (essais >= 10) arreterControleImage();                 // noir malgré tout (objectif masqué ?) : on laisse faire
+      }, 400);
     }
 
     // Camera → hidden <video> → sized <canvas>. Done BEFORE recording starts so the
@@ -569,8 +623,8 @@
     function prepareCompositor() {
       camVideo = document.createElement("video");
       camVideo.muted = true; camVideo.setAttribute("playsinline", ""); camVideo.setAttribute("autoplay", "");
-      try { camVideo.srcObject = stream; } catch (e) {}
-      try { var pp = camVideo.play(); if (pp && pp.catch) pp.catch(function () {}); } catch (e) {}
+      // Le flux arrive par brancherFlux(), appelée juste après : l'affecter ici
+      // aussi interrompait aussitôt la lecture qu'on venait de lancer.
       canvas = document.createElement("canvas"); cctx = canvas.getContext("2d");
       appliquerFormat();
       camVideo.addEventListener("loadedmetadata", appliquerFormat);
@@ -638,6 +692,7 @@
           sel.disabled = false;
           if (!reussi) sel.value = reglagesPiste().deviceId || sel.value;
           peindreMiroir();          // la nouvelle caméra apporte sa propre préférence de miroir
+          lancerControleImage();    // une autre caméra : on revérifie son image
         }, function () { sel.disabled = false; renderCamError(); });
       };
 
@@ -769,6 +824,7 @@
       root.querySelector('[data-act="info"]').onclick = ouvrirInfo;
 
       try { if (audioCtx && audioCtx.state === "suspended") audioCtx.resume(); } catch (e) {}
+      if (camVideo && camVideo.paused) jouer(camVideo);
       try { recorder.start(); } catch (e) { renderCamError(); return; }
       recActive = true;
       startLandscape = innerWidth >= innerHeight;   // soft orientation lock reference
@@ -855,10 +911,13 @@
       tk = setInterval(function () { if (Date.now() >= phaseEnd) { clearTimer(); stopRecording(); } }, 100);
     }
 
+    var relanceVideo = 0;
     function drawLoop() {
       if (!canvas || !cctx) return;
       try {
         var w = canvas.width, h = canvas.height;
+        // Vidéo source mise en pause par le navigateur : relancée, au plus une fois par seconde.
+        if (camVideo && camVideo.paused && !camVideo.ended && Date.now() - relanceVideo > 1000) { relanceVideo = Date.now(); jouer(camVideo); }
         if (camVideo && camVideo.readyState >= 2) drawCover(cctx, camVideo, w, h);
         else { cctx.fillStyle = "#0c0814"; cctx.fillRect(0, 0, w, h); }
         drawOverlay(cctx, w, h);

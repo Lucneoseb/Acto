@@ -1000,6 +1000,21 @@
     } catch (e) { /* ignore */ }
   }
 
+  function cloudAppel(fn, args, cb) {
+    var sb = sbClient(); if (!sb) { cb(false); return; }
+    try {
+      Promise.resolve(sb.rpc(fn, args)).then(function (r) {
+        if (r && r.error) { console.warn("[cloud] " + fn, r.error.message || r.error); cb(false); return; }
+        cb(true);
+      }, function () { cb(false); });
+    } catch (e) { cb(false); }
+  }
+  // Sessions de cet appareil rattachées à une ligne serveur (par cloudId ou collabId).
+  function sessionsLiees(champ, id) {
+    return S.sessions.list().map(function (e) { try { return S.sessions.get(e.id); } catch (err) { return null; } })
+      .filter(function (s) { return s && s[champ] === id; });
+  }
+
   // cb(ok) est appelé exactement une fois : ok=false signifie « rien n'est parti
   // sur le compte ». Avant, l'échec était totalement muet alors que l'interface
   // affichait « Enregistré » — l'utilisateur croyait son match à l'abri.
@@ -1559,9 +1574,24 @@
             '<span class="suite-list-meta">' + esc(tf("listUpdated", { date: maj })) +
               ' · ' + esc(tf("listMetaCount", { n: x.nb_impros || 0 })) + '</span></div>' +
             '<div class="suite-list-actions"><button class="suite-btn suite-btn-mini" data-act="pull">' +
-              esc(x.__maj ? t("cloudUpdate") : t("cloudRestore")) + '</button></div></div>';
+              esc(x.__maj ? t("cloudUpdate") : t("cloudRestore")) + '</button>' +
+              '<button class="suite-btn suite-btn-mini suite-btn-danger" data-act="del">' + esc(t("listDelete")) + '</button></div></div>';
         }).join("") + '</div>';
       [].forEach.call(wrap.querySelectorAll(".suite-cloud-item"), function (row) {
+        /* Supprimer la copie du COMPTE (tous les appareils). Une copie plus
+           ancienne sur cet appareil est gardée, mais détachée du compte : sinon
+           sa prochaine sauvegarde recréerait aussitôt la ligne supprimée. */
+        var del = row.querySelector('[data-act="del"]');
+        del.onclick = function () {
+          var id = row.getAttribute("data-cid"), locales = sessionsLiees("cloudId", id);
+          if (!window.confirm(t(K.confirmDeleteKey) + "\n\n" + t("cloudDeleteFromAccount") + (locales.length ? "\n" + t("cloudDeleteKeepLocal") : ""))) return;
+          del.disabled = true;
+          cloudAppel("delete_shared_resource", { p_id: id }, function (ok) {
+            if (!ok) { del.disabled = false; toast(t("cloudDeleteError")); return; }
+            locales.forEach(function (s) { delete s.cloudId; s.cloudUpdatedAt = null; S.sessions.save(s); });
+            renderList();
+          });
+        };
         row.querySelector('[data-act="pull"]').onclick = function () {
           var id = row.getAttribute("data-cid");
           Promise.resolve(sbClient().rpc("get_shared_resource", { p_id: id })).then(function (g) {
@@ -1596,16 +1626,33 @@
       if (!wrap.isConnected || !r || r.error) return;
       var rows = (r.data || []).filter(function (x) { return (x.kind || x.resource_type) === wantKind; });
       if (!rows.length) return;
+      var parId = {}; rows.forEach(function (x) { parId[x.id] = x; });
       wrap.innerHTML = '<h2 class="suite-shared-h">🤝 ' + esc(t("sharedWithMe")) + '</h2>' +
         '<div class="suite-list">' + rows.map(function (x) {
           var roleLbl = x.role === "viewer" ? t("collabRoleViewer") : t("collabRoleEditor");
           return '<div class="suite-list-item suite-shared-item" data-sid="' + esc(x.id) + '">' +
             '<div class="suite-list-main"><span class="suite-list-title">' + esc(titleOrDefault(x.title, x.updated_at)) + '</span>' +
             '<span class="suite-list-meta">' + esc(tf("sharedBy", { name: x.owner_name || "Acto" })) + ' · ' + esc(roleLbl) + '</span></div>' +
-            '<div class="suite-list-actions"><button class="suite-btn suite-btn-mini" data-act="open">' + esc(t("listOpen")) + '</button></div></div>';
+            '<div class="suite-list-actions"><button class="suite-btn suite-btn-mini" data-act="open">' + esc(t("listOpen")) + '</button>' +
+              '<button class="suite-btn suite-btn-mini suite-btn-danger" data-act="leave">' + esc(t("listDelete")) + '</button></div></div>';
         }).join("") + '</div>';
       [].forEach.call(wrap.querySelectorAll(".suite-shared-item"), function (row) {
         row.querySelector('[data-act="open"]').onclick = function () { navigate("#/collab/" + row.getAttribute("data-sid")); };
+        /* Supprimer un partage reçu, c'est le QUITTER : la ressource reste à son
+           propriétaire, on n'y a simplement plus accès. Les copies locales
+           ouvertes depuis ce partage disparaissent aussi — elles ne pourraient
+           plus se synchroniser. */
+        var leave = row.querySelector('[data-act="leave"]');
+        leave.onclick = function () {
+          var id = row.getAttribute("data-sid"), x = parId[id] || {};
+          if (!window.confirm(tf("sharedLeaveConfirm", { title: titleOrDefault(x.title, x.updated_at), name: x.owner_name || "Acto" }))) return;
+          leave.disabled = true;
+          cloudAppel("leave_shared_resource", { p_id: id }, function (ok) {
+            if (!ok) { leave.disabled = false; toast(t("cloudDeleteError")); return; }
+            sessionsLiees("collabId", id).forEach(function (s) { if (s.collabRole !== "owner") S.sessions.remove(s.id); });
+            renderList();
+          });
+        };
       });
     }, function () { /* ignore */ });
   }

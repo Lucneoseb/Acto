@@ -19,8 +19,10 @@
     challengeMsgLabel: "Petit mot (optionnel)", challengeMsgPh: "Relève ce défi 😄",
     challengeCreate: "Créer le lien du défi", challengeCreating: "Création…",
     challengeNeedLogin: "Connecte-toi pour envoyer un défi.", challengeErr: "Impossible de créer le défi.",
-    challengePlayersLabel: "Nombre d'improvisateurs",
+    challengePlayersLabel: "Nombre de jouteurs",
     challengeTimeLabel: "Minutage du défi", challengePlayTime: "Temps de jeu", challengeCaucus: "Caucus",
+    challengeTimeOther: "Autre…", challengeCaucusNone: "Aucun", challengeTimePh: "ex. 1:30",
+    challengeTimeInvalid: "Durée illisible : écris des secondes (90) ou des minutes:secondes (1:30).",
     challengeRedrawBtn: "Re-tirer le défi",
     receivedMasked: "Défi surprise",
     challengeReadyTitle: "Défi prêt !",
@@ -85,6 +87,10 @@
     ".chg-check{display:flex;gap:.45rem;align-items:center;font:600 .9rem/1 'Inter',sans-serif;color:var(--ink,#f4f0e6);cursor:pointer;flex:1 1 auto;}" +
     ".chg-check input{width:1.05rem;height:1.05rem;accent-color:var(--gold,#d4af37);}" +
     ".chg-tsel:disabled{opacity:.4;}" +
+    ".chg-tin{flex:0 0 5.2rem;width:5.2rem;padding:.4rem .5rem;}" +
+    ".chg-tin[hidden],.chg-err[hidden]{display:none!important;}" +
+    ".chg-tin.is-bad{border-color:#ef6b6b;box-shadow:0 0 0 2px rgba(239,107,107,.25);}" +
+    ".chg-err{margin:.4rem 0 0;color:#ef6b6b;font:600 .8rem/1.35 'Inter',sans-serif;}" +
     ".chg-linkbox{display:flex;align-items:center;gap:.4rem;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.16);border-radius:10px;padding:.45rem .55rem;}" +
     ".chg-linkbox input{flex:1 1 auto;background:none;border:none;color:var(--ink,#f4f0e6);font:500 .82rem/1.2 'Inter',monospace;min-width:0;}" +
     ".chg-qr{margin:.2rem auto 0;background:#fff;border-radius:12px;padding:8px;width:160px;max-width:60vw;}" +
@@ -151,13 +157,28 @@
       return '<div class="chg-ep-t">' + esc(s.title || "") + "</div>" +
         (s.subtitle ? '<p class="chg-sub">' + esc(s.subtitle) + "</p>" : "") + chips(s);
     }
-    // Timing controls the sender sets: play time (impro) + optional caucus.
-    var DUR_OPTS = [30, 45, 60, 90, 120, 150, 180, 240, 300], CAUCUS_OPTS = [10, 15, 20, 30, 45, 60, 90];
-    function fmtDurLabel(s) { var m = Math.floor(s / 60), sec = s % 60; return (m ? (m + " min" + (sec ? " " + sec : "")) : (sec + " s")); }
-    function optList(vals, sel) { return vals.map(function (v) { return '<option value="' + v + '"' + (v === sel ? " selected" : "") + ">" + esc(fmtDurLabel(v)) + "</option>"; }).join(""); }
-    var initDur = parseInt(snapshot.durationSec, 10); if (DUR_OPTS.indexOf(initDur) < 0) initDur = 90;
+    /* Minutage choisi par l'expéditeur : temps de jeu et caucus. Chaque liste a
+       son « Autre… » pour une durée tapée à la main (90, 1:30, 2 min…). Caucus :
+       0 = pas de caucus. Bornes = celles que defi.html accepte. */
+    var DUR_OPTS = [30, 45, 60, 90, 120, 150, 180, 240, 300], CAUCUS_OPTS = [0, 2, 5, 10, 15, 20, 30, 40, 60];
+    var AUTRE = "autre";
+    function fmtDurLabel(s) { if (!s) return T("challengeCaucusNone"); var m = Math.floor(s / 60), sec = s % 60; return (m ? (m + " min" + (sec ? " " + sec : "")) : (sec + " s")); }
+    function fmtSaisie(s) { var m = Math.floor(s / 60), sec = s % 60; return m ? (m + ":" + (sec < 10 ? "0" : "") + sec) : String(sec); }
+    // « 90 », « 90 s », « 1:30 », « 2 min », « 1 min 30 » → secondes ; null si illisible.
+    function lireDuree(txt) {
+      var x = String(txt || "").trim().toLowerCase().replace(/\s+/g, " "), m;
+      if ((m = x.match(/^(\d+):(\d{1,2})$/))) return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+      if ((m = x.match(/^(\d+) ?(s|sec|secondes?)?$/))) return parseInt(m[1], 10);
+      if ((m = x.match(/^(\d+) ?(m|mn|min|minutes?)(?: ?(\d+) ?(?:s|sec|secondes?)?)?$/))) return parseInt(m[1], 10) * 60 + (m[3] ? parseInt(m[3], 10) : 0);
+      return null;
+    }
+    function optList(vals, sel) {
+      return vals.map(function (v) { return '<option value="' + v + '"' + (v === sel ? " selected" : "") + ">" + esc(fmtDurLabel(v)) + "</option>"; }).join("") +
+        '<option value="' + AUTRE + '"' + (vals.indexOf(sel) < 0 ? " selected" : "") + ">" + esc(T("challengeTimeOther")) + "</option>";
+    }
+    var initDur = parseInt(snapshot.durationSec, 10); if (!(initDur >= 10 && initDur <= 3599)) initDur = 90;
     var initCau = (snapshot.caucusSec != null && snapshot.caucusSec !== "") ? parseInt(snapshot.caucusSec, 10) : 20;
-    var initCauOn = initCau > 0; if (!initCauOn) initCau = 20;
+    if (!(initCau >= 0 && initCau <= 599)) initCau = 20;
     var canRedraw = !!(window.actoApp && window.actoApp.challengeRedraw);
     var h = '<h2 class="chg-h">📣 ' + esc(T("challengeModalTitle")) + "</h2>" +
       '<div class="chg-ep" data-rc="ep">' + epCardHtml(snapshot) + "</div>" +
@@ -167,12 +188,14 @@
           (canRedraw ? '<button type="button" class="chg-btn" data-rc="redraw">🎲 ' + esc(T("challengeRedrawBtn")) + "</button>" : "") +
         "</div></div>" +
       '<div class="chg-field"><span class="chg-label">' + esc(T("challengeTimeLabel")) + "</span>" +
-        '<label class="chg-timerow"><span class="chg-tlab">🎬 ' + esc(T("challengePlayTime")) + "</span>" +
-          '<select class="chg-in chg-tsel" data-rc="playtime">' + optList(DUR_OPTS, initDur) + "</select></label>" +
-        '<div class="chg-timerow">' +
-          '<label class="chg-check"><input type="checkbox" data-rc="caucuson"' + (initCauOn ? " checked" : "") + " /> <span>⏸ " + esc(T("challengeCaucus")) + "</span></label>" +
-          '<select class="chg-in chg-tsel" data-rc="caucustime"' + (initCauOn ? "" : " disabled") + ">" + optList(CAUCUS_OPTS, initCau) + "</select>" +
-        "</div></div>" +
+        '<div class="chg-timerow"><span class="chg-tlab">🎬 ' + esc(T("challengePlayTime")) + "</span>" +
+          '<select class="chg-in chg-tsel" data-rc="playtime" aria-label="' + esc(T("challengePlayTime")) + '">' + optList(DUR_OPTS, initDur) + "</select>" +
+          '<input class="chg-in chg-tin" data-rc="playtime-in" type="text" inputmode="decimal" placeholder="' + esc(T("challengeTimePh")) + '" value="' + esc(fmtSaisie(initDur)) + '" aria-label="' + esc(T("challengePlayTime")) + '"' + (DUR_OPTS.indexOf(initDur) < 0 ? "" : " hidden") + " /></div>" +
+        '<div class="chg-timerow"><span class="chg-tlab">⏸ ' + esc(T("challengeCaucus")) + "</span>" +
+          '<select class="chg-in chg-tsel" data-rc="caucustime" aria-label="' + esc(T("challengeCaucus")) + '">' + optList(CAUCUS_OPTS, initCau) + "</select>" +
+          '<input class="chg-in chg-tin" data-rc="caucus-in" type="text" inputmode="decimal" placeholder="' + esc(T("challengeTimePh")) + '" value="' + esc(fmtSaisie(initCau)) + '" aria-label="' + esc(T("challengeCaucus")) + '"' + (CAUCUS_OPTS.indexOf(initCau) < 0 ? "" : " hidden") + " /></div>" +
+        '<p class="chg-err" data-rc="time-err" role="alert" hidden>' + esc(T("challengeTimeInvalid")) + "</p>" +
+        "</div>" +
       '<div class="chg-field"><span class="chg-label">' + esc(T("challengeRecipientLabel")) + "</span>" +
         '<div data-rc="slot"></div>' +
         '<input class="chg-in" data-rc="search" type="text" placeholder="' + esc(T("challengeSearchPh")) + '" autocomplete="off" />' +
@@ -191,27 +214,50 @@
     var createBtn = ui.card.querySelector('[data-rc="create"]');
     var playersIn = ui.card.querySelector('[data-rc="players"]');
     var playTimeSel = ui.card.querySelector('[data-rc="playtime"]');
-    var caucusChk = ui.card.querySelector('[data-rc="caucuson"]');
+    var playTimeIn = ui.card.querySelector('[data-rc="playtime-in"]');
     var caucusSel = ui.card.querySelector('[data-rc="caucustime"]');
+    var caucusIn = ui.card.querySelector('[data-rc="caucus-in"]');
+    var timeErr = ui.card.querySelector('[data-rc="time-err"]');
     var epEl = ui.card.querySelector('[data-rc="ep"]');
     ui.card.querySelector('[data-rc="cancel"]').onclick = ui.close;
 
     // Fold the sender's overrides (improviser count, play time, caucus) into the
     // snapshot. The 🎲 redraw pulls a fresh theme + catégorie/exercice honouring
     // the improviser count.
+    // Liste, ou saisie si « Autre… » ; null : illisible ou hors bornes.
+    function valeurDuree(sel, champ, min, max) {
+      if (!sel) return null;
+      if (sel.value !== AUTRE) return parseInt(sel.value, 10);
+      var v = lireDuree(champ && champ.value);
+      return (v != null && v >= min && v <= max) ? v : null;
+    }
+    // Rend false si une durée tapée est illisible : l'envoi attend qu'elle soit corrigée.
     function applyPlayersOverride() {
       var n = playersIn ? parseInt(playersIn.value, 10) : NaN;
       if (!isNaN(n) && n > 0) snapshot.players = String(n);
-      if (playTimeSel) snapshot.durationSec = parseInt(playTimeSel.value, 10) || snapshot.durationSec;
-      if (caucusChk && caucusSel) snapshot.caucusSec = caucusChk.checked ? (parseInt(caucusSel.value, 10) || 20) : 0;
+      var jeu = valeurDuree(playTimeSel, playTimeIn, 10, 3599), cau = valeurDuree(caucusSel, caucusIn, 0, 599);
+      if (jeu != null) snapshot.durationSec = jeu;
+      if (cau != null) snapshot.caucusSec = cau;
+      if (playTimeIn) playTimeIn.classList.toggle("is-bad", jeu == null);
+      if (caucusIn) caucusIn.classList.toggle("is-bad", cau == null);
+      if (timeErr) timeErr.hidden = (jeu != null && cau != null);
+      return jeu != null && cau != null;
     }
     if (playersIn) playersIn.addEventListener("change", function () {
       applyPlayersOverride();
       if (epEl) epEl.innerHTML = epCardHtml(snapshot);
     });
-    if (playTimeSel) playTimeSel.addEventListener("change", function () { applyPlayersOverride(); if (epEl) epEl.innerHTML = epCardHtml(snapshot); });
-    if (caucusChk) caucusChk.addEventListener("change", function () { if (caucusSel) caucusSel.disabled = !caucusChk.checked; applyPlayersOverride(); });
-    if (caucusSel) caucusSel.addEventListener("change", applyPlayersOverride);
+    function brancherDuree(sel, champ) {
+      if (!sel || !champ) return;
+      sel.addEventListener("change", function () {
+        champ.hidden = sel.value !== AUTRE;
+        if (!champ.hidden) { try { champ.focus(); champ.select(); } catch (e) { /* ignore */ } }
+        applyPlayersOverride(); if (epEl) epEl.innerHTML = epCardHtml(snapshot);
+      });
+      champ.addEventListener("input", function () { applyPlayersOverride(); if (epEl) epEl.innerHTML = epCardHtml(snapshot); });
+    }
+    brancherDuree(playTimeSel, playTimeIn);
+    brancherDuree(caucusSel, caucusIn);
     applyPlayersOverride();   // seed the snapshot with the initial timing values
     var redrawBtn = ui.card.querySelector('[data-rc="redraw"]');
     if (redrawBtn) redrawBtn.onclick = function () {
@@ -249,7 +295,7 @@
 
     createBtn.onclick = function () {
       var sb = sbc(); if (!sb) { toast(T("challengeNeedLogin")); return; }
-      applyPlayersOverride();
+      if (!applyPlayersOverride()) { toast(T("challengeTimeInvalid")); return; }
       var msg = ui.card.querySelector('[data-rc="msg"]').value.trim();
       createBtn.disabled = true; createBtn.textContent = T("challengeCreating");
       Promise.resolve(sb.rpc("create_challenge", {

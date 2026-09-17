@@ -140,11 +140,29 @@
   }
   function trouverJeu(level, nom, complet) {
     var k = cle(nom);
-    return k ? (tousLesJeux(level, complet).filter(function (j) { return cle(j.name) === k; })[0] || null) : null;
+    return k ? (listeJeux(level, complet).filter(function (j) { return cle(j.name) === k; })[0] || null) : null;
+  }
+  /* Liste de « Mon défi » : les jeux du tirage, plus les contraintes proposées par
+     les utilisateurs (validées, ou en attente pour leur auteur) — une contrainte
+     écrite ou modifiée reste ainsi disponible tout de suite à celui qui l'a
+     proposée, marquée ✳ jusqu'à la validation. */
+  function listeJeux(level, complet) {
+    var liste = tousLesJeux(level, complet), index = {}, estNature = natures(level);
+    liste.forEach(function (j) { index[cle(j.name)] = j; });
+    ((S.gen.contraintesProposees && S.gen.contraintesProposees(level)) || []).forEach(function (p) {
+      if (estNature(p.name)) return;
+      var j = index[cle(p.name)];
+      // Même nom : la description proposée par l'utilisateur, encore en attente,
+      // prime pour lui — c'est sa version, et la re-proposer serait un doublon.
+      if (j) { if (p.desc && (p.pending || !j.desc)) j.desc = p.desc; return; }
+      j = { name: p.name, desc: p.desc, enAttente: p.pending };
+      liste.push(j); index[cle(p.name)] = j;
+    });
+    return liste;
   }
   function nomsJeux(level) {
     var loc = S.locale();
-    return tousLesJeux(level).map(function (j) { return j.name; }).sort(function (x, y) { return x.localeCompare(y, loc); });
+    return listeJeux(level).map(function (j) { return j.name; }).sort(function (x, y) { return x.localeCompare(y, loc); });
   }
   // Thèmes proposés dans « Mon défi » : les sujets de la contrainte choisie d'abord,
   // puis tous les autres (thèmes de l'appli et sujets de la Communauté).
@@ -209,7 +227,7 @@
     // Le premier tirage attend la base : sans elle, il ne pourrait pas sortir un
     // défi de la Communauté (voir blocTirage).
     if (!epreuve) epreuve = { mode: "tirage", level: "debutant", tirage: null, idee: null, recherche: "",
-                              brouillon: { category: "", categoryDesc: "", theme: "", players: "2", partager: true } };
+                              brouillon: { category: "", categoryDesc: "", theme: "", players: "2", durationSec: 0, partager: true } };
     if (ideesLocale !== S.locale()) idees = null;   // la base est propre à chaque langue
     if (idees === null) chargerIdees();
     render();
@@ -257,12 +275,17 @@
     return !!kt && Array.isArray(idees) && idees.some(function (x) { return cle(x.theme) === kt; });
   }
 
-  function proposer(snap, saisie) {
-    var c = sb(); if (!c || !c.rpc) return;
-    // Rien de neuf : ni proposition en double, ni « défi partagé » trompeur.
-    if (dansLaBase(saisie.category, saisie.theme)) return;
+  /* Deux choses distinctes, une fois le défi réellement envoyé :
+       1. le défi lui-même rejoint la base de défis — seulement si la case est cochée ;
+       2. un thème, une contrainte ou un exercice nouveaux OU MODIFIÉS partent
+          TOUJOURS à l'admin, pour rejoindre ensuite la base commune. Ils servent
+          déjà au défi envoyé et restent disponibles à leur auteur (✳). */
+  function proposer(snap, saisie, partager) {
+    var c = sb(); if (!c || !c.rpc || !connecte()) return;
     var loc = S.locale(), lv = epreuve.level, n = parseInt(snap.players, 10);
-    Promise.resolve(c.rpc("submit_challenge_idea", {
+    var defiPropose = partager && !dansLaBase(saisie.category, saisie.theme);   // rien en double
+    var nouveautes = 0;
+    if (defiPropose) Promise.resolve(c.rpc("submit_challenge_idea", {
       p_locale: loc, p_level: lv,
       p_category: saisie.category || null, p_category_desc: saisie.categoryDesc || null,
       p_theme: saisie.theme || null,
@@ -277,15 +300,40 @@
     var themes = (d.themes && d.themes[lv]) || [];
     // Un sujet de défi express n'est pas un thème de match : il reste dans la base des défis.
     if (saisie.theme && !sujetConnu(saisie.theme) && !themes.some(function (x) { return cle(x) === cle(saisie.theme); })) {
+      nouveautes++;
       Promise.resolve(c.rpc("submit_user_text", { p_kind: "theme", p_mode: "", p_level: lv, p_locale: loc, p_text: saisie.theme, p_description: null }))
         .then(function (r) { if (!(r && r.error)) S.gen.ajouterEnAttente("theme", { name: saisie.theme, level: lv }); }, function () {});
     }
-    // Contrainte nouvelle : rejoint la base des contraintes, AVEC sa description
-    // (l'admin la voit en modérant).
-    if (saisie.category && !trouverJeu(lv, saisie.category, true)) {
+    // Contrainte ou exercice nouveaux, OU description modifiée : à l'admin, avec
+    // la description (il la voit en modérant). Inchangés : rien à proposer.
+    var connu = saisie.category ? trouverJeu(lv, saisie.category, true) : null;
+    if (saisie.category && (!connu || cle(connu.desc) !== cle(saisie.categoryDesc))) {
+      nouveautes++;
       Promise.resolve(c.rpc("submit_user_text", { p_kind: "constraint", p_mode: "match", p_level: lv, p_locale: loc, p_text: saisie.category, p_description: saisie.categoryDesc || null }))
         .then(function (r) { if (!(r && r.error)) S.gen.ajouterEnAttente("constraint", { name: saisie.category, desc: saisie.categoryDesc, level: lv, mode: "match" }); }, function () {});
     }
+    if (nouveautes && !defiPropose) toast(t("defiEditSubmitted"));
+  }
+
+  /* ✎ Modifier : le défi tiré, ou choisi dans la Communauté, passe dans « Mon
+     défi » pour changer de contrainte ou d'exercice (dans la liste, ou écrit),
+     modifier sa description, changer ou retirer le thème. */
+  function modifierDefi() {
+    var src = null;
+    if (epreuve.mode === "tirage" && epreuve.tirage) {
+      var tr = epreuve.tirage;
+      src = { category: tr.jeu ? tr.jeu.name : "", categoryDesc: tr.jeu ? tr.jeu.desc : "", theme: tr.theme, players: tr.players, durationSec: tr.durationSec };
+    } else if (epreuve.mode === "base" && epreuve.idee) {
+      var x = epreuve.idee;
+      src = { category: x.category, categoryDesc: x.category_desc, theme: x.theme, players: x.players, durationSec: x.duration_sec };
+    }
+    if (!src) return;
+    var b = epreuve.brouillon;
+    b.category = src.category || ""; b.categoryDesc = src.categoryDesc || ""; b.theme = src.theme || "";
+    b.players = String(parseInt(src.players, 10) || 2); b.durationSec = parseInt(src.durationSec, 10) || 0;
+    epreuve.mode = "manuel";
+    render();
+    var champ = root.querySelector('[data-f="category"]'); if (champ) { try { champ.focus(); } catch (e) { /* ignore */ } }
   }
 
   /* ── rendu ──────────────────────────────────────────────────────────────── */
@@ -322,6 +370,7 @@
       { l: t("fieldPlayers"), v: jouteurs(tr.players) },
       { l: t("fieldDuration"), v: S.formatSec(tr.durationSec) }
     ], '<button class="suite-btn suite-btn-ghost" data-act="redraw">🎲 ' + esc(t("defiRedraw")) + '</button>' +
+       '<button class="suite-btn suite-btn-ghost" data-act="edit">✎ ' + esc(t("defiEditBtn")) + '</button>' +
        '<button class="suite-btn suite-btn-primary" data-act="send">🎯 ' + esc(t("defiSendBtn")) + '</button>');
   }
 
@@ -355,7 +404,8 @@
         { l: t("defiGameLabel"), v: x.category || t("valueNone"), desc: x.category_desc || "" },
         { l: t("fieldTheme"), v: x.theme || t("valueNone") },
         { l: t("fieldPlayers"), v: jouteurs(x.players) }
-      ], '<button class="suite-btn suite-btn-primary" data-act="send">🎯 ' + esc(t("defiSendBtn")) + '</button>');
+      ], '<button class="suite-btn suite-btn-ghost" data-act="edit">✎ ' + esc(t("defiEditBtn")) + '</button>' +
+         '<button class="suite-btn suite-btn-primary" data-act="send">🎯 ' + esc(t("defiSendBtn")) + '</button>');
     }
     return html;
   }
@@ -372,14 +422,18 @@
         '<label class="suite-set-field"><span>' + esc(t("defiGameDesc")) + '</span>' +
           '<textarea class="suite-input" data-f="categoryDesc" rows="2" maxlength="600" placeholder="' + esc(t("defiGameDescPh")) + '">' + esc(b.categoryDesc) + '</textarea></label>' +
       '</fieldset>' +
-      '<label class="suite-set-field"><span>' + esc(t("defiThemeOptional")) + '</span>' +
-        '<input type="text" class="suite-input" data-f="theme" list="defiThemes" maxlength="300" value="' + esc(b.theme) + '" placeholder="' + esc(t("defiManualThemePh")) + '" /></label>' +
+      '<div class="suite-set-field"><span id="defiThemeLbl">' + esc(t("defiThemeOptional")) + '</span>' +
+        '<div class="suite-defi-theme-row">' +
+          '<input type="text" class="suite-input" aria-labelledby="defiThemeLbl" data-f="theme" list="defiThemes" maxlength="300" value="' + esc(b.theme) + '" placeholder="' + esc(t("defiManualThemePh")) + '" />' +
+          '<button type="button" class="suite-icon-btn" data-act="theme-clear" aria-label="' + esc(t("defiThemeClear")) + '" title="' + esc(t("defiThemeClear")) + '">✕</button>' +
+        '</div></div>' +
       '<datalist id="defiThemes">' + options(themes) + '</datalist>' +
       '<label class="suite-set-field"><span>' + esc(t("challengePlayersLabel")) + '</span>' +
         '<input type="number" class="suite-input suite-defi-players" data-f="players" min="1" max="12" inputmode="numeric" value="' + esc(b.players) + '" /></label>' +
       (connecte()
         ? '<label class="suite-set-toggle"><input type="checkbox" data-f="partager"' + (b.partager ? " checked" : "") + ' /> <span>' + esc(t("defiManualShare")) + '</span></label>'
         : '') +
+      (connecte() ? '<p class="suite-help">' + esc(t("defiEditHelp")) + '</p>' : '') +
       '<p class="suite-defi-err" data-r="err" role="alert" hidden></p>' +
       '<div class="suite-defi-actions"><button class="suite-btn suite-btn-primary" data-act="send">🎯 ' + esc(t("defiSendBtn")) + '</button></div>' +
     '</div>';
@@ -476,6 +530,14 @@
       nom.addEventListener("change", majNom);
     }
 
+    var edit = root.querySelector('[data-act="edit"]');
+    if (edit) edit.onclick = modifierDefi;
+    var efface = root.querySelector('[data-act="theme-clear"]');
+    if (efface) efface.onclick = function () {
+      var th = root.querySelector('[data-f="theme"]'); if (!th) return;
+      th.value = ""; epreuve.brouillon.theme = "";
+      try { th.focus(); } catch (e) { /* ignore */ }
+    };
     var send = root.querySelector('[data-act="send"]');
     if (send) send.onclick = envoyer;
     root.querySelector('[data-act="mine"]').onclick = function () { if (window.ActoChallenge) window.ActoChallenge.openMine(); };
@@ -530,8 +592,8 @@
     if (saisie.category && !saisie.categoryDesc) { erreur(t("defiGameDescRequired"), "categoryDesc"); return; }
     var partager = b.partager && connecte();
     window.ActoChallenge.open(instantane({ category: saisie.category, categoryDesc: saisie.categoryDesc, theme: saisie.theme,
-      players: saisie.players, durationSec: 120, level: epreuve.level }), {
-      onCreated: function (snap) { if (partager) proposer(snap, saisie); }
+      players: saisie.players, durationSec: b.durationSec || 120, level: epreuve.level }), {
+      onCreated: function (snap) { proposer(snap, saisie, partager); }
     });
   }
 
