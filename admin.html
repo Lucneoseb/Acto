@@ -1378,6 +1378,8 @@
       <span>Afficher les items cachés</span>
     </label>
     <button class="btn btn-primary" id="bundleAddBtn" type="button" style="margin-left:auto;">+ Ajouter</button>
+    <button class="btn" id="bundleExportBtn" type="button" title="Exporter la liste affichée en CSV">⬇ Export CSV</button>
+    <button class="btn" id="bundleImportBtn" type="button" title="Importer un CSV modifié">⬆ Import CSV</button>
     <span class="count" id="bundleCount"></span>
   </div>
   <div class="table-wrap">
@@ -1518,6 +1520,7 @@
       <input type="search" id="warmupFilterText" placeholder="Recherche nom / description…" / aria-label="Recherche nom / description…">
       <button class="btn btn-primary" id="warmupAddAdminBtn" type="button" style="margin-left:auto;">+ Ajouter un exercice</button>
       <button class="btn" id="warmupExportCsvBtn" type="button" title="Exporter la liste filtrée en CSV">⬇ Export CSV</button>
+      <button class="btn" id="warmupImportBtn" type="button" title="Importer un CSV modifié">⬆ Import CSV</button>
       <span class="count" id="warmupCount"></span>
     </div>
     <div class="table-wrap">
@@ -1568,6 +1571,9 @@
         <option value="rejected">Cachés</option>
       </select>
       <input type="search" id="defiFilterText" placeholder="Recherche thème / contrainte…" aria-label="Recherche thème / contrainte…">
+      <button class="btn btn-primary" id="defiAddBtn" type="button" style="margin-left:auto;">+ Ajouter un défi</button>
+      <button class="btn" id="defiExportBtn" type="button" title="Exporter la liste filtrée en CSV">⬇ Export CSV</button>
+      <button class="btn" id="defiImportBtn" type="button" title="Importer un CSV modifié">⬆ Import CSV</button>
       <span class="count" id="defiCount"></span>
     </div>
     <div class="table-wrap">
@@ -1705,6 +1711,69 @@
      + Ajouter button next to the warmups filters. Submitting calls
      admin_add_warmup_exercise — the row lands with status='approved'
      so it appears immediately on the public page. -->
+<!-- Éditer ou ajouter un défi de la base (vue #defis). Même habillage que les
+     autres fenêtres admin. -->
+<dialog id="defiEditDialog" class="bundle-add-dialog" aria-labelledby="defiEditDialogTitle">
+  <form method="dialog" class="dlg-head">
+    <h2 id="defiEditDialogTitle">Modifier le défi</h2>
+    <button type="button" class="dlg-close" id="defiEditCloseBtn" aria-label="Fermer">✕</button>
+  </form>
+  <form id="defiEditForm" class="bundle-add-form" novalidate>
+    <div class="dlg-body">
+      <div class="bundle-add-field">
+        <span>Contrainte ou exercice</span>
+        <input type="text" id="defiEditCategory" maxlength="120" placeholder="Ex. : Mime T-Rex" />
+      </div>
+      <div class="bundle-add-field">
+        <span>Description de la contrainte</span>
+        <textarea id="defiEditCategoryDesc" rows="3" maxlength="600" placeholder="Obligatoire si une contrainte est renseignée"></textarea>
+      </div>
+      <div class="bundle-add-field">
+        <span>Sujet imposé (thème)</span>
+        <textarea id="defiEditTheme" rows="2" maxlength="300" placeholder="Laisser vide pour un défi sans sujet"></textarea>
+      </div>
+      <div class="bundle-add-row">
+        <div class="bundle-add-field">
+          <span>Jouteurs</span>
+          <input type="number" id="defiEditPlayers" min="1" max="12" step="1" placeholder="1" />
+        </div>
+        <div class="bundle-add-field">
+          <span>Temps de jeu (secondes)</span>
+          <input type="number" id="defiEditDuration" min="10" max="3600" step="5" placeholder="60" />
+        </div>
+      </div>
+      <div class="bundle-add-row">
+        <div class="bundle-add-field">
+          <span>Niveau</span>
+          <select id="defiEditLevel">
+            <option value="">Tous niveaux</option>
+            <option value="debutant">Débutant</option>
+            <option value="confirme">Confirmé</option>
+            <option value="expert">Expert</option>
+          </select>
+        </div>
+        <div class="bundle-add-field">
+          <span>Langue</span>
+          <select id="defiEditLocale">
+            <option value="fr" selected>fr · Français</option>
+            <option value="en">en · English</option>
+            <option value="de">de · Deutsch</option>
+            <option value="es">es · Español</option>
+            <option value="pt">pt · Português</option>
+            <option value="nl">nl · Nederlands</option>
+            <option value="it">it · Italiano</option>
+          </select>
+        </div>
+      </div>
+      <p class="admin-login-error" id="defiEditError" hidden></p>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="btn" id="defiEditCancelBtn">Annuler</button>
+      <button type="submit" class="btn btn-primary" id="defiEditSubmitBtn">Enregistrer</button>
+    </div>
+  </form>
+</dialog>
+
 <dialog id="warmupAddDialog" class="bundle-add-dialog" aria-labelledby="warmupAddDialogTitle">
   <form method="dialog" class="dlg-head">
     <h2 id="warmupAddDialogTitle">Ajouter un exercice</h2>
@@ -3114,9 +3183,13 @@
       const cacheLivre = v._bundled ? findHiddenRow("warmup", null, null, v.locale, v.name) : null;
       let actions = "";
       if (v._bundled) {
-        actions = cacheLivre
+        /* Livré : on ne touche pas au fichier. Éditer publie un remplaçant et
+           cache l'original ; supprimer cache l'original et efface le remplaçant. */
+        actions = (cacheLivre
           ? '<button class="btn btn-approve" data-warmup-act="bunhide" data-hid="' + escapeHtml(cacheLivre.id) + '">👁 Afficher</button>'
-          : '<button class="btn btn-reject" data-warmup-act="bhide" data-locale="' + escapeHtml(v.locale) + '" data-name="' + escapeHtml(v.name) + '">🙈 Cacher</button>';
+          : '<button class="btn btn-reject" data-warmup-act="bhide" data-locale="' + escapeHtml(v.locale) + '" data-name="' + escapeHtml(v.name) + '">🙈 Cacher</button>') +
+          '<button class="btn" data-warmup-act="bedit" data-locale="' + escapeHtml(v.locale) + '" data-name="' + escapeHtml(v.name) + '">✎ Éditer</button>' +
+          '<button class="btn btn-reject" data-warmup-act="bdelete" data-locale="' + escapeHtml(v.locale) + '" data-name="' + escapeHtml(v.name) + '">🗑 Supprimer</button>';
       } else if (isPending) {
         actions +=
           '<button class="btn btn-approve" data-warmup-act="approve" data-id="' + escapeHtml(v.id) + '">✓ Approuver (publier)</button>' +
@@ -3152,6 +3225,97 @@
         '<td class="actions">'   + actions                                      + '</td>' +
       '</tr>';
     }).join("");
+  }
+
+  /* ============================================================
+     ⬇⬆ EXPORT / IMPORT CSV DES LISTES
+     ============================================================
+     Même format partout : UTF-8 avec BOM, séparateur « , », guillemets doublés,
+     fins de ligne CRLF — Excel et LibreOffice l'ouvrent et le réenregistrent tel
+     quel (à l'import, « ; » est accepté aussi : c'est ce qu'Excel écrit en
+     français).
+
+     Colonne « action » : vide = ajout ou mise à jour, « suppr » = suppression.
+     Une ligne ABSENTE du fichier n'est jamais touchée : un export filtré,
+     réimporté, ne peut donc pas effacer le reste de la base. */
+  function csvCell(v) { return v == null ? '""' : '"' + String(v).replace(/"/g, '""') + '"'; }
+  function csvDownload(nom, entetes, lignes) {
+    const csv = "\uFEFF" + [entetes.map(csvCell).join(",")]
+      .concat(lignes.map(l => l.map(csvCell).join(","))).join("\r\n") + "\r\n";
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob), a = document.createElement("a");
+    const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    a.href = url; a.download = nom + "-" + ts + ".csv";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+  // Analyse RFC 4180 → tableau d'objets { entete_en_minuscules: valeur }.
+  function csvParse(texte) {
+    const t = String(texte || "").replace(/^\uFEFF/, "");
+    const entete = t.slice(0, (t.search(/\r?\n/) + 1) || t.length);
+    const sep = entete.split(";").length > entete.split(",").length ? ";" : ",";
+    const lignes = [];
+    let champ = "", ligne = [], guill = false;
+    for (let i = 0; i < t.length; i++) {
+      const c = t[i];
+      if (guill) {
+        if (c === '"') { if (t[i + 1] === '"') { champ += '"'; i++; } else guill = false; }
+        else champ += c;
+        continue;
+      }
+      if (c === '"') { guill = true; continue; }
+      if (c === sep) { ligne.push(champ); champ = ""; continue; }
+      if (c === "\r") continue;
+      if (c === "\n") { ligne.push(champ); lignes.push(ligne); ligne = []; champ = ""; continue; }
+      champ += c;
+    }
+    if (champ !== "" || ligne.length) { ligne.push(champ); lignes.push(ligne); }
+    if (!lignes.length) return [];
+    const cles = lignes.shift().map(x => String(x || "").trim().toLowerCase());
+    return lignes
+      .filter(l => l.some(v => String(v || "").trim() !== ""))
+      .map(l => { const o = {}; cles.forEach((k, i) => { o[k] = String(l[i] == null ? "" : l[i]).trim(); }); return o; });
+  }
+  function csvChoisirFichier() {
+    return new Promise(resolve => {
+      const inp = document.createElement("input");
+      inp.type = "file"; inp.accept = ".csv,text/csv,text/plain";
+      inp.onchange = () => {
+        const f = inp.files && inp.files[0];
+        if (!f) { resolve(null); return; }
+        const fr = new FileReader();
+        fr.onload = () => resolve(String(fr.result || ""));
+        fr.onerror = () => resolve(null);
+        fr.readAsText(f, "utf-8");
+      };
+      inp.click();
+    });
+  }
+  const csvSuppr = (r) => /^(suppr|supprimer|delete|x)$/i.test(String(r.action || "").trim());
+  const csvNombre = (v) => { const n = parseInt(String(v || "").replace(/[^0-9-]/g, ""), 10); return isNaN(n) ? null : n; };
+  /* Applique les opérations une par une et rend le bilan. Une ligne en erreur
+     n'arrête pas les autres : l'admin voit la liste des lignes refusées. */
+  async function csvAppliquer(ops) {
+    let ok = 0; const erreurs = [];
+    for (const op of ops) {
+      try {
+        const r = await op.run();
+        if (r && r.error) erreurs.push(op.libelle + " → " + r.error.message); else ok++;
+      } catch (e) { erreurs.push(op.libelle + " → " + ((e && e.message) || e)); }
+    }
+    return { ok, erreurs };
+  }
+  function csvConfirmer(titre, ops) {
+    if (!ops.length) { alert("Rien à importer : aucune ligne modifiée, ajoutée ou marquée « suppr »."); return false; }
+    const apercu = ops.slice(0, 12).map(o => " · " + o.libelle).join("\n");
+    return confirm(titre + "\n\n" + ops.length + " opération(s) :\n" + apercu +
+      (ops.length > 12 ? "\n · … et " + (ops.length - 12) + " autre(s)" : ""));
+  }
+  function csvBilan(res, recharger) {
+    let msg = "✓ " + res.ok + " ligne(s) appliquée(s).";
+    if (res.erreurs.length) msg += "\n\n⚠ " + res.erreurs.length + " refusée(s) :\n" + res.erreurs.slice(0, 10).join("\n");
+    alert(msg);
+    return recharger();
   }
 
   /* ============================================================
@@ -3198,7 +3362,7 @@
     }
     const NIV = { debutant: "Débutant", confirme: "Confirmé", expert: "Expert" };
     body.innerHTML = filtered.map(d => {
-      let actions = "";
+      let actions = '<button class="btn" data-defi-act="edit" data-id="' + escapeHtml(d.id) + '">✎ Éditer</button>';
       if (d.status !== "approved") actions += '<button class="btn btn-approve" data-defi-act="approve" data-id="' + escapeHtml(d.id) + '">' + (d.status === "rejected" ? "👁 Afficher" : "✓ Approuver") + '</button>';
       if (d.status !== "rejected") actions += '<button class="btn btn-reject" data-defi-act="reject" data-id="' + escapeHtml(d.id) + '">🙈 Cacher</button>';
       actions += '<button class="btn btn-reject" data-defi-act="delete" data-id="' + escapeHtml(d.id) + '">🗑 Supprimer</button>';
@@ -3221,6 +3385,115 @@
     if (error) { alert("Erreur : " + error.message); return; }
     await loadDefis();
   }
+  /* Éditer ou ajouter un défi. Le même formulaire sert aux deux : sans id, on
+     crée (publié tout de suite) ; avec id, on met à jour. */
+  function openDefiDialog(row) {
+    const dlg = $("defiEditDialog"); if (!dlg) return;
+    dlg.dataset.editId = row ? row.id : "";
+    const head = dlg.querySelector(".dlg-head h2");
+    if (head) head.textContent = row ? "Modifier le défi" : "Ajouter un défi";
+    const submit = $("defiEditSubmitBtn");
+    if (submit) submit.textContent = row ? "Enregistrer" : "Ajouter (publié immédiatement)";
+    const set = (id, v) => { const el = $(id); if (el) el.value = (v == null ? "" : v); };
+    set("defiEditCategory", row && row.category);
+    set("defiEditCategoryDesc", row && row.category_desc);
+    set("defiEditTheme", row && row.theme);
+    set("defiEditPlayers", row && row.players);
+    set("defiEditDuration", row && row.duration_sec);
+    set("defiEditLevel", (row && row.level) || "");
+    set("defiEditLocale", (row && row.locale) || "fr");
+    const loc = $("defiEditLocale"); if (loc) loc.disabled = !!row;   // la langue d'un défi existant ne change pas
+    const err = $("defiEditError"); if (err) { err.hidden = true; err.textContent = ""; }
+    if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+    setTimeout(() => { const c = $("defiEditCategory"); if (c) c.focus(); }, 0);
+  }
+  function closeDefiDialog() {
+    const dlg = $("defiEditDialog"); if (!dlg) return;
+    if (typeof dlg.close === "function") dlg.close(); else dlg.removeAttribute("open");
+  }
+  async function submitDefiDialog(ev) {
+    ev.preventDefault();
+    const dlg = $("defiEditDialog"), id = (dlg && dlg.dataset.editId) || "";
+    const err = $("defiEditError"), submit = $("defiEditSubmitBtn");
+    const val = (x) => ($(x) ? String($(x).value || "").trim() : "");
+    const category = val("defiEditCategory"), desc = val("defiEditCategoryDesc"), theme = val("defiEditTheme");
+    const echec = (m) => { if (err) { err.textContent = m; err.hidden = false; } };
+    if (err) { err.hidden = true; err.textContent = ""; }
+    if (!category && !theme) { echec("Il faut au moins une contrainte ou un sujet."); return; }
+    if (category && !desc) { echec("Une contrainte doit avoir sa description : c'est elle que lit la personne qui reçoit le défi."); return; }
+    const args = {
+      p_category: category || null, p_category_desc: desc || null, p_theme: theme || null,
+      p_players: csvNombre(val("defiEditPlayers")), p_duration_sec: csvNombre(val("defiEditDuration")),
+      p_level: val("defiEditLevel") || null
+    };
+    if (submit) { submit.disabled = true; }
+    try {
+      const { error } = id
+        ? await sb.rpc("update_challenge_idea", { p_id: id, ...args })
+        : await sb.rpc("admin_add_challenge_idea", { p_locale: val("defiEditLocale") || "fr", ...args });
+      if (error) throw error;
+      closeDefiDialog();
+      await loadDefis();
+    } catch (e) {
+      echec("Erreur : " + ((e && e.message) || e));
+    } finally { if (submit) submit.disabled = false; }
+  }
+
+  /* Export : la liste filtrée, telle qu'elle est affichée. Réimportable après
+     modification à la main (voir les outils CSV plus haut). */
+  function exportDefisCsv() {
+    const status = ($("defiFilterStatus") || {}).value || "";
+    const q = (($("defiFilterText") || {}).value || "").trim().toLowerCase();
+    const lc = (x) => String(x || "").toLocaleLowerCase();
+    const lignes = allDefis
+      .filter(d => (!status || d.status === status) &&
+                   (!q || lc(d.theme).includes(q) || lc(d.category).includes(q) || lc(d.category_desc).includes(q)))
+      .map(d => ["", d.id, d.category || "", d.category_desc || "", d.theme || "",
+                 d.players || "", d.duration_sec || "", d.level || "", d.locale || "fr", d.status]);
+    if (!lignes.length) { alert("Aucun défi à exporter pour ce filtre."); return; }
+    csvDownload("acto-defis", ["action","id","contrainte","description","sujet","jouteurs","duree_sec","niveau","langue","etat"], lignes);
+  }
+  async function importDefisCsv() {
+    const texte = await csvChoisirFichier(); if (texte == null) return;
+    const rows = csvParse(texte);
+    if (!rows.length) { alert("Fichier vide ou illisible."); return; }
+    const parId = {}; allDefis.forEach(d => { parId[d.id] = d; });
+    const ops = [];
+    rows.forEach((r, i) => {
+      const num = "ligne " + (i + 2), id = String(r.id || "").trim();
+      const nom = (r.sujet || r.contrainte || "").slice(0, 40);
+      if (csvSuppr(r)) {
+        if (!id) return;
+        ops.push({ libelle: "🗑 " + num + " : " + nom, run: () => sb.rpc("delete_challenge_idea", { p_id: id }) });
+        return;
+      }
+      const args = {
+        p_category: (r.contrainte || "").trim() || null,
+        p_category_desc: (r.description || "").trim() || null,
+        p_theme: (r.sujet || "").trim() || null,
+        p_players: csvNombre(r.jouteurs), p_duration_sec: csvNombre(r.duree_sec),
+        p_level: (r.niveau || "").trim() || null
+      };
+      if (id) {
+        const avant = parId[id];
+        // Inchangée : rien à envoyer.
+        if (avant &&
+            (avant.category || "") === (args.p_category || "") &&
+            (avant.category_desc || "") === (args.p_category_desc || "") &&
+            (avant.theme || "") === (args.p_theme || "") &&
+            (avant.players || null) === args.p_players &&
+            (avant.duration_sec || null) === args.p_duration_sec &&
+            (avant.level || "") === (args.p_level || "")) return;
+        ops.push({ libelle: "✎ " + num + " : " + nom, run: () => sb.rpc("update_challenge_idea", { p_id: id, ...args }) });
+      } else {
+        ops.push({ libelle: "+ " + num + " : " + nom, run: () => sb.rpc("admin_add_challenge_idea", { p_locale: (r.langue || "fr").trim() || "fr", ...args }) });
+      }
+    });
+    if (!csvConfirmer("Importer ce fichier dans la base de défis ?", ops)) return;
+    const res = await csvAppliquer(ops);
+    await csvBilan(res, loadDefis);
+  }
+
   async function deleteDefi(id) {
     if (!confirm("Supprimer définitivement ce défi ?")) return;
     const { error } = await sb.rpc("delete_challenge_idea", { p_id: id });
@@ -3233,6 +3506,12 @@
       el.addEventListener("input", renderDefis);
       el.addEventListener("change", renderDefis);
     });
+    const add = $("defiAddBtn"); if (add) add.addEventListener("click", () => openDefiDialog(null));
+    const exp = $("defiExportBtn"); if (exp) exp.addEventListener("click", exportDefisCsv);
+    const imp = $("defiImportBtn"); if (imp) imp.addEventListener("click", importDefisCsv);
+    const dlgClose = $("defiEditCloseBtn"); if (dlgClose) dlgClose.addEventListener("click", closeDefiDialog);
+    const dlgCancel = $("defiEditCancelBtn"); if (dlgCancel) dlgCancel.addEventListener("click", closeDefiDialog);
+    const dlgForm = $("defiEditForm"); if (dlgForm) dlgForm.addEventListener("submit", submitDefiDialog);
     const body = $("defiBodyAdmin");
     if (body) body.addEventListener("click", (ev) => {
       const btn = ev.target.closest("button[data-defi-act]"); if (!btn) return;
@@ -3240,6 +3519,7 @@
       if (act === "approve") setDefiStatus(id, "approved");
       else if (act === "reject") setDefiStatus(id, "rejected");
       else if (act === "delete") deleteDefi(id);
+      else if (act === "edit") openDefiDialog(allDefis.filter(d => d.id === id)[0] || null);
     });
   }
 
@@ -3294,24 +3574,16 @@
     });
     if (filtered.length === 0) { alert("Aucune entrée à exporter pour ces filtres."); return; }
 
-    const headers = ["Nom","Type","Sous-type","Description","Durée (s)",
-                     "Participants","Source","Langue","Statut","Créé le","Approuvé le"];
-    const cols = ["name","type","subtype","description","duration_seconds",
-                  "participants","source","locale","status","created_at","approved_at"];
-    const esc = (v) => v == null ? '""' : '"' + String(v).replace(/"/g, '""') + '"';
-    const lines = [headers.map(esc).join(",")];
-    filtered.forEach(r => lines.push(cols.map(c => esc(r[c])).join(",")));
-    const csv = "﻿" + lines.join("\r\n") + "\r\n";
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-    a.href = url;
-    a.download = "acto-echauffements-" + ts + ".csv";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    /* Colonnes pensées pour le RETOUR : « action » (vide ou « suppr »), « id »
+       (vide = nouvel exercice), « nom_original » (renseigné pour un exercice livré :
+       c’est lui qu’on remplace si le nom change). */
+    const headers = ["action","id","livre","nom_original","nom","type","sous_type","description",
+                     "duree_sec","participants","source","langue","etat"];
+    const lignes = filtered.map(r => ["", r._bundled ? "" : (r.id || ""), r._bundled ? "oui" : "",
+      r._bundled ? (r.name || "") : "", r.name || "", r.type || "", r.subtype || "", r.description || "",
+      r.duration_seconds == null ? "" : r.duration_seconds, r.participants || "", r.source || "",
+      r.locale || "fr", r._bundled ? "livré" : (r.status || "")]);
+    csvDownload("acto-echauffements", headers, lignes);
   }
 
   async function deleteWarmup(id) {
@@ -3328,14 +3600,31 @@
     openWarmupAddDialog(row);
   }
 
-  function openWarmupAddDialog(editRow) {
+  /* Échauffement LIVRÉ : même formulaire, mais l'enregistrement passe par
+     replace_bundled_warmup — l'original du fichier est caché et un remplaçant
+     publié prend sa place. */
+  function editBundledWarmup(locale, name) {
+    const row = allWarmups.find(v => v._bundled && v.locale === locale && v.name === name);
+    if (!row) return;
+    openWarmupAddDialog(row, true);
+  }
+  async function deleteBundledWarmup(locale, name) {
+    if (!confirm("Supprimer « " + name + " » ?\nIl est livré avec l'appli : il sera caché partout, et tout remplaçant du même nom sera effacé.")) return;
+    const { error } = await sb.rpc("delete_bundled_warmup", { p_locale: locale, p_name: name });
+    if (error) { alert("Erreur : " + error.message); return; }
+    await loadHiddenItems();
+    await loadWarmups();
+  }
+
+  function openWarmupAddDialog(editRow, livre) {
     const dlg = $("warmupAddDialog");
     if (!dlg) return;
     const isEdit = !!editRow;
-    dlg.dataset.mode = isEdit ? "edit" : "add";
-    dlg.dataset.editId = isEdit ? editRow.id : "";
+    dlg.dataset.mode = livre ? "bundled" : (isEdit ? "edit" : "add");
+    dlg.dataset.editId = (isEdit && !livre) ? editRow.id : "";
+    dlg.dataset.origName = livre ? (editRow.name || "") : "";
     const head = dlg.querySelector(".dlg-head h2");
-    if (head) head.textContent = isEdit ? "Éditer l'exercice" : "Ajouter un exercice";
+    if (head) head.textContent = livre ? "Éditer l'exercice livré" : (isEdit ? "Éditer l'exercice" : "Ajouter un exercice");
     const submitBtn = $("warmupAddSubmitBtn");
     if (submitBtn) submitBtn.textContent = isEdit ? "Enregistrer les changements" : "Ajouter (publié immédiatement)";
     const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = (v == null ? "" : v); };
@@ -3403,7 +3692,11 @@
       p_locale:           document.getElementById("warmupAddLocale").value || "fr"
     };
     try {
-      if (mode === "edit" && editId) {
+      if (mode === "bundled") {
+        const { error } = await sb.rpc("replace_bundled_warmup", { p_original_name: (dlg && dlg.dataset.origName) || payload.p_name, ...payload });
+        if (error) throw error;
+        await loadHiddenItems();
+      } else if (mode === "edit" && editId) {
         const { error } = await sb.rpc("update_warmup_exercise", { p_id: editId, ...payload });
         if (error) throw error;
       } else {
@@ -3422,6 +3715,65 @@
       if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalLabel; }
       if (cancelBtn) cancelBtn.disabled = false;
     }
+  }
+
+  /* Import : chaque ligne du fichier est comparée à ce que l'admin a sous les
+     yeux. Ligne livrée modifiée → remplaçant publié ; ligne de la base modifiée
+     → mise à jour ; ligne sans id → nouvel exercice ; « suppr » → suppression. */
+  async function importWarmupsCsv() {
+    const texte = await csvChoisirFichier(); if (texte == null) return;
+    const rows = csvParse(texte);
+    if (!rows.length) { alert("Fichier vide ou illisible."); return; }
+    const parId = {}, parNom = {};
+    allWarmups.forEach(w => {
+      if (w._bundled) parNom[(w.locale || "fr") + "|" + String(w.name || "").toLowerCase()] = w;
+      else parId[w.id] = w;
+    });
+    const ops = [];
+    rows.forEach((r, i) => {
+      const num = "ligne " + (i + 2), id = String(r.id || "").trim();
+      const livre = /^(oui|yes|true|1|livr)/i.test(String(r.livre || "").trim()) || !!String(r.nom_original || "").trim();
+      const nom = String(r.nom || "").trim(), locale = String(r.langue || "fr").trim() || "fr";
+      const orig = String(r.nom_original || "").trim() || nom;
+      const payload = {
+        p_type: String(r.type || "").trim() || "Échauffement",
+        p_subtype: String(r.sous_type || "").trim(),
+        p_name: nom,
+        p_description: String(r.description || "").trim(),
+        p_duration_seconds: csvNombre(r.duree_sec),
+        p_participants: String(r.participants || "").trim(),
+        p_source: String(r.source || "").trim(),
+        p_locale: locale
+      };
+      if (csvSuppr(r)) {
+        if (livre) ops.push({ libelle: "🗑 " + num + " : " + orig + " (livré)", run: () => sb.rpc("delete_bundled_warmup", { p_locale: locale, p_name: orig }) });
+        else if (id) ops.push({ libelle: "🗑 " + num + " : " + nom, run: () => sb.rpc("delete_warmup_exercise", { p_id: id }) });
+        return;
+      }
+      if (!nom || !payload.p_description) return;   // ligne incomplète : ignorée
+      if (livre) {
+        const avant = parNom[locale + "|" + orig.toLowerCase()];
+        if (avant && avant.name === nom && (avant.description || "") === payload.p_description &&
+            (avant.type || "") === payload.p_type && (avant.subtype || "") === payload.p_subtype &&
+            (avant.duration_seconds == null ? null : avant.duration_seconds) === payload.p_duration_seconds &&
+            (avant.participants || "") === payload.p_participants && (avant.source || "") === payload.p_source) return;
+        ops.push({ libelle: "✎ " + num + " : " + orig + " (livré)", run: () => sb.rpc("replace_bundled_warmup", { p_original_name: orig, ...payload }) });
+        return;
+      }
+      if (id) {
+        const avant = parId[id];
+        if (avant && avant.name === nom && (avant.description || "") === payload.p_description &&
+            (avant.type || "") === payload.p_type && (avant.subtype || "") === payload.p_subtype &&
+            (avant.duration_seconds == null ? null : avant.duration_seconds) === payload.p_duration_seconds &&
+            (avant.participants || "") === payload.p_participants && (avant.source || "") === payload.p_source) return;
+        ops.push({ libelle: "✎ " + num + " : " + nom, run: () => sb.rpc("update_warmup_exercise", { p_id: id, ...payload }) });
+      } else {
+        ops.push({ libelle: "+ " + num + " : " + nom, run: () => sb.rpc("admin_add_warmup_exercise", payload) });
+      }
+    });
+    if (!csvConfirmer("Importer ce fichier dans les échauffements ?", ops)) return;
+    const res = await csvAppliquer(ops);
+    await csvBilan(res, async () => { await loadHiddenItems(); await loadWarmups(); });
   }
 
   function wireWarmupsControls() {
@@ -3460,6 +3812,8 @@
         else if (act === "edit")    editWarmup(id);
         else if (act === "bhide")   hideBundledWarmup(btn.dataset.locale, btn.dataset.name);
         else if (act === "bunhide") unhideBundledWarmup(btn.dataset.hid);
+        else if (act === "bedit")   editBundledWarmup(btn.dataset.locale, btn.dataset.name);
+        else if (act === "bdelete") deleteBundledWarmup(btn.dataset.locale, btn.dataset.name);
       });
     }
     // Arrow wrapper is critical — passing openWarmupAddDialog directly
@@ -3469,6 +3823,8 @@
     if (addBtn) addBtn.addEventListener("click", () => openWarmupAddDialog());
     const exportBtn = $("warmupExportCsvBtn");
     if (exportBtn) exportBtn.addEventListener("click", () => exportWarmupsCsv());
+    const importBtn = $("warmupImportBtn");
+    if (importBtn) importBtn.addEventListener("click", () => importWarmupsCsv());
     const closeBtn = $("warmupAddCloseBtn");
     if (closeBtn) closeBtn.addEventListener("click", closeWarmupAddDialog);
     const cancelBtn = $("warmupAddCancelBtn");
@@ -3671,6 +4027,58 @@
     }).join("");
   }
 
+  /* Export de la liste affichée (type / mode / niveau / langue courants).
+     « texte_original » sert de clé au retour : le modifier renomme l'item,
+     le vider en crée un nouveau. */
+  function exportBundledCsv() {
+    const locale = $("bundleFilterLocale").value, kind = $("bundleFilterKind").value;
+    const needsMode = (kind === "constraint" || kind === "exercise"), needsLevel = (kind !== "category");
+    const mode = needsMode ? $("bundleFilterMode").value : "";
+    const level = needsLevel ? $("bundleFilterLevel").value : "";
+    const items = bundledItemsFor(kind, mode, level, locale);
+    if (!items.length) { alert("Aucun item à exporter pour ces filtres."); return; }
+    const lignes = items.map(it => {
+      const nom = (typeof it === "object" && it) ? it.name : it;
+      const desc = (typeof it === "object" && it) ? (it.desc || "") : "";
+      return ["", kind, mode, level, locale, nom, desc, nom,
+              findHiddenRow(kind, mode, level, locale, nom) ? "caché" : "visible"];
+    });
+    csvDownload("acto-listes-" + kind, ["action","type","mode","niveau","langue","texte","description","texte_original","etat"], lignes);
+  }
+  async function importBundledCsv() {
+    const texte = await csvChoisirFichier(); if (texte == null) return;
+    const rows = csvParse(texte);
+    if (!rows.length) { alert("Fichier vide ou illisible."); return; }
+    const ops = [];
+    rows.forEach((r, i) => {
+      const num = "ligne " + (i + 2);
+      const kind = String(r.type || "").trim(), locale = String(r.langue || "fr").trim() || "fr";
+      const mode = String(r.mode || "").trim(), level = String(r.niveau || "").trim();
+      const nom = String(r.texte || "").trim(), desc = String(r.description || "").trim();
+      const orig = String(r.texte_original || "").trim();
+      if (!kind) return;
+      if (csvSuppr(r)) {
+        const cible = orig || nom; if (!cible) return;
+        ops.push({ libelle: "🗑 " + num + " : " + cible, run: () => sb.rpc("delete_bundled_item", { p_kind: kind, p_mode: mode || null, p_level: level || null, p_locale: locale, p_text: cible }) });
+        return;
+      }
+      if (!nom) return;
+      if (!orig) {
+        ops.push({ libelle: "+ " + num + " : " + nom, run: () => sb.rpc("add_bundled_item", { p_kind: kind, p_mode: mode || null, p_level: level || null, p_locale: locale, p_text: nom, p_description: desc || null }) });
+        return;
+      }
+      // Rien n'a bougé (texte ET description) : on n'envoie rien.
+      const avant = bundledItemsFor(kind, mode, level, locale)
+        .map(it => (typeof it === "object" && it) ? it : { name: it, desc: "" })
+        .filter(it => String(it.name).toLowerCase() === orig.toLowerCase())[0];
+      if (avant && avant.name === nom && (avant.desc || "") === desc) return;
+      ops.push({ libelle: "✎ " + num + " : " + orig + (orig === nom ? "" : " → " + nom), run: () => sb.rpc("replace_bundled_item", { p_kind: kind, p_mode: mode || null, p_level: level || null, p_locale: locale, p_original_text: orig, p_new_text: nom, p_new_desc: desc || null }) });
+    });
+    if (!csvConfirmer("Importer ce fichier dans les listes ?", ops)) return;
+    const res = await csvAppliquer(ops);
+    await csvBilan(res, async () => { await loadHiddenItems(); await loadSubmissions(); renderBundled(); });
+  }
+
   async function hideBundledItem(payload) {
     const { error } = await sb.rpc("hide_bundled_item", {
       p_kind:   payload.kind,
@@ -3851,6 +4259,8 @@
     });
 
     // Add-item dialog
+    const expBtn = $("bundleExportBtn"); if (expBtn) expBtn.addEventListener("click", exportBundledCsv);
+    const impBtn = $("bundleImportBtn"); if (impBtn) impBtn.addEventListener("click", importBundledCsv);
     const addBtn = $("bundleAddBtn");
     if (addBtn) addBtn.addEventListener("click", openBundleAddDialog);
     const closeBtn = $("bundleAddCloseBtn");
