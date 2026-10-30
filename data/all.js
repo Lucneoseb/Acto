@@ -384,7 +384,8 @@ window.IMPRO_BUNDLE = {
       "ideasError": "Impossible de charger les idées.",
       "ideasRetry": "Réessayer",
       "ideasOffline": "Hors ligne : liste de la dernière visite.",
-      "ideasBtn": "Idées"
+      "ideasBtn": "Idées",
+      "quickgameBtn": "Match rapide"
     },
     "it": {
       "title": "Impro",
@@ -739,7 +740,8 @@ window.IMPRO_BUNDLE = {
       "ideasError": "Impossibile caricare le idee.",
       "ideasRetry": "Riprova",
       "ideasOffline": "Offline: elenco dell'ultima visita.",
-      "ideasBtn": "Idee"
+      "ideasBtn": "Idee",
+      "quickgameBtn": "Match rapido"
     },
     "en": {
       "title": "Impro",
@@ -1094,7 +1096,8 @@ window.IMPRO_BUNDLE = {
       "ideasError": "Couldn't load the ideas.",
       "ideasRetry": "Try again",
       "ideasOffline": "Offline: list from your last visit.",
-      "ideasBtn": "Ideas"
+      "ideasBtn": "Ideas",
+      "quickgameBtn": "Quick match"
     },
     "de": {
       "title": "Impro",
@@ -1449,7 +1452,8 @@ window.IMPRO_BUNDLE = {
       "ideasError": "Die Ideen konnten nicht geladen werden.",
       "ideasRetry": "Erneut versuchen",
       "ideasOffline": "Offline: Liste vom letzten Besuch.",
-      "ideasBtn": "Ideen"
+      "ideasBtn": "Ideen",
+      "quickgameBtn": "Schnelles Match"
     },
     "es": {
       "title": "Impro",
@@ -1804,7 +1808,8 @@ window.IMPRO_BUNDLE = {
       "ideasError": "No se han podido cargar las ideas.",
       "ideasRetry": "Reintentar",
       "ideasOffline": "Sin conexión: lista de tu última visita.",
-      "ideasBtn": "Ideas"
+      "ideasBtn": "Ideas",
+      "quickgameBtn": "Partido rápido"
     },
     "pt": {
       "title": "Impro",
@@ -2159,7 +2164,8 @@ window.IMPRO_BUNDLE = {
       "ideasError": "Não foi possível carregar as ideias.",
       "ideasRetry": "Tentar de novo",
       "ideasOffline": "Offline: lista da tua última visita.",
-      "ideasBtn": "Ideias"
+      "ideasBtn": "Ideias",
+      "quickgameBtn": "Jogo rápido"
     },
     "nl": {
       "title": "Impro",
@@ -2514,7 +2520,8 @@ window.IMPRO_BUNDLE = {
       "ideasError": "De ideeën konden niet worden geladen.",
       "ideasRetry": "Opnieuw proberen",
       "ideasOffline": "Offline: lijst van je laatste bezoek.",
-      "ideasBtn": "Ideeën"
+      "ideasBtn": "Ideeën",
+      "quickgameBtn": "Snelle match"
     }
   },
   "data": {

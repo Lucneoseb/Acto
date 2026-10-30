@@ -46,7 +46,8 @@ stats, impro event log, and an admin dashboard all run on **Supabase**
     ├── config.js  — runtime config (Supabase URL/key) on window.actoConfig
     ├── utils.js   — pure helpers (escapeHtml, fmtSec, fmtDate, ageOf, withTimeout, emailValid) on window.actoUtils
     ├── auth.js    — Supabase email/password auth (signup, login, profile, account delete)
-    └── app.js     — main app logic (mode/level/theme picker, slot reels, chrono, audience cue, recorder)
+    ├── app.js     — main app logic (mode/level/theme picker, slot reels, chrono, audience cue, recorder)
+    └── topbar.js  — barre du haut commune (voir « Barre de navigation » ci-dessous)
 ```
 
 ## Script load order (`index.html`)
@@ -113,6 +114,20 @@ The `mcp__Claude_in_Chrome__*` tools are available. Standard loop:
    `[admin] profile: …` so you can pinpoint where the boot stalls.
 5. `read_network_requests { tabId, urlPattern: "supabase" }` — confirms
    `auth/v1/*` and `rest/v1/profiles|impro_events` calls and their statuses.
+
+## Barre de navigation
+
+Toutes les pages publiques sauf le Studio (welcome.html, qui garde la sienne et
+sert de modèle) et admin.html chargent `js/topbar.js` en fin de `<body>`. Le
+script reconstruit `.top-actions` (ou la crée) : 🏠 Accueil · 🎭 Inspirations ·
+🎲 Match rapide · 🔥 Échauffement rapide · 💡 Idées, puis les boutons propres à
+la page (Règles, Réglages, Défis…, déplacés avec leurs écouteurs), puis
+l'avatar du compte (lien `welcome.html?compte=1`, qui ouvre le menu du compte) ou
+« Se connecter ». **Ne pas recopier ces liens communs dans une page** : il suffit
+d'y laisser ses propres boutons dans `.top-actions`. Nouvelle page : charger
+`data/all-fr.js` puis `js/topbar.js`. Si son contenu commence tout en haut,
+lui donner `margin-top: calc(var(--acto-topbar-bas) + 0.75rem)` sous
+`body.has-acto-topbar` (voir styles.css), sinon il passe sous la barre fixe.
 
 ## Gotchas
 

@@ -28,6 +28,11 @@
     if (!el || !user()) return;   // not ready yet — a later call (poll) will succeed
     inited = true;
     root = el;
+    // Arrivée depuis l'avatar d'une autre page (js/topbar.js) : menu ouvert.
+    if (/[?&]compte=1\b/.test(window.location.search)) {
+      menuOpen = true;
+      try { history.replaceState(history.state, "", window.location.pathname + window.location.hash); } catch (e) { /* ignore */ }
+    }
     renderButton();
     loadProfile();
     S.onLocaleChange(function () { if (root) renderButton(); });
@@ -54,6 +59,9 @@
 
   function renderButton() {
     if (!root) return;
+    // Les autres pages (js/topbar.js) n'ont pas le profil : elles reprennent
+    // ces initiales, pour que l'avatar soit le même partout.
+    try { localStorage.setItem("acto:topbar:initiales", initials()); } catch (e) { /* stockage privé */ }
     root.innerHTML =
       '<button class="suite-acc-btn" id="suiteAccBtn" type="button" aria-haspopup="true" aria-expanded="' + (menuOpen ? "true" : "false") + '" aria-label="' + esc(t("accountMenu")) + '">' +
         '<span class="suite-acc-avatar">' + esc(initials()) + '</span>' +
@@ -98,6 +106,7 @@
   document.addEventListener("keydown", function (e) { if (menuOpen && e.key === "Escape") { menuOpen = false; renderButton(); } });
 
   function doLogout() {
+    try { localStorage.removeItem("acto:topbar:initiales"); } catch (e) { /* ignore */ }
     function go() { try { window.location.replace("login.html"); } catch (e) { window.location.href = "login.html"; } }
     try { Promise.resolve(sb().auth.signOut()).then(go).catch(go); } catch (e) { go(); }
   }

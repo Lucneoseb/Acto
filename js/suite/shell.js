@@ -277,7 +277,10 @@
     if (!r && !fromPath(location.pathname)) r = { section: "home", sub: "" };
     if (r) {
       var path = toPath(r);
-      if (location.pathname !== path || location.hash) { try { history.replaceState({ acto: 1 }, "", path); } catch (e) { /* ignore */ } }
+      // Seul ?compte=1 survit (avatar des autres pages, js/topbar.js) : account.js
+      // le lit pour ouvrir le menu du compte, puis l'efface.
+      var garde = /[?&]compte=1\b/.test(location.search) ? "?compte=1" : "";
+      if (location.pathname !== path || location.hash) { try { history.replaceState({ acto: 1 }, "", path + garde); } catch (e) { /* ignore */ } }
     }
   })();
   // Les liens de l en-tete portent un vrai href (/studio) pour rester des liens,

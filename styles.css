@@ -1304,6 +1304,37 @@ body.is-signed-in .warmup-trigger { display: inline-flex !important; }
   color: var(--gold-soft);
 }
 .top-trigger svg { display: block; transition: transform 0.25s ease; }
+/* Barre commune à toutes les pages (js/topbar.js) : liens sans soulignement,
+   et l'avatar du compte, identique à celui du Studio (suite.css, .suite-acc-avatar). */
+.acto-topbar a.top-trigger { text-decoration: none; }
+.acto-topbar .top-trigger.is-active { border-color: var(--gold); color: var(--gold-soft); }
+/* Libellés trop larges pour une ligne : icônes seules (js/topbar.js, ajuster). */
+.acto-topbar.is-compact .top-trigger { padding: 0.45rem 0.6rem; }
+.acto-topbar.is-compact .top-trigger span:not([aria-hidden]) { display: none; }
+/* Pages dont le contenu commence tout en haut : on démarre sous la barre fixe
+   (--acto-topbar-bas = son bord inférieur, mesuré par js/topbar.js). */
+body.has-acto-topbar .idea-wrap,
+body.has-acto-topbar .insp1-wrap,
+body.has-acto-topbar .auth-screen { margin-top: calc(var(--acto-topbar-bas, 4.25rem) + 0.75rem); }
+/* Téléphone : jusqu'à neuf boutons (Match rapide connecté) sur une ligne. */
+@media (max-width: 480px) {
+  .top-actions.acto-topbar { right: 0.4rem; gap: 0.2rem; max-width: calc(100vw - 0.8rem); }
+  .acto-topbar .top-trigger, .acto-topbar.is-compact .top-trigger { padding: 0.35rem 0.4rem; }
+  .acto-topbar .top-trigger > span[aria-hidden] { font-size: 1.05rem !important; }
+  .acto-avatar { width: 30px; height: 30px; font-size: 0.72rem; }
+}
+@media (max-width: 360px) {
+  .acto-topbar .top-trigger, .acto-topbar.is-compact .top-trigger { padding: 0.3rem 0.26rem; }
+  .acto-topbar .top-trigger > span[aria-hidden] { font-size: 0.95rem !important; }
+  .acto-avatar { width: 28px; height: 28px; }
+}
+.acto-avatar-link { display: inline-flex; align-items: center; text-decoration: none; }
+.acto-avatar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-soft)); color: var(--bg-deep);
+  font: 700 0.8rem/1 "Inter", sans-serif; letter-spacing: 0.02em; border: 1px solid rgba(0,0,0,0.2); }
+.acto-avatar-link:hover .acto-avatar { filter: brightness(1.06); }
+/* Défi : rien par-dessus la caméra ni pendant l'enregistrement. */
+body.defi-camera .acto-topbar, body.defi-recording .acto-topbar { display: none !important; }
 .settings-trigger:hover svg { transform: rotate(20deg); }
 /* Inspiration nav button — visible on every page (logged-in or not).
    When the current page is inspirations.html, the matching .is-active
