@@ -349,6 +349,15 @@
   }
 
   /* ---- lists ------------------------------------------------------------- */
+  // Supabase coupe chaque réponse à 1000 lignes, en silence : on lit par pages
+  // (le tri des deux fonctions se termine par le token, unique). Sans
+  // js/utils.js (page en cache d'avant son ajout), une seule requête.
+  function readList(fn) {
+    var u = window.actoUtils;
+    return (u && u.readAllPages)
+      ? u.readAllPages(function () { return sbc().rpc(fn); })
+      : Promise.resolve(sbc().rpc(fn));
+  }
   function statusBadge(st) {
     var map = { sent: "challengeStatusSent", opened: "challengeStatusOpened", done: "challengeStatusDone" };
     return '<span class="chg-badge ' + esc(st) + '">' + esc(T(map[st] || "challengeStatusSent")) + "</span>";
@@ -359,7 +368,7 @@
     ui.card.querySelector('[data-rc="close"]').onclick = ui.close;
     ui.card.querySelector('[data-rc="received"]').onclick = function () { ui.close(); openReceived(); };
     var list = ui.card.querySelector('[data-rc="list"]');
-    Promise.resolve(sbc().rpc("list_my_challenges")).then(function (res) {
+    readList("list_my_challenges").then(function (res) {
       var rows = (res && res.data) || [];
       if (res && res.error) { list.innerHTML = '<p class="chg-empty">' + esc(T("challengeErr")) + "</p>"; return; }
       if (!rows.length) { list.innerHTML = '<p class="chg-empty">' + esc(T("myChallengesEmpty")) + "</p>"; return; }
@@ -379,7 +388,7 @@
     var ui = openDialog('<h2 class="chg-h">📥 ' + esc(T("receivedTitle")) + '</h2><div class="chg-list" data-rc="list"><p class="chg-empty">…</p></div><div class="chg-actions"><button type="button" class="chg-btn pri" data-rc="close">' + esc(T("commonClose")) + "</button></div>");
     ui.card.querySelector('[data-rc="close"]').onclick = ui.close;
     var list = ui.card.querySelector('[data-rc="list"]');
-    Promise.resolve(sbc().rpc("list_received_challenges")).then(function (res) {
+    readList("list_received_challenges").then(function (res) {
       var rows = (res && res.data) || [];
       if (res && res.error) { list.innerHTML = '<p class="chg-empty">' + esc(T("challengeErr")) + "</p>"; return; }
       if (!rows.length) { list.innerHTML = '<p class="chg-empty">' + esc(T("receivedEmpty")) + "</p>"; return; }

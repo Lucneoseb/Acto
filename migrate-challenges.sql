@@ -129,7 +129,7 @@ language sql security definer set search_path = public stable as $$
          created_at, opened_at, done_at
   from public.challenges
   where sender_id = auth.uid()
-  order by created_at desc;
+  order by created_at desc, token;   -- cle unique : lecture par pages
 $$;
 revoke all on function public.list_my_challenges() from public;
 grant execute on function public.list_my_challenges() to authenticated;
@@ -144,7 +144,7 @@ language sql security definer set search_path = public stable as $$
   from public.challenges c
   left join public.profiles sp on sp.id = c.sender_id
   where c.recipient_user_id = auth.uid()
-  order by c.created_at desc;
+  order by c.created_at desc, c.token;   -- cle unique : lecture par pages
 $$;
 revoke all on function public.list_received_challenges() from public;
 grant execute on function public.list_received_challenges() to authenticated;

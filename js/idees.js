@@ -98,22 +98,17 @@
       .order("position", { ascending: true }).order("label", { ascending: true });
   }
 
-  /* Supabase plafonne chaque réponse (max_rows, 1000 par défaut) et un
-     .limit() plus grand n'y change rien : au-delà, la liste serait tronquée
-     en silence — et sur des lignes non triées, ce sont des contenus pris au
-     hasard qui disparaîtraient. On lit donc par pages, sur un ordre stable. */
-  var PAGE = 1000;
+  /* Supabase plafonne chaque réponse (max_rows, 1000) et un .limit() plus grand
+     n'y change rien : au-delà, la liste serait tronquée en silence — et sur des
+     lignes non triées, ce sont des contenus pris au hasard qui disparaîtraient.
+     On lit donc par pages (actoUtils.readAllPages), sur un ordre stable. */
   function toutesLesLignes(fabrique) {
-    var lignes = [];
-    function suite(depuis) {
-      return fabrique().range(depuis, depuis + PAGE - 1).then(function (r) {
-        if (r.error) throw r.error;
-        var d = r.data || [];
-        lignes = lignes.concat(d);
-        return d.length < PAGE ? lignes : suite(depuis + PAGE);
-      });
-    }
-    return suite(0);
+    var u = window.actoUtils;
+    var lire = (u && u.readAllPages) ? u.readAllPages(fabrique) : Promise.resolve(fabrique());
+    return lire.then(function (r) {
+      if (!r || r.error) throw (r && r.error) || new Error("no response");
+      return r.data || [];
+    });
   }
 
   // Deux chargements peuvent se croiser (langue changée dans un autre onglet

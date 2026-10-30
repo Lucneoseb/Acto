@@ -65,7 +65,29 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || "").trim());
   }
 
+  /**
+   * Read every row of a Supabase list, page by page.
+   *
+   * Supabase caps each response at max_rows (1000 on this project, measured)
+   * whatever .limit() asks for: a longer list comes back silently truncated.
+   * `makeQuery` must build a FRESH query each call — a table select or a
+   * set-returning rpc — whose order is deterministic and unique (end it with
+   * the id), otherwise rows can be skipped or repeated between pages.
+   * Resolves to { data, error } like a single Supabase call; never rejects.
+   */
+  function readAllPages(makeQuery, pageSize) {
+    const size = pageSize || 1000;
+    let rows = [];
+    const next = (from) => Promise.resolve(makeQuery().range(from, from + size - 1)).then((r) => {
+      if (!r || r.error) return { data: null, error: (r && r.error) || new Error("no response") };
+      const page = Array.isArray(r.data) ? r.data : [];
+      rows = rows.concat(page);
+      return page.length < size ? { data: rows, error: null } : next(from + size);
+    }, (e) => ({ data: null, error: e }));
+    return next(0);
+  }
+
   window.actoUtils = Object.freeze({
-    escapeHtml, fmtSec, fmtDate, ageOf, withTimeout, emailValid
+    escapeHtml, fmtSec, fmtDate, ageOf, withTimeout, emailValid, readAllPages
   });
 })();

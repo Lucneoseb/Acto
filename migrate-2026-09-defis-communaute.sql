@@ -118,8 +118,7 @@ language sql stable security definer set search_path = public as $$
     from public.challenge_ideas c
    where c.locale = p_locale
      and (c.status = 'approved' or (auth.uid() is not null and c.submitted_by = auth.uid() and c.status = 'pending'))
-   order by c.status = 'approved' desc, lower(coalesce(c.theme, c.category))
-   limit 2000;
+   order by c.status = 'approved' desc, lower(coalesce(c.theme, c.category)), c.id;   -- cle unique : lecture par pages (migrate-2026-10-defis-sans-plafond.sql)
 $$;
 revoke all on function public.list_challenge_ideas(text) from public;
 grant  execute on function public.list_challenge_ideas(text) to anon, authenticated;

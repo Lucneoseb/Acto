@@ -2109,12 +2109,12 @@
      would otherwise execute attacker code with the user's session JWT in
      reach. Bump both `@VERSION` and the integrity hash together. -->
 <script src="/vendor/supabase-js-2.47.10.min.js" integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"></script>
-<script src="./js/config.js?v=2026103001"></script>
-<script src="./js/utils.js?v=2026103001"></script>
+<script src="./js/config.js?v=2026103002"></script>
+<script src="./js/utils.js?v=2026103002"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=2026103001"></script>
+<script src="./data/all.js?v=2026103002"></script>
 <script>
 (function () {
   "use strict";
@@ -2129,7 +2129,7 @@
   }
 
   const { url: SUPABASE_URL, key: SUPABASE_KEY } = window.actoConfig.supabase;
-  const { escapeHtml, fmtSec, fmtDate, ageOf, withTimeout } = window.actoUtils;
+  const { escapeHtml, fmtSec, fmtDate, ageOf, withTimeout, readAllPages } = window.actoUtils;
 
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
@@ -3500,11 +3500,13 @@
   async function loadDefis() {
     const body = $("defiBodyAdmin");
     if (body) body.innerHTML = '<tr><td colspan="9" class="empty">Chargement…</td></tr>';
-    const { data, error } = await sb
+    // Par pages : Supabase coupe chaque réponse à 1000 lignes, en silence.
+    // L'id départage les défis créés au même instant (imports, seeds).
+    const { data, error } = await readAllPages(() => sb
       .from("challenge_ideas")
       .select("id,locale,level,category,category_desc,theme,players,duration_sec,submitted_by,status,approved_at,created_at")
       .order("created_at", { ascending: false })
-      .limit(2000);
+      .order("id", { ascending: true }));
     if (error) {
       console.warn("[admin] loadDefis", error);
       // Table absente : c'est la migration qui manque, autant le dire en clair.
@@ -3711,19 +3713,6 @@
   // Comparaison de libellés insensible à la casse et aux accents (« Émotion » = « emotion »).
   const ideaCle = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").trim().toLowerCase();
 
-  /* Supabase plafonne chaque réponse (max_rows, 1000 par défaut) quel que soit
-     le .limit() demandé : on lit les contenus par pages, sur un ordre stable,
-     sinon une grosse base serait tronquée sans le moindre signe. */
-  async function ideaToutesLesLignes(fabrique) {
-    const PAGE = 1000; let lignes = [];
-    for (let depuis = 0; ; depuis += PAGE) {
-      const r = await fabrique().range(depuis, depuis + PAGE - 1);
-      if (r.error) return { data: null, error: r.error };
-      lignes = lignes.concat(r.data || []);
-      if (!r.data || r.data.length < PAGE) return { data: lignes, error: null };
-    }
-  }
-
   async function loadIdees() {
     const cb = $("ideaCatBody"), ib = $("ideaItemBody");
     if (cb) cb.innerHTML = '<tr><td colspan="8" class="empty">Chargement…</td></tr>';
@@ -3744,8 +3733,10 @@
     }
     ideaCats = rc.data || [];
     ideaCatIndex = {}; ideaCats.forEach(c => { ideaCatIndex[c.id] = c; });
+    // Par pages : 2 788 contenus dès le premier remplissage, au-delà des 1000
+    // lignes que Supabase renvoie au plus par réponse.
     const ri = ideaCats.length
-      ? await ideaToutesLesLignes(() => sb.from("idea_items")
+      ? await readAllPages(() => sb.from("idea_items")
           .select("id,category_id,content,is_active").order("id", { ascending: true }))
       : { data: [], error: null };
     ideaItems = ri.error ? [] : (ri.data || []);

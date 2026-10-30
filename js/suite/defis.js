@@ -266,7 +266,13 @@
     if (chargement) return;
     chargement = true;
     var loc = S.locale();
-    Promise.resolve(c.rpc("list_challenge_ideas", { p_locale: loc })).then(function (r) {
+    // Par pages : Supabase coupe chaque réponse à 1000 lignes, en silence.
+    // Sans js/utils.js (page en cache d'avant son ajout), une seule requête.
+    var u = window.actoUtils;
+    var lire = (u && u.readAllPages)
+      ? u.readAllPages(function () { return c.rpc("list_challenge_ideas", { p_locale: loc }); })
+      : c.rpc("list_challenge_ideas", { p_locale: loc });
+    Promise.resolve(lire).then(function (r) {
       // Fonction absente (migration pas encore passée) ou erreur : on le dit
       // plutôt qu'une base vide, qui laisserait croire qu'il n'y a rien.
       chargement = false; ideesLocale = loc;
