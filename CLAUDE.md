@@ -89,9 +89,13 @@ where email = 'your@email.com';
 
 ## Working directory
 
-**Always edit files in `H:\Perso\GitActo\Acto\` directly** — never inside
+**Always edit files in `I:\Perso\GitActo\Acto\` directly** — never inside
 `.claude/worktrees/...`. SourceTree only sees the main checkout. Worktrees
 are useful for read-only exploration, not for the primary edit target.
+
+Le dépôt était sur `H:\Perso\GitActo\` jusqu'au 30/10/2026. Le volume `I:`
+n'enregistre pas la propriété des fichiers : git exige une fois
+`git config --global --add safe.directory I:/Perso/GitActo/Acto`.
 
 ## Testing with Chrome MCP
 
