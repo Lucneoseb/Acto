@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Acto — The Impro Studio" />
+<meta property="og:title" content="Générateur d'idées — Acto" />
+<meta property="og:description" content="Une idée au hasard pour lancer une impro : expression, émotion, lieu, métier, personnage…" />
+<meta property="og:url" content="https://acto-theimprostudio.com/idees.html" />
+<meta property="og:image" content="https://acto-theimprostudio.com/assets/og-image.jpg?v=1" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="description" content="Générateur d'idées pour l'improvisation : tire au sort une expression, une émotion, un lieu, un métier, un personnage… · Acto The Impro Studio" />
+<meta name="theme-color" content="#0c0814" />
+<title>Acto — Générateur d'idées</title>
+<link rel="icon" type="image/png" href="./assets/logo.png?v=20260705" />
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css?v=2026103001" />
+<style>
+  /* Générateur d'idées — styles propres à la page, bâtis sur les jetons
+     partagés de styles.css (--gold, --ink, --radius-lg, .card…). Préfixe
+     « idea- » pour qu'aucune règle ne fuie vers les autres pages. */
+  .idea-wrap { position: relative; z-index: 5; max-width: 860px; margin: clamp(1rem,4vw,2.5rem) auto clamp(3rem,8vw,5rem); padding: 0 1rem; }
+  .idea-back { margin-bottom: 1rem; }
+  .idea-back a { color: var(--gold-soft); text-decoration: none; font-size: 0.9rem; }
+  .idea-head { text-align: center; margin-bottom: clamp(1.2rem,4vw,2rem); }
+  .idea-title { font-family: 'Bebas Neue', Inter, sans-serif; font-weight: 400; letter-spacing: 0.05em; color: var(--gold);
+    font-size: clamp(2rem,7vw,3.2rem); line-height: 1; margin: 0 0 0.4rem; }
+  .idea-blurb { color: var(--ink-muted); margin: 0; font-size: clamp(0.92rem,2.6vw,1.02rem); line-height: 1.5; }
+
+  /* La scène : une seule carte, toujours à la même place, pour que l'œil
+     n'ait pas à chercher le résultat après chaque tirage. */
+  .idea-card { min-height: clamp(150px,30vw,190px); display: flex; flex-direction: column; justify-content: center; text-align: center; }
+  /* styles.css pousse l'icône des cartes à droite (`.card-head .card-icon
+     { margin-left:auto }`) : ici les deux vont ensemble, centrés au-dessus
+     du texte tiré. Il faut donc annuler cette marge, pas seulement centrer. */
+  .idea-card .card-head { justify-content: center; gap: 0.5rem; margin-bottom: 0.6rem; }
+  .idea-card .card-head .card-icon { margin-left: 0; }
+  .idea-card .card-label { font-size: 1rem; }
+  .idea-text { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(1.3rem,5.2vw,2.1rem); line-height: 1.25;
+    color: var(--ink); margin: 0; overflow-wrap: break-word; }
+  .idea-text.is-placeholder { font-family: 'Inter', sans-serif; font-size: clamp(0.95rem,3vw,1.1rem); color: var(--ink-faint); }
+  .idea-card.is-drawing .idea-text { animation: ideaPop 0.32s ease-out; }
+  @keyframes ideaPop { 0% { opacity: 0; transform: translateY(8px) scale(0.98); } 100% { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .idea-card.is-drawing .idea-text { animation: none; } }
+
+  .idea-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+  .idea-btn { appearance: none; cursor: pointer; font: inherit; font-weight: 700; border-radius: 12px; min-height: 44px;
+    padding: 0.6rem 1.1rem; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.05); color: var(--ink);
+    display: inline-flex; align-items: center; gap: 0.4rem; }
+  .idea-btn:hover { border-color: var(--gold); }
+  .idea-btn-primary { background: rgba(245,196,81,0.16); border-color: rgba(245,196,81,0.5); color: var(--gold); }
+
+  .idea-hint { text-align: center; color: var(--ink-faint); font-size: 0.88rem; margin: 1.4rem 0 0.8rem; }
+
+  /* Les boutons de catégorie. Grille fluide : 2 colonnes sur un téléphone,
+     jusqu'à 5 sur un écran large, sans point de rupture à maintenir. */
+  .idea-cats { display: grid; grid-template-columns: repeat(auto-fit, minmax(132px,1fr)); gap: 0.6rem; }
+  .idea-cat { appearance: none; cursor: pointer; font: inherit; min-height: 56px; padding: 0.7rem 0.8rem;
+    border-radius: 14px; border: 1px solid rgba(255,255,255,0.12); background: linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    color: var(--ink); display: flex; align-items: center; justify-content: center; gap: 0.45rem; text-align: center;
+    font-weight: 600; line-height: 1.15; transition: border-color 0.2s, transform 0.12s, box-shadow 0.2s; }
+  .idea-cat:hover { border-color: var(--gold); }
+  .idea-cat:active { transform: scale(0.97); }
+  .idea-cat[aria-pressed="true"] { border-color: var(--gold); color: var(--gold);
+    background: rgba(245,196,81,0.14); box-shadow: 0 0 18px rgba(245,196,81,0.18); }
+  .idea-cat-emoji { font-size: 1.15rem; line-height: 1; }
+
+  .idea-note { text-align: center; color: var(--ink-faint); font-size: 0.85rem; margin: 1.2rem 0 0; }
+  .idea-state { text-align: center; color: var(--ink-muted); padding: 2.5rem 1rem; }
+  .idea-state .idea-btn { margin-top: 0.9rem; }
+</style>
+</head>
+<body>
+  <div class="stage-backdrop" aria-hidden="true">
+    <div class="spotlight spotlight-1"></div><div class="spotlight spotlight-2"></div><div class="spotlight spotlight-3"></div>
+    <div class="curtain curtain-left"></div><div class="curtain curtain-right"></div>
+  </div>
+
+  <div class="top-actions">
+    <a class="top-trigger" href="./welcome.html" aria-label="Accueil">
+      <span aria-hidden="true" style="font-size:1.1rem;">🏠</span>
+      <span id="homeLabelText">Accueil</span>
+    </a>
+    <a class="top-trigger" href="./warmups.html?draw=1" aria-label="Échauffement rapide">
+      <span aria-hidden="true" style="font-size:1.1rem;">🔥</span>
+      <span id="quickWarmupLabelText">Échauffement rapide</span>
+    </a>
+    <a class="top-trigger" href="./inspirations.html" aria-label="Inspirations">
+      <span aria-hidden="true" style="font-size:1.1rem;">🎭</span>
+      <span id="inspireLabelText">Inspirations</span>
+    </a>
+  </div>
+
+  <main class="idea-wrap">
+    <div class="idea-back"><a href="./welcome.html">← Acto · The Impro Studio</a></div>
+
+    <header class="idea-head">
+      <h1 class="idea-title" id="ideaTitle">Générateur d'idées</h1>
+      <p class="idea-blurb" id="ideaBlurb">Une idée au hasard pour lancer une impro, un échauffement ou une scène.</p>
+    </header>
+
+    <div id="ideaRoot">
+      <div class="idea-state" id="ideaLoading">…</div>
+    </div>
+  </main>
+
+  <script src="/vendor/supabase-js-2.47.10.min.js" integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"></script>
+  <script src="./js/config.js?v=2026103001"></script>
+  <script src="./js/utils.js?v=2026103001"></script>
+  <!-- Français en synchrone (repli de t()), langue de l'utilisateur
+       chargée à la demande : voir js/suite/locale-loader.js. -->
+  <script src="./data/all-fr.js?v=2026103001"></script>
+  <script src="./js/suite/locale-loader.js?v=2026103001"></script>
+  <script src="./js/topbar-i18n.js?v=2026103001"></script>
+  <script src="./js/idees.js?v=2026103001"></script>
+</body>
+</html>

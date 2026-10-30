@@ -759,6 +759,17 @@
   #defiTableAdmin { table-layout: fixed; }
   #defiTableAdmin th, #defiTableAdmin td { white-space: normal; overflow-wrap: break-word; max-width: none; }
   #defiTableAdmin td.actions .btn { white-space: normal; min-width: 0; }
+  /* Vue « Idées » : même schéma générique que les défis. */
+  body.view-idees [data-view]:not([data-view="idees"]) { display: none !important; }
+  body:not(.view-idees) [data-view="idees"]            { display: none !important; }
+  .nav-on-idees { display: none !important; }
+  body.view-idees .nav-on-idees { display: inline-flex !important; }
+  body:not(.view-idees) header.bar h1 .h1-idees   { display: none; }
+  body.view-idees header.bar h1 > span:not(.h1-idees) { display: none; }
+  #ideaCatTable, #ideaItemTable { table-layout: fixed; }
+  #ideaCatTable th, #ideaCatTable td,
+  #ideaItemTable th, #ideaItemTable td { white-space: normal; overflow-wrap: break-word; max-width: none; }
+  #ideaCatTable td.actions .btn, #ideaItemTable td.actions .btn { white-space: normal; min-width: 0; }
   /* ══════════════════════════════════════════════════════════════════════════
      PASSE RESPONSIVE 2026-07-29 — placée EN DERNIER volontairement.
 
@@ -1144,7 +1155,7 @@
 
 <div id="adminApp" class="wrap" role="main" hidden>
   <header class="bar">
-    <h1>Acto · <span class="h1-tableau">Tableau de bord</span><span class="h1-impro">Impro</span><span class="h1-inspirations">Inspirations</span><span class="h1-warmups">Échauffement</span><span class="h1-defis">Défis</span></h1>
+    <h1>Acto · <span class="h1-tableau">Tableau de bord</span><span class="h1-impro">Impro</span><span class="h1-inspirations">Inspirations</span><span class="h1-warmups">Échauffement</span><span class="h1-defis">Défis</span><span class="h1-idees">Idées</span></h1>
     <div>
       <span class="who" id="whoami"></span>
       <div class="actions" style="margin-top:0.4rem;">
@@ -1154,11 +1165,12 @@
         <!-- View switchers. Three sibling views — Tableau / Impro /
              Inspirations — each with its own button shown only from
              OUTSIDE that view (via .nav-on-* visibility classes). -->
-        <button class="btn nav-on-impro nav-on-inspirations nav-on-warmups nav-on-defis" id="backToTableauBtn" type="button">← Tableau de bord</button>
-        <button class="btn nav-on-tableau nav-on-inspirations nav-on-warmups nav-on-defis" id="goImproBtn" type="button">🎭 Impro →</button>
-        <button class="btn nav-on-tableau nav-on-impro nav-on-warmups nav-on-defis" id="goInspireBtn" type="button">🎭 Inspirations →</button>
-        <button class="btn nav-on-tableau nav-on-impro nav-on-inspirations nav-on-defis" id="goWarmupsBtn" type="button">🔥 Échauffement →</button>
-        <button class="btn nav-on-tableau nav-on-impro nav-on-inspirations nav-on-warmups" id="goDefisBtn" type="button">🎯 Défis →</button>
+        <button class="btn nav-on-impro nav-on-inspirations nav-on-warmups nav-on-defis nav-on-idees" id="backToTableauBtn" type="button">← Tableau de bord</button>
+        <button class="btn nav-on-tableau nav-on-inspirations nav-on-warmups nav-on-defis nav-on-idees" id="goImproBtn" type="button">🎭 Impro →</button>
+        <button class="btn nav-on-tableau nav-on-impro nav-on-warmups nav-on-defis nav-on-idees" id="goInspireBtn" type="button">🎭 Inspirations →</button>
+        <button class="btn nav-on-tableau nav-on-impro nav-on-inspirations nav-on-defis nav-on-idees" id="goWarmupsBtn" type="button">🔥 Échauffement →</button>
+        <button class="btn nav-on-tableau nav-on-impro nav-on-inspirations nav-on-warmups nav-on-idees" id="goDefisBtn" type="button">🎯 Défis →</button>
+        <button class="btn nav-on-tableau nav-on-impro nav-on-inspirations nav-on-warmups nav-on-defis" id="goIdeesBtn" type="button">💡 Idées →</button>
         <a class="btn nav-on-inspirations" href="./inspirations.html" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;text-decoration:none;" title="Voir la page publique dans un nouvel onglet">↗ Page publique</a>
         <a class="btn" href="./welcome.html" style="display:inline-flex;align-items:center;text-decoration:none;">← App</a>
       </div>
@@ -1595,6 +1607,83 @@
       </table>
     </div>
   </div>
+
+  <!-- ══ Générateur d'idées ══════════════════════════════════════════════
+       Deux tableaux : les catégories (les boutons de la page publique) et
+       les contenus (ce qui est tiré au sort). Les contenus sont filtrés par
+       catégorie : une liste de plusieurs centaines de mots sans filtre
+       serait inutilisable. -->
+  <div data-view="idees">
+    <h2 class="section-title">💡 Générateur d'idées · catégories</h2>
+    <p style="color:var(--ink-muted);font-size:0.85rem;margin:0 0 0.6rem;">
+      Chaque catégorie est un bouton sur <code>/idees.html</code>. Désactiver = le bouton disparaît
+      de la page publique sans rien effacer · Supprimer = la catégorie <strong>et tous ses contenus</strong>.
+      L'ordre d'affichage suit la colonne « Ordre ».
+    </p>
+    <div class="submission-filters">
+      <select id="ideaCatFilterLocale" class="btn" aria-label="Langue">
+        <option value="fr" selected>fr · Français</option>
+        <option value="">Toutes les langues</option>
+        <option value="en">en · English</option>
+        <option value="de">de · Deutsch</option>
+        <option value="es">es · Español</option>
+        <option value="pt">pt · Português</option>
+        <option value="nl">nl · Nederlands</option>
+        <option value="it">it · Italiano</option>
+      </select>
+      <button class="btn btn-primary" id="ideaCatAddBtn" type="button" style="margin-left:auto;">+ Ajouter une catégorie</button>
+      <button class="btn" id="ideaCatExportBtn" type="button" title="Exporter les catégories en CSV">⬇ Export CSV</button>
+      <button class="btn" id="ideaCatImportBtn" type="button" title="Importer un CSV de catégories">⬆ Import CSV</button>
+      <a class="btn" href="./idees.html" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;text-decoration:none;" title="Voir la page publique dans un nouvel onglet">↗ Page publique</a>
+      <span class="count" id="ideaCatCount"></span>
+    </div>
+    <div class="table-wrap">
+      <table class="profiles" id="ideaCatTable">
+        <thead>
+          <tr>
+            <th scope="col" style="width:8%;">Ordre</th>
+            <th scope="col" style="width:8%;">Emoji</th>
+            <th scope="col" style="width:22%;">Libellé</th>
+            <th scope="col" style="width:18%;">Identifiant</th>
+            <th scope="col" style="width:8%;">Langue</th>
+            <th scope="col" style="width:10%;">Contenus</th>
+            <th scope="col" style="width:10%;">État</th>
+            <th scope="col" style="width:16%;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="ideaCatBody"></tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title" style="margin-top:2rem;">💡 Contenus</h2>
+    <p style="color:var(--ink-muted);font-size:0.85rem;margin:0 0 0.6rem;">
+      Les mots et phrases tirés au sort. Un même contenu ne peut pas figurer deux fois dans la même catégorie.
+    </p>
+    <div class="submission-filters">
+      <select id="ideaItemFilterCat" class="btn" aria-label="Catégorie"></select>
+      <input type="search" id="ideaItemFilterText" placeholder="Recherche dans les contenus…" aria-label="Recherche dans les contenus…">
+      <label style="display:inline-flex;align-items:center;gap:0.35rem;font-size:0.85rem;color:var(--ink-muted);">
+        <input type="checkbox" id="ideaItemShowHidden"> Afficher les désactivés
+      </label>
+      <button class="btn btn-primary" id="ideaItemAddBtn" type="button" style="margin-left:auto;">+ Ajouter un contenu</button>
+      <button class="btn" id="ideaItemExportBtn" type="button" title="Exporter les contenus filtrés en CSV">⬇ Export CSV</button>
+      <button class="btn" id="ideaItemImportBtn" type="button" title="Importer un CSV de contenus">⬆ Import CSV</button>
+      <span class="count" id="ideaItemCount"></span>
+    </div>
+    <div class="table-wrap">
+      <table class="profiles" id="ideaItemTable">
+        <thead>
+          <tr>
+            <th scope="col" style="width:22%;">Catégorie</th>
+            <th scope="col" style="width:48%;">Contenu</th>
+            <th scope="col" style="width:10%;">État</th>
+            <th scope="col" style="width:20%;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="ideaItemBody"></tbody>
+      </table>
+    </div>
+  </div>
 </div><!-- /adminApp -->
 
 <!-- Admin-only "Ajouter une inspiration" dialog. Opens from the
@@ -1774,6 +1863,91 @@
   </form>
 </dialog>
 
+<!-- Générateur d'idées : une catégorie (le bouton de la page publique). -->
+<dialog id="ideaCatDialog" class="bundle-add-dialog" aria-labelledby="ideaCatDialogTitle">
+  <form method="dialog" class="dlg-head">
+    <h2 id="ideaCatDialogTitle">Ajouter une catégorie</h2>
+    <button type="button" class="dlg-close" id="ideaCatCloseBtn" aria-label="Fermer">✕</button>
+  </form>
+  <form id="ideaCatForm" class="bundle-add-form" novalidate>
+    <div class="dlg-body">
+      <div class="bundle-add-row">
+        <div class="bundle-add-field">
+          <span>Libellé *</span>
+          <input type="text" id="ideaCatLabel" maxlength="60" required placeholder="Ex. : Émotion" />
+        </div>
+        <div class="bundle-add-field">
+          <span>Emoji</span>
+          <input type="text" id="ideaCatEmoji" maxlength="16" placeholder="💓" />
+        </div>
+      </div>
+      <div class="bundle-add-field">
+        <span>Identifiant (laisser vide = déduit du libellé)</span>
+        <input type="text" id="ideaCatSlug" maxlength="40" placeholder="emotion" pattern="[a-z0-9_]*" />
+      </div>
+      <div class="bundle-add-row">
+        <div class="bundle-add-field">
+          <span>Ordre d'affichage</span>
+          <input type="number" id="ideaCatPosition" step="10" placeholder="10" />
+        </div>
+        <div class="bundle-add-field">
+          <span>Langue</span>
+          <select id="ideaCatLocale">
+            <option value="fr" selected>fr · Français</option>
+            <option value="en">en · English</option>
+            <option value="de">de · Deutsch</option>
+            <option value="es">es · Español</option>
+            <option value="pt">pt · Português</option>
+            <option value="nl">nl · Nederlands</option>
+            <option value="it">it · Italiano</option>
+          </select>
+        </div>
+      </div>
+      <label class="bundle-add-field" style="flex-direction:row;align-items:center;gap:0.5rem;">
+        <input type="checkbox" id="ideaCatActive" checked />
+        <span style="margin:0;">Visible sur la page publique</span>
+      </label>
+      <p class="admin-login-error" id="ideaCatError" hidden></p>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="btn" id="ideaCatCancelBtn">Annuler</button>
+      <button type="submit" class="btn btn-primary" id="ideaCatSubmitBtn">Enregistrer</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Générateur d'idées : un contenu (ce qui est tiré au sort). -->
+<dialog id="ideaItemDialog" class="bundle-add-dialog" aria-labelledby="ideaItemDialogTitle">
+  <form method="dialog" class="dlg-head">
+    <h2 id="ideaItemDialogTitle">Ajouter un contenu</h2>
+    <button type="button" class="dlg-close" id="ideaItemCloseBtn" aria-label="Fermer">✕</button>
+  </form>
+  <form id="ideaItemForm" class="bundle-add-form" novalidate>
+    <div class="dlg-body">
+      <div class="bundle-add-field">
+        <span>Catégorie *</span>
+        <select id="ideaItemCat" required></select>
+      </div>
+      <div class="bundle-add-field">
+        <span>Contenu *</span>
+        <textarea id="ideaItemContent" rows="2" maxlength="300" required placeholder="Ex. : Un détective myope"></textarea>
+      </div>
+      <p style="color:var(--ink-muted);font-size:0.8rem;margin:0;">
+        Astuce : une ligne par contenu dans le champ ci-dessus crée plusieurs contenus d'un coup.
+      </p>
+      <label class="bundle-add-field" style="flex-direction:row;align-items:center;gap:0.5rem;">
+        <input type="checkbox" id="ideaItemActive" checked />
+        <span style="margin:0;">Tirable au sort</span>
+      </label>
+      <p class="admin-login-error" id="ideaItemError" hidden></p>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="btn" id="ideaItemCancelBtn">Annuler</button>
+      <button type="submit" class="btn btn-primary" id="ideaItemSubmitBtn">Enregistrer</button>
+    </div>
+  </form>
+</dialog>
+
 <dialog id="warmupAddDialog" class="bundle-add-dialog" aria-labelledby="warmupAddDialogTitle">
   <form method="dialog" class="dlg-head">
     <h2 id="warmupAddDialogTitle">Ajouter un exercice</h2>
@@ -1935,12 +2109,12 @@
      would otherwise execute attacker code with the user's session JWT in
      reach. Bump both `@VERSION` and the integrity hash together. -->
 <script src="/vendor/supabase-js-2.47.10.min.js" integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"></script>
-<script src="./js/config.js?v=2026091704"></script>
-<script src="./js/utils.js?v=2026091704"></script>
+<script src="./js/config.js?v=2026103001"></script>
+<script src="./js/utils.js?v=2026103001"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=2026091704"></script>
+<script src="./data/all.js?v=2026103001"></script>
 <script>
 (function () {
   "use strict";
@@ -2123,6 +2297,7 @@
     await loadInspirations();
     await loadWarmups();
     await loadDefis();
+    await loadIdees();
   });
   $("exportBtn").addEventListener("click", exportCSV);
   $("logoutBtn").addEventListener("click", logout);
@@ -3523,6 +3698,455 @@
     });
   }
 
+  /* ============================================================
+     💡 IDÉES — générateur d'idées (idea_categories + idea_items)
+     ============================================================
+     L'admin lit les deux tables en direct : sa politique RLS lui montre aussi
+     ce qui est désactivé, qu'il doit pouvoir réactiver. Toutes les écritures
+     passent par les quatre fonctions de migrate-2026-10-idees.sql. */
+  let ideaCats = [], ideaItems = [], ideaCatIndex = {};
+
+  function ideaCatById(id) { return ideaCatIndex[id] || null; }
+  function ideaCatLabel(c) { return (c.emoji ? c.emoji + " " : "") + c.label; }
+  // Comparaison de libellés insensible à la casse et aux accents (« Émotion » = « emotion »).
+  const ideaCle = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").trim().toLowerCase();
+
+  /* Supabase plafonne chaque réponse (max_rows, 1000 par défaut) quel que soit
+     le .limit() demandé : on lit les contenus par pages, sur un ordre stable,
+     sinon une grosse base serait tronquée sans le moindre signe. */
+  async function ideaToutesLesLignes(fabrique) {
+    const PAGE = 1000; let lignes = [];
+    for (let depuis = 0; ; depuis += PAGE) {
+      const r = await fabrique().range(depuis, depuis + PAGE - 1);
+      if (r.error) return { data: null, error: r.error };
+      lignes = lignes.concat(r.data || []);
+      if (!r.data || r.data.length < PAGE) return { data: lignes, error: null };
+    }
+  }
+
+  async function loadIdees() {
+    const cb = $("ideaCatBody"), ib = $("ideaItemBody");
+    if (cb) cb.innerHTML = '<tr><td colspan="8" class="empty">Chargement…</td></tr>';
+    if (ib) ib.innerHTML = '<tr><td colspan="4" class="empty">Chargement…</td></tr>';
+    const rc = await sb.from("idea_categories")
+      .select("id,locale,slug,label,emoji,position,is_active")
+      .order("locale", { ascending: true }).order("position", { ascending: true }).limit(1000);
+    if (rc.error) {
+      console.warn("[admin] loadIdees", rc.error);
+      // Table absente : c'est la migration qui manque, autant le dire en clair.
+      const manque = /idea_categories|does not exist|schema cache/i.test(rc.error.message || "");
+      const msg = manque
+        ? "Le générateur d’idées n’existe pas encore : passe migrate-2026-10-idees.sql puis seed-2026-10-idees.sql dans Supabase."
+        : "Erreur : " + escapeHtml(rc.error.message);
+      if (cb) cb.innerHTML = '<tr><td colspan="8" class="empty">' + msg + '</td></tr>';
+      if (ib) ib.innerHTML = '<tr><td colspan="4" class="empty">—</td></tr>';
+      return;
+    }
+    ideaCats = rc.data || [];
+    ideaCatIndex = {}; ideaCats.forEach(c => { ideaCatIndex[c.id] = c; });
+    const ri = ideaCats.length
+      ? await ideaToutesLesLignes(() => sb.from("idea_items")
+          .select("id,category_id,content,is_active").order("id", { ascending: true }))
+      : { data: [], error: null };
+    ideaItems = ri.error ? [] : (ri.data || []);
+    remplirSelectsIdees();
+    renderIdeaCats();
+    if (ri.error) {
+      // Rendre le tableau ici écraserait l'erreur par « Aucun contenu » : on la montre.
+      console.warn("[admin] loadIdees items", ri.error);
+      if (ib) ib.innerHTML = '<tr><td colspan="4" class="empty">Erreur de chargement des contenus : ' + escapeHtml(ri.error.message) + '</td></tr>';
+      return;
+    }
+    renderIdeaItems();
+  }
+
+  /** Les deux <select> de catégorie (filtre + dialogue) suivent la liste. */
+  function remplirSelectsIdees() {
+    // Au premier chargement, le filtre mémorisé n'a pas pu être restauré :
+    // ses options n'existaient pas encore. On le relit donc ici.
+    const courant = ($("ideaItemFilterCat") || {}).value || lireFiltres().ideaItemFilterCat || "";
+    const options = ideaCats
+      .map(c => '<option value="' + escapeHtml(c.id) + '">' + escapeHtml(ideaCatLabel(c)) +
+                ' · ' + escapeHtml(String(c.locale || "").toUpperCase()) + '</option>').join("");
+    const filtre = $("ideaItemFilterCat");
+    if (filtre) {
+      filtre.innerHTML = '<option value="">Toutes les catégories</option>' + options;
+      // la catégorie choisie peut avoir disparu (suppression) : on retombe sur « toutes »
+      filtre.value = ideaCatById(courant) ? courant : "";
+    }
+    const dlg = $("ideaItemCat");
+    if (dlg) dlg.innerHTML = options;
+  }
+
+  function renderIdeaCats() {
+    const body = $("ideaCatBody"); if (!body) return;
+    const loc = ($("ideaCatFilterLocale") || {}).value || "";
+    const liste = ideaCats.filter(c => !loc || c.locale === loc);
+    const compte = $("ideaCatCount");
+    if (compte) compte.textContent = liste.length + " / " + ideaCats.length;
+    if (!liste.length) {
+      body.innerHTML = '<tr><td colspan="8" class="empty">' +
+        (ideaCats.length ? "Aucune catégorie dans cette langue." : "Aucune catégorie : passe le seed, ou ajoute-en une.") + '</td></tr>';
+      return;
+    }
+    const nb = {};
+    ideaItems.forEach(i => { nb[i.category_id] = (nb[i.category_id] || 0) + 1; });
+    body.innerHTML = liste.map(c => {
+      const actifs = ideaItems.filter(i => i.category_id === c.id && i.is_active).length;
+      const total = nb[c.id] || 0;
+      return '<tr>' +
+        '<td>' + escapeHtml(String(c.position)) + '</td>' +
+        '<td style="font-size:1.2rem;">' + escapeHtml(c.emoji || "—") + '</td>' +
+        '<td class="wrap">' + escapeHtml(c.label) + '</td>' +
+        '<td class="wrap"><code>' + escapeHtml(c.slug) + '</code></td>' +
+        '<td>' + escapeHtml(String(c.locale || "").toUpperCase()) + '</td>' +
+        '<td>' + actifs + (total !== actifs ? ' <span style="opacity:0.6">(' + total + ')</span>' : '') + '</td>' +
+        '<td><span class="status-' + (c.is_active ? "approved" : "rejected") + '">' + (c.is_active ? "Visible" : "Masquée") + '</span></td>' +
+        '<td class="actions">' +
+          '<button class="btn" data-idea-cat-act="edit" data-id="' + escapeHtml(c.id) + '">✎ Éditer</button>' +
+          '<button class="btn" data-idea-cat-act="toggle" data-id="' + escapeHtml(c.id) + '">' + (c.is_active ? "🙈 Masquer" : "👁 Afficher") + '</button>' +
+          '<button class="btn btn-reject" data-idea-cat-act="delete" data-id="' + escapeHtml(c.id) + '">🗑 Supprimer</button>' +
+        '</td>' +
+      '</tr>';
+    }).join("");
+  }
+
+  function ideaItemsFiltres() {
+    const cat = ($("ideaItemFilterCat") || {}).value || "";
+    const q = (($("ideaItemFilterText") || {}).value || "").trim().toLowerCase();
+    const caches = !!(($("ideaItemShowHidden") || {}).checked);
+    const loc = ($("ideaCatFilterLocale") || {}).value || "";
+    return ideaItems
+      .filter(i => {
+        const c = ideaCatById(i.category_id);
+        if (!c) return false;                       // catégorie supprimée entre deux chargements
+        if (loc && c.locale !== loc) return false;  // la langue du haut de page vaut pour les deux tableaux
+        if (cat && i.category_id !== cat) return false;
+        if (!caches && !i.is_active) return false;
+        return !q || String(i.content || "").toLowerCase().includes(q);
+      })
+      // Groupé par catégorie (dans l'ordre de la page publique), puis
+      // alphabétique : deux catégories de même rang ne doivent pas voir
+      // leurs contenus s'entremêler dans la liste.
+      .sort((a, b) => {
+        const ca = ideaCatById(a.category_id), cb2 = ideaCatById(b.category_id);
+        if (ca.id !== cb2.id) {
+          if (ca.locale !== cb2.locale) return String(ca.locale).localeCompare(String(cb2.locale));
+          if (ca.position !== cb2.position) return ca.position - cb2.position;
+          return String(ca.label).localeCompare(String(cb2.label), "fr");
+        }
+        return String(a.content).localeCompare(String(b.content), "fr");
+      });
+  }
+
+  function renderIdeaItems() {
+    const body = $("ideaItemBody"); if (!body) return;
+    const liste = ideaItemsFiltres();
+    const compte = $("ideaItemCount");
+    if (compte) compte.textContent = liste.length + " / " + ideaItems.length;
+    if (!liste.length) {
+      body.innerHTML = '<tr><td colspan="4" class="empty">' +
+        (ideaItems.length ? "Aucun contenu pour ce filtre." : "Aucun contenu pour l’instant.") + '</td></tr>';
+      return;
+    }
+    body.innerHTML = liste.map(i => {
+      const c = ideaCatById(i.category_id);
+      return '<tr>' +
+        '<td class="wrap">' + escapeHtml(ideaCatLabel(c)) + '</td>' +
+        '<td class="wrap">' + escapeHtml(i.content) + '</td>' +
+        '<td><span class="status-' + (i.is_active ? "approved" : "rejected") + '">' + (i.is_active ? "Actif" : "Inactif") + '</span></td>' +
+        '<td class="actions">' +
+          '<button class="btn" data-idea-item-act="edit" data-id="' + escapeHtml(i.id) + '">✎ Éditer</button>' +
+          '<button class="btn" data-idea-item-act="toggle" data-id="' + escapeHtml(i.id) + '">' + (i.is_active ? "🙈 Désactiver" : "👁 Activer") + '</button>' +
+          '<button class="btn btn-reject" data-idea-item-act="delete" data-id="' + escapeHtml(i.id) + '">🗑 Supprimer</button>' +
+        '</td>' +
+      '</tr>';
+    }).join("");
+  }
+
+  /* ── catégories : ajouter / modifier / supprimer ─────────────────────── */
+  function openIdeaCatDialog(row) {
+    const dlg = $("ideaCatDialog"); if (!dlg) return;
+    dlg.dataset.editId = row ? row.id : "";
+    const head = dlg.querySelector(".dlg-head h2");
+    if (head) head.textContent = row ? "Modifier la catégorie" : "Ajouter une catégorie";
+    const set = (id, v) => { const el = $(id); if (el) el.value = (v == null ? "" : v); };
+    set("ideaCatLabel", row && row.label);
+    set("ideaCatEmoji", row && row.emoji);
+    set("ideaCatSlug", row && row.slug);
+    const loc = (row && row.locale) || ($("ideaCatFilterLocale") || {}).value || "fr";
+    // Nouvelle catégorie : après la dernière de SA langue, sans toucher aux autres.
+    const suivant = ideaCats.filter(c => c.locale === loc).reduce((m, c) => Math.max(m, c.position), 0) + 10;
+    set("ideaCatPosition", row ? row.position : suivant);
+    set("ideaCatLocale", loc);
+    const act = $("ideaCatActive"); if (act) act.checked = row ? !!row.is_active : true;
+    const err = $("ideaCatError"); if (err) { err.hidden = true; err.textContent = ""; }
+    if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+    setTimeout(() => { const f = $("ideaCatLabel"); if (f) f.focus(); }, 0);
+  }
+  function closeIdeaCatDialog() {
+    const dlg = $("ideaCatDialog"); if (!dlg) return;
+    if (typeof dlg.close === "function") dlg.close(); else dlg.removeAttribute("open");
+  }
+  async function submitIdeaCatDialog(ev) {
+    ev.preventDefault();
+    const dlg = $("ideaCatDialog"), id = (dlg && dlg.dataset.editId) || "";
+    const err = $("ideaCatError"), submit = $("ideaCatSubmitBtn");
+    const val = (x) => ($(x) ? String($(x).value || "").trim() : "");
+    const echec = (m) => { if (err) { err.textContent = m; err.hidden = false; } };
+    if (err) { err.hidden = true; err.textContent = ""; }
+    if (!val("ideaCatLabel")) { echec("Le libellé est obligatoire."); return; }
+    const slug = val("ideaCatSlug").toLowerCase();
+    if (slug && !/^[a-z0-9_]{1,40}$/.test(slug)) { echec("Identifiant invalide : lettres non accentuées, chiffres et « _ » seulement."); return; }
+    // Le serveur fusionne une création dont l'identifiant existe déjà (c'est ce
+    // qui rend un import CSV rejouable) : depuis ce formulaire, ce serait écraser
+    // une catégorie existante sans le savoir. On refuse donc ici, en clair.
+    const loc = val("ideaCatLocale") || "fr", lib = ideaCle(val("ideaCatLabel"));
+    const autre = ideaCats.filter(c => c.id !== id && c.locale === loc &&
+      ((slug && c.slug === slug) || (!id && ideaCle(c.label) === lib)))[0];
+    if (autre) { echec("« " + autre.label + " » existe déjà dans cette langue (identifiant " + autre.slug + ")."); return; }
+    if (submit) submit.disabled = true;
+    try {
+      const { error } = await sb.rpc("admin_save_idea_category", {
+        p_id: id || null,
+        p_locale: val("ideaCatLocale") || "fr",
+        p_slug: slug || null,
+        p_label: val("ideaCatLabel"),
+        p_emoji: val("ideaCatEmoji") || null,
+        p_position: csvNombre(val("ideaCatPosition")) || 0,
+        p_is_active: !!(($("ideaCatActive") || {}).checked)
+      });
+      if (error) throw error;
+      closeIdeaCatDialog();
+      await loadIdees();
+    } catch (e) {
+      echec("Erreur : " + ((e && e.message) || e));
+    } finally { if (submit) submit.disabled = false; }
+  }
+  async function toggleIdeaCat(id) {
+    const c = ideaCatById(id); if (!c) return;
+    const { error } = await sb.rpc("admin_save_idea_category", {
+      p_id: c.id, p_locale: c.locale, p_slug: c.slug, p_label: c.label,
+      p_emoji: c.emoji || null, p_position: c.position, p_is_active: !c.is_active
+    });
+    if (error) { alert("Erreur : " + error.message); return; }
+    await loadIdees();
+  }
+  async function deleteIdeaCat(id) {
+    const c = ideaCatById(id); if (!c) return;
+    const n = ideaItems.filter(i => i.category_id === id).length;
+    if (!confirm('Supprimer la catégorie « ' + c.label + ' »' +
+                 (n ? " et ses " + n + " contenu(s)" : "") + " ? C'est définitif.")) return;
+    const { error } = await sb.rpc("admin_delete_idea_category", { p_id: id });
+    if (error) { alert("Erreur : " + error.message); return; }
+    await loadIdees();
+  }
+
+  /* ── contenus : ajouter / modifier / supprimer ───────────────────────── */
+  function openIdeaItemDialog(row) {
+    const dlg = $("ideaItemDialog"); if (!dlg) return;
+    if (!ideaCats.length) { alert("Crée d'abord une catégorie."); return; }
+    dlg.dataset.editId = row ? row.id : "";
+    const head = dlg.querySelector(".dlg-head h2");
+    if (head) head.textContent = row ? "Modifier le contenu" : "Ajouter un contenu";
+    const sel = $("ideaItemCat");
+    // Par défaut : la catégorie filtrée, sinon la première de la langue affichée
+    // (pas la première tout court, qui peut être une catégorie anglaise masquée).
+    const loc = ($("ideaCatFilterLocale") || {}).value || "";
+    const defaut = ideaCats.filter(c => !loc || c.locale === loc)[0] || ideaCats[0];
+    if (sel) sel.value = (row && row.category_id) || ($("ideaItemFilterCat") || {}).value || defaut.id;
+    const txt = $("ideaItemContent"); if (txt) txt.value = (row && row.content) || "";
+    const act = $("ideaItemActive"); if (act) act.checked = row ? !!row.is_active : true;
+    const err = $("ideaItemError"); if (err) { err.hidden = true; err.textContent = ""; }
+    if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+    setTimeout(() => { if (txt) txt.focus(); }, 0);
+  }
+  function closeIdeaItemDialog() {
+    const dlg = $("ideaItemDialog"); if (!dlg) return;
+    if (typeof dlg.close === "function") dlg.close(); else dlg.removeAttribute("open");
+  }
+  async function submitIdeaItemDialog(ev) {
+    ev.preventDefault();
+    const dlg = $("ideaItemDialog"), id = (dlg && dlg.dataset.editId) || "";
+    const err = $("ideaItemError"), submit = $("ideaItemSubmitBtn");
+    const echec = (m) => { if (err) { err.textContent = m; err.hidden = false; } };
+    if (err) { err.hidden = true; err.textContent = ""; }
+    const catId = ($("ideaItemCat") || {}).value || "";
+    const brut = String((($("ideaItemContent") || {}).value) || "");
+    const actif = !!(($("ideaItemActive") || {}).checked);
+    if (!catId) { echec("Choisis une catégorie."); return; }
+    // À la création, une ligne par contenu : saisir vingt mots d'un coup est
+    // le cas normal quand on remplit une catégorie.
+    const lignes = id ? [brut.trim()] : brut.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    if (!lignes.length || !lignes[0]) { echec("Le contenu est obligatoire."); return; }
+    if (submit) submit.disabled = true;
+    try {
+      const refus = [];
+      for (const ligne of lignes) {
+        const { error } = await sb.rpc("admin_save_idea_item", {
+          p_id: id || null, p_category_id: catId, p_content: ligne, p_is_active: actif
+        });
+        if (error) refus.push(ligne.slice(0, 40) + " → " + error.message);
+      }
+      if (refus.length === lignes.length) throw new Error(refus[0]);
+      closeIdeaItemDialog();
+      if (refus.length) alert("⚠ " + refus.length + " ligne(s) refusée(s) :\n" + refus.slice(0, 8).join("\n"));
+      await loadIdees();
+    } catch (e) {
+      echec("Erreur : " + ((e && e.message) || e));
+    } finally { if (submit) submit.disabled = false; }
+  }
+  async function toggleIdeaItem(id) {
+    const i = ideaItems.filter(x => x.id === id)[0]; if (!i) return;
+    const { error } = await sb.rpc("admin_save_idea_item", {
+      p_id: i.id, p_category_id: i.category_id, p_content: i.content, p_is_active: !i.is_active
+    });
+    if (error) { alert("Erreur : " + error.message); return; }
+    await loadIdees();
+  }
+  async function deleteIdeaItem(id) {
+    const i = ideaItems.filter(x => x.id === id)[0]; if (!i) return;
+    if (!confirm('Supprimer « ' + i.content + ' » ?')) return;
+    const { error } = await sb.rpc("admin_delete_idea_item", { p_id: id });
+    if (error) { alert("Erreur : " + error.message); return; }
+    await loadIdees();
+  }
+
+  /* ── export / import CSV ─────────────────────────────────────────────── */
+  const csvOuiNon = (v, defaut) => {
+    const s = String(v == null ? "" : v).trim().toLowerCase();
+    if (!s) return defaut;
+    return !/^(0|n|non|no|false|faux|off|inactif|inactive|masque|masquee|masquée|cache|cachee|caché|cachée|hidden)$/.test(s);
+  };
+  function exportIdeaCatsCsv() {
+    const loc = ($("ideaCatFilterLocale") || {}).value || "";
+    const lignes = ideaCats.filter(c => !loc || c.locale === loc)
+      .map(c => ["", c.id, c.locale, c.slug, c.label, c.emoji || "", c.position, c.is_active ? "oui" : "non"]);
+    if (!lignes.length) { alert("Aucune catégorie à exporter."); return; }
+    csvDownload("acto-idees-categories", ["action","id","langue","identifiant","libelle","emoji","ordre","actif"], lignes);
+  }
+  async function importIdeaCatsCsv() {
+    const texte = await csvChoisirFichier(); if (texte == null) return;
+    const rows = csvParse(texte);
+    if (!rows.length) { alert("Fichier vide ou illisible."); return; }
+    const ops = [];
+    rows.forEach((r, i) => {
+      const num = "ligne " + (i + 2), id = String(r.id || "").trim();
+      const nom = (r.libelle || r.identifiant || "").slice(0, 40);
+      if (csvSuppr(r)) {
+        if (!id) return;
+        ops.push({ libelle: "🗑 " + num + " : " + nom, run: () => sb.rpc("admin_delete_idea_category", { p_id: id }) });
+        return;
+      }
+      if (!String(r.libelle || "").trim()) return;   // ligne sans libellé : rien à créer
+      const args = {
+        p_id: id || null,
+        p_locale: (r.langue || "fr").trim().toLowerCase() || "fr",
+        p_slug: (r.identifiant || "").trim().toLowerCase() || null,
+        p_label: String(r.libelle).trim(),
+        p_emoji: (r.emoji || "").trim() || null,
+        p_position: csvNombre(r.ordre) || 0,
+        p_is_active: csvOuiNon(r.actif, true)
+      };
+      const avant = id ? ideaCatById(id) : null;
+      if (avant && avant.locale === args.p_locale && avant.slug === (args.p_slug || avant.slug) &&
+          avant.label === args.p_label && (avant.emoji || "") === (args.p_emoji || "") &&
+          avant.position === args.p_position && avant.is_active === args.p_is_active) return;
+      ops.push({ libelle: (id ? "✎ " : "+ ") + num + " : " + nom, run: () => sb.rpc("admin_save_idea_category", args) });
+    });
+    if (!csvConfirmer("Importer ces catégories ?", ops)) return;
+    const res = await csvAppliquer(ops);
+    await csvBilan(res, loadIdees);
+  }
+  function exportIdeaItemsCsv() {
+    const lignes = ideaItemsFiltres().map(i => {
+      const c = ideaCatById(i.category_id);
+      return ["", i.id, c.locale, c.slug, i.content, i.is_active ? "oui" : "non"];
+    });
+    if (!lignes.length) { alert("Aucun contenu à exporter pour ce filtre."); return; }
+    csvDownload("acto-idees-contenus", ["action","id","langue","categorie","contenu","actif"], lignes);
+  }
+  async function importIdeaItemsCsv() {
+    const texte = await csvChoisirFichier(); if (texte == null) return;
+    const rows = csvParse(texte);
+    if (!rows.length) { alert("Fichier vide ou illisible."); return; }
+    const parId = {}; ideaItems.forEach(i => { parId[i.id] = i; });
+    const ops = [], inconnues = [];
+    rows.forEach((r, i) => {
+      const num = "ligne " + (i + 2), id = String(r.id || "").trim();
+      const nom = String(r.contenu || "").slice(0, 40);
+      if (csvSuppr(r)) {
+        if (!id) return;
+        ops.push({ libelle: "🗑 " + num + " : " + nom, run: () => sb.rpc("admin_delete_idea_item", { p_id: id }) });
+        return;
+      }
+      const contenu = String(r.contenu || "").trim();
+      if (!contenu) return;
+      const loc = (r.langue || "fr").trim().toLowerCase() || "fr";
+      const slug = (r.categorie || "").trim().toLowerCase();
+      // Colonne vide sur une ligne existante = on garde sa catégorie. Mais une
+      // catégorie RENSEIGNÉE et inconnue est une faute de frappe : la remplacer
+      // en douce par l'ancienne ferait croire à un déplacement qui n'a pas eu lieu.
+      const cat = slug
+        ? ideaCats.filter(c => c.slug === slug && c.locale === loc)[0]
+        : (id && parId[id] ? ideaCatById(parId[id].category_id) : null);
+      if (!cat) { inconnues.push(num + " : catégorie « " + (slug || "—") + " » (" + loc + ") inconnue"); return; }
+      const actif = csvOuiNon(r.actif, true);
+      const avant = id ? parId[id] : null;
+      if (avant && avant.content === contenu && avant.category_id === cat.id && avant.is_active === actif) return;
+      ops.push({
+        libelle: (id ? "✎ " : "+ ") + num + " : " + nom,
+        run: () => sb.rpc("admin_save_idea_item", { p_id: id || null, p_category_id: cat.id, p_content: contenu, p_is_active: actif })
+      });
+    });
+    if (inconnues.length) {
+      alert("⚠ " + inconnues.length + " ligne(s) ignorée(s) :\n" + inconnues.slice(0, 10).join("\n") +
+            "\n\nCrée la catégorie d'abord, ou corrige la colonne « categorie ».");
+    }
+    if (!csvConfirmer("Importer ces contenus ?", ops)) return;
+    const res = await csvAppliquer(ops);
+    await csvBilan(res, loadIdees);
+  }
+
+  function wireIdeesControls() {
+    const locale = $("ideaCatFilterLocale");
+    if (locale) locale.addEventListener("change", () => { renderIdeaCats(); renderIdeaItems(); });
+    ["ideaItemFilterCat", "ideaItemFilterText", "ideaItemShowHidden"].forEach(id => {
+      const el = $(id); if (!el) return;
+      el.addEventListener("input", renderIdeaItems);
+      el.addEventListener("change", renderIdeaItems);
+    });
+    const brancher = (id, fn) => { const el = $(id); if (el) el.addEventListener("click", fn); };
+    brancher("ideaCatAddBtn", () => openIdeaCatDialog(null));
+    brancher("ideaCatExportBtn", exportIdeaCatsCsv);
+    brancher("ideaCatImportBtn", importIdeaCatsCsv);
+    brancher("ideaCatCloseBtn", closeIdeaCatDialog);
+    brancher("ideaCatCancelBtn", closeIdeaCatDialog);
+    brancher("ideaItemAddBtn", () => openIdeaItemDialog(null));
+    brancher("ideaItemExportBtn", exportIdeaItemsCsv);
+    brancher("ideaItemImportBtn", importIdeaItemsCsv);
+    brancher("ideaItemCloseBtn", closeIdeaItemDialog);
+    brancher("ideaItemCancelBtn", closeIdeaItemDialog);
+    const fc = $("ideaCatForm"); if (fc) fc.addEventListener("submit", submitIdeaCatDialog);
+    const fi = $("ideaItemForm"); if (fi) fi.addEventListener("submit", submitIdeaItemDialog);
+    const cb = $("ideaCatBody");
+    if (cb) cb.addEventListener("click", (ev) => {
+      const btn = ev.target.closest("button[data-idea-cat-act]"); if (!btn) return;
+      const id = btn.dataset.id, act = btn.dataset.ideaCatAct;
+      if (act === "edit") openIdeaCatDialog(ideaCatById(id));
+      else if (act === "toggle") toggleIdeaCat(id);
+      else if (act === "delete") deleteIdeaCat(id);
+    });
+    const ib = $("ideaItemBody");
+    if (ib) ib.addEventListener("click", (ev) => {
+      const btn = ev.target.closest("button[data-idea-item-act]"); if (!btn) return;
+      const id = btn.dataset.id, act = btn.dataset.ideaItemAct;
+      if (act === "edit") openIdeaItemDialog(ideaItems.filter(x => x.id === id)[0] || null);
+      else if (act === "toggle") toggleIdeaItem(id);
+      else if (act === "delete") deleteIdeaItem(id);
+    });
+  }
+
   async function hideBundledWarmup(locale, name) {
     const { error } = await sb.rpc("hide_bundled_item", {
       p_kind: "warmup", p_mode: null, p_level: null, p_locale: locale, p_text: name
@@ -4384,6 +5008,7 @@
     try { wireInspirationsControls(); await loadInspirations(); } catch (e) { console.error("[admin] inspirations init error:", e); }
     try { wireWarmupsControls(); await loadWarmups(); } catch (e) { console.error("[admin] warmups init error:", e); }
     try { wireDefisControls(); await loadDefis(); } catch (e) { console.error("[admin] defis init error:", e); }
+    try { wireIdeesControls(); await loadIdees(); } catch (e) { console.error("[admin] idees init error:", e); }
     } finally {
       __adminBooting = false;
     }
@@ -4465,14 +5090,16 @@
             : (name === "inspirations") ? "inspirations"
             : (name === "warmups") ? "warmups"
             : (name === "defis") ? "defis"
+            : (name === "idees") ? "idees"
             : "tableau";
-    document.body.classList.remove("view-tableau", "view-impro", "view-inspirations", "view-warmups", "view-defis");
+    document.body.classList.remove("view-tableau", "view-impro", "view-inspirations", "view-warmups", "view-defis", "view-idees");
     document.body.classList.add("view-" + v);
     document.title =
       v === "impro"        ? "Acto — Admin · Impro" :
       v === "inspirations" ? "Acto — Admin · Inspirations" :
       v === "warmups"      ? "Acto — Admin · Échauffement" :
       v === "defis"        ? "Acto — Admin · Défis" :
+      v === "idees"        ? "Acto — Admin · Idées" :
                              "Acto — Admin";
     // Reset scroll on view switch so the user lands at the top of the
     // freshly-shown section, not a stale scrollTop from the previous view.
@@ -4480,7 +5107,7 @@
   }
   function viewFromHash() {
     const h = (window.location.hash || "").replace(/^#/, "").toLowerCase();
-    if (h === "impro" || h === "inspirations" || h === "warmups" || h === "defis") return h;
+    if (h === "impro" || h === "inspirations" || h === "warmups" || h === "defis" || h === "idees") return h;
     return "tableau";
   }
   /* ─── Mise en cartes sur mobile : étiquetage automatique des cellules ───────
@@ -4685,11 +5312,13 @@
     const goInspire = $("goInspireBtn");
     const goWarmups = $("goWarmupsBtn");
     const goDefis   = $("goDefisBtn");
+    const goIdees   = $("goIdeesBtn");
     const back      = $("backToTableauBtn");
     if (goImpro)   goImpro.addEventListener("click",   () => { window.location.hash = "impro"; });
     if (goInspire) goInspire.addEventListener("click", () => { window.location.hash = "inspirations"; });
     if (goWarmups) goWarmups.addEventListener("click", () => { window.location.hash = "warmups"; });
     if (goDefis)   goDefis.addEventListener("click",   () => { window.location.hash = "defis"; });
+    if (goIdees)   goIdees.addEventListener("click",   () => { window.location.hash = "idees"; });
     if (back) back.addEventListener("click",  () => {
       history.replaceState(null, "", window.location.pathname + window.location.search);
       setView("tableau");

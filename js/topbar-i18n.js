@@ -27,6 +27,7 @@
     // de renommer un id que du JS de page cible peut-être ailleurs.
     warmupsLabelText:  "warmupsPageTitle",
     quickWarmupLabelText: "quickWarmupBtn",
+    ideasLabelText:    "ideasBtn",
     settingsLabelText: "settings"
   };
 
