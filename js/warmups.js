@@ -149,16 +149,22 @@
    *  validé à part sous le même nom reprend alors légitimement sa place.
    *  Lisible sans compte depuis migrate-2026-09-caches.sql ; avant elle, la
    *  requête revient simplement vide et rien n'est retiré. */
+  // Par pages : Supabase coupe chaque réponse à 1000 lignes (js/utils.js).
+  function toutLire(fabrique) {
+    const u = window.actoUtils;
+    return (u && u.readAllPages) ? u.readAllPages(fabrique) : Promise.resolve(fabrique());
+  }
+
   async function removeHiddenBundled() {
     const client = getSb();
     if (!client) return;
     try {
-      const { data, error } = await client
+      const { data, error } = await toutLire(() => client
         .from("bundled_hidden_items")
         .select("kind, text")
         .eq("kind", "warmup")
         .eq("locale", currentLocale())
-        .limit(2000);
+        .order("id", { ascending: true }));
       if (error || !data || !data.length) return;
       const caches = new Set(data.map(h => String(h.text || "").trim().toLowerCase()));
       WARMUPS.exercises = (WARMUPS.exercises || []).filter(e =>
@@ -173,12 +179,12 @@
     const client = getSb();
     if (!client) return;
     try {
-      const { data, error } = await client
+      const { data, error } = await toutLire(() => client
         .from("warmup_exercises")
         .select("id, type, subtype, name, description, duration_seconds, participants, source, locale, created_at")
         .eq("status", "approved")
         .order("created_at", { ascending: false })
-        .limit(2000);
+        .order("id", { ascending: true }));
       if (error) { console.warn("[warmups] community fetch", error); return; }
       const existing = new Set((WARMUPS.exercises || []).map(e => (e.name || "").trim().toLowerCase()));
       (data || []).forEach(r => {

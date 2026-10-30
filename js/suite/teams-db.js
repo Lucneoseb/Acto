@@ -35,8 +35,13 @@
 
   function list() {
     if (!available()) return Promise.resolve({ data: [], error: { message: "offline" } });
+    // Par pages : Supabase coupe chaque réponse à 1000 lignes (js/utils.js).
+    var requete = function () {
+      return sb().from("acto_teams").select("*").order("updated_at", { ascending: false }).order("id", { ascending: true });
+    };
+    var u = window.actoUtils;
     return Promise.resolve(
-      sb().from("acto_teams").select("*").order("updated_at", { ascending: false })
+      (u && u.readAllPages) ? u.readAllPages(requete) : requete()
     ).then(function (res) {
       return { data: (res.data || []).map(normTeam), error: res.error || null };
     });

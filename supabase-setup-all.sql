@@ -2476,7 +2476,7 @@ language sql security definer set search_path = public stable as $$
          r.updated_at
     from public.shared_resources r
    where r.owner_id = auth.uid()
-   order by r.updated_at desc;
+   order by r.updated_at desc, r.id;   -- cle unique : lecture par pages (migrate-2026-10-listes-sans-plafond.sql)
 $$;
 revoke all on function public.list_my_resources() from public;
 grant execute on function public.list_my_resources() to authenticated;
@@ -2492,7 +2492,7 @@ language sql security definer set search_path = public stable as $$
   join public.shared_resources r on r.id = c.resource_id
   left join public.profiles op on op.id = r.owner_id
   where c.user_id = auth.uid() and c.status = 'active'
-  order by r.updated_at desc;
+  order by r.updated_at desc, r.id, c.id;   -- cle unique : lecture par pages (migrate-2026-10-listes-sans-plafond.sql)
 $$;
 revoke all on function public.list_shared_with_me() from public;
 grant execute on function public.list_shared_with_me() to authenticated;
@@ -2513,7 +2513,7 @@ begin
     from public.resource_collaborators c
     left join public.profiles p on p.id = c.user_id
     where c.resource_id = p_res
-    order by c.created_at asc;
+    order by c.created_at asc, c.id;   -- cle unique : lecture par pages (migrate-2026-10-listes-sans-plafond.sql)
 end $$;
 
 -- ── add a collaborator (owner only): by user_id → active, or email → pending ─
@@ -3456,7 +3456,7 @@ begin
     left join public.inspiration_ratings r on r.inspiration_id = v.id
     where v.status = 'approved'
     group by v.id, v.title, v.content_type, v.view_count
-    order by v.view_count desc, avg_grade desc nulls last, v.title asc;
+    order by v.view_count desc, avg_grade desc nulls last, v.title asc, v.id;   -- cle unique : lecture par pages (migrate-2026-10-listes-sans-plafond.sql)
 end;
 $$;
 revoke all on function public.admin_inspiration_stats() from public;

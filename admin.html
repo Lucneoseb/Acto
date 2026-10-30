@@ -2109,12 +2109,12 @@
      would otherwise execute attacker code with the user's session JWT in
      reach. Bump both `@VERSION` and the integrity hash together. -->
 <script src="/vendor/supabase-js-2.47.10.min.js" integrity="sha384-8ljL080xacUYrqBXUJRcP68fd1dVCh9qK/xi9QMzxUgOVNycXp0s6mBZAjBMp9W0"></script>
-<script src="./js/config.js?v=2026103002"></script>
-<script src="./js/utils.js?v=2026103002"></script>
+<script src="./js/config.js?v=2026103003"></script>
+<script src="./js/utils.js?v=2026103003"></script>
 <!-- Bundled data (themes / categories / constraints / exercises) — needed
      by the new "📚 Listes bundled" admin section to render the per-locale
      pool that the public app sees. Same payload index.html consumes. -->
-<script src="./data/all.js?v=2026103002"></script>
+<script src="./data/all.js?v=2026103003"></script>
 <script>
 (function () {
   "use strict";
@@ -2239,9 +2239,11 @@
 
   async function loadProfiles() {
     $("profilesBody").innerHTML = '<tr><td colspan="15" class="empty">Chargement…</td></tr>';
-    const { data, error } = await sb
+    // Par pages : Supabase coupe chaque réponse à 1000 lignes (js/utils.js).
+    const { data, error } = await readAllPages(() => sb
       .from("profiles")
-      .select("id,email,prenom,nom,nom_scene,date_naissance,created_at,login_count,last_login_at,total_impros_generated,total_impros_played,total_impro_seconds,total_records_count,total_record_seconds,is_admin");
+      .select("id,email,prenom,nom,nom_scene,date_naissance,created_at,login_count,last_login_at,total_impros_generated,total_impros_played,total_impro_seconds,total_records_count,total_record_seconds,is_admin")
+      .order("id", { ascending: true }));
     if (error) {
       $("profilesBody").innerHTML = '<tr><td colspan="15" class="empty">Erreur de chargement : ' + escapeHtml(error.message) + '</td></tr>';
       return;
@@ -2312,11 +2314,12 @@
   let participationCountByUser = {};       // user_id → number of impros they participated in
 
   async function loadEvents() {
-    const { data, error } = await sb
+    // Les 5000 derniers, par pages : le .limit(5000) d'origine rendait 1000.
+    const { data, error } = await readAllPages(() => sb
       .from("impro_events")
       .select("id,user_id,launched_at,mode,level,exercise_name,constraint_name,theme_name,duration_planned_seconds,duration_played_seconds,was_recorded")
       .order("launched_at", { ascending: false })
-      .limit(5000);
+      .order("id", { ascending: true }), 1000, 5000);
     if (error) {
       console.warn("loadEvents", error);
       $("eventsBody").innerHTML = '<tr><td colspan="11" class="empty">Erreur : ' + escapeHtml(error.message) + '</td></tr>';
@@ -2348,10 +2351,11 @@
    * one keyed by user_id (for the per-profile count).
    */
   async function loadParticipants() {
-    const { data, error } = await sb
+    // Jusqu'à 20000, par pages : le .limit(20000) d'origine rendait 1000.
+    const { data, error } = await readAllPages(() => sb
       .from("impro_participants")
       .select("event_id,user_id,nom_scene_text")
-      .limit(20000);
+      .order("id", { ascending: true }), 1000, 20000);
     if (error) {
       console.warn("loadParticipants", error);
       allParticipants = [];
@@ -2476,7 +2480,8 @@
     if (!body) return;
     const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
     try {
-      const { data, error } = await sb.rpc("admin_inspiration_stats");
+      // Par pages : le tri SQL finit par v.id (migrate-2026-10-listes-sans-plafond.sql).
+      const { data, error } = await readAllPages(() => sb.rpc("admin_inspiration_stats"));
       if (error) throw error;
       const rows = data || [];
       if (countEl) countEl.textContent = rows.length + " inspiration(s)";
@@ -2538,7 +2543,9 @@
       body.innerHTML = '<tr><td colspan="11" class="empty">Aucun événement.</td></tr>';
       return;
     }
-    body.innerHTML = sorted.slice(0, 1000).map(e => {
+    // Toutes les lignes : l'ancien slice(0, 1000) cachait en silence le reste
+    // des 5000 derniers événements, alors que le compteur les annonçait.
+    body.innerHTML = sorted.map(e => {
       const parts = participantsByEvent[e.id] || [];
       const partsHtml = parts.length
         ? parts.map(p =>
@@ -2608,11 +2615,11 @@
   async function loadSubmissions() {
     const body = $("submissionsBody");
     body.innerHTML = '<tr><td colspan="10" class="empty">Chargement…</td></tr>';
-    const { data, error } = await sb
+    const { data, error } = await readAllPages(() => sb
       .from("user_submissions")
       .select("id,user_id,kind,mode,level,locale,text,description,status,approved_at,created_at")
       .order("created_at", { ascending: false })
-      .limit(2000);
+      .order("id", { ascending: true }));
     if (error) {
       console.warn("loadSubmissions", error);
       body.innerHTML = '<tr><td colspan="10" class="empty">Erreur : ' + escapeHtml(error.message) + '</td></tr>';
@@ -2759,10 +2766,10 @@
   let allHiddenItems = [];          // raw rows from bundled_hidden_items
 
   async function loadHiddenItems() {
-    const { data, error } = await sb
+    const { data, error } = await readAllPages(() => sb
       .from("bundled_hidden_items")
       .select("id,kind,mode,level,locale,text,hidden_at")
-      .limit(5000);
+      .order("id", { ascending: true }));
     if (error) {
       console.warn("[admin] loadHiddenItems", error);
       allHiddenItems = [];
@@ -2797,11 +2804,11 @@
     const body = $("inspireBodyAdmin");
     if (body) body.innerHTML = '<tr><td colspan="11" class="empty">Chargement…</td></tr>';
     // Admins read all rows regardless of status (admins_read_all_inspirations policy).
-    const { data, error } = await sb
+    const { data, error } = await readAllPages(() => sb
       .from("inspiration_videos")
       .select("id,title,channel,content_type,nature,category,theme,duration_text,notes,video_url,locale,status,submitted_by,approved_by,approved_at,created_at")
       .order("created_at", { ascending: false })
-      .limit(2000);
+      .order("id", { ascending: true }));
     if (error) {
       console.warn("[admin] loadInspirations", error);
       if (body) body.innerHTML = '<tr><td colspan="11" class="empty">Erreur : ' + escapeHtml(error.message) + '</td></tr>';
@@ -3248,11 +3255,11 @@
     const body = $("warmupBodyAdmin");
     if (body) body.innerHTML = '<tr><td colspan="11" class="empty">Chargement…</td></tr>';
     // Admins read all rows regardless of status.
-    const { data, error } = await sb
+    const { data, error } = await readAllPages(() => sb
       .from("warmup_exercises")
       .select("id,type,subtype,name,description,duration_seconds,participants,source,locale,status,submitted_by,approved_by,approved_at,created_at")
       .order("created_at", { ascending: false })
-      .limit(2000);
+      .order("id", { ascending: true }));
     if (error) {
       console.warn("[admin] loadWarmups", error);
       if (body) body.innerHTML = '<tr><td colspan="11" class="empty">Erreur : ' + escapeHtml(error.message) + '</td></tr>';
@@ -3717,9 +3724,9 @@
     const cb = $("ideaCatBody"), ib = $("ideaItemBody");
     if (cb) cb.innerHTML = '<tr><td colspan="8" class="empty">Chargement…</td></tr>';
     if (ib) ib.innerHTML = '<tr><td colspan="4" class="empty">Chargement…</td></tr>';
-    const rc = await sb.from("idea_categories")
+    const rc = await readAllPages(() => sb.from("idea_categories")
       .select("id,locale,slug,label,emoji,position,is_active")
-      .order("locale", { ascending: true }).order("position", { ascending: true }).limit(1000);
+      .order("locale", { ascending: true }).order("position", { ascending: true }).order("id", { ascending: true }));
     if (rc.error) {
       console.warn("[admin] loadIdees", rc.error);
       // Table absente : c'est la migration qui manque, autant le dire en clair.

@@ -73,17 +73,22 @@
    * `makeQuery` must build a FRESH query each call — a table select or a
    * set-returning rpc — whose order is deterministic and unique (end it with
    * the id), otherwise rows can be skipped or repeated between pages.
+   * `max` (optional) keeps a deliberate window, e.g. the latest 5000 events.
    * Resolves to { data, error } like a single Supabase call; never rejects.
    */
-  function readAllPages(makeQuery, pageSize) {
+  function readAllPages(makeQuery, pageSize, max) {
     const size = pageSize || 1000;
+    const cap = max > 0 ? max : Infinity;
     let rows = [];
-    const next = (from) => Promise.resolve(makeQuery().range(from, from + size - 1)).then((r) => {
-      if (!r || r.error) return { data: null, error: (r && r.error) || new Error("no response") };
-      const page = Array.isArray(r.data) ? r.data : [];
-      rows = rows.concat(page);
-      return page.length < size ? { data: rows, error: null } : next(from + size);
-    }, (e) => ({ data: null, error: e }));
+    const next = (from) => {
+      const n = Math.min(size, cap - from);
+      return Promise.resolve(makeQuery().range(from, from + n - 1)).then((r) => {
+        if (!r || r.error) return { data: null, error: (r && r.error) || new Error("no response") };
+        const page = Array.isArray(r.data) ? r.data : [];
+        rows = rows.concat(page);
+        return (page.length < n || rows.length >= cap) ? { data: rows, error: null } : next(from + n);
+      }, (e) => ({ data: null, error: e }));
+    };
     return next(0);
   }
 

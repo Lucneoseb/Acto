@@ -221,7 +221,12 @@
     /* Les membres que j'ai fait jouer. La RPC ne renvoie que MES séances, donc
        la liste est vide pour qui n'a jamais animé : dans ce cas on n'affiche
        rien du tout plutôt qu'un tableau désert. */
-    Promise.resolve(sb().rpc("get_member_activity")).then(function (res) {
+    // Par pages : Supabase coupe chaque réponse à 1000 lignes (js/utils.js) ;
+    // le tri SQL finit par les colonnes du regroupement, uniques par ligne.
+    var u = window.actoUtils;
+    Promise.resolve((u && u.readAllPages)
+      ? u.readAllPages(function () { return sb().rpc("get_member_activity"); })
+      : sb().rpc("get_member_activity")).then(function (res) {
       var el = dlg.querySelector("#suiteStatMembers"); if (!el) return;
       if (!res || res.error) return;                      // migration pas passée : section absente
       var rows = res.data || [];

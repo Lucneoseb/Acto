@@ -171,7 +171,7 @@ language sql stable security definer set search_path = public as $$
   left join public.profiles p on p.id = a.user_id
   where s.owner_id = auth.uid()
   group by a.user_id, p.nom_scene, p.prenom
-  order by max(s.played_at) desc;
+  order by max(s.played_at) desc, a.user_id, p.nom_scene, p.prenom;   -- cle unique : lecture par pages (migrate-2026-10-listes-sans-plafond.sql)
 $$;
 revoke all on function public.get_member_activity() from public;
 grant execute on function public.get_member_activity() to authenticated;

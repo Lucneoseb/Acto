@@ -370,22 +370,32 @@
       new Promise(function (r) { setTimeout(function () { r([]); }, DELAI_COMMUNAUTE); })
     ]);
   }
+  // Par pages : Supabase coupe chaque réponse à 1000 lignes, en silence
+  // (js/utils.js). Chaque requête finit son tri par l'id, clé unique.
+  function toutLire(fabrique) {
+    var u = window.actoUtils;
+    return (u && u.readAllPages) ? u.readAllPages(fabrique) : fabrique();
+  }
   function echauffementsValides() {
     var c = sbCore(); if (!c || !c.from) return Promise.resolve([]);
     // Pas de filtre de langue : c'est déjà le choix de la page /echauffements,
     // et l'admin peut saisir un exercice sous une autre langue que la sienne.
     try {
-      return requeteValidee(c.from("warmup_exercises")
-        .select("id, type, subtype, name, description, duration_seconds, participants, source")
-        .eq("status", "approved").limit(2000));
+      return requeteValidee(toutLire(function () {
+        return c.from("warmup_exercises")
+          .select("id, type, subtype, name, description, duration_seconds, participants, source")
+          .eq("status", "approved").order("id", { ascending: true });
+      }));
     } catch (e) { return Promise.resolve([]); }
   }
   function propositionsValidees() {
     var c = sbCore(); if (!c || !c.from) return Promise.resolve([]);
     try {
-      return requeteValidee(c.from("user_submissions")
-        .select("kind, mode, level, text, description")
-        .eq("status", "approved").eq("locale", _locale).limit(2000));
+      return requeteValidee(toutLire(function () {
+        return c.from("user_submissions")
+          .select("kind, mode, level, text, description")
+          .eq("status", "approved").eq("locale", _locale).order("id", { ascending: true });
+      }));
     } catch (e) { return Promise.resolve([]); }
   }
   function cachesAdmin() {
@@ -393,9 +403,11 @@
     // Lisible par les comptes connectés seulement (RLS) : un visiteur anonyme
     // verra donc encore les contenus cachés. C'est déjà le cas du Match rapide.
     try {
-      return requeteValidee(c.from("bundled_hidden_items")
-        .select("kind, mode, level, text")
-        .eq("locale", _locale).limit(2000));
+      return requeteValidee(toutLire(function () {
+        return c.from("bundled_hidden_items")
+          .select("kind, mode, level, text")
+          .eq("locale", _locale).order("id", { ascending: true });
+      }));
     } catch (e) { return Promise.resolve([]); }
   }
 
@@ -416,18 +428,22 @@
     // Filtre explicite sur l'auteur : un admin voit TOUTES les lignes en
     // attente (RLS), et marquer celles des autres n'aurait aucun sens ici.
     try {
-      return requeteValidee(c.from("warmup_exercises")
-        .select("id, type, subtype, name, description, duration_seconds, participants, source")
-        .eq("status", "pending").eq("submitted_by", uid).limit(500));
+      return requeteValidee(toutLire(function () {
+        return c.from("warmup_exercises")
+          .select("id, type, subtype, name, description, duration_seconds, participants, source")
+          .eq("status", "pending").eq("submitted_by", uid).order("id", { ascending: true });
+      }));
     } catch (e) { return Promise.resolve([]); }
   }
   function mesPropositionsEnAttente() {
     var c = sbCore(), uid = monId();
     if (!c || !c.from || !uid) return Promise.resolve([]);
     try {
-      return requeteValidee(c.from("user_submissions")
-        .select("kind, mode, level, text, description")
-        .eq("status", "pending").eq("user_id", uid).eq("locale", _locale).limit(500));
+      return requeteValidee(toutLire(function () {
+        return c.from("user_submissions")
+          .select("kind, mode, level, text, description")
+          .eq("status", "pending").eq("user_id", uid).eq("locale", _locale).order("id", { ascending: true });
+      }));
     } catch (e) { return Promise.resolve([]); }
   }
 

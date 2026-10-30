@@ -56,7 +56,7 @@ begin
     left join public.profiles p on p.id = c.user_id
     left join auth.users     u on u.id = c.user_id
     where c.resource_id = p_res
-    order by c.created_at asc;
+    order by c.created_at asc, c.id;   -- cle unique : lecture par pages (migrate-2026-10-listes-sans-plafond.sql)
 end $$;
 revoke all on function public.list_collaborators(uuid) from public;
 grant execute on function public.list_collaborators(uuid) to authenticated;

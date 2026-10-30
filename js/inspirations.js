@@ -154,10 +154,12 @@
     if (status) status.textContent = t("inspireLoading", "Chargement…");
     const body = $("#inspireBody");
     if (body) body.innerHTML = renderLoadingSkeleton();
-    const { data, error } = await sb.from("inspiration_videos")
+    // Par pages : Supabase coupe chaque réponse à 1000 lignes (js/utils.js).
+    const { data, error } = await window.actoUtils.readAllPages(() => sb.from("inspiration_videos")
       .select("id, title, channel, content_type, nature, category, theme, duration_text, notes, video_url, locale, created_at, view_count")
       .eq("status", "approved")
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: true }));
     if (error) {
       console.error("[inspirations] load failed", error);
       if (body) body.innerHTML =

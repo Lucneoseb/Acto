@@ -75,7 +75,7 @@ language sql security definer set search_path = public stable as $$
          r.updated_at
     from public.shared_resources r
    where r.owner_id = auth.uid()
-   order by r.updated_at desc;
+   order by r.updated_at desc, r.id;   -- cle unique : lecture par pages (migrate-2026-10-listes-sans-plafond.sql)
 $$;
 
 revoke all on function public.list_my_resources() from public;

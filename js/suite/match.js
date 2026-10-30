@@ -1555,7 +1555,7 @@
         locaux[full.cloudId] = full.cloudUpdatedAt ? Date.parse(full.cloudUpdatedAt) : 0;
       }
     });
-    Promise.resolve(sbClient().rpc("list_my_resources")).then(function (r) {
+    rpcToutLire("list_my_resources").then(function (r) {
       // migration C6 pas encore passée → r.error : on n'affiche simplement rien
       if (!wrap.isConnected || !r || r.error) return;
       var rows = (r.data || []).filter(function (x) {
@@ -1622,7 +1622,7 @@
   function renderSharedWithMe() {
     var wrap = root.querySelector("#sharedWrap"); if (!wrap || !sbClient()) return;
     var wantKind = kind;   // match / show / training — the fine-grained kind, not the coarse resource_type
-    Promise.resolve(sbClient().rpc("list_shared_with_me")).then(function (r) {
+    rpcToutLire("list_shared_with_me").then(function (r) {
       if (!wrap.isConnected || !r || r.error) return;
       var rows = (r.data || []).filter(function (x) { return (x.kind || x.resource_type) === wantKind; });
       if (!rows.length) return;
@@ -2044,6 +2044,15 @@
   var collab = null;   // { id, token, channel, applyingRemote, pushTimer, peers }
   var collabReq = null;   // identity token → ignore stale async resolutions after navigation
   function sbClient() { return window.actoSuiteSb || null; }
+  // Liste renvoyée par une fonction SQL, lue par pages : Supabase coupe chaque
+  // réponse à 1000 lignes (js/utils.js). Le tri SQL finit par une clé unique
+  // (migrate-2026-10-listes-sans-plafond.sql).
+  function rpcToutLire(fn, args) {
+    var u = window.actoUtils, c = sbClient();
+    return (u && u.readAllPages)
+      ? u.readAllPages(function () { return c.rpc(fn, args); })
+      : Promise.resolve(c.rpc(fn, args));
+  }
   // The session minus the capability secrets — the token must NEVER be synced
   // (it would leak over the broadcast / into the durable row to any id-holder).
   function collabClean(s) {
@@ -2307,7 +2316,7 @@
     dlg.querySelector('[data-r="close"]').onclick = close;
 
     function refresh() {
-      Promise.resolve(sbClient().rpc("list_collaborators", { p_res: id })).then(function (r) {
+      rpcToutLire("list_collaborators", { p_res: id }).then(function (r) {
         if (r && r.error) {
           // Le message brut plutôt qu'un « Ressource introuvable » générique :
           // sans lui, une liste qui ne s'affiche pas ne dit pas pourquoi.

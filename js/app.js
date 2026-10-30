@@ -1543,11 +1543,14 @@
   async function loadSavedTeamsList() {
     if (!isSignedIn()) { savedTeams = []; savedTeamsLoaded = false; return; }
     try {
-      const { data, error } = await window.actoSupabase
+      // Par pages : Supabase coupe chaque réponse à 1000 lignes (js/utils.js).
+      const requete = () => window.actoSupabase
         .from("saved_teams")
         .select("id, owner_id, name, members, updated_at")
         .order("name", { ascending: true })
-        .limit(2000);
+        .order("id", { ascending: true });
+      const u = window.actoUtils;
+      const { data, error } = await ((u && u.readAllPages) ? u.readAllPages(requete) : requete());
       if (error) {
         console.warn("[acto] loadSavedTeamsList error", error);
         savedTeams = [];
@@ -2280,18 +2283,21 @@
     // Fetch approved submissions + hidden bundled items in parallel.
     let approvedRows = [], hiddenRows = [];
     try {
+      // Par pages : Supabase coupe chaque réponse à 1000 lignes (js/utils.js).
+      const u = window.actoUtils;
+      const toutLire = (f) => (u && u.readAllPages) ? u.readAllPages(f) : f();
       const [a, h] = await Promise.all([
-        window.actoSupabase
+        toutLire(() => window.actoSupabase
           .from("user_submissions")
           .select("kind,mode,level,locale,text,description")
           .eq("status", "approved")
           .eq("locale", locale)
-          .limit(2000),
-        window.actoSupabase
+          .order("id", { ascending: true })),
+        toutLire(() => window.actoSupabase
           .from("bundled_hidden_items")
           .select("kind,mode,level,locale,text")
           .eq("locale", locale)
-          .limit(2000)
+          .order("id", { ascending: true }))
       ]);
       if (a.error) console.warn("[acto] approved submissions read error", a.error);
       else approvedRows = a.data || [];

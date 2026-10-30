@@ -118,7 +118,7 @@ begin
     left join public.inspiration_ratings r on r.inspiration_id = v.id
     where v.status = 'approved'
     group by v.id, v.title, v.content_type, v.view_count
-    order by v.view_count desc, avg_grade desc nulls last, v.title asc;
+    order by v.view_count desc, avg_grade desc nulls last, v.title asc, v.id;   -- cle unique : lecture par pages (migrate-2026-10-listes-sans-plafond.sql)
 end;
 $$;
 revoke all on function public.admin_inspiration_stats() from public;
