@@ -135,12 +135,15 @@
   }
 
   /* ---------- persistent section switcher ---------- */
+  // Même ordre que les cartes de l'accueil. Le générateur d'idées n'est pas une
+  // section du Studio mais une page à part (idees.html) : il porte un href.
   var NAV_SECTIONS = [
     { id: "discover", route: "discover", icon: "✨", labelKey: "sectionDiscoverTitle" },
-    { id: "match",    route: "match",    icon: "🏆", labelKey: "sectionMatchTitle" },
-    { id: "show",     route: "show",     icon: "🎪", labelKey: "sectionShowTitle" },
+    { id: "idees",    href: "./idees.html", icon: "💡", labelKey: "ideasPageTitle" },
+    { id: "defis",    route: "defis",    icon: "🎯", labelKey: "sectionDefiTitle" },
     { id: "train",    route: "train",    icon: "🏋️", labelKey: "sectionTrainTitle" },
-    { id: "defis",    route: "defis",    icon: "🎯", labelKey: "sectionDefiTitle" }
+    { id: "show",     route: "show",     icon: "🎪", labelKey: "sectionShowTitle" },
+    { id: "match",    route: "match",    icon: "🏆", labelKey: "sectionMatchTitle" }
   ];
   function syncSectionNav(active) {
     var nav = document.getElementById("suiteSectionNav");
@@ -149,13 +152,18 @@
     if (active === null || active === "home") { nav.hidden = true; nav.innerHTML = ""; return; }
     nav.hidden = false;
     nav.innerHTML = NAV_SECTIONS.map(function (s) {
-      return '<button class="suite-navpill' + (s.id === active ? " is-on" : "") + '" data-route="' + s.route + '">' +
+      var cible = s.href ? ' data-href="' + s.href + '"' : ' data-route="' + s.route + '"';
+      return '<button class="suite-navpill' + (s.id === active ? " is-on" : "") + '"' + cible + '>' +
         '<span class="suite-navpill-icon" aria-hidden="true">' + s.icon + '</span>' +
         '<span class="suite-navpill-label">' + esc(t(s.labelKey)) + '</span>' +
       '</button>';
     }).join("");
     nav.querySelectorAll(".suite-navpill").forEach(function (b) {
-      b.onclick = function () { navigate("#/" + b.getAttribute("data-route")); };
+      b.onclick = function () {
+        var href = b.getAttribute("data-href");
+        if (href) window.location.href = href;
+        else navigate("#/" + b.getAttribute("data-route"));
+      };
     });
   }
 
@@ -167,23 +175,28 @@
         '<p class="suite-home-sub">' + esc(t("suiteHomeSubtitle")) + '</p>' +
       '</div>' +
       '<div class="suite-launch-grid">' +
-        launchCard("discover", "✨", t("sectionDiscoverTitle"), t("sectionDiscoverDesc"), false) +
-        launchCard("match", "🏆", t("sectionMatchTitle"), t("sectionMatchDesc"), false) +
-        launchCard("show", "🎪", t("sectionShowTitle"), t("sectionShowDesc"), false) +
-        launchCard("train", "🏋️", t("sectionTrainTitle"), t("sectionTrainDesc"), false) +
-        launchCard("defis", "🎯", t("sectionDefiTitle"), t("sectionDefiDesc"), false) +
+        launchCard("discover", "✨", t("sectionDiscoverTitle"), t("sectionDiscoverDesc")) +
+        launchCard("idees", "💡", t("ideasPageTitle"), t("ideasBlurb"), "./idees.html") +
+        launchCard("defis", "🎯", t("sectionDefiTitle"), t("sectionDefiDesc")) +
+        launchCard("train", "🏋️", t("sectionTrainTitle"), t("sectionTrainDesc")) +
+        launchCard("show", "🎪", t("sectionShowTitle"), t("sectionShowDesc")) +
+        launchCard("match", "🏆", t("sectionMatchTitle"), t("sectionMatchDesc")) +
       '</div>' +
       '<div class="suite-home-extra">' +
         // "Mes équipes" now lives on the Match page (teams are match rosters).
         '<button class="suite-home-link" data-section="contribute">💡 ' + esc(t("contribTitle")) + '</button>' +
       '</div>';
     rootEl.querySelectorAll(".suite-launch-card").forEach(function (c) {
-      var go = function () { navigate("#/" + c.getAttribute("data-section")); };
+      var go = function () {
+        var href = c.getAttribute("data-href");      // page à part (générateur d'idées)
+        if (href) window.location.href = href;
+        else navigate("#/" + c.getAttribute("data-section"));
+      };
       c.onclick = go;
       c.onkeydown = function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } };
     });
-    var TITLE_KEY = { discover: "sectionDiscoverTitle", match: "sectionMatchTitle", show: "sectionShowTitle", train: "sectionTrainTitle", defis: "sectionDefiTitle" };
-    var INFO_KEY = { discover: "sectionDiscoverInfo", match: "sectionMatchInfo", show: "sectionShowInfo", train: "sectionTrainInfo", defis: "sectionDefiInfo" };
+    var TITLE_KEY = { discover: "sectionDiscoverTitle", idees: "ideasPageTitle", match: "sectionMatchTitle", show: "sectionShowTitle", train: "sectionTrainTitle", defis: "sectionDefiTitle" };
+    var INFO_KEY = { discover: "sectionDiscoverInfo", idees: "sectionIdeasInfo", match: "sectionMatchInfo", show: "sectionShowInfo", train: "sectionTrainInfo", defis: "sectionDefiInfo" };
     rootEl.querySelectorAll(".suite-launch-info").forEach(function (b) {
       b.onclick = function (e) {
         e.stopPropagation();
@@ -195,8 +208,8 @@
       c.onclick = function () { navigate("#/" + c.getAttribute("data-section")); };
     });
   }
-  function launchCard(section, icon, title, desc) {
-    return '<div class="suite-launch-card" data-section="' + section + '" role="button" tabindex="0">' +
+  function launchCard(section, icon, title, desc, href) {
+    return '<div class="suite-launch-card" data-section="' + section + '"' + (href ? ' data-href="' + href + '"' : '') + ' role="button" tabindex="0">' +
       '<button class="suite-launch-info" type="button" data-info="' + section + '" aria-label="' + esc(t("sectionMoreInfo")) + '">ⓘ</button>' +
       '<span class="suite-launch-icon" aria-hidden="true">' + icon + '</span>' +
       '<span class="suite-launch-title">' + esc(title) + '</span>' +
