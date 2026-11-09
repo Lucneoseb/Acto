@@ -132,6 +132,23 @@
      Contenu dans rules-content.js (fr, en) ; les autres langues reçoivent
      l'anglais, avec un bandeau qui le dit.
      ============================================================ */
+  /* Planche de gestes : [[clé du visuel, intitulé, description], …].
+     Un visuel = assets/gestes/<clé>.jpg (600×750). Les dimensions sont
+     écrites en dur sur la balise : sans elles, la grille saute pendant le
+     chargement différé. welcome.html porte un <base href="/">, donc le
+     chemin relatif reste bon sur /decouverte/regles. */
+  var ART_V = "20261109";
+  function artGrid(list) {
+    var cartes = (list || []).map(function (a) {
+      return '<li class="suite-art-card">' +
+        '<img class="suite-art-fig" src="assets/gestes/' + encodeURIComponent(a[0]) + ".jpg?v=" + ART_V + '"' +
+          ' width="600" height="750" loading="lazy" decoding="async" alt="">' +
+        '<b class="suite-art-h">' + esc(a[1]) + "</b>" +
+        '<span class="suite-art-d">' + esc(a[2]) + "</span></li>";
+    }).join("");
+    return cartes ? '<ul class="suite-art-grid">' + cartes + "</ul>" : "";
+  }
+
   function renderRules() {
     var loc = S.locale(), C = window.ActoRulesContent || {};
     var art = C[loc] || C.en || C.fr;
@@ -143,6 +160,9 @@
         if (b.h3) return '<h3>' + esc(b.h3) + '</h3>';
         if (b.ul) return '<ul>' + b.ul.map(function (li) { return '<li>' + esc(li) + '</li>'; }).join("") + '</ul>';
         if (b.dl) return '<dl>' + b.dl.map(function (d) { return '<dt>' + esc(d[0]) + '</dt><dd>' + esc(d[1]) + '</dd>'; }).join("") + '</dl>';
+        if (b.ol) return '<ol>' + b.ol.map(function (li) { return '<li>' + esc(li) + '</li>'; }).join("") + '</ol>';
+        if (b.arts) return artGrid(b.arts);
+        if (b.note) return '<p class="suite-art-credit">' + esc(b.note) + '</p>';
         return "";
       }).join("");
     }
