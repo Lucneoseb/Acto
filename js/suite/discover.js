@@ -46,9 +46,15 @@
   /* ============================================================
      PAGE
      ============================================================ */
+  /* La sous-route de l'article porte la section à ouvrir :
+     /decouverte/regles              → tout replié
+     /decouverte/regles/arbitrage    → cette section dépliée
+     C'est ce segment qui rend l'adresse de la barre envoyable telle quelle. */
   function mount(container, sub, nav) {
     root = container; navigate = nav || navigate;
-    if (sub === "regles" || sub === "rules") renderRules(); else render();
+    var parts = String(sub || "").split("/");
+    if (parts[0] === "regles" || parts[0] === "rules") renderRules(parts[1] || "");
+    else render();
   }
 
   function contentCard(icon, title, body) {
@@ -137,8 +143,12 @@
      écrites en dur sur la balise : sans elles, la grille saute pendant le
      chargement différé. welcome.html porte un <base href="/">, donc le
      chemin relatif reste bon sur /decouverte/regles. */
-  var ART_V = "20261109";
-  function artGrid(list) {
+  var ART_V = "20261110";
+  /* `cols` fige le nombre de colonnes quand l'ordre de lecture compte : les
+     signes de temps vont par trois, du plus long au plus court, et la coupure
+     après « 30 s. » fait partie du propos. Sans ça, la grille auto-fill en met
+     quatre et la lecture se casse. */
+  function artGrid(list, cols) {
     var cartes = (list || []).map(function (a) {
       return '<li class="suite-art-card">' +
         '<img class="suite-art-fig" src="assets/gestes/' + encodeURIComponent(a[0]) + ".jpg?v=" + ART_V + '"' +
@@ -146,13 +156,34 @@
         '<b class="suite-art-h">' + esc(a[1]) + "</b>" +
         '<span class="suite-art-d">' + esc(a[2]) + "</span></li>";
     }).join("");
-    return cartes ? '<ul class="suite-art-grid">' + cartes + "</ul>" : "";
+    if (!cartes) return "";
+    var cls = "suite-art-grid" + (cols === 3 ? " suite-art-grid-3" : "");
+    return '<ul class="' + cls + '">' + cartes + "</ul>";
   }
 
-  function renderRules() {
+  /* L'adresse suit la section ouverte, sans passer par le routeur : on la
+     remplace (pas d'empilement dans l'historique, un accordéon n'est pas une
+     navigation) pour qu'elle soit copiable depuis la barre d'adresse. Les
+     identifiants de section sont les mêmes en français et en anglais, donc un
+     lien reçu s'ouvre au bon endroit quelle que soit la langue du lecteur. */
+  function majUrl(id) {
+    try {
+      var base = location.pathname.split("/").filter(Boolean).slice(0, 2);
+      if (base.length < 2) return;                       // repli en ancre : on n'y touche pas
+      var p = "/" + base.join("/") + (id ? "/" + id : "");
+      if (p !== location.pathname) {
+        history.replaceState({ acto: 1 }, "", p + (location.search || ""));
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  function renderRules(ouvrir) {
     var loc = S.locale(), C = window.ActoRulesContent || {};
     var art = C[loc] || C.en || C.fr;
     if (!art) { render(); return; }
+    var connus = {};
+    art.sections.forEach(function (s) { connus[s.id] = true; });
+    if (!connus[ouvrir]) ouvrir = "";
     var note = (art !== C[loc]) ? '<p class="suite-article-note">' + esc(t("rulesLangNote")) + '</p>' : "";
     function blocks(bs) {
       return (bs || []).map(function (b) {
@@ -161,11 +192,29 @@
         if (b.ul) return '<ul>' + b.ul.map(function (li) { return '<li>' + esc(li) + '</li>'; }).join("") + '</ul>';
         if (b.dl) return '<dl>' + b.dl.map(function (d) { return '<dt>' + esc(d[0]) + '</dt><dd>' + esc(d[1]) + '</dd>'; }).join("") + '</dl>';
         if (b.ol) return '<ol>' + b.ol.map(function (li) { return '<li>' + esc(li) + '</li>'; }).join("") + '</ol>';
-        if (b.arts) return artGrid(b.arts);
+        if (b.arts) return artGrid(b.arts, b.cols);
         if (b.note) return '<p class="suite-art-credit">' + esc(b.note) + '</p>';
         return "";
       }).join("");
     }
+    /* Un accordéon par section, tout replié au départ : la pile des titres
+       tient lieu de sommaire, il n'y en a donc plus de séparé. Une seule
+       section ouverte à la fois. */
+    function accordeon(s) {
+      var id = esc(s.id), on = (s.id === ouvrir);
+      return '<section class="suite-acc" id="regles-' + id + '" data-sec="' + id + '">' +
+        '<h2 class="suite-acc-h">' +
+          '<button class="suite-acc-btn" type="button" id="regles-' + id + '-b"' +
+            ' aria-expanded="' + (on ? "true" : "false") + '" aria-controls="regles-' + id + '-p">' +
+            '<span class="suite-acc-t">' + esc(s.h) + '</span>' +
+            '<span class="suite-acc-i" aria-hidden="true"></span>' +
+          '</button>' +
+        '</h2>' +
+        '<div class="suite-acc-p" id="regles-' + id + '-p" role="region"' +
+          ' aria-labelledby="regles-' + id + '-b"' + (on ? "" : " hidden") + '>' + blocks(s.blocks) + '</div>' +
+      '</section>';
+    }
+
     root.innerHTML =
       '<div class="suite-section-head">' +
         '<button class="suite-back" data-act="back">← ' + esc(t("sectionDiscoverTitle")) + '</button>' +
@@ -174,12 +223,7 @@
       '<article class="suite-article">' +
         note +
         '<p class="suite-article-intro">' + esc(art.intro) + '</p>' +
-        '<nav class="suite-article-toc" aria-label="' + esc(t("rulesToc")) + '"><div class="suite-article-toc-h">' + esc(t("rulesToc")) + '</div><ol>' +
-          art.sections.map(function (s) { return '<li><a href="#" data-sec="' + esc(s.id) + '">' + esc(s.h) + '</a></li>'; }).join("") +
-        '</ol></nav>' +
-        art.sections.map(function (s) {
-          return '<section class="suite-article-sec" id="regles-' + esc(s.id) + '"><h2 class="suite-h2">' + esc(s.h) + '</h2>' + blocks(s.blocks) + '</section>';
-        }).join("") +
+        '<div class="suite-acc-liste">' + art.sections.map(accordeon).join("") + '</div>' +
         '<div class="suite-article-foot">' +
           '<button class="suite-btn suite-btn-primary" data-act="go-match" type="button">🏆 ' + esc(t("sectionMatchTitle")) + '</button>' +
           '<button class="suite-btn suite-btn-ghost" data-act="back" type="button">← ' + esc(t("sectionDiscoverTitle")) + '</button>' +
@@ -188,17 +232,40 @@
     root.querySelectorAll('[data-act="back"]').forEach(function (b) { b.onclick = function () { navigate("#/discover"); }; });
     var gm = root.querySelector('[data-act="go-match"]');
     if (gm) gm.onclick = function () { navigate("#/match"); };
-    // Sommaire : défilement sans toucher au hash (le routeur le lirait)
-    root.querySelectorAll("[data-sec]").forEach(function (a) {
-      a.onclick = function (e) {
-        e.preventDefault();
-        var el = document.getElementById("regles-" + a.getAttribute("data-sec"));
-        if (!el) return;
-        el.setAttribute("tabindex", "-1");
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-        try { el.focus({ preventScroll: true }); } catch (err) { /* ignore */ }
+
+    var boutons = [].slice.call(root.querySelectorAll(".suite-acc-btn"));
+    function panneau(b) { return document.getElementById(b.getAttribute("aria-controls")); }
+    function replier(b) {
+      b.setAttribute("aria-expanded", "false");
+      var p = panneau(b); if (p) p.hidden = true;
+    }
+    boutons.forEach(function (b) {
+      b.onclick = function () {
+        var sec = b.parentNode.parentNode.getAttribute("data-sec");
+        var ouvert = b.getAttribute("aria-expanded") === "true";
+        /* Replier une section située plus haut raccourcit la page : sans
+           recalage, le titre cliqué remonte sous les yeux de l'utilisateur. */
+        var avant = b.getBoundingClientRect().top;
+        boutons.forEach(replier);
+        if (!ouvert) {
+          b.setAttribute("aria-expanded", "true");
+          var p = panneau(b); if (p) p.hidden = false;
+        }
+        majUrl(ouvert ? "" : sec);
+        var apres = b.getBoundingClientRect().top;
+        if (apres !== avant) { try { window.scrollBy(0, apres - avant); } catch (e) { /* ignore */ } }
       };
     });
+    /* Lien reçu sur une section : on l'amène sous les yeux plutôt que de
+       laisser le lecteur chercher laquelle s'est ouverte. */
+    if (ouvrir) {
+      var cible = root.querySelector('#regles-' + ouvrir + '-b');
+      if (cible) {
+        try { cible.scrollIntoView({ block: "start" }); window.scrollBy(0, -12); }
+        catch (e) { /* ignore */ }
+        return;
+      }
+    }
     try { window.scrollTo(0, 0); } catch (e) { /* ignore */ }
   }
 

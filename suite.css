@@ -1276,15 +1276,40 @@
 .suite-article { max-width: 46rem; color: var(--ink); line-height: 1.6; font-size: 0.98rem; }
 .suite-article-intro { font-size: 1.05rem; color: var(--ink); margin: 0 0 1rem; }
 .suite-article-note { font-size: 0.85rem; color: var(--ink-muted); border-left: 3px solid var(--gold); padding-left: 0.7rem; margin: 0 0 1rem; }
-.suite-article-toc { border: 1px solid color-mix(in srgb, #ffffff 11%, transparent); border-radius: var(--radius-md); padding: 0.8rem 1rem; margin-bottom: 1.4rem; background: color-mix(in srgb, #ffffff 4%, transparent); }
-.suite-article-toc-h { font: 400 1.1rem/1 "Bebas Neue", sans-serif; letter-spacing: 0.04em; color: var(--gold); margin-bottom: 0.4rem; }
-.suite-article-toc ol { margin: 0; padding-left: 1.2rem; columns: 2; column-gap: 1.5rem; font-size: 0.92rem; }
-.suite-article-toc li { margin: 0.2rem 0; break-inside: avoid; }
-.suite-article-toc a { color: var(--ink-muted); text-decoration: none; }
-.suite-article-toc a:hover { color: var(--gold); }
-.suite-article-sec { margin: 0 0 1.6rem; scroll-margin-top: 1rem; }
-.suite-article-sec:focus { outline: none; }
-.suite-article h2.suite-h2 { margin: 0 0 0.6rem; }
+/* Accordeon : la pile des titres remplace le sommaire. Tout est replie au
+   depart, une seule section ouverte a la fois, et l'adresse suit la section
+   ouverte (/decouverte/regles/<id>) pour etre copiable et envoyable. */
+.suite-acc-liste { display: grid; gap: 0.5rem; margin: 0 0 1.2rem; }
+.suite-acc {
+  border: 1px solid color-mix(in srgb, #ffffff 11%, transparent);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, #ffffff 4%, transparent);
+  scroll-margin-top: 0.8rem;
+}
+.suite-acc:has(> .suite-acc-h > [aria-expanded="true"]) { border-color: color-mix(in srgb, var(--gold) 45%, transparent); }
+.suite-acc-h { margin: 0; font: inherit; }
+.suite-acc-btn {
+  width: 100%; display: flex; align-items: center; gap: 0.9rem;
+  margin: 0; padding: 0.8rem 1rem; min-height: 48px;
+  background: none; border: 0; border-radius: var(--radius-md); cursor: pointer;
+  text-align: left; color: var(--ink);
+  font: 400 1.3rem/1.15 "Bebas Neue", sans-serif; letter-spacing: 0.03em;
+}
+.suite-acc-btn:hover { background: color-mix(in srgb, #ffffff 5%, transparent); }
+.suite-acc-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.suite-acc-btn[aria-expanded="true"] { color: var(--gold); }
+.suite-acc-t { flex: 1 1 auto; }
+.suite-acc-i {
+  flex: none; width: 11px; height: 11px;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: translateY(-3px) rotate(45deg);
+  transition: transform 0.18s ease;
+}
+.suite-acc-btn[aria-expanded="true"] .suite-acc-i { transform: translateY(2px) rotate(-135deg); }
+.suite-acc-p { padding: 0.1rem 1rem 0.9rem; }
+.suite-acc-p > :first-child { margin-top: 0; }
+.suite-acc-p > :last-child { margin-bottom: 0; }
+@media (prefers-reduced-motion: reduce) { .suite-acc-i { transition: none; } }
 .suite-article h3 { font: 600 1rem/1.3 "Inter", sans-serif; color: var(--gold-soft); margin: 1rem 0 0.4rem; }
 .suite-article p { margin: 0 0 0.8rem; color: var(--ink-muted); }
 .suite-article ul { margin: 0 0 0.9rem; padding-left: 1.2rem; color: var(--ink-muted); }
@@ -1295,7 +1320,8 @@
 .suite-article dd { margin: 0; color: var(--ink-muted); }
 .suite-article-foot { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1.2rem; }
 @media (max-width: 520px) {
-  .suite-article-toc ol { columns: 1; }
+  .suite-acc-btn { font-size: 1.15rem; padding: 0.75rem 0.8rem; }
+  .suite-acc-p { padding: 0.1rem 0.8rem 0.8rem; }
   .suite-article dl { grid-template-columns: 1fr; gap: 0.15rem 0; }
   .suite-article dd { margin-bottom: 0.55rem; }
 }
@@ -1309,6 +1335,8 @@
   list-style: none; margin: 0.35rem 0 1rem; padding: 0;
   display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: 0.7rem;
 }
+/* trois colonnes imposees quand l'ordre de lecture compte (signes de temps) */
+.suite-article .suite-art-grid-3 { grid-template-columns: repeat(3, 1fr); }
 .suite-article .suite-art-card {
   margin: 0; padding: 0.7rem 0.65rem 0.8rem; text-align: center;
   border: 1px solid color-mix(in srgb, #ffffff 11%, transparent);
@@ -1328,6 +1356,7 @@
 
 @media (max-width: 520px) {
   .suite-article .suite-art-grid { grid-template-columns: repeat(auto-fill, minmax(8.2rem, 1fr)); gap: 0.55rem; }
+  .suite-article .suite-art-grid-3 { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* ─── Coaching : durée de séance et taux de remplissage ────────────────────── */

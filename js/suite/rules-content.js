@@ -162,13 +162,13 @@
       ]},
       { id: "temps", h: "Tenir le temps : les signes de la main", blocks: [
         { p: "Le chronomètre n'est presque jamais dans la main de l'arbitre : c'est le maître de cérémonie, ou un assistant, qui tient la durée de l'improvisation et celle de la période. Il la transmet en silence, depuis le bord du plateau, par une poignée de signes convenus. L'arbitre reçoit le signe et le répercute aux jouteurs — à ceux qui improvisent comme à ceux qui attendent au banc." },
-        { arts: [
-          ["temps-minutes", "Les minutes", "Un doigt tendu vers le bas par minute restante. Trois doigts : trois minutes."],
-          ["temps-dix-minutes", "Dix minutes", "Le poing fermé, toujours vers le bas, vaut dix minutes — surtout utile pour la période."],
-          ["temps-trente-secondes", "Trente secondes", "L'index et le majeur croisés, pointés vers le bas."],
-          ["temps-dix-secondes", "Dix secondes", "La main ouverte, paume vers le sol, secouée de gauche à droite."],
-          ["temps-decompte", "Les cinq dernières", "La main se retourne, doigts vers le haut : cinq, quatre, trois, deux, un."],
-          ["temps-conclure", "Concluez", "Les deux bras tranchent l'air en entonnoir : l'arbitre demande d'amener la fin de l'histoire."]
+        { cols: 3, arts: [
+          ["temps-dix-minutes", "10 min", "Le poing fermé, doigts vers le bas : dix minutes. C'est le signe de la durée de la période."],
+          ["temps-minutes", "3 min", "Un doigt tendu vers le bas par minute restante. Trois doigts : trois minutes."],
+          ["temps-trente-secondes", "30 s.", "L'index et le majeur croisés, pointés vers le bas."],
+          ["temps-dix-secondes", "10 s.", "La main ouverte, paume vers le sol, secouée de gauche à droite."],
+          ["temps-decompte", "5 s.", "La main se retourne, doigts vers le haut : cinq, quatre, trois, deux, un."],
+          ["temps-conclure", "Conclusion", "Les deux mains ouvertes, paumes face à face, dessinent un entonnoir : amenez la fin de l'histoire."]
         ]},
         { note: "Dessins Acto, d'après les signes les plus courants en Belgique et au Québec. Fixez-les avec votre maître de cérémonie avant le match : un signe mal lu coûte une fin d'improvisation." },
         { p: "Deux habitudes qui sauvent une fin de scène : donner le signe assez tôt pour qu'il serve — à trente secondes une histoire peut encore atterrir, à dix elle ne fait plus que s'arrêter — et le donner une seule fois, franchement. Un arbitre qui agite la main pendant vingt secondes vole la scène aux joueurs." }
@@ -344,13 +344,13 @@
       ]},
       { id: "temps", h: "Keeping time: the hand signs", blocks: [
         { p: "The clock is almost never in the referee's hand: the master of ceremonies, or an assistant, holds both the improvisation's duration and the period's. They pass it on in silence, from the edge of the stage, with a handful of agreed signs. The referee takes the sign and relays it to the players — those improvising and those waiting on the bench." },
-        { arts: [
-          ["temps-minutes", "Minutes", "One finger pointing down per minute left. Three fingers: three minutes."],
-          ["temps-dix-minutes", "Ten minutes", "A closed fist, still pointing down, means ten minutes — mostly useful for the period."],
-          ["temps-trente-secondes", "Thirty seconds", "Index and middle finger crossed, pointing down."],
-          ["temps-dix-secondes", "Ten seconds", "An open hand, palm to the floor, shaken from side to side."],
-          ["temps-decompte", "The last five", "The hand turns over, fingers up: five, four, three, two, one."],
-          ["temps-conclure", "Wrap it up", "Both arms cutting the air into a funnel: the referee is asking for an ending."]
+        { cols: 3, arts: [
+          ["temps-dix-minutes", "10 min", "A closed fist, fingers down: ten minutes. This is the sign for the length of the period."],
+          ["temps-minutes", "3 min", "One finger pointing down per minute left. Three fingers: three minutes."],
+          ["temps-trente-secondes", "30 s.", "Index and middle finger crossed, pointing down."],
+          ["temps-dix-secondes", "10 s.", "An open hand, palm to the floor, shaken from side to side."],
+          ["temps-decompte", "5 s.", "The hand turns over, fingers up: five, four, three, two, one."],
+          ["temps-conclure", "Conclusion", "Both open hands, palms facing each other, shaping a funnel: bring the story to an end."]
         ]},
         { note: "Acto drawings, after the signs most commonly used in Belgium and Québec. Settle them with your master of ceremonies before the match: a misread sign costs an ending." },
         { p: "Two habits that save the end of a scene: give the sign early enough for it to be useful — at thirty seconds a story can still land, at ten it can only stop — and give it once, clearly. A referee waving for twenty seconds steals the scene from the players." }

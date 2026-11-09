@@ -10,11 +10,13 @@
   "use strict";
 
   function go(url) { try { window.location.replace(url); } catch (e) { window.location.href = url; } }
-  // Carry the intended deep link (e.g. a #/collab/<id>/<token> share link) through
-  // login so an invited-but-logged-out collaborator lands back on the right match.
+  /* On emporte l'adresse entière à travers la connexion — chemin propre
+     compris, pas seulement l'ancre : /decouverte/regles/temps, un partage
+     /collab/<id>/<jeton>, un match… L'invité déconnecté revient donc
+     exactement là où pointait le lien qu'on lui a envoyé. */
   function loginUrl() {
-    var h = window.location.hash || "";
-    return "login.html" + (h.length > 2 ? "?next=" + encodeURIComponent(h) : "");
+    var u = (window.actoUtils && window.actoUtils.returnPath()) || "";
+    return "login.html" + (u ? "?next=" + encodeURIComponent(u) : "");
   }
   function reveal() { document.body.classList.remove("suite-auth-checking"); }
 

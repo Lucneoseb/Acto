@@ -299,15 +299,19 @@
   //   • #authScreen present  → this IS the login page (render the form).
   //   • #authScreen absent    → a gated page whose signed-out visitor goes to /login.
   //   • #mainApp absent + signed in → the login page, already logged in → the Studio.
+  // ?next= porte l'adresse ENTIÈRE d'où l'on vient (chemin + paramètres +
+  // ancre), pas seulement l'ancre : sans cela, un lien profond en chemin
+  // propre — /decouverte/regles/temps — était perdu au passage par la
+  // connexion, et l'invité atterrissait sur l'accueil du Studio.
   function goToLogin() {
-    var h = window.location.hash || "";
-    var dest = "login.html" + (h.length > 2 ? "?next=" + encodeURIComponent(h) : "");
+    var u = (window.actoUtils && window.actoUtils.returnPath()) || "";
+    var dest = "login.html" + (u ? "?next=" + encodeURIComponent(u) : "");
     try { window.location.replace(dest); } catch (e) { window.location.href = dest; }
   }
   function goToStudio() {
     var n = null;
     try { n = new URLSearchParams(window.location.search).get("next"); } catch (e) {}
-    var dest = (n && /^#\/[A-Za-z0-9/_-]*$/.test(n)) ? ("welcome.html" + n) : "welcome.html";
+    var dest = (window.actoUtils && window.actoUtils.safeNext(n, "welcome.html")) || "welcome.html";
     try { window.location.replace(dest); } catch (e) { window.location.href = dest; }
   }
   // Where the OAuth / magic-link round-trip returns: the login page, carrying any

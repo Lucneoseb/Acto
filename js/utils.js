@@ -92,7 +92,43 @@
     return next(0);
   }
 
+  /**
+   * Lien de retour pour la connexion : l'adresse courante, relative, entière
+   * (chemin + paramètres + ancre). C'est ce qui permet d'envoyer à quelqu'un
+   * un lien profond — /decouverte/regles/temps, un partage de match… — et
+   * qu'il y arrive après s'être connecté. Renvoie "" quand il n'y a rien à
+   * mémoriser : racine, page de connexion, page d'inscription.
+   */
+  function returnPath() {
+    try {
+      var p = window.location.pathname || "/";
+      if (p === "/" || /^\/(login|index|join)(\.html)?\/?$/.test(p)) return "";
+      return p + (window.location.search || "") + (window.location.hash || "");
+    } catch (e) { return ""; }
+  }
+
+  /**
+   * Destination sûre pour un ?next=, DÉJÀ décodé par URLSearchParams (ne pas
+   * décoder une seconde fois : « %252F » redeviendrait « / »).
+   *
+   * On n'accepte qu'un chemin de ce site. Tout le reste retombe sur `defaut` :
+   * « //ailleurs.tld » et « /\ailleurs.tld » sont lus comme des adresses
+   * externes par les navigateurs, et « http://… » est une redirection ouverte.
+   * L'ancien format « #/section/sous » reste accepté, les liens déjà envoyés
+   * le portent encore.
+   */
+  function safeNext(next, defaut) {
+    var d = defaut || "welcome.html";
+    if (!next || typeof next !== "string") return d;
+    if (/[\u0000-\u001f\u007f]/.test(next)) return d;
+    if (next.charAt(0) === "#") return /^#\/[A-Za-z0-9/_-]*$/.test(next) ? ("welcome.html" + next) : d;
+    if (next.charAt(0) !== "/") return d;
+    if (next.charAt(1) === "/" || next.charAt(1) === "\\") return d;
+    return next;
+  }
+
   window.actoUtils = Object.freeze({
-    escapeHtml, fmtSec, fmtDate, ageOf, withTimeout, emailValid, readAllPages
+    escapeHtml, fmtSec, fmtDate, ageOf, withTimeout, emailValid, readAllPages,
+    returnPath, safeNext
   });
 })();
