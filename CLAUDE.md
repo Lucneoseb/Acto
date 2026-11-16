@@ -138,8 +138,9 @@ qu'une redirection). Un fichier, autonome : il insère lui-même son bouton ⏱�
 dans `.top-actions`, juste après 💡 Idées, injecte sa propre CSS (`.itool-*`)
 et construit sa fenêtre dans `<body>`.
 
-Contenu : la durée d'impro au choix (liste déroulante 20 s → 15 min), deux
-départs — « Caucus 20 s → 3 min » et « Impro 3 min » —, pause et remise à zéro,
+Contenu : deux listes déroulantes — Caucus (10 s → 1 min 30, 20 s par défaut)
+et Impro (20 s → 15 min, 3 min par défaut) —, deux départs qui portent leurs
+valeurs : « Caucus 20 s → 3 min » et « Impro 3 min », pause et remise à zéro,
 signe de temps à faire pendant l'impro, sifflet d'arbitre à la fin de chaque
 phase (case mémorisée), sifflet et kazoo à la demande, fermeture par le ✕, le
 bouton « Fermer », Échap ou un clic hors du panneau ; Espace démarre/met en
@@ -152,10 +153,12 @@ Six choses à savoir avant d'y toucher :
   qu'une impro suit le caucus en cours. À la fin du caucus, `terminer()`
   rappelle `lancer("impro", …)` dans la foulée : **le coup de sifflet EST le
   départ de l'impro**, il n'y a rien à cliquer entre les deux, personne n'a une
-  main libre à ce moment-là. Le caucus est fixe (20 s, `CAUCUS`) ; la liste
-  déroulante règle la seule durée d'impro, et peut être changée PENDANT le
-  caucus — c'est même là que l'arbitre la décide, donc `choisirDuree()` ne
-  touche pas au décompte en cours.
+  main libre à ce moment-là. Les deux durées sont réglables et mémorisées
+  (`CAUCUS_DUREES` et `DUREES`), 20 s et 3 min par défaut : vingt secondes est
+  la valeur de presque toutes les ligues, mais elles varient et un atelier
+  prend son temps. Celle de l'impro peut être changée PENDANT le caucus —
+  c'est même là que l'arbitre la décide, donc `choisirDuree()` ne touche pas
+  au décompte en cours.
 - **La fin est une date, pas un compteur.** `finAt` est gardée dans
   localStorage (`acto:improtool:v1`), donc le décompte survit au changement de
   page — le bouton de la barre affiche alors le temps restant à la place de

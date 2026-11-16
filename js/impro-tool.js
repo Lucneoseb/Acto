@@ -37,7 +37,10 @@
 
   var CLE_ETAT   = "acto:improtool:v1";
   var LOCALE_KEY = "impro-studio:locale:v1";
-  var CAUCUS     = 20;
+  /* Le caucus dure vingt secondes presque partout — c'est la valeur par
+     défaut — mais les ligues varient, et un atelier prend son temps. */
+  var CAUCUS_DEFAUT = 20;
+  var CAUCUS_DUREES = [10, 15, 20, 30, 45, 60, 90];
   /* 20 s (le caucus), puis tous les 30 s jusqu'à 6 min, puis les durées
      longues d'un atelier ou d'un spectacle. */
   var DUREES = [20, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 420, 480, 540, 600, 720, 900];
@@ -128,11 +131,12 @@
 
        phase    : null au repos, puis "caucus" ou "impro"
        enchaine : une impro suit le caucus en cours
-       duree    : la durée d'impro choisie, indépendante du caucus (20 s fixe)
+       caucus   : la durée du caucus (20 s par défaut)
+       duree    : la durée d'impro choisie, indépendante du caucus
        total    : la durée de la phase en cours, pour la barre de progression */
   var DUREE_DEFAUT = 180;
   var etat = {
-    duree: DUREE_DEFAUT, sifflet: true,
+    caucus: CAUCUS_DEFAUT, duree: DUREE_DEFAUT, sifflet: true,
     phase: null, enchaine: false,
     total: DUREE_DEFAUT, reste: DUREE_DEFAUT, finAt: 0, enCours: false
   };
@@ -143,6 +147,7 @@
       if (!brut) return;
       var e = JSON.parse(brut) || {};
       if (DUREES.indexOf(e.duree) >= 0) etat.duree = e.duree;
+      if (CAUCUS_DUREES.indexOf(e.caucus) >= 0) etat.caucus = e.caucus;
       if (typeof e.sifflet === "boolean") etat.sifflet = e.sifflet;
       var maintenant = Date.now();
       var phase = (e.phase === "caucus" || e.phase === "impro") ? e.phase : null;
@@ -183,7 +188,8 @@
   function ecrireEtat() {
     try {
       localStorage.setItem(CLE_ETAT, JSON.stringify({
-        duree: etat.duree, sifflet: etat.sifflet, phase: etat.phase, enchaine: etat.enchaine,
+        caucus: etat.caucus, duree: etat.duree, sifflet: etat.sifflet,
+        phase: etat.phase, enchaine: etat.enchaine,
         total: etat.total, enCours: etat.enCours, finAt: etat.finAt, reste: etat.reste
       }));
     } catch (e) { /* ignore */ }
@@ -535,7 +541,9 @@
     ".itool-btn:disabled:hover{border-color:rgba(245,196,81,.3);background:rgba(255,255,255,.07)}",
     ".itool-btn.is-primary:disabled:hover{background:linear-gradient(135deg,#6dd3c5,#84e1bc)}",
     ".itool-row{display:flex;gap:.5rem;align-items:center;margin-bottom:.75rem}",
-    ".itool-row>label{flex:0 0 auto;font-size:.85rem;color:var(--ink-muted,rgba(245,240,234,.65))}",
+    // Largeur figée : sans elle, « Caucus » étant plus large qu'« Impro »,
+    // les deux listes déroulantes ne commençaient pas au même endroit.
+    ".itool-row>label{flex:0 0 4rem;font-size:.85rem;color:var(--ink-muted,rgba(245,240,234,.65))}",
     ".itool-select{flex:1 1 auto;min-width:0;padding:.6rem .7rem;border-radius:12px;cursor:pointer;",
       "font:600 1rem/1.2 Inter,sans-serif;color:var(--ink,#f5f0ea);background:rgba(0,0,0,.4);",
       "border:1px solid rgba(245,196,81,.3)}",
@@ -569,7 +577,7 @@
   var bouton = null, etiquette = null, pastille = null;
   var fond = null, panneau = null, affichage = null, barre = null, statut = null;
   var btnCaucus = null, btnImpro = null, badgePhase = null;
-  var liste = null, btnDemarrer = null, btnReset = null, caseSifflet = null;
+  var listeCaucus = null, liste = null, btnDemarrer = null, btnReset = null, caseSifflet = null;
   var creneauSigne = null, blocSigne = null, figuresSigne = null, dernierSigne = null;
 
   function construireBouton() {
@@ -615,8 +623,12 @@
             '</div>' +
           '</div>' +
         '</div>' +
-        // La durée d'abord : les deux boutons de départ portent sa valeur,
-        // donc on la choisit avant de lire ce qu'ils proposent.
+        // Les durées d'abord : les deux boutons de départ portent leurs
+        // valeurs, donc on les choisit avant de lire ce qu'ils proposent.
+        '<div class="itool-row">' +
+          '<label for="itoolCaucus"></label>' +
+          '<select class="itool-select" id="itoolCaucus"></select>' +
+        '</div>' +
         '<div class="itool-row">' +
           '<label for="itoolDuree"></label>' +
           '<select class="itool-select" id="itoolDuree"></select>' +
@@ -644,6 +656,7 @@
     badgePhase  = fond.querySelector(".itool-phase");
     btnCaucus   = fond.querySelector('[data-act="caucus"]');
     btnImpro    = fond.querySelector('[data-act="impro"]');
+    listeCaucus = fond.querySelector("#itoolCaucus");
     liste       = fond.querySelector("#itoolDuree");
     btnDemarrer = fond.querySelector('[data-act="start"]');
     btnReset    = fond.querySelector('[data-act="reset"]');
@@ -673,6 +686,10 @@
       var v = parseInt(liste.value, 10);
       if (!isNaN(v)) choisirDuree(v);
     });
+    listeCaucus.addEventListener("change", function () {
+      var v = parseInt(listeCaucus.value, 10);
+      if (!isNaN(v)) choisirCaucus(v);
+    });
     caseSifflet.addEventListener("change", function () {
       etat.sifflet = !!caseSifflet.checked;
       ecrireEtat();
@@ -685,15 +702,26 @@
     if (etiquette) etiquette.textContent = t("improToolBtn", "Impro Tool");
     if (!fond) return;
     fond.querySelector(".itool-x").setAttribute("aria-label", t("improToolClose", "Fermer"));
-    fond.querySelector('.itool-row > label[for="itoolDuree"]').textContent = t("improToolDurationImpro", "Durée de l'impro");
+    // Libellés courts et alignés — « Caucus » / « Impro » —, la phrase
+    // complète allant sur le nom accessible : deux fois « Durée de… » dans
+    // une colonne de 110 px ne tenait pas sur un téléphone.
+    var etiqCaucus = fond.querySelector('.itool-row > label[for="itoolCaucus"]');
+    var etiqImpro = fond.querySelector('.itool-row > label[for="itoolDuree"]');
+    etiqCaucus.textContent = t("improToolCaucus", "Caucus");
+    etiqImpro.textContent = t("improToolImpro", "Impro");
+    listeCaucus.setAttribute("aria-label", t("improToolDurationCaucus", "Durée du caucus"));
+    liste.setAttribute("aria-label", t("improToolDurationImpro", "Durée de l'impro"));
     fond.querySelector('[data-act="close"].itool-close').textContent = t("improToolClose", "Fermer");
     fond.querySelector(".itool-check span").textContent = "🔊 " + t("improToolWhistleEnd", "Sifflet à la fin");
     btnReset.textContent = "↺ " + t("improToolReset", "Réinitialiser");
     fond.querySelector('[data-act="whistle"]').textContent = "📣 " + t("improToolWhistle", "Sifflet");
     fond.querySelector('[data-act="kazoo"]').textContent = "🎺 " + t("improToolKazoo", "Kazoo");
-    liste.innerHTML = DUREES.map(function (s) {
-      return '<option value="' + s + '">' + libelleDuree(s) + "</option>";
-    }).join("");
+    function options(l) {
+      return l.map(function (s) { return '<option value="' + s + '">' + libelleDuree(s) + "</option>"; }).join("");
+    }
+    listeCaucus.innerHTML = options(CAUCUS_DUREES);
+    listeCaucus.value = String(etat.caucus);
+    liste.innerHTML = options(DUREES);
     liste.value = String(etat.duree);
     caseSifflet.checked = !!etat.sifflet;
     dernierSigne = null;                           // les libellés du signe aussi
@@ -707,7 +735,7 @@
   function majLancements() {
     if (!fond) return;
     var impro = libelleDuree(etat.duree);
-    btnCaucus.textContent = "🗣️ " + t("improToolCaucus", "Caucus") + " " + libelleDuree(CAUCUS) + " → " + impro;
+    btnCaucus.textContent = "🗣️ " + t("improToolCaucus", "Caucus") + " " + libelleDuree(etat.caucus) + " → " + impro;
     btnImpro.textContent = "▶ " + t("improToolImpro", "Impro") + " " + impro;
   }
 
@@ -842,7 +870,12 @@
     dernierSigne = null;
     garderEcran(); battre(); ecrireEtat(); rendre();
   }
-  function lancerCaucus() { lancer("caucus", CAUCUS, true); }
+  function choisirCaucus(secondes) {
+    etat.caucus = secondes;
+    if (listeCaucus) listeCaucus.value = String(secondes);
+    ecrireEtat(); majLancements();
+  }
+  function lancerCaucus() { lancer("caucus", etat.caucus, true); }
   function lancerImpro()  { lancer("impro", etat.duree, false); }
 
   function reprendre() {

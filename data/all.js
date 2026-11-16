@@ -409,7 +409,8 @@ window.IMPRO_BUNDLE = {
       "improToolSignFive": "La main se retourne, doigts vers le haut : 5, 4, 3, 2, 1.",
       "improToolSignFunnel": "Les deux mains ouvertes en entonnoir : amenez la fin.",
       "improToolImpro": "Impro",
-      "improToolDurationImpro": "Durée de l'impro"
+      "improToolDurationImpro": "Durée de l'impro",
+      "improToolDurationCaucus": "Durée du caucus"
     },
     "it": {
       "title": "Impro",
@@ -789,7 +790,8 @@ window.IMPRO_BUNDLE = {
       "improToolSignFive": "La mano si gira, dita in alto: 5, 4, 3, 2, 1.",
       "improToolSignFunnel": "Le due mani aperte a imbuto: portate il finale.",
       "improToolImpro": "Impro",
-      "improToolDurationImpro": "Durata dell'impro"
+      "improToolDurationImpro": "Durata dell'impro",
+      "improToolDurationCaucus": "Durata del caucus"
     },
     "en": {
       "title": "Impro",
@@ -1169,7 +1171,8 @@ window.IMPRO_BUNDLE = {
       "improToolSignFive": "The hand turns over, fingers up: 5, 4, 3, 2, 1.",
       "improToolSignFunnel": "Both open hands shaping a funnel: bring the story to an end.",
       "improToolImpro": "Improv",
-      "improToolDurationImpro": "Improv length"
+      "improToolDurationImpro": "Improv length",
+      "improToolDurationCaucus": "Caucus length"
     },
     "de": {
       "title": "Impro",
@@ -1549,7 +1552,8 @@ window.IMPRO_BUNDLE = {
       "improToolSignFive": "Die Hand dreht sich, Finger nach oben: 5, 4, 3, 2, 1.",
       "improToolSignFunnel": "Beide offenen Hände bilden einen Trichter: bringt den Schluss.",
       "improToolImpro": "Impro",
-      "improToolDurationImpro": "Dauer der Impro"
+      "improToolDurationImpro": "Dauer der Impro",
+      "improToolDurationCaucus": "Dauer des Caucus"
     },
     "es": {
       "title": "Impro",
@@ -1929,7 +1933,8 @@ window.IMPRO_BUNDLE = {
       "improToolSignFive": "La mano gira, dedos hacia arriba: 5, 4, 3, 2, 1.",
       "improToolSignFunnel": "Las dos manos abiertas en embudo: traed el final.",
       "improToolImpro": "Impro",
-      "improToolDurationImpro": "Duración de la impro"
+      "improToolDurationImpro": "Duración de la impro",
+      "improToolDurationCaucus": "Duración del caucus"
     },
     "pt": {
       "title": "Impro",
@@ -2309,7 +2314,8 @@ window.IMPRO_BUNDLE = {
       "improToolSignFive": "A mão vira-se, dedos para cima: 5, 4, 3, 2, 1.",
       "improToolSignFunnel": "As duas mãos abertas em funil: tragam o final.",
       "improToolImpro": "Impro",
-      "improToolDurationImpro": "Duração da impro"
+      "improToolDurationImpro": "Duração da impro",
+      "improToolDurationCaucus": "Duração do caucus"
     },
     "nl": {
       "title": "Impro",
@@ -2689,7 +2695,8 @@ window.IMPRO_BUNDLE = {
       "improToolSignFive": "De hand draait om, vingers omhoog: 5, 4, 3, 2, 1.",
       "improToolSignFunnel": "Beide open handen als een trechter: breng het einde.",
       "improToolImpro": "Impro",
-      "improToolDurationImpro": "Duur van de impro"
+      "improToolDurationImpro": "Duur van de impro",
+      "improToolDurationCaucus": "Duur van de caucus"
     }
   },
   "data": {
