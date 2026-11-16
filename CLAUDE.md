@@ -139,11 +139,12 @@ dans `.top-actions`, juste après 💡 Idées, injecte sa propre CSS (`.itool-*`
 et construit sa fenêtre dans `<body>`.
 
 Contenu : compte à rebours avec le caucus (20 s) en un bouton et une liste
-déroulante 30 s → 15 min, sifflet d'arbitre à la fin (case mémorisée), sifflet
-et kazoo à la demande, fermeture par le ✕, le bouton « Fermer », Échap ou un
-clic hors du panneau ; Espace démarre/met en pause.
+déroulante 30 s → 15 min, signe de temps à faire affiché pendant le décompte,
+sifflet d'arbitre à la fin (case mémorisée), sifflet et kazoo à la demande,
+fermeture par le ✕, le bouton « Fermer », Échap ou un clic hors du panneau ;
+Espace démarre/met en pause.
 
-Trois choses à savoir avant d'y toucher :
+Quatre choses à savoir avant d'y toucher :
 
 - **La fin est une date, pas un compteur.** `finAt` est gardée dans
   localStorage (`acto:improtool:v1`), donc le décompte survit au changement de
@@ -154,14 +155,34 @@ Trois choses à savoir avant d'y toucher :
   (voir `_headers`) ; une règle ajoutée à styles.css n'atteindrait les
   utilisateurs qu'avec un `?v=` bumpé sur les quatorze pages. Le CSP autorise
   `style-src 'unsafe-inline'`, l'injection passe.
-- **Les sons sont synthétisés** (Web Audio, aucun fichier) : bruit blanc dans
-  un passe-bande résonant qui tremble pour le sifflet, dent de scie grésillée
-  et nasale pour le kazoo. Leurs niveaux ont été réglés au rendu hors ligne
-  (`OfflineAudioContext`) — crête ~0,95 pour le sifflet, ~0,84 pour le kazoo,
-  zéro échantillon écrêté grâce au limiteur de `master()`. Les retoucher à
-  l'oreille sans remesurer, c'est revenir à un sifflet inaudible en salle.
-  iOS ne réveille un AudioContext que pendant un geste : `debloquerAudio()`
-  est rappelé à chaque clic dans l'outil, sans drapeau qui se verrouille.
+- **Les signes de temps** reprennent les six visuels de `assets/gestes/`, ceux
+  de l'article « Le match d'impro » — même `?v=` que `js/suite/discover.js`,
+  à garder aligné. L'échelle est dans `signe()` : rien au-delà de 10 min, le
+  poing de 10:00 à 9:01, N doigts jusqu'à 1:01, l'entonnoir de conclusion dans
+  la dernière minute, puis 30 s, 10 s et le décompte. Le `src` n'est posé qu'au
+  moment de l'affichage (`loading="lazy"` ne suffit pas) : une page qui n'ouvre
+  jamais l'outil ne télécharge aucune des six images. Le bloc clignote trois
+  fois à chaque changement, parce qu'un signe se donne AU moment où il tombe.
+- **Les sons sont synthétisés** (Web Audio, aucun fichier) et refaits le
+  2026-11-16, la première version ne ressemblant ni à l'un ni à l'autre :
+  - **Sifflet** : un son TONAL, pas une bouffée d'air. Fondamentale 3150 Hz +
+    partiel à 1,34× (les deux chambres), bille qui module l'amplitude de ±28 %
+    à 28 Hz et la hauteur de ±30 Hz seulement — au-delà, le porteur s'efface
+    dans ses bandes latérales et on entend une sirène. Le bruit n'est qu'un
+    filet d'air (0,32) autour de la fondamentale. Mesuré crête 0,38 / efficace
+    0,119, soit 6,6 dB sous la version soufflée, jugée trop forte.
+  - **Kazoo** : on chante dedans, une membrane grésille. Le grésillement est
+    une SATURATION (courbe tanh **asymétrique**, pour les harmoniques paires
+    autant qu'impaires — symétrique on obtient une clarinette), pas un hachage
+    de l'amplitude : moduler à 55 Hz donnait un trémolo de vieille radio.
+    Coupe-bas 500 Hz, bosses à 1,2 et 2,7 kHz pour le nasillard, filet de bruit
+    à 3,2 kHz pour le papier. Mesuré crête 0,54 / efficace 0,11.
+  - Les niveaux et le contenu spectral se vérifient au rendu hors ligne
+    (`OfflineAudioContext` + Goertzel sur la partie tenue) ; zéro échantillon
+    écrêté grâce au limiteur de `master()`. Les retoucher à l'oreille sans
+    remesurer, c'est revenir à un sifflet inaudible ou saturé.
+  - iOS ne réveille un AudioContext que pendant un geste : `debloquerAudio()`
+    est rappelé à chaque clic dans l'outil, sans drapeau qui se verrouille.
 
 ## Gotchas
 

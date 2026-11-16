@@ -399,7 +399,15 @@ window.IMPRO_BUNDLE = {
       "improToolClose": "Fermer",
       "improToolDone": "Terminé !",
       "improToolUnitSec": "s",
-      "improToolUnitMin": "min"
+      "improToolUnitMin": "min",
+      "improToolSignTitle": "Signe à faire",
+      "improToolSignConclusion": "Conclusion",
+      "improToolSignFist": "Le poing fermé, doigts vers le bas.",
+      "improToolSignMinutes": "Un doigt tendu vers le bas par minute restante.",
+      "improToolSignThirty": "L'index et le majeur croisés, pointés vers le bas.",
+      "improToolSignTen": "La main ouverte, paume vers le sol, secouée de gauche à droite.",
+      "improToolSignFive": "La main se retourne, doigts vers le haut : 5, 4, 3, 2, 1.",
+      "improToolSignFunnel": "Les deux mains ouvertes en entonnoir : amenez la fin."
     },
     "it": {
       "title": "Impro",
@@ -769,7 +777,15 @@ window.IMPRO_BUNDLE = {
       "improToolClose": "Chiudi",
       "improToolDone": "Tempo scaduto!",
       "improToolUnitSec": "s",
-      "improToolUnitMin": "min"
+      "improToolUnitMin": "min",
+      "improToolSignTitle": "Segno da fare",
+      "improToolSignConclusion": "Conclusione",
+      "improToolSignFist": "Il pugno chiuso, dita verso il basso.",
+      "improToolSignMinutes": "Un dito teso verso il basso per ogni minuto che resta.",
+      "improToolSignThirty": "Indice e medio incrociati, puntati verso il basso.",
+      "improToolSignTen": "La mano aperta, palmo verso terra, scossa da un lato all'altro.",
+      "improToolSignFive": "La mano si gira, dita in alto: 5, 4, 3, 2, 1.",
+      "improToolSignFunnel": "Le due mani aperte a imbuto: portate il finale."
     },
     "en": {
       "title": "Impro",
@@ -1139,7 +1155,15 @@ window.IMPRO_BUNDLE = {
       "improToolClose": "Close",
       "improToolDone": "Time's up!",
       "improToolUnitSec": "s",
-      "improToolUnitMin": "min"
+      "improToolUnitMin": "min",
+      "improToolSignTitle": "Sign to give",
+      "improToolSignConclusion": "Conclusion",
+      "improToolSignFist": "A closed fist, fingers down.",
+      "improToolSignMinutes": "One finger pointing down per minute left.",
+      "improToolSignThirty": "Index and middle finger crossed, pointing down.",
+      "improToolSignTen": "An open hand, palm to the floor, shaken from side to side.",
+      "improToolSignFive": "The hand turns over, fingers up: 5, 4, 3, 2, 1.",
+      "improToolSignFunnel": "Both open hands shaping a funnel: bring the story to an end."
     },
     "de": {
       "title": "Impro",
@@ -1509,7 +1533,15 @@ window.IMPRO_BUNDLE = {
       "improToolClose": "Schließen",
       "improToolDone": "Zeit um!",
       "improToolUnitSec": "Sek.",
-      "improToolUnitMin": "Min."
+      "improToolUnitMin": "Min.",
+      "improToolSignTitle": "Zeichen geben",
+      "improToolSignConclusion": "Zum Schluss",
+      "improToolSignFist": "Die geballte Faust, Finger nach unten.",
+      "improToolSignMinutes": "Ein nach unten gestreckter Finger pro verbleibender Minute.",
+      "improToolSignThirty": "Zeige- und Mittelfinger gekreuzt, nach unten gerichtet.",
+      "improToolSignTen": "Die offene Hand, Handfläche nach unten, hin und her geschüttelt.",
+      "improToolSignFive": "Die Hand dreht sich, Finger nach oben: 5, 4, 3, 2, 1.",
+      "improToolSignFunnel": "Beide offenen Hände bilden einen Trichter: bringt den Schluss."
     },
     "es": {
       "title": "Impro",
@@ -1879,7 +1911,15 @@ window.IMPRO_BUNDLE = {
       "improToolClose": "Cerrar",
       "improToolDone": "¡Tiempo!",
       "improToolUnitSec": "s",
-      "improToolUnitMin": "min"
+      "improToolUnitMin": "min",
+      "improToolSignTitle": "Señal a hacer",
+      "improToolSignConclusion": "Conclusión",
+      "improToolSignFist": "El puño cerrado, dedos hacia abajo.",
+      "improToolSignMinutes": "Un dedo extendido hacia abajo por cada minuto restante.",
+      "improToolSignThirty": "Índice y corazón cruzados, apuntando hacia abajo.",
+      "improToolSignTen": "La mano abierta, palma hacia el suelo, agitada de lado a lado.",
+      "improToolSignFive": "La mano gira, dedos hacia arriba: 5, 4, 3, 2, 1.",
+      "improToolSignFunnel": "Las dos manos abiertas en embudo: traed el final."
     },
     "pt": {
       "title": "Impro",
@@ -2249,7 +2289,15 @@ window.IMPRO_BUNDLE = {
       "improToolClose": "Fechar",
       "improToolDone": "Tempo esgotado!",
       "improToolUnitSec": "s",
-      "improToolUnitMin": "min"
+      "improToolUnitMin": "min",
+      "improToolSignTitle": "Sinal a fazer",
+      "improToolSignConclusion": "Conclusão",
+      "improToolSignFist": "O punho fechado, dedos para baixo.",
+      "improToolSignMinutes": "Um dedo esticado para baixo por cada minuto restante.",
+      "improToolSignThirty": "Indicador e médio cruzados, apontados para baixo.",
+      "improToolSignTen": "A mão aberta, palma para o chão, agitada de um lado ao outro.",
+      "improToolSignFive": "A mão vira-se, dedos para cima: 5, 4, 3, 2, 1.",
+      "improToolSignFunnel": "As duas mãos abertas em funil: tragam o final."
     },
     "nl": {
       "title": "Impro",
@@ -2619,7 +2667,15 @@ window.IMPRO_BUNDLE = {
       "improToolClose": "Sluiten",
       "improToolDone": "Tijd om!",
       "improToolUnitSec": "s",
-      "improToolUnitMin": "min"
+      "improToolUnitMin": "min",
+      "improToolSignTitle": "Teken te geven",
+      "improToolSignConclusion": "Afronden",
+      "improToolSignFist": "De gebalde vuist, vingers naar beneden.",
+      "improToolSignMinutes": "Eén vinger naar beneden per resterende minuut.",
+      "improToolSignThirty": "Wijs- en middelvinger gekruist, naar beneden gericht.",
+      "improToolSignTen": "De open hand, palm naar de grond, heen en weer geschud.",
+      "improToolSignFive": "De hand draait om, vingers omhoog: 5, 4, 3, 2, 1.",
+      "improToolSignFunnel": "Beide open handen als een trechter: breng het einde."
     }
   },
   "data": {
