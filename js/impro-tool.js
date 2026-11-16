@@ -118,8 +118,24 @@
      bridé quand l'onglet passe en arrière-plan (jusqu'à 1 fois/minute), et
      un décompte qui s'additionne dériverait de plusieurs secondes sur un
      caucus de 20 s. Corollaire utile : la date se garde dans localStorage,
-     donc le décompte continue quand on change de page.                      */
-  var etat = { duree: CAUCUS, sifflet: true, total: CAUCUS, finAt: 0, enCours: false, reste: CAUCUS };
+     donc le décompte continue quand on change de page.
+
+     DEUX TEMPS. Une improvisation se lance en deux temps : le caucus, vingt
+     secondes où les équipes se concertent, puis l'impro elle-même. L'outil
+     enchaîne les deux — le coup de sifflet de fin de caucus EST le départ de
+     l'impro, il n'y a rien à cliquer entre les deux — ou part directement sur
+     l'impro quand il n'y a pas de caucus à tenir.
+
+       phase    : null au repos, puis "caucus" ou "impro"
+       enchaine : une impro suit le caucus en cours
+       duree    : la durée d'impro choisie, indépendante du caucus (20 s fixe)
+       total    : la durée de la phase en cours, pour la barre de progression */
+  var DUREE_DEFAUT = 180;
+  var etat = {
+    duree: DUREE_DEFAUT, sifflet: true,
+    phase: null, enchaine: false,
+    total: DUREE_DEFAUT, reste: DUREE_DEFAUT, finAt: 0, enCours: false
+  };
 
   function lireEtat() {
     try {
@@ -128,25 +144,47 @@
       var e = JSON.parse(brut) || {};
       if (DUREES.indexOf(e.duree) >= 0) etat.duree = e.duree;
       if (typeof e.sifflet === "boolean") etat.sifflet = e.sifflet;
-      etat.total = (typeof e.total === "number" && e.total > 0) ? e.total : etat.duree;
-      // Un décompte en cours est repris s'il n'est pas déjà échu ; sinon on
-      // repart propre sur la durée choisie (ne pas siffler une fin vieille
-      // de dix minutes au premier chargement de page).
-      if (e.enCours && typeof e.finAt === "number" && e.finAt > Date.now()) {
-        etat.finAt = e.finAt; etat.enCours = true;
-        etat.reste = (e.finAt - Date.now()) / 1000;
-      } else {
-        etat.enCours = false; etat.finAt = 0;
+      var maintenant = Date.now();
+      var phase = (e.phase === "caucus" || e.phase === "impro") ? e.phase : null;
+      var fin = (typeof e.finAt === "number") ? e.finAt : 0;
+
+      if (e.enCours && fin > maintenant) {
+        // Décompte encore en cours : on le reprend tel quel.
+        etat.phase = phase; etat.enchaine = !!e.enchaine;
+        etat.total = (typeof e.total === "number" && e.total > 0) ? e.total : etat.duree;
+        etat.finAt = fin; etat.enCours = true;
+        etat.reste = (fin - maintenant) / 1000;
+      } else if (e.enCours && phase === "caucus" && e.enchaine && fin + etat.duree * 1000 > maintenant) {
+        // Le caucus s'est terminé pendant qu'on était ailleurs : l'impro qu'il
+        // devait lancer court depuis. On la reprend à la bonne seconde plutôt
+        // que de perdre l'enchaînement — c'est tout l'intérêt de garder une
+        // date de fin et pas un compteur.
+        etat.phase = "impro"; etat.enchaine = false;
         etat.total = etat.duree;
-        etat.reste = (!e.enCours && typeof e.reste === "number" && e.reste > 0 && e.reste <= etat.total) ? e.reste : etat.total;
+        etat.finAt = fin + etat.duree * 1000;
+        etat.enCours = true;
+        etat.reste = (etat.finAt - maintenant) / 1000;
+      } else if (!e.enCours && phase && typeof e.reste === "number" && e.reste > 0) {
+        // En pause : on garde la phase et le temps restant.
+        etat.phase = phase; etat.enchaine = !!e.enchaine;
+        etat.total = (typeof e.total === "number" && e.total > 0) ? e.total : etat.duree;
+        etat.reste = Math.min(e.reste, etat.total);
+      } else {
+        // Rien en cours, ou une fin déjà vieille : on repart au repos. Ne pas
+        // siffler une fin d'il y a dix minutes au premier chargement de page.
+        repos();
       }
     } catch (e) { /* stockage indisponible : valeurs par défaut */ }
+  }
+  function repos() {
+    etat.phase = null; etat.enchaine = false; etat.enCours = false;
+    etat.finAt = 0; etat.total = etat.duree; etat.reste = etat.duree;
   }
   function ecrireEtat() {
     try {
       localStorage.setItem(CLE_ETAT, JSON.stringify({
-        duree: etat.duree, sifflet: etat.sifflet, total: etat.total,
-        enCours: etat.enCours, finAt: etat.finAt, reste: etat.reste
+        duree: etat.duree, sifflet: etat.sifflet, phase: etat.phase, enchaine: etat.enchaine,
+        total: etat.total, enCours: etat.enCours, finAt: etat.finAt, reste: etat.reste
       }));
     } catch (e) { /* ignore */ }
   }
@@ -477,11 +515,25 @@
     ".itool-sign-d{display:block;font-size:.78rem;line-height:1.3;color:var(--ink-muted,rgba(245,240,234,.65))}",
     "@media (prefers-reduced-motion:reduce){.itool-sign.is-new{animation:none;border-color:var(--gold,#f5c451)}",
       ".itool-time.is-danger{animation:none}}",
-    ".itool-caucus{display:block;width:100%;margin:0 0 .9rem;padding:.8rem 1rem;border-radius:14px;cursor:pointer;",
-      "font:700 1.05rem/1 Inter,sans-serif;letter-spacing:.03em;color:#2a0e2c;border:0;",
+    ".itool-phase{display:inline-block;margin:0 0 .2rem;padding:.2rem .7rem;border-radius:999px;",
+      "font:700 .68rem/1.4 Inter,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase}",
+    ".itool-phase[hidden]{display:none!important}",
+    ".itool-phase.is-caucus{color:var(--gold,#f5c451);background:rgba(245,196,81,.14);",
+      "border:1px solid rgba(245,196,81,.4)}",
+    ".itool-phase.is-impro{color:#6dd3c5;background:rgba(109,211,197,.14);border:1px solid rgba(109,211,197,.45)}",
+    ".itool-caucus{display:block;width:100%;margin:0 0 .5rem;padding:.8rem 1rem;border-radius:14px;cursor:pointer;",
+      "font:700 1.02rem/1.2 Inter,sans-serif;letter-spacing:.02em;color:#2a0e2c;border:0;",
       "background:linear-gradient(135deg,var(--gold,#f5c451),var(--gold-soft,#fde08a));",
       "box-shadow:0 8px 24px rgba(245,196,81,.25)}",
     ".itool-caucus:hover{filter:brightness(1.07)}",
+    ".itool-go{display:block;width:100%;margin:0 0 .9rem;padding:.7rem 1rem;border-radius:14px;cursor:pointer;",
+      "font:700 1rem/1.2 Inter,sans-serif;letter-spacing:.02em;color:#6dd3c5;",
+      "background:rgba(109,211,197,.1);border:1px solid rgba(109,211,197,.5)}",
+    ".itool-go:hover{background:rgba(109,211,197,.2);color:#9fe8de}",
+    ".itool-go:focus-visible{outline:2px solid #6dd3c5;outline-offset:2px}",
+    ".itool-btn:disabled{opacity:.4;cursor:default}",
+    ".itool-btn:disabled:hover{border-color:rgba(245,196,81,.3);background:rgba(255,255,255,.07)}",
+    ".itool-btn.is-primary:disabled:hover{background:linear-gradient(135deg,#6dd3c5,#84e1bc)}",
     ".itool-row{display:flex;gap:.5rem;align-items:center;margin-bottom:.75rem}",
     ".itool-row>label{flex:0 0 auto;font-size:.85rem;color:var(--ink-muted,rgba(245,240,234,.65))}",
     ".itool-select{flex:1 1 auto;min-width:0;padding:.6rem .7rem;border-radius:12px;cursor:pointer;",
@@ -516,7 +568,8 @@
   /* ─── DOM ──────────────────────────────────────────────────────────────── */
   var bouton = null, etiquette = null, pastille = null;
   var fond = null, panneau = null, affichage = null, barre = null, statut = null;
-  var btnCaucus = null, liste = null, btnDemarrer = null, btnReset = null, caseSifflet = null;
+  var btnCaucus = null, btnImpro = null, badgePhase = null;
+  var liste = null, btnDemarrer = null, btnReset = null, caseSifflet = null;
   var creneauSigne = null, blocSigne = null, figuresSigne = null, dernierSigne = null;
 
   function construireBouton() {
@@ -548,7 +601,8 @@
       '<div class="itool-panel" role="dialog" aria-modal="true" aria-labelledby="itoolTitle">' +
         '<button type="button" class="itool-x" data-act="close">✕</button>' +
         '<h2 class="itool-title" id="itoolTitle">⏱️ IMPRO TOOL</h2>' +
-        '<div class="itool-time">0:20</div>' +
+        '<div class="itool-phase" hidden></div>' +
+        '<div class="itool-time">3:00</div>' +
         '<div class="itool-bar"><i></i></div>' +
         '<p class="itool-status" role="status"></p>' +
         '<div class="itool-slot" hidden>' +
@@ -561,11 +615,14 @@
             '</div>' +
           '</div>' +
         '</div>' +
-        '<button type="button" class="itool-caucus" data-act="caucus"></button>' +
+        // La durée d'abord : les deux boutons de départ portent sa valeur,
+        // donc on la choisit avant de lire ce qu'ils proposent.
         '<div class="itool-row">' +
           '<label for="itoolDuree"></label>' +
           '<select class="itool-select" id="itoolDuree"></select>' +
         '</div>' +
+        '<button type="button" class="itool-caucus" data-act="caucus"></button>' +
+        '<button type="button" class="itool-go" data-act="impro"></button>' +
         '<div class="itool-row">' +
           '<button type="button" class="itool-btn is-primary" data-act="start"></button>' +
           '<button type="button" class="itool-btn" data-act="reset"></button>' +
@@ -584,7 +641,9 @@
     affichage   = fond.querySelector(".itool-time");
     barre       = fond.querySelector(".itool-bar > i");
     statut      = fond.querySelector(".itool-status");
+    badgePhase  = fond.querySelector(".itool-phase");
     btnCaucus   = fond.querySelector('[data-act="caucus"]');
+    btnImpro    = fond.querySelector('[data-act="impro"]');
     liste       = fond.querySelector("#itoolDuree");
     btnDemarrer = fond.querySelector('[data-act="start"]');
     btnReset    = fond.querySelector('[data-act="reset"]');
@@ -603,7 +662,8 @@
       if (!btn) return;
       var act = btn.getAttribute("data-act");
       if (act === "close")   fermer();
-      if (act === "caucus")  { choisir(CAUCUS); demarrer(); }
+      if (act === "caucus")  lancerCaucus();
+      if (act === "impro")   lancerImpro();
       if (act === "start")   basculer();
       if (act === "reset")   reinitialiser();
       if (act === "whistle") sifflet();
@@ -611,7 +671,7 @@
     });
     liste.addEventListener("change", function () {
       var v = parseInt(liste.value, 10);
-      if (!isNaN(v)) { choisir(v); }
+      if (!isNaN(v)) choisirDuree(v);
     });
     caseSifflet.addEventListener("change", function () {
       etat.sifflet = !!caseSifflet.checked;
@@ -625,29 +685,39 @@
     if (etiquette) etiquette.textContent = t("improToolBtn", "Impro Tool");
     if (!fond) return;
     fond.querySelector(".itool-x").setAttribute("aria-label", t("improToolClose", "Fermer"));
-    fond.querySelector('.itool-row > label[for="itoolDuree"]').textContent = t("improToolDuration", "Durée");
+    fond.querySelector('.itool-row > label[for="itoolDuree"]').textContent = t("improToolDurationImpro", "Durée de l'impro");
     fond.querySelector('[data-act="close"].itool-close').textContent = t("improToolClose", "Fermer");
     fond.querySelector(".itool-check span").textContent = "🔊 " + t("improToolWhistleEnd", "Sifflet à la fin");
-    btnCaucus.textContent = "🗣️ " + t("improToolCaucus", "Caucus") + " " + libelleDuree(CAUCUS);
     btnReset.textContent = "↺ " + t("improToolReset", "Réinitialiser");
     fond.querySelector('[data-act="whistle"]').textContent = "📣 " + t("improToolWhistle", "Sifflet");
     fond.querySelector('[data-act="kazoo"]').textContent = "🎺 " + t("improToolKazoo", "Kazoo");
     liste.innerHTML = DUREES.map(function (s) {
-      return '<option value="' + s + '">' + libelleDuree(s) + (s === CAUCUS ? " · " + t("improToolCaucus", "Caucus") : "") + "</option>";
+      return '<option value="' + s + '">' + libelleDuree(s) + "</option>";
     }).join("");
     liste.value = String(etat.duree);
     caseSifflet.checked = !!etat.sifflet;
     dernierSigne = null;                           // les libellés du signe aussi
+    majLancements();
     rendre();
+  }
+
+  /** Les deux départs portent la durée choisie, pour qu'on sache ce qu'on
+   *  lance sans relire la liste : « Caucus 20 s → 3 min » et « Impro 3 min ».
+   *  Relu quand la durée ou la langue change, pas quatre fois par seconde. */
+  function majLancements() {
+    if (!fond) return;
+    var impro = libelleDuree(etat.duree);
+    btnCaucus.textContent = "🗣️ " + t("improToolCaucus", "Caucus") + " " + libelleDuree(CAUCUS) + " → " + impro;
+    btnImpro.textContent = "▶ " + t("improToolImpro", "Impro") + " " + impro;
   }
 
   /* ─── affichage ────────────────────────────────────────────────────────── */
   function rendre() {
     var reste = etat.enCours ? Math.max(0, (etat.finAt - Date.now()) / 1000) : etat.reste;
-    var fini = reste <= 0 && etat.total > 0 && !etat.enCours && etat.reste <= 0;
+    var fini = !etat.enCours && !!etat.phase && etat.reste <= 0;
 
     if (bouton) {
-      var court = etat.enCours || (etat.reste > 0 && etat.reste < etat.total);
+      var court = etat.enCours || (!!etat.phase && etat.reste > 0 && etat.reste < etat.total);
       bouton.classList.toggle("is-running", !!etat.enCours);
       if (court) {
         pastille.textContent = mmss(reste);
@@ -668,12 +738,29 @@
     affichage.classList.toggle("is-warn", !fini && reste > 5 && reste <= Math.max(10, etat.total * 0.25));
     barre.style.width = (etat.total > 0 ? Math.max(0, Math.min(100, (reste / etat.total) * 100)) : 0) + "%";
     statut.textContent = fini ? t("improToolDone", "Terminé !") : "";
+
+    // Quelle phase court : sans ça, un décompte de vingt secondes ne dit pas
+    // s'il s'agit du caucus ou d'une impro très courte.
+    badgePhase.hidden = !etat.phase;
+    if (etat.phase) {
+      badgePhase.textContent = etat.phase === "caucus"
+        ? "🗣️ " + t("improToolCaucus", "Caucus")
+        : "🎭 " + t("improToolImpro", "Impro");
+      badgePhase.classList.toggle("is-caucus", etat.phase === "caucus");
+      badgePhase.classList.toggle("is-impro", etat.phase === "impro");
+    }
+
     rendreSigne(reste);
     btnDemarrer.textContent = etat.enCours
       ? "⏸ " + t("improToolPause", "Pause")
-      : (etat.reste > 0 && etat.reste < etat.total
-          ? "▶ " + t("improToolResume", "Reprendre")
-          : "▶ " + t("improToolStart", "Démarrer"));
+      // « Reprendre » seulement s'il reste vraiment du temps : à zéro, le
+      // bouton relance la phase depuis le début, c'est « Démarrer ».
+      : (etat.phase && etat.reste > 0 ? "▶ " + t("improToolResume", "Reprendre")
+                                      : "▶ " + t("improToolStart", "Démarrer"));
+    // Au repos, rien à mettre en pause ni à remettre à zéro : les deux départs
+    // sont les seules portes d'entrée.
+    btnDemarrer.disabled = !etat.phase;
+    btnReset.disabled = !etat.phase;
   }
 
   /** Le signe de la main, pendant un décompte seulement, et seulement dans sa
@@ -685,7 +772,9 @@
    *  Le créneau garde sa hauteur entre deux marques : l'encadré devient
    *  invisible, il ne disparaît pas. */
   function rendreSigne(reste) {
-    var actif = etat.enCours || (etat.reste > 0 && etat.reste < etat.total);
+    // Pendant l'impro seulement : les signes de temps s'adressent aux joueurs
+    // en scène. Pendant les vingt secondes du caucus, le grand chiffre suffit.
+    var actif = etat.phase === "impro" && (etat.enCours || (etat.reste > 0 && etat.reste < etat.total));
     creneauSigne.hidden = !actif;
     var sg = actif ? signe(reste) : null;
     if (!sg) {
@@ -732,23 +821,37 @@
     if (tic) { window.clearInterval(tic); tic = 0; }
   }
 
-  function choisir(secondes) {
+  /** La durée d'impro choisie. Elle ne touche PAS au décompte en cours : on
+   *  peut changer la durée de l'impro pendant le caucus qui la précède, c'est
+   *  même le moment où l'arbitre la décide. Au repos, l'affichage la suit. */
+  function choisirDuree(secondes) {
     etat.duree = secondes;
+    if (!etat.phase) { etat.total = secondes; etat.reste = secondes; }
+    if (liste) liste.value = String(secondes);
+    ecrireEtat(); majLancements(); rendre();
+  }
+
+  function lancer(phase, secondes, enchaine) {
+    debloquerAudio();
+    etat.phase = phase;
+    etat.enchaine = !!enchaine;
     etat.total = secondes;
     etat.reste = secondes;
-    etat.enCours = false;
-    etat.finAt = 0;
-    relacherEcran();
-    if (liste) liste.value = String(secondes);
-    ecrireEtat(); rendre();
+    etat.finAt = Date.now() + secondes * 1000;
+    etat.enCours = true;
+    dernierSigne = null;
+    garderEcran(); battre(); ecrireEtat(); rendre();
   }
-  function demarrer() {
+  function lancerCaucus() { lancer("caucus", CAUCUS, true); }
+  function lancerImpro()  { lancer("impro", etat.duree, false); }
+
+  function reprendre() {
+    if (!etat.phase) { lancerImpro(); return; }   // rien en cours : l'impro, par défaut
     debloquerAudio();
     var reste = (etat.reste > 0 && etat.reste <= etat.total) ? etat.reste : etat.total;
     etat.finAt = Date.now() + reste * 1000;
     etat.enCours = true;
-    garderEcran();
-    battre(); ecrireEtat(); rendre();
+    garderEcran(); battre(); ecrireEtat(); rendre();
   }
   function pause() {
     etat.reste = Math.max(0, (etat.finAt - Date.now()) / 1000);
@@ -757,19 +860,25 @@
     relacherEcran();
     ecrireEtat(); rendre();
   }
-  function basculer() { if (etat.enCours) pause(); else demarrer(); }
+  function basculer() { if (etat.enCours) pause(); else reprendre(); }
   function reinitialiser() {
-    etat.enCours = false; etat.finAt = 0;
-    etat.total = etat.duree; etat.reste = etat.duree;
+    repos();
     relacherEcran();
     ecrireEtat(); rendre();
   }
+
+  /** Fin d'une phase. Si c'était le caucus d'un enchaînement, l'impro part
+   *  dans la foulée : le coup de sifflet est le départ, il n'y a rien à
+   *  cliquer entre les deux — personne n'a une main libre à ce moment-là. */
   function terminer() {
+    var enchaine = etat.enchaine && etat.phase === "caucus";
     etat.enCours = false; etat.finAt = 0; etat.reste = 0;
-    relacherEcran();
-    ecrireEtat(); rendre();
     if (etat.sifflet) sifflet(0.8);
     try { if (navigator.vibrate) navigator.vibrate([140, 70, 140]); } catch (e) { /* ignore */ }
+    if (enchaine) { lancer("impro", etat.duree, false); return; }
+    etat.enchaine = false;
+    relacherEcran();
+    ecrireEtat(); rendre();
     // Fenêtre fermée : le bouton de la barre clignote, pour que la fin se
     // voie aussi quand on est sur une autre partie de la page.
     if (bouton && (!fond || fond.hidden)) {
@@ -837,13 +946,14 @@
     ouvrir: ouvrir, fermer: fermer, sifflet: sifflet, kazoo: kazoo,
     // Une durée hors liste laisserait le menu déroulant vide : on prend la
     // plus proche de celles qu'il propose.
-    demarrer: function (secondes) {
+    demarrer: function (secondes, avecCaucus) {
       if (secondes) {
-        choisir(DUREES.reduce(function (meilleur, d) {
+        choisirDuree(DUREES.reduce(function (meilleur, d) {
           return Math.abs(d - secondes) < Math.abs(meilleur - secondes) ? d : meilleur;
         }, DUREES[0]));
       }
-      demarrer(); ouvrir();
+      ouvrir();
+      if (avecCaucus) lancerCaucus(); else lancerImpro();
     }
   };
 })();

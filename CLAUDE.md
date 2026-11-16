@@ -138,19 +138,32 @@ qu'une redirection). Un fichier, autonome : il insère lui-même son bouton ⏱�
 dans `.top-actions`, juste après 💡 Idées, injecte sa propre CSS (`.itool-*`)
 et construit sa fenêtre dans `<body>`.
 
-Contenu : compte à rebours avec le caucus (20 s) en un bouton et une liste
-déroulante 30 s → 15 min, signe de temps à faire affiché pendant le décompte,
-sifflet d'arbitre à la fin (case mémorisée), sifflet et kazoo à la demande,
-fermeture par le ✕, le bouton « Fermer », Échap ou un clic hors du panneau ;
-Espace démarre/met en pause.
+Contenu : la durée d'impro au choix (liste déroulante 20 s → 15 min), deux
+départs — « Caucus 20 s → 3 min » et « Impro 3 min » —, pause et remise à zéro,
+signe de temps à faire pendant l'impro, sifflet d'arbitre à la fin de chaque
+phase (case mémorisée), sifflet et kazoo à la demande, fermeture par le ✕, le
+bouton « Fermer », Échap ou un clic hors du panneau ; Espace démarre/met en
+pause.
 
-Cinq choses à savoir avant d'y toucher :
+Six choses à savoir avant d'y toucher :
 
+- **Une impro se lance en deux temps, et l'outil les enchaîne.** `etat.phase`
+  vaut `null` au repos, puis `"caucus"` ou `"impro"` ; `etat.enchaine` dit
+  qu'une impro suit le caucus en cours. À la fin du caucus, `terminer()`
+  rappelle `lancer("impro", …)` dans la foulée : **le coup de sifflet EST le
+  départ de l'impro**, il n'y a rien à cliquer entre les deux, personne n'a une
+  main libre à ce moment-là. Le caucus est fixe (20 s, `CAUCUS`) ; la liste
+  déroulante règle la seule durée d'impro, et peut être changée PENDANT le
+  caucus — c'est même là que l'arbitre la décide, donc `choisirDuree()` ne
+  touche pas au décompte en cours.
 - **La fin est une date, pas un compteur.** `finAt` est gardée dans
   localStorage (`acto:improtool:v1`), donc le décompte survit au changement de
   page — le bouton de la barre affiche alors le temps restant à la place de
   son libellé — et ne dérive pas quand l'onglet passe en arrière-plan, où les
-  intervalles sont bridés à une fois par minute.
+  intervalles sont bridés à une fois par minute. Et comme c'est une date,
+  `lireEtat()` sait rattraper un enchaînement : si le caucus s'est terminé
+  pendant qu'on était sur une autre page, l'impro est reprise à la bonne
+  seconde (`finAt + duree`) au lieu d'être perdue.
 - **La CSS est dans le JS, volontairement.** `/js/*` est servi en no-cache
   (voir `_headers`) ; une règle ajoutée à styles.css n'atteindrait les
   utilisateurs qu'avec un `?v=` bumpé sur les quatorze pages. Le CSP autorise
@@ -162,7 +175,8 @@ Cinq choses à savoir avant d'y toucher :
   signe se donne au moment où il tombe, une seule fois et franchement. Les
   marques : 10 min (le poing), chaque minute entière (N doigts), 30 s — où l'on
   montre AUSSI l'entonnoir de conclusion, deux visuels côte à côte —, 10 s et
-  le décompte final ; rien au-delà de dix minutes. Entre deux marques l'encadré
+  le décompte final ; rien au-delà de dix minutes, et rien pendant le caucus :
+  ces signes s'adressent aux joueurs en scène. Entre deux marques l'encadré
   devient invisible mais `.itool-slot` garde sa hauteur, sinon le panneau
   sautait toutes les quatre secondes. Le `src` n'est posé qu'à l'affichage, et
   **sans `loading="lazy"`** : dans un bloc encore invisible, « lazy » retarde
