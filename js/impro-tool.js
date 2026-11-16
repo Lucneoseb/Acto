@@ -67,28 +67,50 @@
     return m + ":" + ("0" + (s % 60)).slice(-2);
   }
 
-  /** Le signe de la main à donner pour un temps restant donné.
+  /** Le signe de la main à donner, aux marques de temps et nulle part ailleurs.
    *
    *  Le chronomètre n'est presque jamais dans la main de l'arbitre : le maître
    *  de cérémonie tient la durée et la transmet en silence, par une poignée de
-   *  signes convenus. L'outil tient le chronomètre, donc il doit aussi dire
-   *  lequel. Les seuils suivent l'article « Tenir le temps » : dix minutes, le
-   *  nombre de minutes restantes, trente secondes, dix, le décompte final —
-   *  et l'entonnoir de conclusion dans la dernière minute, le moment où il
-   *  sert : à trente secondes une histoire peut encore atterrir.
+   *  signes convenus (article « Tenir le temps », js/suite/rules-content.js).
+   *  L'outil tient le chronomètre, donc il doit aussi dire lequel.
    *
-   *  Au-delà de dix minutes, aucun signe : on ne prévient pas si tôt. */
+   *  Un signe ne reste PAS affiché : il apparaît deux secondes avant sa marque
+   *  et disparaît deux secondes après, le reste du temps l'encadré est vide.
+   *  C'est la règle de l'article — un signe se donne au moment où il tombe,
+   *  une seule fois et franchement ; un arbitre qui agite la main pendant
+   *  vingt secondes vole la scène aux joueurs.
+   *
+   *  Les marques : dix minutes (le poing, la durée de la période), chaque
+   *  minute entière ensuite (un doigt par minute), puis trente secondes — où
+   *  l'on donne aussi l'entonnoir de conclusion, le moment où il sert : à
+   *  trente secondes une histoire peut encore atterrir —, dix secondes, et le
+   *  décompte final. Au-delà de dix minutes, rien : on ne prévient pas si tôt. */
+  var FENETRE = 2;
+
   function signe(reste) {
-    var s = Math.ceil(reste);
-    if (s <= 0) return null;
-    if (s <= 5)  return { cle: "temps-decompte",        titre: "5 "  + t("improToolUnitSec", "s"), desc: t("improToolSignFive",   "La main se retourne, doigts vers le haut : 5, 4, 3, 2, 1.") };
-    if (s <= 10) return { cle: "temps-dix-secondes",    titre: "10 " + t("improToolUnitSec", "s"), desc: t("improToolSignTen",    "La main ouverte, paume vers le sol, secouée de gauche à droite.") };
-    if (s <= 30) return { cle: "temps-trente-secondes", titre: "30 " + t("improToolUnitSec", "s"), desc: t("improToolSignThirty", "L'index et le majeur croisés, pointés vers le bas.") };
-    if (s <= 60) return { cle: "temps-conclure",        titre: t("improToolSignConclusion", "Conclusion"), desc: t("improToolSignFunnel", "Les deux mains ouvertes en entonnoir : amenez la fin.") };
-    if (s > 600) return null;
-    var m = Math.ceil(s / 60);
-    if (m >= 10) return { cle: "temps-dix-minutes", titre: "10 " + t("improToolUnitMin", "min"), desc: t("improToolSignFist", "Le poing fermé, doigts vers le bas.") };
-    return { cle: "temps-minutes", titre: m + " " + t("improToolUnitMin", "min"), desc: t("improToolSignMinutes", "Un doigt tendu vers le bas par minute restante.") };
+    function a(x) { return Math.abs(reste - x) <= FENETRE; }
+    var sec = t("improToolUnitSec", "s"), min = t("improToolUnitMin", "min");
+    if (a(600)) return {
+      cles: ["temps-dix-minutes"], titre: "10 " + min,
+      desc: t("improToolSignFist", "Le poing fermé, doigts vers le bas.") };
+    // Deux signes à la même marque : les doigts croisés DIT trente secondes,
+    // l'entonnoir dit quoi en faire. Les deux visuels, mais une seule phrase,
+    // celle de l'entonnoir : les doigts croisés se lisent sur l'image, et
+    // deux descriptions faisaient un pavé de cinq lignes sur un téléphone.
+    if (a(30)) return {
+      cles: ["temps-trente-secondes", "temps-conclure"],
+      titre: "30 " + sec + " · " + t("improToolSignConclusion", "Conclusion"),
+      desc: t("improToolSignFunnel", "Les deux mains ouvertes en entonnoir : amenez la fin.") };
+    if (a(10)) return {
+      cles: ["temps-dix-secondes"], titre: "10 " + sec,
+      desc: t("improToolSignTen", "La main ouverte, paume vers le sol, secouée de gauche à droite.") };
+    if (a(5)) return {
+      cles: ["temps-decompte"], titre: "5 " + sec,
+      desc: t("improToolSignFive", "La main se retourne, doigts vers le haut : 5, 4, 3, 2, 1.") };
+    for (var m = 9; m >= 1; m--) if (a(m * 60)) return {
+      cles: ["temps-minutes"], titre: m + " " + min,
+      desc: t("improToolSignMinutes", "Un doigt tendu vers le bas par minute restante.") };
+    return null;
   }
 
   /* ─── état mémorisé ─────────────────────────────────────────────────────
@@ -153,6 +175,10 @@
       s.connect(c.destination); s.start(0);
       _amorce = true;
     } catch (e) { /* on réessaiera au prochain clic */ }
+    // Le geste est aussi le bon moment pour aller chercher les deux sons :
+    // le sifflet de fin part d'un minuteur, il ne doit pas attendre un
+    // téléchargement à ce moment-là.
+    charger("sifflet"); charger("kazoo");
   }
   /** Sortie commune, avec un limiteur : le sifflet et le kazoo sont des sons
    *  volontairement forts, sans lui ils saturaient en écrêtage sale. */
@@ -174,7 +200,57 @@
     _bruit = b; return b;
   }
 
-  /** Sifflet d'arbitre à bille.
+  /* ─── les deux sons, enregistrés ───────────────────────────────────────
+     Un vrai sifflet d'arbitre et un vrai kazoo (assets/sons/), découpés et
+     mis au même niveau perçu : la valeur efficace de leurs 300 ms les plus
+     fortes est la même, ce qui prédit la sonie bien mieux que la moyenne du
+     fichier — le kazoo est une note tenue discrète entre deux attaques, sa
+     moyenne ment. Les gains ci-dessous amènent les deux à la sonie de la
+     synthèse, puis le limiteur de master() garde la crête en dessous de 1.
+
+     Chargés à la demande, décodés une fois : une page où l'outil n'est
+     jamais ouvert ne télécharge rien. */
+  var SONS = {
+    sifflet: { url: "/assets/sons/sifflet.mp3", gain: 0.22, buffer: null, enCharge: false },
+    kazoo:   { url: "/assets/sons/kazoo.mp3",   gain: 1.0,  buffer: null, enCharge: false }
+  };
+  function charger(nom) {
+    var s = SONS[nom]; if (!s || s.buffer || s.enCharge) return;
+    var c = ac(); if (!c) return;
+    s.enCharge = true;
+    fetch(s.url)
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+      .then(function (donnees) {
+        return new Promise(function (ok, ko) {
+          // Safari ancien ne rend pas de promesse : on passe les deux rappels
+          // ET on branche celle qui existe peut-être.
+          var p = c.decodeAudioData(donnees, ok, ko);
+          if (p && p.then) p.then(ok, ko);
+        });
+      })
+      .then(function (b) { s.buffer = b; s.enCharge = false; })
+      .catch(function () { s.enCharge = false; });   // on retentera au prochain clic
+  }
+  /** Joue l'enregistrement. Rend false s'il n'est pas (encore) là : l'appelant
+   *  bascule alors sur la synthèse, pour qu'un sifflet de fin ne soit jamais
+   *  muet — hors ligne au premier usage, ou décodage refusé. */
+  function jouer(nom) {
+    var s = SONS[nom], c = ac();
+    if (!c || !s) return false;
+    if (!s.buffer) { charger(nom); return false; }
+    try {
+      var src = c.createBufferSource(); src.buffer = s.buffer;
+      var g = c.createGain(); g.gain.value = s.gain;
+      src.connect(g); g.connect(master(c));
+      src.start();
+      return true;
+    } catch (e) { return false; }
+  }
+
+  function sifflet(duree) { if (!jouer("sifflet")) siffletSynthese(duree); }
+  function kazoo()        { if (!jouer("kazoo"))   kazooSynthese(); }
+
+  /** Sifflet d'arbitre à bille — SECOURS, quand l'enregistrement n'est pas là.
    *
    *  Un sifflet est un son TONAL, presque pur, pas une bouffée de souffle :
    *  la première version mettait le bruit blanc devant (gain 2,5 contre 0,33
@@ -191,7 +267,7 @@
    *  contre 0,96 / 0,254 pour la version « soufflée » — 6,6 dB de moins, et
    *  la tonalité à 3 kHz tombe là où l'oreille est la plus sensible, donc
    *  l'écart perçu est plus faible que le chiffre. Zéro échantillon écrêté. */
-  function sifflet(duree) {
+  function siffletSynthese(duree) {
     var c = ac(); if (!c) return;
     duree = duree || 0.62;
     var t0 = c.currentTime + 0.015, t1 = t0 + duree;
@@ -246,7 +322,7 @@
     [bille, o1, o2, air, souffle].forEach(function (n) { n.start(t0); n.stop(t1 + 0.02); });
   }
 
-  /** Kazoo (gazou).
+  /** Kazoo (gazou) — SECOURS, même rôle que siffletSynthese.
    *
    *  Un kazoo ne se souffle pas : on CHANTE dedans, et une membrane de papier
    *  grésille sur la voix. Ce grésillement est une SATURATION — elle ajoute
@@ -262,7 +338,7 @@
    *  que la version précédente, timbre entièrement refait.
    *
    *  La hauteur bouge à chaque pression : dix kazoos identiques, ça lasse. */
-  function kazoo() {
+  function kazooSynthese() {
     var c = ac(); if (!c) return;
     var t0 = c.currentTime + 0.015, duree = 0.72, t1 = t0 + duree;
     var f0 = 350 + Math.random() * 70;
@@ -379,13 +455,18 @@
       "background:linear-gradient(90deg,#6dd3c5,var(--gold,#f5c451),#ff6b8a);transition:width .25s linear}",
     ".itool-status{min-height:1.1rem;margin:0 0 .75rem;font-size:.85rem;font-weight:600;letter-spacing:.04em;",
       "color:var(--gold,#f5c451)}",
-    ".itool-sign{display:flex;gap:.7rem;align-items:center;text-align:left;margin:0 0 .9rem;padding:.5rem .6rem;",
+    // Le créneau garde sa hauteur même quand aucun signe n'est dû : sans lui,
+    // le panneau sauterait à chaque marque et à chaque fin de marque.
+    ".itool-slot{display:flex;align-items:center;min-height:92px;margin:0 0 .9rem}",
+    ".itool-slot[hidden]{display:none!important}",
+    ".itool-sign{display:flex;gap:.7rem;align-items:center;width:100%;text-align:left;padding:.5rem .6rem;",
       "border-radius:14px;background:rgba(0,0,0,.3);border:1px solid rgba(245,196,81,.22)}",
-    ".itool-sign[hidden]{display:none!important}",
+    ".itool-sign.is-off{visibility:hidden}",
     ".itool-sign.is-new{animation:itool-sign-in .6s ease-out 3}",
     "@keyframes itool-sign-in{0%,100%{border-color:rgba(245,196,81,.22);background:rgba(0,0,0,.3)}",
       "40%{border-color:var(--gold,#f5c451);background:rgba(245,196,81,.18)}}",
-    ".itool-sign-img{flex:0 0 auto;width:64px;height:80px;object-fit:contain;border-radius:9px;background:rgba(0,0,0,.35)}",
+    ".itool-sign-figs{display:flex;gap:.3rem;flex:0 0 auto}",
+    ".itool-sign-img{display:block;width:58px;height:72px;object-fit:contain;border-radius:9px;background:rgba(0,0,0,.35)}",
     ".itool-sign-txt{min-width:0}",
     ".itool-sign-cap{display:block;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;",
       "color:var(--ink-faint,rgba(245,240,234,.52))}",
@@ -436,7 +517,7 @@
   var bouton = null, etiquette = null, pastille = null;
   var fond = null, panneau = null, affichage = null, barre = null, statut = null;
   var btnCaucus = null, liste = null, btnDemarrer = null, btnReset = null, caseSifflet = null;
-  var blocSigne = null, imgSigne = null, dernierSigne = null;
+  var creneauSigne = null, blocSigne = null, figuresSigne = null, dernierSigne = null;
 
   function construireBouton() {
     var barreHaut = document.querySelector(".top-actions");
@@ -470,12 +551,14 @@
         '<div class="itool-time">0:20</div>' +
         '<div class="itool-bar"><i></i></div>' +
         '<p class="itool-status" role="status"></p>' +
-        '<div class="itool-sign" hidden>' +
-          '<img class="itool-sign-img" width="600" height="750" alt="" loading="lazy" decoding="async" />' +
-          '<div class="itool-sign-txt">' +
-            '<span class="itool-sign-cap"></span>' +
-            '<b class="itool-sign-h"></b>' +
-            '<span class="itool-sign-d"></span>' +
+        '<div class="itool-slot" hidden>' +
+          '<div class="itool-sign is-off">' +
+            '<span class="itool-sign-figs"></span>' +
+            '<div class="itool-sign-txt">' +
+              '<span class="itool-sign-cap"></span>' +
+              '<b class="itool-sign-h"></b>' +
+              '<span class="itool-sign-d"></span>' +
+            '</div>' +
           '</div>' +
         '</div>' +
         '<button type="button" class="itool-caucus" data-act="caucus"></button>' +
@@ -506,8 +589,9 @@
     btnDemarrer = fond.querySelector('[data-act="start"]');
     btnReset    = fond.querySelector('[data-act="reset"]');
     caseSifflet = fond.querySelector("#itoolSifflet");
-    blocSigne   = fond.querySelector(".itool-sign");
-    imgSigne    = fond.querySelector(".itool-sign-img");
+    creneauSigne  = fond.querySelector(".itool-slot");
+    blocSigne     = fond.querySelector(".itool-sign");
+    figuresSigne  = fond.querySelector(".itool-sign-figs");
 
     // Un clic hors du panneau ferme, comme partout ailleurs dans l'app.
     fond.addEventListener("click", function (ev) {
@@ -592,37 +676,44 @@
           : "▶ " + t("improToolStart", "Démarrer"));
   }
 
-  /** Le signe de la main, pendant un décompte seulement. Le visuel n'est
-   *  chargé qu'au moment où il s'affiche (loading="lazy" ne suffit pas : on ne
-   *  pose le src qu'ici), donc une page qui n'ouvre jamais l'outil ne télécharge
-   *  aucune des six images.
+  /** Le signe de la main, pendant un décompte seulement, et seulement dans sa
+   *  fenêtre de quatre secondes. Les visuels ne sont demandés qu'au moment où
+   *  ils s'affichent (loading="lazy" ne suffit pas : le src n'est posé qu'ici),
+   *  donc une page qui n'ouvre jamais l'outil ne télécharge aucune des six
+   *  images, et une qui ne va jamais au bout n'en télécharge qu'une partie.
    *
-   *  Il clignote trois fois à chaque changement : un signe se donne AU moment
-   *  où il tombe, une seule fois et franchement — un arbitre qui agite la main
-   *  pendant vingt secondes vole la scène aux joueurs. Le reste du temps il
-   *  reste affiché, pour qu'un coup d'œil suffise à le retrouver. */
+   *  Le créneau garde sa hauteur entre deux marques : l'encadré devient
+   *  invisible, il ne disparaît pas. */
   function rendreSigne(reste) {
     var actif = etat.enCours || (etat.reste > 0 && etat.reste < etat.total);
+    creneauSigne.hidden = !actif;
     var sg = actif ? signe(reste) : null;
     if (!sg) {
-      blocSigne.hidden = true;
+      blocSigne.classList.add("is-off");
+      blocSigne.classList.remove("is-new");
       dernierSigne = null;
       return;
     }
-    var id = sg.cle + "|" + sg.titre;
+    var id = sg.cles.join(",") + "|" + sg.titre;
     if (id !== dernierSigne) {
       dernierSigne = id;
-      var src = "/assets/gestes/" + sg.cle + ".jpg?v=" + ART_V;
-      if (imgSigne.getAttribute("src") !== src) imgSigne.setAttribute("src", src);
+      // Pas de loading="lazy" : la balise n'est créée qu'au moment où le signe
+      // doit s'afficher, le report est déjà fait — et « lazy » dans un bloc
+      // encore invisible retardait le chargement jusqu'après la fenêtre, donc
+      // deux cadres vides pendant les quatre secondes qui comptent.
+      figuresSigne.innerHTML = sg.cles.map(function (cle) {
+        return '<img class="itool-sign-img" src="/assets/gestes/' + encodeURIComponent(cle) + ".jpg?v=" + ART_V + '"' +
+          ' width="600" height="750" decoding="async" alt="" />';
+      }).join("");
       blocSigne.querySelector(".itool-sign-cap").textContent = t("improToolSignTitle", "Signe à faire");
       blocSigne.querySelector(".itool-sign-h").textContent = sg.titre;
       blocSigne.querySelector(".itool-sign-d").textContent = sg.desc;
-      imgSigne.setAttribute("alt", sg.titre + " — " + sg.desc);
+      figuresSigne.setAttribute("aria-label", sg.titre + " — " + sg.desc);
       blocSigne.classList.remove("is-new");
       void blocSigne.offsetWidth;                  // relance l'animation
       blocSigne.classList.add("is-new");
     }
-    blocSigne.hidden = false;
+    blocSigne.classList.remove("is-off");
   }
 
   /* ─── minuteur ─────────────────────────────────────────────────────────── */
@@ -710,7 +801,10 @@
     injecterCss();
     lireEtat();
     construireBouton();
-    if (etat.enCours) battre();
+    // Décompte repris d'une autre page : le sifflet peut tomber avant tout
+    // clic ici, donc on le charge tout de suite. Sinon rien n'est demandé au
+    // réseau tant que l'outil n'est pas ouvert.
+    if (etat.enCours) { battre(); charger("sifflet"); }
     rendre();
 
     document.addEventListener("keydown", function (ev) {
@@ -741,6 +835,15 @@
 
   window.actoImproTool = {
     ouvrir: ouvrir, fermer: fermer, sifflet: sifflet, kazoo: kazoo,
-    demarrer: function (secondes) { if (secondes) choisir(secondes); demarrer(); ouvrir(); }
+    // Une durée hors liste laisserait le menu déroulant vide : on prend la
+    // plus proche de celles qu'il propose.
+    demarrer: function (secondes) {
+      if (secondes) {
+        choisir(DUREES.reduce(function (meilleur, d) {
+          return Math.abs(d - secondes) < Math.abs(meilleur - secondes) ? d : meilleur;
+        }, DUREES[0]));
+      }
+      demarrer(); ouvrir();
+    }
   };
 })();

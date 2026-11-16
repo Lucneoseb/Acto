@@ -13,7 +13,10 @@
    - Même origine et GET uniquement : Supabase, polices Google, YouTube ne
      passent jamais par ici.
    - Seuls les types légers sont retenus (html, css, js, json, images,
-     polices) ; jamais les vidéos ni les requêtes partielles (Range).
+     polices, et l'audio depuis le 16/11/2026 : les deux sons de l'Impro Tool,
+     68 Ko en tout, sans quoi le sifflet de fin de caucus est muet dans une
+     salle sans réseau) ; jamais les vidéos ni les requêtes partielles (Range),
+     et une vidéo lue par morceaux arrive justement en Range.
 
    Pour DÉSACTIVER le worker chez tous les utilisateurs : remplacer ce fichier
    par les trois lignes ci-dessous, déployer, attendre une visite.
@@ -22,7 +25,7 @@
 */
 var VERSION = "acto-cache-v1";
 var ROUTES_STUDIO = /^\/(studio|match|spectacle|coaching|decouverte|contribuer|equipes|defis|collab)(\/|$)/;
-var TYPES_OK = /^(text\/|application\/(javascript|x-javascript|json|manifest\+json)|image\/|font\/)/;
+var TYPES_OK = /^(text\/|application\/(javascript|x-javascript|json|manifest\+json)|image\/|font\/|audio\/)/;
 
 self.addEventListener("install", function () { self.skipWaiting(); });
 

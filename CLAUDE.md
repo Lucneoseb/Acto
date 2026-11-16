@@ -144,7 +144,7 @@ sifflet d'arbitre à la fin (case mémorisée), sifflet et kazoo à la demande,
 fermeture par le ✕, le bouton « Fermer », Échap ou un clic hors du panneau ;
 Espace démarre/met en pause.
 
-Quatre choses à savoir avant d'y toucher :
+Cinq choses à savoir avant d'y toucher :
 
 - **La fin est une date, pas un compteur.** `finAt` est gardée dans
   localStorage (`acto:improtool:v1`), donc le décompte survit au changement de
@@ -157,14 +157,37 @@ Quatre choses à savoir avant d'y toucher :
   `style-src 'unsafe-inline'`, l'injection passe.
 - **Les signes de temps** reprennent les six visuels de `assets/gestes/`, ceux
   de l'article « Le match d'impro » — même `?v=` que `js/suite/discover.js`,
-  à garder aligné. L'échelle est dans `signe()` : rien au-delà de 10 min, le
-  poing de 10:00 à 9:01, N doigts jusqu'à 1:01, l'entonnoir de conclusion dans
-  la dernière minute, puis 30 s, 10 s et le décompte. Le `src` n'est posé qu'au
-  moment de l'affichage (`loading="lazy"` ne suffit pas) : une page qui n'ouvre
-  jamais l'outil ne télécharge aucune des six images. Le bloc clignote trois
-  fois à chaque changement, parce qu'un signe se donne AU moment où il tombe.
-- **Les sons sont synthétisés** (Web Audio, aucun fichier) et refaits le
-  2026-11-16, la première version ne ressemblant ni à l'un ni à l'autre :
+  à garder aligné. Un signe n'est PAS affiché en permanence : `signe()` le rend
+  deux secondes avant sa marque et plus rien deux secondes après, parce qu'un
+  signe se donne au moment où il tombe, une seule fois et franchement. Les
+  marques : 10 min (le poing), chaque minute entière (N doigts), 30 s — où l'on
+  montre AUSSI l'entonnoir de conclusion, deux visuels côte à côte —, 10 s et
+  le décompte final ; rien au-delà de dix minutes. Entre deux marques l'encadré
+  devient invisible mais `.itool-slot` garde sa hauteur, sinon le panneau
+  sautait toutes les quatre secondes. Le `src` n'est posé qu'à l'affichage, et
+  **sans `loading="lazy"`** : dans un bloc encore invisible, « lazy » retarde
+  le chargement jusqu'après la fenêtre et on voyait deux cadres vides pendant
+  les quatre secondes qui comptent.
+- **Les sons sont des enregistrements** (`assets/sons/`, 68 Ko), depuis le
+  2026-11-16 : un vrai sifflet d'arbitre et un vrai kazoo, fournis par
+  l'auteur, découpés (silence de tête du kazoo retiré, queues coupées, fondus
+  de quelques ms) et montés en MP3 mono 160 kbit/s. **Provenance : deux sons
+  freesound.org — `78508__joedeshon__referee_whistle_01` et
+  `625147__winter-corvid__kazo`. Vérifier leur licence avant toute diffusion
+  large : en CC-BY il faut créditer les auteurs quelque part sur le site.**
+  - Chargés à la demande et décodés une fois (`charger()`), donc une page où
+    l'outil n'est jamais ouvert ne télécharge rien. Un décompte repris d'une
+    autre page charge le sifflet tout de suite : il peut tomber avant tout clic.
+  - Mis au même niveau perçu par la valeur efficace de leurs 300 ms les plus
+    fortes — la moyenne du fichier ment, le kazoo étant une note tenue discrète
+    entre deux attaques. Gains dans `SONS` : 0,22 pour le sifflet, 1,0 pour le
+    kazoo. Le limiteur de `master()` garde la crête sous 1.
+  - `sw.js` retient désormais `audio/` : sans ça le sifflet de fin de caucus
+    est muet dans une salle sans réseau.
+- **La synthèse reste en secours** (`siffletSynthese`, `kazooSynthese`) : elle
+  ne joue que si le `fetch` ou le décodage échoue — hors ligne au tout premier
+  usage. Ne pas la supprimer, un sifflet de fin muet est le seul vrai échec de
+  cet outil. Elle a été réglée le 2026-11-16 et vaut toujours d'être comprise :
   - **Sifflet** : un son TONAL, pas une bouffée d'air. Fondamentale 3150 Hz +
     partiel à 1,34× (les deux chambres), bille qui module l'amplitude de ±28 %
     à 28 Hz et la hauteur de ±30 Hz seulement — au-delà, le porteur s'efface
