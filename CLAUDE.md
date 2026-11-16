@@ -171,10 +171,12 @@ Cinq choses à savoir avant d'y toucher :
 - **Les sons sont des enregistrements** (`assets/sons/`, 68 Ko), depuis le
   2026-11-16 : un vrai sifflet d'arbitre et un vrai kazoo, fournis par
   l'auteur, découpés (silence de tête du kazoo retiré, queues coupées, fondus
-  de quelques ms) et montés en MP3 mono 160 kbit/s. **Provenance : deux sons
+  de quelques ms) et montés en MP3 mono 160 kbit/s. Provenance : deux sons
   freesound.org — `78508__joedeshon__referee_whistle_01` et
-  `625147__winter-corvid__kazo`. Vérifier leur licence avant toute diffusion
-  large : en CC-BY il faut créditer les auteurs quelque part sur le site.**
+  `625147__winter-corvid__kazo` — en licence libre sans obligation de crédit
+  (vérifié par l'auteur le 16/11/2026). Rien à afficher sur le site, donc ;
+  question réglée, pas la peine de la rouvrir. Un son ajouté plus tard, lui,
+  se revérifie : une licence CC-BY obligerait à créditer son auteur.
   - Chargés à la demande et décodés une fois (`charger()`), donc une page où
     l'outil n'est jamais ouvert ne télécharge rien. Un décompte repris d'une
     autre page charge le sifflet tout de suite : il peut tomber avant tout clic.
