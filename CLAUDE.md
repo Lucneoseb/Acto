@@ -47,7 +47,8 @@ stats, impro event log, and an admin dashboard all run on **Supabase**
     ├── utils.js   — pure helpers (escapeHtml, fmtSec, fmtDate, ageOf, withTimeout, emailValid) on window.actoUtils
     ├── auth.js    — Supabase email/password auth (signup, login, profile, account delete)
     ├── app.js     — main app logic (mode/level/theme picker, slot reels, chrono, audience cue, recorder)
-    └── topbar.js  — barre du haut commune (voir « Barre de navigation » ci-dessous)
+    ├── topbar.js  — barre du haut commune (voir « Barre de navigation » ci-dessous)
+    └── impro-tool.js — IMPRO TOOL : minuteur + sifflet + kazoo, en pop-up depuis la barre
 ```
 
 ## Script load order (`index.html`)
@@ -128,6 +129,39 @@ d'y laisser ses propres boutons dans `.top-actions`. Nouvelle page : charger
 `data/all-fr.js` puis `js/topbar.js`. Si son contenu commence tout en haut,
 lui donner `margin-top: calc(var(--acto-topbar-bas) + 0.75rem)` sous
 `body.has-acto-topbar` (voir styles.css), sinon il passe sous la barre fixe.
+
+## IMPRO TOOL (js/impro-tool.js)
+
+Le minuteur de l'arbitre, ouvrable depuis la barre du haut sur les douze pages
+publiques (welcome.html compris ; pas admin.html ni index.html, qui n'est
+qu'une redirection). Un fichier, autonome : il insère lui-même son bouton ⏱️
+dans `.top-actions`, juste après 💡 Idées, injecte sa propre CSS (`.itool-*`)
+et construit sa fenêtre dans `<body>`.
+
+Contenu : compte à rebours avec le caucus (20 s) en un bouton et une liste
+déroulante 30 s → 15 min, sifflet d'arbitre à la fin (case mémorisée), sifflet
+et kazoo à la demande, fermeture par le ✕, le bouton « Fermer », Échap ou un
+clic hors du panneau ; Espace démarre/met en pause.
+
+Trois choses à savoir avant d'y toucher :
+
+- **La fin est une date, pas un compteur.** `finAt` est gardée dans
+  localStorage (`acto:improtool:v1`), donc le décompte survit au changement de
+  page — le bouton de la barre affiche alors le temps restant à la place de
+  son libellé — et ne dérive pas quand l'onglet passe en arrière-plan, où les
+  intervalles sont bridés à une fois par minute.
+- **La CSS est dans le JS, volontairement.** `/js/*` est servi en no-cache
+  (voir `_headers`) ; une règle ajoutée à styles.css n'atteindrait les
+  utilisateurs qu'avec un `?v=` bumpé sur les quatorze pages. Le CSP autorise
+  `style-src 'unsafe-inline'`, l'injection passe.
+- **Les sons sont synthétisés** (Web Audio, aucun fichier) : bruit blanc dans
+  un passe-bande résonant qui tremble pour le sifflet, dent de scie grésillée
+  et nasale pour le kazoo. Leurs niveaux ont été réglés au rendu hors ligne
+  (`OfflineAudioContext`) — crête ~0,95 pour le sifflet, ~0,84 pour le kazoo,
+  zéro échantillon écrêté grâce au limiteur de `master()`. Les retoucher à
+  l'oreille sans remesurer, c'est revenir à un sifflet inaudible en salle.
+  iOS ne réveille un AudioContext que pendant un geste : `debloquerAudio()`
+  est rappelé à chaque clic dans l'outil, sans drapeau qui se verrouille.
 
 ## Gotchas
 
